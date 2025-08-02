@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(mkdir:*)",
+      "Bash(bun install:*)",
+      "WebFetch(domain:better-t-stack.dev)",
+      "Bash(bun add:*)",
+      "Bash(touch:*)",
+      "Bash(bash:*)",
+      "Bash(rm:*)",
+      "Bash(bun run:*)",
+      "Bash(cp:*)",
+      "Bash(bunx tsup:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)",
+      "Bash(timeout:*)",
+      "Bash(echo \"Exit code: $?\")"
+    ],
+    "deny": []
+  }
+}

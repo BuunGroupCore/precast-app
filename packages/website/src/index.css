@@ -1,0 +1,557 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Kalam:wght@400;700&family=Comic+Neue:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme Variables */
+:root[data-theme="classic"] {
+  --comic-red: #FF1744;
+  --comic-dark-red: #D50000;
+  --comic-blue: #2962FF;
+  --comic-dark-blue: #0D47A1;
+  --comic-yellow: #FFD600;
+  --comic-dark-yellow: #F57F17;
+  --comic-green: #00E676;
+  --comic-dark-green: #00C853;
+  --comic-purple: #AA00FF;
+  --comic-dark-purple: #7200CA;
+  --comic-orange: #FF6D00;
+  --comic-dark-orange: #E65100;
+  --comic-pink: #FF4081;
+  --comic-dark-pink: #F50057;
+  --comic-black: #000000;
+  --comic-white: #FFFFFF;
+  --comic-gray: #F5F5F5;
+  --panel-bg: #FFF8E1;
+  --pow-main: #FFD600;
+  --pow-dark: #F9A825;
+  --bam-main: #FF1744;
+  --bam-dark: #D50000;
+  --zap-main: #00E676;
+  --zap-dark: #00C853;
+  --boom-main: #AA00FF;
+  --boom-dark: #7200CA;
+}
+
+:root[data-theme="dark"] {
+  --comic-red: #FF5252;
+  --comic-dark-red: #D32F2F;
+  --comic-blue: #448AFF;
+  --comic-dark-blue: #1976D2;
+  --comic-yellow: #FFD740;
+  --comic-dark-yellow: #FFC107;
+  --comic-green: #69F0AE;
+  --comic-dark-green: #00E676;
+  --comic-purple: #E040FB;
+  --comic-dark-purple: #AA00FF;
+  --comic-orange: #FFAB40;
+  --comic-dark-orange: #FF6D00;
+  --comic-pink: #FF80AB;
+  --comic-dark-pink: #FF4081;
+  --comic-black: #212121;
+  --comic-white: #FAFAFA;
+  --comic-gray: #424242;
+  --panel-bg: #303030;
+  --pow-main: #FFD740;
+  --pow-dark: #FFC107;
+  --bam-main: #FF5252;
+  --bam-dark: #D32F2F;
+  --zap-main: #69F0AE;
+  --zap-dark: #00E676;
+  --boom-main: #E040FB;
+  --boom-dark: #AA00FF;
+}
+
+:root[data-theme="retro"] {
+  --comic-red: #FF6B6B;
+  --comic-dark-red: #EE5A6F;
+  --comic-blue: #4ECDC4;
+  --comic-dark-blue: #45B7AA;
+  --comic-yellow: #FFE66D;
+  --comic-dark-yellow: #F7D060;
+  --comic-green: #95E1D3;
+  --comic-dark-green: #81D4C3;
+  --comic-purple: #C7CEEA;
+  --comic-dark-purple: #B8B8D1;
+  --comic-orange: #FECA57;
+  --comic-dark-orange: #F5B342;
+  --comic-pink: #FF9FF3;
+  --comic-dark-pink: #F48FB1;
+  --comic-black: #2D3436;
+  --comic-white: #FFFFFF;
+  --comic-gray: #FAF3E0;
+  --panel-bg: #FFEAA7;
+  --pow-main: #FFE66D;
+  --pow-dark: #F7D060;
+  --bam-main: #FF6B6B;
+  --bam-dark: #EE5A6F;
+  --zap-main: #4ECDC4;
+  --zap-dark: #45B7AA;
+  --boom-main: #C7CEEA;
+  --boom-dark: #B8B8D1;
+}
+
+:root[data-theme="neon"] {
+  --comic-red: #FF006E;
+  --comic-dark-red: #C10049;
+  --comic-blue: #3A86FF;
+  --comic-dark-blue: #2968DB;
+  --comic-yellow: #FFBE0B;
+  --comic-dark-yellow: #FB8500;
+  --comic-green: #06FFA5;
+  --comic-dark-green: #00CC82;
+  --comic-purple: #8338EC;
+  --comic-dark-purple: #6023B0;
+  --comic-orange: #FB5607;
+  --comic-dark-orange: #E04502;
+  --comic-pink: #FF006E;
+  --comic-dark-pink: #C10049;
+  --comic-black: #0A0A0A;
+  --comic-white: #FFFFFF;
+  --comic-gray: #1A1A1A;
+  --panel-bg: #0F0F0F;
+  --pow-main: #FFBE0B;
+  --pow-dark: #FB8500;
+  --bam-main: #FF006E;
+  --bam-dark: #C10049;
+  --zap-main: #06FFA5;
+  --zap-dark: #00CC82;
+  --boom-main: #8338EC;
+  --boom-dark: #6023B0;
+}
+
+:root[data-theme="manga"] {
+  --comic-red: #FF0000;
+  --comic-dark-red: #CC0000;
+  --comic-blue: #000000;
+  --comic-dark-blue: #1A1A1A;
+  --comic-yellow: #FFFFFF;
+  --comic-dark-yellow: #E0E0E0;
+  --comic-green: #666666;
+  --comic-dark-green: #4D4D4D;
+  --comic-purple: #999999;
+  --comic-dark-purple: #808080;
+  --comic-orange: #333333;
+  --comic-dark-orange: #1A1A1A;
+  --comic-pink: #FF0000;
+  --comic-dark-pink: #CC0000;
+  --comic-black: #000000;
+  --comic-white: #FFFFFF;
+  --comic-gray: #F5F5F5;
+  --panel-bg: #FFFFFF;
+  --pow-main: #FFFFFF;
+  --pow-dark: #E0E0E0;
+  --bam-main: #000000;
+  --bam-dark: #1A1A1A;
+  --zap-main: #FF0000;
+  --zap-dark: #CC0000;
+  --boom-main: #666666;
+  --boom-dark: #4D4D4D;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen antialiased;
+    background-color: var(--panel-bg);
+    color: var(--comic-black);
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+    background-size: 100px 100px;
+  }
+
+  ::selection {
+    background-color: var(--comic-yellow);
+    color: var(--comic-black);
+  }
+}
+
+@layer components {
+  /* Comic Panel */
+  .comic-panel {
+    @apply relative border-4 rounded-lg;
+    background-color: var(--comic-white);
+    border-color: var(--comic-black);
+    box-shadow: 
+      4px 4px 0 var(--comic-black),
+      8px 8px 0 rgba(0, 0, 0, 0.5);
+    transform: rotate(-0.5deg);
+  }
+
+  .comic-panel:hover {
+    transform: rotate(0deg);
+    transition: all 0.3s ease;
+  }
+
+  /* Speech Bubble */
+  .speech-bubble {
+    @apply relative border-3 rounded-2xl p-4;
+    background-color: var(--comic-white);
+    border-color: var(--comic-black);
+    box-shadow: 3px 3px 0 var(--comic-black);
+  }
+
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 30px;
+    width: 30px;
+    height: 30px;
+    background: var(--comic-white);
+    border: 3px solid var(--comic-black);
+    border-top: none;
+    border-right: none;
+    transform: rotate(-45deg);
+    box-shadow: -3px 3px 0 var(--comic-black);
+  }
+
+  /* Comic Button */
+  .btn-comic {
+    @apply relative px-6 py-3 font-display text-xl uppercase tracking-wider
+           border-3 rounded-lg transition-all duration-200;
+    border-color: var(--comic-black);
+    transform: rotate(-2deg);
+    box-shadow: 4px 4px 0 var(--comic-black);
+  }
+
+  .btn-comic:hover {
+    transform: rotate(0deg) translateY(-2px);
+    box-shadow: 6px 6px 0 var(--comic-black);
+  }
+
+  .btn-comic:active {
+    transform: rotate(0deg) translateY(0);
+    box-shadow: 2px 2px 0 var(--comic-black);
+  }
+
+  .btn-pow {
+    @apply btn-comic;
+    background-color: var(--pow-main);
+    color: var(--comic-black);
+  }
+  .btn-pow:hover {
+    background-color: var(--pow-dark);
+  }
+
+  .btn-bam {
+    @apply btn-comic;
+    background-color: var(--bam-main);
+    color: var(--comic-white);
+  }
+  .btn-bam:hover {
+    background-color: var(--bam-dark);
+  }
+
+  .btn-zap {
+    @apply btn-comic;
+    background-color: var(--zap-main);
+    color: var(--comic-black);
+  }
+  .btn-zap:hover {
+    background-color: var(--zap-dark);
+  }
+
+  .btn-boom {
+    @apply btn-comic;
+    background-color: var(--boom-main);
+    color: var(--comic-white);
+  }
+  .btn-boom:hover {
+    background-color: var(--boom-dark);
+  }
+
+  /* Comic Input */
+  .input-comic {
+    @apply w-full px-4 py-3 border-3 rounded-lg
+           font-comic text-lg placeholder-gray-500 focus:outline-none;
+    background-color: var(--comic-white);
+    border-color: var(--comic-black);
+    color: var(--comic-black);
+    box-shadow: 3px 3px 0 var(--comic-black);
+    transform: rotate(-0.5deg);
+  }
+
+  .input-comic:focus {
+    transform: rotate(0deg);
+    box-shadow: 4px 4px 0 var(--comic-black);
+  }
+
+  /* Action Text */
+  .action-text {
+    @apply inline-block font-display text-4xl uppercase;
+    text-shadow: 
+      3px 3px 0 var(--comic-black),
+      -1px -1px 0 var(--comic-black),
+      1px -1px 0 var(--comic-black),
+      -1px 1px 0 var(--comic-black),
+      1px 1px 0 var(--comic-black);
+    transform: rotate(-5deg);
+  }
+
+  /* Comic Card */
+  .comic-card {
+    @apply comic-panel p-6;
+  }
+
+  /* Filter Button Comic Style */
+  .filter-btn-comic {
+    @apply relative px-4 py-2 font-comic font-bold text-sm uppercase
+           border-3 rounded-lg transition-all duration-200;
+    background-color: var(--comic-white);
+    border-color: var(--comic-black);
+    color: var(--comic-black);
+    box-shadow: 2px 2px 0 var(--comic-black);
+  }
+
+  .filter-btn-comic:hover {
+    background-color: var(--comic-yellow);
+    box-shadow: 3px 3px 0 var(--comic-black);
+  }
+
+  .filter-btn-comic[data-active="true"] {
+    background-color: var(--comic-red);
+    color: var(--comic-white);
+    transform: rotate(-1deg);
+    box-shadow: 3px 3px 0 var(--comic-black);
+  }
+
+  /* Terminal Comic Style */
+  .terminal-comic {
+    @apply relative p-4 rounded-lg border-4 font-mono;
+    background-color: var(--comic-black);
+    border-color: var(--comic-black);
+    color: var(--comic-green);
+    box-shadow: 
+      4px 4px 0 var(--comic-black),
+      8px 8px 0 rgba(0, 0, 0, 0.5);
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 20px,
+        rgba(0, 255, 0, 0.05) 20px,
+        rgba(0, 255, 0, 0.05) 21px
+      );
+  }
+
+  /* Comic Badge */
+  .badge-comic {
+    @apply inline-flex items-center px-3 py-1 rounded-full font-comic font-bold
+           text-xs uppercase border-2;
+    border-color: var(--comic-black);
+  }
+
+  /* Section Title */
+  .section-title {
+    @apply relative inline-block;
+  }
+
+  .section-title::before {
+    content: '';
+    @apply absolute -inset-4 rounded-lg;
+    background-color: var(--comic-yellow);
+    transform: rotate(-2deg);
+    z-index: -1;
+  }
+
+  /* Burst Background */
+  .burst-bg {
+    @apply absolute inset-0;
+    background-image: 
+      radial-gradient(circle at center, 
+        transparent 30%, 
+        currentColor 30%, 
+        currentColor 40%, 
+        transparent 40%);
+    opacity: 0.1;
+  }
+
+  /* Comic Tooltip */
+  .comic-tooltip {
+    @apply absolute z-50 px-3 py-2 font-comic font-bold text-sm
+           border-2 rounded-lg whitespace-nowrap;
+    background-color: var(--comic-yellow);
+    color: var(--comic-black);
+    border-color: var(--comic-black);
+    box-shadow: 3px 3px 0 var(--comic-black);
+    animation: speechBubble 0.3s ease-out;
+  }
+
+  .comic-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid var(--comic-black);
+  }
+
+  .comic-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid var(--comic-yellow);
+  }
+
+  /* Comic Dialog */
+  .comic-dialog-overlay {
+    @apply fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .comic-dialog {
+    @apply relative border-4 rounded-lg p-6 max-w-md w-full;
+    background-color: var(--comic-white);
+    border-color: var(--comic-black);
+    box-shadow: 
+      8px 8px 0 var(--comic-black),
+      16px 16px 0 rgba(0, 0, 0, 0.5);
+    transform: rotate(-1deg);
+    animation: pow 0.4s ease-out;
+  }
+
+  .comic-dialog-title {
+    @apply font-display text-3xl mb-4;
+    color: var(--comic-red);
+    text-shadow: 2px 2px 0 var(--comic-black);
+  }
+
+  .comic-dialog-content {
+    @apply font-comic text-lg mb-6;
+    color: var(--comic-black);
+  }
+
+  .comic-dialog-buttons {
+    @apply flex gap-4 justify-center;
+  }
+}
+
+@layer utilities {
+  /* Text Styles */
+  .text-stroke {
+    -webkit-text-stroke: 2px black;
+    text-stroke: 2px black;
+  }
+
+  .text-stroke-sm {
+    -webkit-text-stroke: 1px black;
+    text-stroke: 1px black;
+  }
+
+  /* Comic Shadow */
+  .comic-shadow {
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
+  }
+
+  .comic-shadow-sm {
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
+  }
+
+  .comic-shadow-lg {
+    box-shadow: 
+      6px 6px 0 rgba(0, 0, 0, 1),
+      12px 12px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  /* Halftone Pattern */
+  .halftone {
+    background-image: radial-gradient(circle, black 1px, transparent 1px);
+    background-size: 4px 4px;
+  }
+
+  /* Speed Lines */
+  .speed-lines {
+    background-image: 
+      linear-gradient(90deg, transparent 48%, currentColor 49%, currentColor 51%, transparent 52%);
+    background-size: 20px 100%;
+  }
+
+  /* Dot Pattern */
+  .dot-pattern {
+    background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+    background-size: 10px 10px;
+  }
+}
+
+/* Custom Scrollbar Comic Style */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--comic-yellow);
+  border: 2px solid var(--comic-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--comic-red);
+  @apply rounded-full;
+  border: 2px solid var(--comic-black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--comic-dark-red);
+}
+
+/* Comic Cursor */
+.comic-cursor {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="0,0 0,24 6,18 11,27 15,25 10,16 20,16" fill="%23FFD600" stroke="%23000" stroke-width="2"/></svg>'), auto;
+}
+
+/* Focus Visible Comic Style */
+:focus-visible {
+  @apply outline-none ring-4 ring-offset-2;
+  ring-color: var(--comic-yellow);
+  ring-offset-color: var(--comic-white);
+}
+
+/* Animation Classes */
+.animate-pow {
+  animation: pow 0.5s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+/* Comic Book Specific Fonts */
+.font-comic {
+  font-family: 'Kalam', 'Comic Neue', cursive;
+}
+
+.font-action {
+  font-family: 'Bangers', cursive;
+}

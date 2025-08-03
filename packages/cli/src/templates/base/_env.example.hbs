@@ -1,0 +1,75 @@
+# Application
+NODE_ENV=development
+{{#if (or (eq framework "next") (eq framework "nuxt"))}}
+APP_URL=http://localhost:3000
+{{/if}}
+
+{{#if (not (eq database "none"))}}
+# Database
+{{#if (eq database "postgres")}}
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/{{kebabCase name}}
+{{/if}}
+{{#if (eq database "mysql")}}
+DATABASE_URL=mysql://root:password@localhost:3306/{{kebabCase name}}
+{{/if}}
+{{#if (eq database "mongodb")}}
+DATABASE_URL=mongodb://localhost:27017/{{kebabCase name}}
+{{/if}}
+{{#if (eq database "sqlite")}}
+DATABASE_URL=file:./dev.db
+{{/if}}
+{{#if (eq database "supabase")}}
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-key
+{{/if}}
+{{#if (eq database "firebase")}}
+FIREBASE_API_KEY=your-api-key
+FIREBASE_AUTH_DOMAIN=your-auth-domain
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_STORAGE_BUCKET=your-storage-bucket
+FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+FIREBASE_APP_ID=your-app-id
+{{/if}}
+{{/if}}
+
+{{#if (not (eq backend "none"))}}
+# API
+{{#if (not (or (eq backend "next") (eq backend "nuxt") (eq backend "remix")))}}
+API_URL=http://localhost:3001
+API_PORT=3001
+{{/if}}
+
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+
+# Session
+SESSION_SECRET=your-super-secret-session-key-change-this-in-production
+{{/if}}
+
+{{#if auth}}
+# OAuth Providers (optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+{{/if}}
+
+# Email (optional)
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=587
+# SMTP_USER=your-email@gmail.com
+# SMTP_PASS=your-app-password
+# SMTP_FROM=noreply@{{kebabCase name}}.com
+
+# File Upload (optional)
+# UPLOAD_DIR=./uploads
+# MAX_FILE_SIZE=10485760
+
+# Redis (optional)
+# REDIS_URL=redis://localhost:6379
+
+# Monitoring (optional)
+# SENTRY_DSN=
+# LOG_LEVEL=info

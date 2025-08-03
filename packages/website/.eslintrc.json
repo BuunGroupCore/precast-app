@@ -1,0 +1,24 @@
+{
+  "extends": "../../.eslintrc.json",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "browser": true
+  },
+  "plugins": ["react-hooks"],
+  "extends": [
+    "../../.eslintrc.json",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

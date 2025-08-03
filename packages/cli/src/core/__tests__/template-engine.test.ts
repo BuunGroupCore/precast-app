@@ -1,0 +1,185 @@
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import fs from "fs-extra";
+import path from "path";
+import os from "os";
+import { TemplateEngine } from "../template-engine.js";
+
+describe("TemplateEngine", () => {
+  let tempDir: string;
+  let templateEngine: TemplateEngine;
+  let templateRoot: string;
+
+  beforeEach(async () => {
+    // Create temporary directories
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "template-test-"));
+    templateRoot = path.join(tempDir, "templates");
+    await fs.ensureDir(templateRoot);
+    
+    templateEngine = new TemplateEngine(templateRoot);
+  });
+
+  afterEach(async () => {
+    // Clean up
+    await fs.remove(tempDir);
+  });
+
+  describe("processTemplate", () => {
+    it("should process a simple template", async () => {
+      const templatePath = path.join(templateRoot, "test.txt.hbs");
+      const outputPath = path.join(tempDir, "output.txt");
+      
+      // Create template
+      await fs.writeFile(templatePath, "Hello {{name}}!");
+      
+      // Process template
+      await templateEngine.processTemplate(
+        templatePath,
+        outputPath,
+        { name: "World" } as any
+      );
+      
+      // Check output
+      const content = await fs.readFile(outputPath, "utf-8");
+      expect(content).toBe("Hello World!");
+    });
+
+    it("should handle conditional blocks", async () => {
+      const templatePath = path.join(templateRoot, "conditional.hbs");
+      const outputPath = path.join(tempDir, "conditional.txt");
+      
+      // Create template with conditionals
+      await fs.writeFile(
+        templatePath,
+        "{{#if typescript}}TypeScript enabled{{else}}JavaScript{{/if}}"
+      );
+      
+      // Test with TypeScript enabled
+      await templateEngine.processTemplate(
+        templatePath,
+        outputPath,
+        { typescript: true } as any
+      );
+      
+      let content = await fs.readFile(outputPath, "utf-8");
+      expect(content).toBe("TypeScript enabled");
+      
+      // Test with TypeScript disabled
+      await templateEngine.processTemplate(
+        templatePath,
+        outputPath,
+        { typescript: false } as any,
+        { overwrite: true }
+      );
+      
+      content = await fs.readFile(outputPath, "utf-8");
+      expect(content).toBe("JavaScript");
+    });
+
+    it("should use custom helpers", async () => {
+      const templatePath = path.join(templateRoot, "helpers.hbs");
+      const outputPath = path.join(tempDir, "helpers.txt");
+      
+      // Create template using helpers
+      await fs.writeFile(
+        templatePath,
+        "{{#if (eq framework 'react')}}React App{{/if}}"
+      );
+      
+      await templateEngine.processTemplate(
+        templatePath,
+        outputPath,
+        { framework: "react" } as any
+      );
+      
+      const content = await fs.readFile(outputPath, "utf-8");
+      expect(content).toBe("React App");
+    });
+  });
+
+  describe("copyTemplateDirectory", () => {
+    it("should copy and process all templates in a directory", async () => {
+      const sourceDir = path.join(templateRoot, "project");
+      const destDir = path.join(tempDir, "output");
+      
+      // Create template directory structure
+      await fs.ensureDir(path.join(sourceDir, "src"));
+      await fs.writeFile(
+        path.join(sourceDir, "package.json.hbs"),
+        '{"name": "{{name}}", "version": "1.0.0"}'
+      );
+      await fs.writeFile(
+        path.join(sourceDir, "src", "index.js.hbs"),
+        "console.log('Hello {{name}}!');"
+      );
+      await fs.writeFile(
+        path.join(sourceDir, "_gitignore"),
+        "node_modules\n"
+      );
+      
+      // Copy directory
+      await templateEngine.copyTemplateDirectory(
+        "project",
+        destDir,
+        { name: "test-app" } as any
+      );
+      
+      // Check generated files
+      const packageJson = await fs.readJson(path.join(destDir, "package.json"));
+      expect(packageJson.name).toBe("test-app");
+      
+      const indexJs = await fs.readFile(path.join(destDir, "src", "index.js"), "utf-8");
+      expect(indexJs).toBe("console.log('Hello test-app!');");
+      
+      const gitignore = await fs.readFile(path.join(destDir, ".gitignore"), "utf-8");
+      expect(gitignore).toBe("node_modules\n");
+    });
+  });
+
+  describe("processConditionalTemplates", () => {
+    it("should process templates based on conditions", async () => {
+      const destDir = path.join(tempDir, "output");
+      
+      // Create conditional template directories
+      await fs.ensureDir(path.join(templateRoot, "feature1"));
+      await fs.writeFile(
+        path.join(templateRoot, "feature1", "config.json.hbs"),
+        '{"feature1": true}'
+      );
+      
+      await fs.ensureDir(path.join(templateRoot, "feature2"));
+      await fs.writeFile(
+        path.join(templateRoot, "feature2", "config.json.hbs"),
+        '{"feature2": true}'
+      );
+      
+      // Process conditional templates
+      await templateEngine.processConditionalTemplates(
+        [
+          {
+            condition: true,
+            sourceDir: "feature1",
+          },
+          {
+            condition: false,
+            sourceDir: "feature2",
+          },
+          {
+            condition: (ctx) => ctx.name === "test-app",
+            sourceDir: "feature1",
+            destDir: "nested",
+          },
+        ],
+        destDir,
+        { name: "test-app" } as any
+      );
+      
+      // Check that only feature1 was processed
+      expect(await fs.pathExists(path.join(destDir, "config.json"))).toBe(true);
+      expect(await fs.pathExists(path.join(destDir, "nested", "config.json"))).toBe(true);
+      
+      const config1 = await fs.readJson(path.join(destDir, "config.json"));
+      expect(config1.feature1).toBe(true);
+      expect(config1.feature2).toBeUndefined();
+    });
+  });
+});

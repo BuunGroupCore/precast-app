@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+dist-test/
+build/
+.next/
+out/
+coverage/
+
+# Test outputs
+test-output/
+reports/
+
+# Cache
+.cache/
+.turbo/
+
+# Package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Generated files
+*.d.ts
+tsconfig.tsbuildinfo
+
+# Third-party code
+create-better-t-stack/
+
+# Templates (preserve original formatting)
+*.hbs

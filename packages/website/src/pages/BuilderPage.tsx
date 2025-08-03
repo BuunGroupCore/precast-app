@@ -3,6 +3,7 @@ import { db } from "../lib/db";
 import { motion } from "framer-motion";
 import { ComicDialog } from "../components/ComicDialog";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { ServiceTooltip } from "../components/ServiceTooltip";
 import {
   FaCopy,
   FaCheck,
@@ -393,15 +394,18 @@ export function BuilderPage() {
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {frameworks.map((fw) => (
-                    <button
-                      key={fw.id}
-                      onClick={() => setConfig({ ...config, framework: fw.id })}
-                      data-active={config.framework === fw.id}
-                      className="filter-btn-comic flex items-center justify-center gap-2"
-                    >
-                      {fw.icon && <fw.icon className={fw.color} />}
-                      <span>{fw.name}</span>
-                    </button>
+                    <ServiceTooltip key={fw.id} serviceId={fw.id}>
+                      <button
+                        onClick={() =>
+                          setConfig({ ...config, framework: fw.id })
+                        }
+                        data-active={config.framework === fw.id}
+                        className="filter-btn-comic flex items-center justify-center gap-2"
+                      >
+                        {fw.icon && <fw.icon className={fw.color} />}
+                        <span>{fw.name}</span>
+                      </button>
+                    </ServiceTooltip>
                   ))}
                 </div>
               </motion.div>
@@ -418,19 +422,20 @@ export function BuilderPage() {
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {backends.map((backend) => (
-                    <button
-                      key={backend.id}
-                      onClick={() =>
-                        setConfig({ ...config, backend: backend.id })
-                      }
-                      data-active={config.backend === backend.id}
-                      className="filter-btn-comic flex items-center justify-center gap-2"
-                    >
-                      {backend.icon && (
-                        <backend.icon className={backend.color} />
-                      )}
-                      <span>{backend.name}</span>
-                    </button>
+                    <ServiceTooltip key={backend.id} serviceId={backend.id}>
+                      <button
+                        onClick={() =>
+                          setConfig({ ...config, backend: backend.id })
+                        }
+                        data-active={config.backend === backend.id}
+                        className="filter-btn-comic flex items-center justify-center gap-2"
+                      >
+                        {backend.icon && (
+                          <backend.icon className={backend.color} />
+                        )}
+                        <span>{backend.name}</span>
+                      </button>
+                    </ServiceTooltip>
                   ))}
                 </div>
               </motion.div>
@@ -447,15 +452,18 @@ export function BuilderPage() {
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {databases.map((db) => (
-                    <button
-                      key={db.id}
-                      onClick={() => setConfig({ ...config, database: db.id })}
-                      data-active={config.database === db.id}
-                      className="filter-btn-comic flex items-center justify-center gap-2"
-                    >
-                      {db.icon && <db.icon className={db.color} />}
-                      <span>{db.name}</span>
-                    </button>
+                    <ServiceTooltip key={db.id} serviceId={db.id}>
+                      <button
+                        onClick={() =>
+                          setConfig({ ...config, database: db.id })
+                        }
+                        data-active={config.database === db.id}
+                        className="filter-btn-comic flex items-center justify-center gap-2"
+                      >
+                        {db.icon && <db.icon className={db.color} />}
+                        <span>{db.name}</span>
+                      </button>
+                    </ServiceTooltip>
                   ))}
                 </div>
               </motion.div>
@@ -473,15 +481,16 @@ export function BuilderPage() {
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {orms.map((orm) => (
-                      <button
-                        key={orm.id}
-                        onClick={() => setConfig({ ...config, orm: orm.id })}
-                        data-active={config.orm === orm.id}
-                        className="filter-btn-comic flex items-center justify-center gap-2"
-                      >
-                        {orm.icon && <orm.icon className={orm.color} />}
-                        <span>{orm.name}</span>
-                      </button>
+                      <ServiceTooltip key={orm.id} serviceId={orm.id}>
+                        <button
+                          onClick={() => setConfig({ ...config, orm: orm.id })}
+                          data-active={config.orm === orm.id}
+                          className="filter-btn-comic flex items-center justify-center gap-2"
+                        >
+                          {orm.icon && <orm.icon className={orm.color} />}
+                          <span>{orm.name}</span>
+                        </button>
+                      </ServiceTooltip>
                     ))}
                   </div>
                 </motion.div>
@@ -499,17 +508,18 @@ export function BuilderPage() {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {stylings.map((style) => (
-                    <button
-                      key={style.id}
-                      onClick={() =>
-                        setConfig({ ...config, styling: style.id })
-                      }
-                      data-active={config.styling === style.id}
-                      className="filter-btn-comic flex items-center justify-center gap-2"
-                    >
-                      {style.icon && <style.icon className={style.color} />}
-                      <span>{style.name}</span>
-                    </button>
+                    <ServiceTooltip key={style.id} serviceId={style.id}>
+                      <button
+                        onClick={() =>
+                          setConfig({ ...config, styling: style.id })
+                        }
+                        data-active={config.styling === style.id}
+                        className="filter-btn-comic flex items-center justify-center gap-2"
+                      >
+                        {style.icon && <style.icon className={style.color} />}
+                        <span>{style.name}</span>
+                      </button>
+                    </ServiceTooltip>
                   ))}
                 </div>
               </motion.div>
@@ -525,52 +535,58 @@ export function BuilderPage() {
                   POWER-UPS
                 </h3>
                 <div className="space-y-4">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={config.typescript}
-                      onChange={(e) =>
-                        setConfig({ ...config, typescript: e.target.checked })
-                      }
-                      className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-                    />
-                    <div className="flex items-center gap-2">
-                      <SiTypescript className="text-comic-blue text-xl" />
-                      <span className="font-comic font-bold">TypeScript</span>
-                    </div>
-                  </label>
+                  <ServiceTooltip serviceId="typescript">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.typescript}
+                        onChange={(e) =>
+                          setConfig({ ...config, typescript: e.target.checked })
+                        }
+                        className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
+                      />
+                      <div className="flex items-center gap-2">
+                        <SiTypescript className="text-comic-blue text-xl" />
+                        <span className="font-comic font-bold">TypeScript</span>
+                      </div>
+                    </label>
+                  </ServiceTooltip>
 
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={config.git}
-                      onChange={(e) =>
-                        setConfig({ ...config, git: e.target.checked })
-                      }
-                      className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-                    />
-                    <div className="flex items-center gap-2">
-                      <FaGitAlt className="text-comic-orange text-xl" />
-                      <span className="font-comic font-bold">
-                        Git Repository
-                      </span>
-                    </div>
-                  </label>
+                  <ServiceTooltip serviceId="git">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.git}
+                        onChange={(e) =>
+                          setConfig({ ...config, git: e.target.checked })
+                        }
+                        className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
+                      />
+                      <div className="flex items-center gap-2">
+                        <FaGitAlt className="text-comic-orange text-xl" />
+                        <span className="font-comic font-bold">
+                          Git Repository
+                        </span>
+                      </div>
+                    </label>
+                  </ServiceTooltip>
 
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={config.docker}
-                      onChange={(e) =>
-                        setConfig({ ...config, docker: e.target.checked })
-                      }
-                      className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-                    />
-                    <div className="flex items-center gap-2">
-                      <FaDocker className="text-comic-blue text-xl" />
-                      <span className="font-comic font-bold">Docker</span>
-                    </div>
-                  </label>
+                  <ServiceTooltip serviceId="docker">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.docker}
+                        onChange={(e) =>
+                          setConfig({ ...config, docker: e.target.checked })
+                        }
+                        className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
+                      />
+                      <div className="flex items-center gap-2">
+                        <FaDocker className="text-comic-blue text-xl" />
+                        <span className="font-comic font-bold">Docker</span>
+                      </div>
+                    </label>
+                  </ServiceTooltip>
                 </div>
               </motion.div>
             </div>

@@ -4,11 +4,11 @@
   "description": "CLI tool to scaffold modern web applications with your chosen stack",
   "type": "module",
   "bin": {
-    "create-precast-app": "./dist/index.js"
+    "create-precast-app": "./dist/cli.js"
   },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsup src/index.ts --format esm --clean && tsup test-runner.ts --format esm --clean --out-dir dist-test",
+    "dev": "tsx watch src/cli.ts",
+    "build": "tsup src/cli.ts src/index.ts --format esm --clean && tsup test-runner.ts --format esm --clean --out-dir dist-test && cp -r src/templates dist/",
     "prepublishOnly": "bun run build",
     "test": "bun run build && node dist-test/test-runner.js",
     "test:ci": "bun run build && node dist-test/test-runner.js --report-path ./reports/test-results.json",
@@ -16,19 +16,29 @@
     "test:generation": "bun run build && node dist-test/test-runner.js --suites generation",
     "test:report": "bun run build && node dist-test/test-runner.js --report-path ./reports/test-report.html --report-format html",
     "test:tags": "bun run build && node dist-test/test-runner.js --tags",
-    "test:verbose": "bun run build && node dist-test/test-runner.js --verbose"
+    "test:verbose": "bun run build && node dist-test/test-runner.js --verbose",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@clack/prompts": "^0.11.0",
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
+    "consola": "^3.4.2",
     "execa": "^8.0.1",
     "fs-extra": "^11.2.0",
+    "globby": "^14.1.0",
+    "handlebars": "^4.7.8",
     "inquirer": "^9.2.12",
     "ora": "^8.0.1",
+    "picocolors": "^1.1.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "@types/handlebars": "^4.1.0",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.10.5",
     "tsup": "^8.0.1",

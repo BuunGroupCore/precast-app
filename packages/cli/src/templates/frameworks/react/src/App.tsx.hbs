@@ -1,0 +1,105 @@
+{{#if typescript}}import { useState } from 'react'{{else}}import { useState } from 'react'{{/if}}
+{{#if (eq styling "styled-components")}}import styled from 'styled-components'{{/if}}
+{{#if (eq styling "css")}}import './App.css'{{/if}}
+{{#if (eq styling "scss")}}import './App.scss'{{/if}}
+
+{{#if (eq styling "styled-components")}}
+const Container = styled.div`
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+`
+
+const Title = styled.h1`
+  font-size: 3.2em;
+  line-height: 1.1;
+`
+
+const Button = styled.button`
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+
+  &:hover {
+    border-color: #646cff;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+`
+
+const Card = styled.div`
+  padding: 2em;
+`
+
+const ReadTheDocs = styled.p`
+  color: #888;
+`
+{{/if}}
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    {{#if (eq styling "styled-components")}}
+    <Container>
+      <Title>{{name}}</Title>
+      <Card>
+        <Button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </Button>
+        <p>
+          Edit <code>src/App.{{#if typescript}}tsx{{else}}jsx{{/if}}</code> and save to test HMR
+        </p>
+      </Card>
+      <ReadTheDocs>
+        Click on the Vite and React logos to learn more
+      </ReadTheDocs>
+    </Container>
+    {{else if (eq styling "tailwind")}}
+    <div className="max-w-screen-xl mx-auto p-8 text-center">
+      <h1 className="text-5xl font-bold mb-8">{{name}}</h1>
+      <div className="p-8">
+        <button 
+          className="rounded-lg border border-transparent px-4 py-2 text-base font-medium bg-gray-800 hover:border-blue-500 transition-colors"
+          onClick={() => setCount((count) => count + 1)}
+        >
+          count is {count}
+        </button>
+        <p className="mt-4">
+          Edit <code className="font-mono">src/App.{{#if typescript}}tsx{{else}}jsx{{/if}}</code> and save to test HMR
+        </p>
+      </div>
+      <p className="text-gray-500">
+        Click on the Vite and React logos to learn more
+      </p>
+    </div>
+    {{else}}
+    <div className="App">
+      <h1>{{name}}</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.{{#if typescript}}tsx{{else}}jsx{{/if}}</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </div>
+    {{/if}}
+  )
+}
+
+export default App

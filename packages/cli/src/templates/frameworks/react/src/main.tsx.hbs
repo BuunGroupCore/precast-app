@@ -1,0 +1,12 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App{{#if typescript}}.tsx{{else}}.jsx{{/if}}'
+{{#if (eq styling "css")}}import './index.css'{{/if}}
+{{#if (eq styling "scss")}}import './index.scss'{{/if}}
+{{#if (eq styling "tailwind")}}import './index.css'{{/if}}
+
+ReactDOM.createRoot(document.getElementById('root'){{#if typescript}}!{{/if}}).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

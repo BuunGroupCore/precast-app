@@ -16,7 +16,12 @@
       "Bash(ls:*)",
       "Bash(node:*)",
       "Bash(timeout:*)",
-      "Bash(echo \"Exit code: $?\")"
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(mv:*)",
+      "Bash(bun test:*)",
+      "Bash(pkill:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm add:*)"
     ],
     "deny": []
   }

@@ -1,0 +1,33 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"{{#if typescript}},
+    "type-check": "nuxi typecheck"{{/if}}{{#if (eq orm "prisma")}},
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"{{/if}}
+  },
+  "dependencies": {
+    "nuxt": "^3.13.2",
+    "vue": "latest"{{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}},
+    "@nuxtjs/axios": "^5.13.6",
+    "@pinia/nuxt": "^0.5.5",
+    "pinia": "^2.2.4"{{/ifAny}}{{#if (eq orm "prisma")}},
+    "@prisma/client": "^5.20.0"{{/if}}
+  },
+  "devDependencies": {
+    {{#if typescript}}"@nuxt/typescript-build": "^3.0.2",{{/if}}{{#if (eq styling "tailwind")}}
+    "@nuxtjs/tailwindcss": "^6.12.1",{{/if}}{{#if (eq styling "scss")}}
+    "@nuxtjs/style-resources": "^1.2.2",
+    "sass": "^1.79.4",{{/if}}{{#if (eq orm "prisma")}}
+    "prisma": "^5.20.0",{{/if}}
+    "@nuxt/devtools": "^1.5.2"
+  }
+}

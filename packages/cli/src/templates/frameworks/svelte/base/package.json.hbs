@@ -1,0 +1,36 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "{{#if typescript}}vite build{{else}}vite build{{/if}}",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"{{#if (eq orm "prisma")}},
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"{{/if}}
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^3.2.5",
+    "@sveltejs/kit": "^2.7.2",
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "svelte": "^5.1.9",
+    "vite": "^5.4.8"{{#if typescript}},
+    "@sveltejs/adapter-static": "^3.0.5",
+    "svelte-check": "^4.0.4",
+    "typescript": "^5.6.3"{{/if}}{{#if (eq styling "tailwind")}},
+    "tailwindcss": "^3.4.13",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},
+    "sass": "^1.79.4"{{/if}}{{#if (eq orm "prisma")}},
+    "prisma": "^5.20.0"{{/if}}
+  },
+  "dependencies": {
+    {{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}}
+    "axios": "^1.7.7"{{#if (eq orm "prisma")}},{{/if}}{{/ifAny}}{{#if (eq orm "prisma")}}
+    "@prisma/client": "^5.20.0"{{/if}}
+  }
+}

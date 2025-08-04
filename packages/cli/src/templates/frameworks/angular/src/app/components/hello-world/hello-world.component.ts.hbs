@@ -1,0 +1,13 @@
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-hello-world',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './hello-world.component.html',
+  styleUrl: './hello-world.component.{{#if (eq styling 'scss')}}scss{{else}}css{{/if}}'
+})
+export class HelloWorldComponent {
+  @Input() message = 'Hello World!';
+}

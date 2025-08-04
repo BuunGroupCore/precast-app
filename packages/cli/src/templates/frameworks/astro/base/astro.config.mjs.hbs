@@ -1,0 +1,7 @@
+import { defineConfig } from 'astro/config';
+{{#if (eq styling "tailwind")}}import tailwind from '@astrojs/tailwind';{{/if}}
+
+// https://astro.build/config
+export default defineConfig({
+  {{#if (eq styling "tailwind")}}integrations: [tailwind()]{{/if}}
+});

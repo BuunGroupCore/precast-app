@@ -21,7 +21,16 @@
       "Bash(bun test:*)",
       "Bash(pkill:*)",
       "Bash(cat:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(bunx prettier:*)",
+      "Bash(true)",
+      "Bash(npx tsup:*)",
+      "Bash(npx tsc:*)",
+      "Bash(for file in src/generators/{vanilla,vue,vite,solid,next,astro,remix,nuxt,angular,svelte}-template.ts)",
+      "Bash(do sed -i 's|path.join(__dirname, \"\"templates\"\")|path.join(__dirname, \"\"..\"\", \"\"templates\"\")|g' \"$file\")",
+      "Bash(done)",
+      "Bash(sed:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

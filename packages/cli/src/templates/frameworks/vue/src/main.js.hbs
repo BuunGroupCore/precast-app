@@ -1,0 +1,6 @@
+{{#unless typescript}}{{#if (eq styling "css")}}import './style.css'{{/if}}{{#if (eq styling "scss")}}import './style.scss'{{/if}}{{#if (eq styling "tailwind")}}import './style.css'{{/if}}
+
+import { createApp } from 'vue'
+import App from './App.vue'
+
+createApp(App).mount('#app'){{/unless}}

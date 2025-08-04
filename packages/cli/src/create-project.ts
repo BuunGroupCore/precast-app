@@ -1,7 +1,10 @@
 import path from "path";
-import fs from "fs-extra";
+
 import { execa } from "execa";
+import fs from "fs-extra";
+
 import { type ProjectConfig } from "../../shared/stack-config.js";
+
 import { generateTemplate } from "./generators/index.js";
 import { logger } from "./utils/logger.js";
 
@@ -27,10 +30,7 @@ export async function createProject(config: ProjectConfig) {
 
       // Create .gitignore
       const gitignoreContent = generateGitignore(config);
-      await fs.writeFile(
-        path.join(projectPath, ".gitignore"),
-        gitignoreContent,
-      );
+      await fs.writeFile(path.join(projectPath, ".gitignore"), gitignoreContent);
 
       // Initial commit
       await execa("git", ["add", "."], { cwd: projectPath });
@@ -112,10 +112,7 @@ async function generateDockerFiles(config: ProjectConfig, projectPath: string) {
 
   // docker-compose.yml
   const dockerCompose = generateDockerCompose(config);
-  await fs.writeFile(
-    path.join(projectPath, "docker-compose.yml"),
-    dockerCompose,
-  );
+  await fs.writeFile(path.join(projectPath, "docker-compose.yml"), dockerCompose);
 
   // .dockerignore
   const dockerignore = [
@@ -170,7 +167,7 @@ function generateDockerfile(config: ProjectConfig): string {
     "",
     "RUN addgroup --system --gid 1001 nodejs",
     "RUN adduser --system --uid 1001 nodejs",
-    "",
+    ""
   );
 
   if (config.framework === "next") {
@@ -185,7 +182,7 @@ function generateDockerfile(config: ProjectConfig): string {
       "",
       "ENV PORT 3000",
       "",
-      'CMD ["node", "server.js"]',
+      'CMD ["node", "server.js"]'
     );
   } else {
     lines.push(
@@ -197,7 +194,7 @@ function generateDockerfile(config: ProjectConfig): string {
       "",
       "EXPOSE 3000",
       "",
-      'CMD ["npm", "start"]',
+      'CMD ["npm", "start"]'
     );
   }
 

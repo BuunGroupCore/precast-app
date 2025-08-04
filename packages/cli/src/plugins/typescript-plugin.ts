@@ -1,6 +1,6 @@
+import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createPlugin } from "../core/plugin-manager.js";
 import type { PluginContext } from "../core/plugin-manager.js";
-import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 export const typescriptPlugin = createPlugin({
   name: "typescript",
@@ -9,12 +9,12 @@ export const typescriptPlugin = createPlugin({
 
   validateConfig(config: ProjectConfig) {
     const errors: string[] = [];
-    
+
     // Angular requires TypeScript
     if (config.framework === "angular" && !config.typescript) {
       errors.push("Angular projects require TypeScript");
     }
-    
+
     return {
       valid: errors.length === 0,
       errors,
@@ -29,7 +29,7 @@ export const typescriptPlugin = createPlugin({
         typescript: true,
       };
     }
-    
+
     return config;
   },
 
@@ -37,7 +37,7 @@ export const typescriptPlugin = createPlugin({
     if (!context.config.typescript) {
       return;
     }
-    
+
     context.logger.debug("TypeScript plugin: Preparing TypeScript configuration");
   },
 
@@ -45,31 +45,35 @@ export const typescriptPlugin = createPlugin({
     if (!context.config.typescript) {
       return;
     }
-    
+
     const { templateEngine, projectPath, config } = context;
-    
+
     // Add TypeScript-specific templates
-    await templateEngine.processConditionalTemplates([
-      {
-        condition: true,
-        sourceDir: "features/typescript/base",
-      },
-      {
-        condition: config.framework === "react",
-        sourceDir: "features/typescript/react",
-      },
-      {
-        condition: config.framework === "vue",
-        sourceDir: "features/typescript/vue",
-      },
-    ], projectPath, config);
+    await templateEngine.processConditionalTemplates(
+      [
+        {
+          condition: true,
+          sourceDir: "features/typescript/base",
+        },
+        {
+          condition: config.framework === "react",
+          sourceDir: "features/typescript/react",
+        },
+        {
+          condition: config.framework === "vue",
+          sourceDir: "features/typescript/vue",
+        },
+      ],
+      projectPath,
+      config
+    );
   },
 
   async postGenerate(context: PluginContext) {
     if (!context.config.typescript) {
       return;
     }
-    
+
     context.logger.success("TypeScript configuration added successfully");
   },
 });

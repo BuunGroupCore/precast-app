@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { HomePageSEO } from "../components/SEO";
 import {
   FaRocket,
   FaCode,
@@ -13,7 +13,6 @@ import {
   FaDiscord,
   FaExternalLinkAlt,
 } from "react-icons/fa";
-import { BiCommand } from "react-icons/bi";
 import { HiSparkles } from "react-icons/hi";
 
 export function HomePage() {
@@ -55,14 +54,11 @@ export function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen comic-cursor overflow-hidden">
-      {/* Header */}
-      <header className="absolute top-0 right-0 z-50 p-4">
-        <ThemeSwitcher />
-      </header>
+    <div className="overflow-hidden">
+      <HomePageSEO />
       {/* Hero Section */}
       <section className="relative">
-        <div className="relative max-w-7xl mx-auto px-4 py-20">
+        <div className="relative max-w-7xl mx-auto px-4 py-10 sm:py-20">
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -70,11 +66,11 @@ export function HomePage() {
             className="text-center"
           >
             {/* Logo with Comic Effect */}
-            <div className="relative inline-block mb-8">
+            <div className="relative inline-block mb-6 sm:mb-8">
               <img
                 src="https://brutalist.precast.dev/logo.png"
                 alt="Precast Logo"
-                className="h-32 mx-auto filter drop-shadow-lg"
+                className="h-20 sm:h-32 mx-auto filter drop-shadow-lg"
                 style={{
                   filter: "hue-rotate(340deg) saturate(2) brightness(1.2)",
                 }}
@@ -88,11 +84,11 @@ export function HomePage() {
               transition={{ delay: 0.2 }}
               className="mb-6"
             >
-              <span className="action-text text-7xl md:text-9xl text-comic-red">
+              <span className="action-text text-5xl sm:text-7xl md:text-9xl text-comic-red">
                 PRECAST
               </span>
               <br />
-              <span className="font-display text-4xl md:text-5xl text-comic-black">
+              <span className="font-display text-2xl sm:text-4xl md:text-5xl text-comic-black">
                 The Superhero CLI Builder
               </span>
             </motion.h1>
@@ -105,7 +101,7 @@ export function HomePage() {
               className="inline-block mb-12"
             >
               <div className="speech-bubble max-w-2xl">
-                <p className="font-comic text-xl md:text-2xl">
+                <p className="font-comic text-lg sm:text-xl md:text-2xl">
                   Build TypeScript projects with{" "}
                   <strong>SUPERHUMAN SPEED!</strong>
                   Choose your stack, configure your powers, and launch into
@@ -340,166 +336,6 @@ export function HomePage() {
         </motion.div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t-4 py-12 px-4" style={{ borderColor: 'var(--comic-black)', backgroundColor: 'var(--comic-black)' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            {/* Brand Section */}
-            <div className="space-y-4">
-              <img
-                src="https://brutalist.precast.dev/logo.png"
-                alt="Precast Logo"
-                className="h-12 filter brightness-0 invert"
-              />
-              <p className="font-comic text-comic-white text-sm">
-                The superhero CLI builder for modern web projects.
-              </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="font-display text-comic-yellow text-xl mb-4">
-                QUICK LINKS
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href="/builder"
-                    className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                  >
-                    Builder
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://brutalist.precast.dev"
-                    className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Component Library <FaExternalLinkAlt size={12} />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                  >
-                    Documentation
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h4 className="font-display text-comic-yellow text-xl mb-4">
-                RESOURCES
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href="#"
-                    className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                  >
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com"
-                    className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                  >
-                    GitHub Repository
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                  >
-                    API Reference
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Social */}
-            <div>
-              <h4 className="font-display text-comic-yellow text-xl mb-4">
-                CONNECT
-              </h4>
-              <div className="flex gap-4">
-                <a
-                  href="https://github.com"
-                  className="text-comic-white hover:text-comic-yellow transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaGithub size={24} />
-                </a>
-                <a
-                  href="https://twitter.com"
-                  className="text-comic-white hover:text-comic-yellow transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaTwitter size={24} />
-                </a>
-                <a
-                  href="https://linkedin.com"
-                  className="text-comic-white hover:text-comic-yellow transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaLinkedin size={24} />
-                </a>
-                <a
-                  href="https://discord.com"
-                  className="text-comic-white hover:text-comic-yellow transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaDiscord size={24} />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="border-t border-comic-yellow/20 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-3">
-                <span className="font-comic text-comic-white">
-                  Built & Designed by
-                </span>
-                <a
-                  href="https://buungroup.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 group"
-                >
-                  <img
-                    src="https://buungroup.com/logo/logo.svg"
-                    alt="Buun Group"
-                    className="h-8 transition-all duration-300 group-hover:scale-110"
-                    style={{
-                      filter:
-                        "brightness(0) saturate(100%) invert(93%) sepia(88%) saturate(1594%) hue-rotate(358deg) brightness(106%) contrast(104%)",
-                    }}
-                  />
-                  <span className="font-display text-comic-yellow group-hover:text-comic-white transition-colors">
-                    BUUN GROUP
-                  </span>
-                </a>
-              </div>
-              <div className="font-comic text-comic-white text-sm">
-                © 2025 PRECAST · All rights reserved
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

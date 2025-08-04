@@ -1,25 +1,20 @@
 import path from "path";
-import { fileURLToPath } from "url";
-import { type ProjectConfig } from "../../../shared/stack-config.js";
-import { createTemplateEngine } from "../core/template-engine.js";
-import { getPluginManager } from "../core/plugin-manager.js";
+
 import { consola } from "consola";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { type ProjectConfig } from "../../../shared/stack-config.js";
+import { getPluginManager } from "../core/plugin-manager.js";
+import { createTemplateEngine } from "../core/template-engine.js";
+import { getTemplateRoot } from "../utils/template-path.js";
 
-export async function generateReactTemplate(
-  config: ProjectConfig,
-  projectPath: string,
-) {
+export async function generateReactTemplate(config: ProjectConfig, projectPath: string) {
   // Initialize template engine
-  // Templates are copied to dist/templates during build
-  const templateRoot = path.join(__dirname, "templates");
+  const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);
-  
+
   // Get plugin manager
   const pluginManager = getPluginManager();
-  
+
   // Create plugin context
   const context = {
     config,
@@ -27,19 +22,16 @@ export async function generateReactTemplate(
     templateEngine,
     logger: consola,
   };
-  
+
   try {
     // Run pre-generate hooks
     await pluginManager.runPreGenerate(context);
-    
+
     // Copy base React templates
-    await templateEngine.copyTemplateDirectory(
-      "frameworks/react/base",
-      projectPath,
-      config,
-      { overwrite: true }
-    );
-    
+    await templateEngine.copyTemplateDirectory("frameworks/react/base", projectPath, config, {
+      overwrite: true,
+    });
+
     // Copy src directory templates
     await templateEngine.copyTemplateDirectory(
       "frameworks/react/src",
@@ -47,7 +39,7 @@ export async function generateReactTemplate(
       config,
       { overwrite: true }
     );
-    
+
     // Conditional template processing
     // TODO: Add these templates when they're created
     // await templateEngine.processConditionalTemplates([
@@ -78,13 +70,13 @@ export async function generateReactTemplate(
     //     sourceDir: "features/testing/react",
     //   },
     // ], projectPath, config);
-    
+
     // Run generate hooks
     await pluginManager.runGenerate(context);
-    
+
     // Run post-generate hooks
     await pluginManager.runPostGenerate(context);
-    
+
     consola.success("React project generated successfully!");
   } catch (error) {
     consola.error("Failed to generate React project:", error);

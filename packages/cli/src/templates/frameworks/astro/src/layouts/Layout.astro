@@ -1,0 +1,42 @@
+---
+export interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body class="{{#if (eq styling 'tailwind')}}bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen{{else}}body{{/if}}">
+		<slot />
+	</body>
+</html>
+
+{{#unless (eq styling "tailwind")}}
+<style is:global>
+	html {
+		font-family: system-ui, sans-serif;
+	}
+	
+	.body {
+		background: linear-gradient(to bottom right, #f0f9ff, #e0e7ff);
+		min-height: 100vh;
+		margin: 0;
+		padding: 0;
+	}
+	
+	code {
+		font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+			Bitstream Vera Sans Mono, Courier New, monospace;
+	}
+</style>
+{{/unless}}

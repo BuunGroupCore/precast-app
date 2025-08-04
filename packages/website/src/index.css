@@ -503,28 +503,69 @@
 
 /* Custom Scrollbar Comic Style */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
 }
 
 ::-webkit-scrollbar-track {
   background-color: var(--comic-yellow);
-  border: 2px solid var(--comic-black);
+  border: 3px solid var(--comic-black);
+  box-shadow: inset 0 0 0 1px var(--comic-black);
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--comic-red);
-  @apply rounded-full;
-  border: 2px solid var(--comic-black);
+  border: 3px solid var(--comic-black);
+  box-shadow: 
+    2px 2px 0 var(--comic-black),
+    inset -1px -1px 0 var(--comic-dark-red);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--comic-dark-red);
+  box-shadow: 
+    3px 3px 0 var(--comic-black),
+    inset -1px -1px 0 var(--comic-red);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--comic-red);
+  box-shadow: 
+    1px 1px 0 var(--comic-black),
+    inset -1px -1px 0 var(--comic-dark-red);
+}
+
+::-webkit-scrollbar-corner {
+  background-color: var(--comic-yellow);
+  border: 3px solid var(--comic-black);
+}
+
+/* Firefox Scrollbar Support */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: var(--comic-red) var(--comic-yellow);
 }
 
 /* Comic Cursor */
 .comic-cursor {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="0,0 0,24 6,18 11,27 15,25 10,16 20,16" fill="%23FFD600" stroke="%23000" stroke-width="2"/></svg>'), auto;
+}
+
+/* Comic Pointer Cursor */
+.comic-cursor * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="0,0 0,24 6,18 11,27 15,25 10,16 20,16" fill="%23FFD600" stroke="%23000" stroke-width="2"/></svg>'), auto;
+}
+
+.comic-cursor a,
+.comic-cursor button,
+.comic-cursor [role="button"],
+.comic-cursor [onclick],
+.comic-cursor input[type="submit"],
+.comic-cursor input[type="button"],
+.comic-cursor input[type="reset"],
+.comic-cursor select,
+.comic-cursor [tabindex]:not([tabindex="-1"]) {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M5,5 L5,20 L10,15 L15,25 L20,22 L15,12 L25,12 Z" fill="%23FF1744" stroke="%23000" stroke-width="2"/><text x="18" y="10" font-family="Arial Black" font-size="10" fill="%23FFD600" stroke="%23000" stroke-width="1">!</text></svg>'), pointer;
 }
 
 /* Focus Visible Comic Style */
@@ -554,4 +595,71 @@
 
 .font-action {
   font-family: 'Bangers', cursive;
+}
+
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Reduce font sizes on mobile for better readability */
+  .action-text {
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+  }
+  
+  /* Improve touch targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing for mobile comic panels */
+  .comic-panel {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  /* Responsive speech bubbles */
+  .speech-bubble {
+    padding: 1rem;
+    max-width: 95%;
+  }
+  
+  /* Mobile-friendly code blocks */
+  .terminal-comic {
+    font-size: 0.875rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improve modal/overlay accessibility on mobile */
+  .fixed.inset-0 {
+    z-index: 9999;
+  }
+  
+  /* Better mobile navigation visibility */
+  .xl\:hidden {
+    display: block;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .action-text {
+    font-size: clamp(2rem, 8vw, 4rem);
+  }
+  
+  .font-display {
+    font-size: clamp(1.25rem, 5vw, 2rem);
+  }
+  
+  /* Ensure proper spacing on very small screens */
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Make sure mobile toggles are easily accessible */
+  .fixed.top-36 {
+    top: 8rem;
+  }
 }

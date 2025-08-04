@@ -1,0 +1,14 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import '../app.{{#if (eq styling "scss")}}scss{{else}}css{{/if}}';
+</script>
+
+<slot />
+
+{{#unless (eq styling "tailwind")}}
+<style>
+  :global(body) {
+    background: linear-gradient(to bottom right, #f0f9ff, #e0e7ff);
+    min-height: 100vh;
+  }
+</style>
+{{/unless}}

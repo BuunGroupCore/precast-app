@@ -1,0 +1,13 @@
+<div{{#if (eq styling "tailwind")}} class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"{{else}} class="app-container"{{/if}}>
+  <div{{#if (eq styling "tailwind")}} class="max-w-7xl mx-auto"{{else}} class="container"{{/if}}>
+    <header{{#if (eq styling "tailwind")}} class="text-center mb-12"{{else}} class="header"{{/if}}>
+      <h1{{#if (eq styling "tailwind")}} class="text-4xl font-bold text-gray-900 mb-4"{{/if}}>Welcome to {{ title }}</h1>
+      <p{{#if (eq styling "tailwind")}} class="text-lg text-gray-600"{{else}} class="subtitle"{{/if}}>An Angular project with {{styling}}</p>
+    </header>
+
+    <main{{#if (eq styling "tailwind")}} class="grid grid-cols-1 md:grid-cols-2 gap-8"{{else}} class="main-content"{{/if}}>
+      <app-counter></app-counter>
+      <app-hello-world [message]="'Hello from Angular!'"></app-hello-world>
+    </main>
+  </div>
+</div>

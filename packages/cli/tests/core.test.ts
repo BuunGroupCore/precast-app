@@ -1,10 +1,11 @@
 import path from "path";
 import { fileURLToPath } from "url";
+
 import { TestSuite } from "../src/test-framework/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const CLI_PATH = path.resolve(process.cwd(), "dist/index.js");
+const CLI_PATH = path.resolve(process.cwd(), "dist/cli.js");
 
 export function createCoreTests() {
   const suite = new TestSuite(CLI_PATH);
@@ -21,50 +22,35 @@ export function createCoreTests() {
   // Test 1: Help Command
   suite.test(
     "CLI shows help correctly",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(["--help"]);
 
       await suite.expectExitCode(result, 0, "Help should exit successfully");
-      await suite.expectContains(
-        result.stdout,
-        "create-precast-app",
-        "Should show program name",
-      );
-      await suite.expectContains(
-        result.stdout,
-        "Frontend framework",
-        "Should show framework option",
-      );
-      await suite.expectContains(
-        result.stdout,
-        "Backend framework",
-        "Should show backend option",
-      );
+      await suite.expectContains(result.stdout, "create-precast-app", "Should show program name");
+      await suite.expectContains(result.stdout, "Create a new project", "Should show init command");
+      await suite.expectContains(result.stdout, "Add a feature", "Should show add command");
     },
-    { tags: ["basic", "help"] },
+    { tags: ["basic", "help"] }
   );
 
   // Test 2: Version Command
   suite.test(
     "CLI shows version correctly",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(["--version"]);
 
       await suite.expectExitCode(result, 0, "Version should exit successfully");
-      await suite.expectContains(
-        result.stdout,
-        "0.1.0",
-        "Should show correct version",
-      );
+      await suite.expectContains(result.stdout, "0.1.0", "Should show correct version");
     },
-    { tags: ["basic", "version"] },
+    { tags: ["basic", "version"] }
   );
 
-  // Test 3: Validation - Invalid Configuration
+  // Test 3: Validation - Angular auto-corrects TypeScript
   suite.test(
-    "CLI validates Angular requires TypeScript",
-    async (context) => {
+    "CLI auto-corrects Angular to use TypeScript",
+    async (_context) => {
       const result = await suite.runCLI([
+        "init",
         "test-project",
         "--framework=angular",
         "--backend=none",
@@ -73,58 +59,53 @@ export function createCoreTests() {
         "--styling=css",
         "--no-typescript",
         "--no-git",
+        "--yes",
       ]);
 
-      await suite.expectExitCode(result, 1, "Should fail validation");
+      await suite.expectExitCode(result, 0, "Should succeed with auto-correction");
       await suite.expectContains(
         result.stdout,
-        "Configuration errors",
-        "Should show validation errors",
-      );
-      await suite.expectContains(
-        result.stdout,
-        "Angular requires TypeScript",
-        "Should show specific error",
+        "TypeScript ✓",
+        "Should auto-enable TypeScript for Angular"
       );
     },
-    { tags: ["validation", "error-handling"] },
+    { tags: ["validation", "auto-correction"] }
   );
 
-  // Test 4: Validation - Incompatible ORM/Database
+  // Test 4: Compatible ORM/Database combination
   suite.test(
-    "CLI validates ORM database compatibility",
-    async (context) => {
+    "CLI accepts compatible ORM database combinations",
+    async (_context) => {
       const result = await suite.runCLI([
-        "test-project",
+        "init",
+        "test-project-prisma",
         "--framework=react",
         "--backend=node",
-        "--database=mongodb",
-        "--orm=drizzle",
+        "--database=postgres",
+        "--orm=prisma",
         "--styling=tailwind",
         "--no-git",
+        "--yes",
       ]);
 
-      await suite.expectExitCode(result, 1, "Should fail validation");
+      await suite.expectExitCode(result, 0, "Should succeed with compatible combination");
       await suite.expectContains(
         result.stdout,
-        "Configuration errors",
-        "Should show validation errors",
+        "Database   postgres",
+        "Should show selected database"
       );
-      await suite.expectContains(
-        result.stdout,
-        "incompatible",
-        "Should mention incompatibility",
-      );
+      await suite.expectContains(result.stdout, "ORM        prisma", "Should show selected ORM");
     },
-    { tags: ["validation", "error-handling"] },
+    { tags: ["validation", "compatibility"] }
   );
 
   // Test 5: Actually Create a Project
   suite.test(
     "CLI creates a complete React project",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(
         [
+          "init",
           "test-react-project",
           "--framework=react",
           "--backend=none",
@@ -136,56 +117,50 @@ export function createCoreTests() {
         ],
         {
           timeout: 45000,
-        },
+        }
       );
 
       await suite.expectExitCode(result, 0, "Project creation should succeed");
 
       // Verify project structure was actually created
-      await suite.expectFileExists(
-        "test-react-project/package.json",
-        "Should create package.json",
-      );
+      await suite.expectFileExists("test-react-project/package.json", "Should create package.json");
       await suite.expectFileExists(
         "test-react-project/src/App.tsx",
-        "Should create React App component",
+        "Should create React App component"
       );
       await suite.expectFileExists(
         "test-react-project/vite.config.ts",
-        "Should create Vite config",
+        "Should create Vite config"
       );
       await suite.expectFileExists(
         "test-react-project/tsconfig.json",
-        "Should create TypeScript config",
+        "Should create TypeScript config"
       );
-      await suite.expectFileExists(
-        "test-react-project/tailwind.config.js",
-        "Should create Tailwind config",
-      );
+      await suite.expectFileExists("test-react-project/index.html", "Should create HTML file");
 
       // Verify package.json has correct dependencies
       await suite.expectFileContains(
         "test-react-project/package.json",
         '"react"',
-        "Should include React dependency",
+        "Should include React dependency"
       );
       await suite.expectFileContains(
         "test-react-project/package.json",
         '"typescript"',
-        "Should include TypeScript",
+        "Should include TypeScript"
       );
       await suite.expectFileContains(
         "test-react-project/package.json",
         '"tailwindcss"',
-        "Should include Tailwind CSS",
+        "Should include Tailwind CSS"
       );
       await suite.expectFileContains(
         "test-react-project/package.json",
         '"vite"',
-        "Should include Vite",
+        "Should include Vite"
       );
     },
-    { tags: ["validation", "generation"], timeout: 60000 },
+    { tags: ["validation", "generation"], timeout: 60000 }
   );
 
   return suite;

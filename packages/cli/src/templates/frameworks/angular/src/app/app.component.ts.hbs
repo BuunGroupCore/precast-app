@@ -1,0 +1,15 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HelloWorldComponent } from './components/hello-world/hello-world.component';
+import { CounterComponent } from './components/counter/counter.component';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, HelloWorldComponent, CounterComponent],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.{{#if (eq styling 'scss')}}scss{{else}}css{{/if}}'
+})
+export class AppComponent {
+  title = '{{name}}';
+}

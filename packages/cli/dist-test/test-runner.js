@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 // test-runner.ts
+import path6 from "path";
+import { fileURLToPath as fileURLToPath5 } from "url";
 import fs2 from "fs-extra";
-import path4 from "path";
-import { fileURLToPath as fileURLToPath3 } from "url";
 
 // tests/core.test.ts
 import path2 from "path";
@@ -11,8 +11,8 @@ import { fileURLToPath } from "url";
 
 // src/test-framework/TestSuite.ts
 import { spawn } from "child_process";
-import fs from "fs-extra";
 import path from "path";
+import fs from "fs-extra";
 var TestSuite = class {
   constructor(cliPath, baseTestDir = path.join(process.cwd(), "test-output")) {
     this.cliPath = cliPath;
@@ -104,16 +104,12 @@ var TestSuite = class {
   }
   async expectContains(text, substring, message) {
     if (!text.includes(substring)) {
-      throw new Error(
-        message || `Expected "${text}" to contain "${substring}"`
-      );
+      throw new Error(message || `Expected "${text}" to contain "${substring}"`);
     }
   }
   async expectNotContains(text, substring, message) {
     if (text.includes(substring)) {
-      throw new Error(
-        message || `Expected "${text}" to not contain "${substring}"`
-      );
+      throw new Error(message || `Expected "${text}" to not contain "${substring}"`);
     }
   }
   async expectFileExists(filePath, message) {
@@ -132,25 +128,19 @@ var TestSuite = class {
     const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.context.tempDir, filePath);
     const fileContent = await fs.readFile(fullPath, "utf-8");
     if (!fileContent.includes(content)) {
-      throw new Error(
-        message || `File ${filePath} does not contain "${content}"`
-      );
+      throw new Error(message || `File ${filePath} does not contain "${content}"`);
     }
   }
   async expectFileNotContains(filePath, content, message) {
     const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.context.tempDir, filePath);
     const fileContent = await fs.readFile(fullPath, "utf-8");
     if (fileContent.includes(content)) {
-      throw new Error(
-        message || `File ${filePath} should not contain "${content}"`
-      );
+      throw new Error(message || `File ${filePath} should not contain "${content}"`);
     }
   }
   async expectExitCode(result, expectedCode, message) {
     if (result.exitCode !== expectedCode) {
-      throw new Error(
-        message || `Expected exit code ${expectedCode}, got ${result.exitCode}`
-      );
+      throw new Error(message || `Expected exit code ${expectedCode}, got ${result.exitCode}`);
     }
   }
   // Test execution
@@ -166,9 +156,7 @@ var TestSuite = class {
       );
     }
     if (options.pattern) {
-      testsToRun = testsToRun.filter(
-        (test) => options.pattern.test(test.name)
-      );
+      testsToRun = testsToRun.filter((test) => options.pattern.test(test.name));
     }
     for (const test of testsToRun) {
       const startTime = Date.now();
@@ -228,10 +216,8 @@ var TestSuite = class {
     const passed = this.results.filter((r) => r.passed).length;
     const failed = this.results.filter((r) => !r.passed).length;
     const totalDuration = this.results.reduce((sum, r) => sum + r.duration, 0);
-    console.log(
-      `
-\u{1F4CA} Test Results: ${passed} passed, ${failed} failed (${totalDuration}ms total)`
-    );
+    console.log(`
+\u{1F4CA} Test Results: ${passed} passed, ${failed} failed (${totalDuration}ms total)`);
     if (failed > 0) {
       console.log("\n\u274C Failed Tests:");
       this.results.filter((r) => !r.passed).forEach((r) => {
@@ -329,7 +315,7 @@ var TestSuite = class {
 // tests/core.test.ts
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path2.dirname(__filename);
-var CLI_PATH = path2.resolve(process.cwd(), "dist/index.js");
+var CLI_PATH = path2.resolve(process.cwd(), "dist/cli.js");
 function createCoreTests() {
   const suite = new TestSuite(CLI_PATH);
   suite.beforeAll(async () => {
@@ -340,44 +326,29 @@ function createCoreTests() {
   });
   suite.test(
     "CLI shows help correctly",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(["--help"]);
       await suite.expectExitCode(result, 0, "Help should exit successfully");
-      await suite.expectContains(
-        result.stdout,
-        "create-precast-app",
-        "Should show program name"
-      );
-      await suite.expectContains(
-        result.stdout,
-        "Frontend framework",
-        "Should show framework option"
-      );
-      await suite.expectContains(
-        result.stdout,
-        "Backend framework",
-        "Should show backend option"
-      );
+      await suite.expectContains(result.stdout, "create-precast-app", "Should show program name");
+      await suite.expectContains(result.stdout, "Create a new project", "Should show init command");
+      await suite.expectContains(result.stdout, "Add a feature", "Should show add command");
     },
     { tags: ["basic", "help"] }
   );
   suite.test(
     "CLI shows version correctly",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(["--version"]);
       await suite.expectExitCode(result, 0, "Version should exit successfully");
-      await suite.expectContains(
-        result.stdout,
-        "0.1.0",
-        "Should show correct version"
-      );
+      await suite.expectContains(result.stdout, "0.1.0", "Should show correct version");
     },
     { tags: ["basic", "version"] }
   );
   suite.test(
-    "CLI validates Angular requires TypeScript",
-    async (context) => {
+    "CLI auto-corrects Angular to use TypeScript",
+    async (_context) => {
       const result = await suite.runCLI([
+        "init",
         "test-project",
         "--framework=angular",
         "--backend=none",
@@ -385,53 +356,48 @@ function createCoreTests() {
         "--orm=none",
         "--styling=css",
         "--no-typescript",
-        "--no-git"
+        "--no-git",
+        "--yes"
       ]);
-      await suite.expectExitCode(result, 1, "Should fail validation");
+      await suite.expectExitCode(result, 0, "Should succeed with auto-correction");
       await suite.expectContains(
         result.stdout,
-        "Configuration errors",
-        "Should show validation errors"
-      );
-      await suite.expectContains(
-        result.stdout,
-        "Angular requires TypeScript",
-        "Should show specific error"
+        "TypeScript \u2713",
+        "Should auto-enable TypeScript for Angular"
       );
     },
-    { tags: ["validation", "error-handling"] }
+    { tags: ["validation", "auto-correction"] }
   );
   suite.test(
-    "CLI validates ORM database compatibility",
-    async (context) => {
+    "CLI accepts compatible ORM database combinations",
+    async (_context) => {
       const result = await suite.runCLI([
-        "test-project",
+        "init",
+        "test-project-prisma",
         "--framework=react",
         "--backend=node",
-        "--database=mongodb",
-        "--orm=drizzle",
+        "--database=postgres",
+        "--orm=prisma",
         "--styling=tailwind",
-        "--no-git"
+        "--no-git",
+        "--yes"
       ]);
-      await suite.expectExitCode(result, 1, "Should fail validation");
+      await suite.expectExitCode(result, 0, "Should succeed with compatible combination");
       await suite.expectContains(
         result.stdout,
-        "Configuration errors",
-        "Should show validation errors"
+        "Database   postgres",
+        "Should show selected database"
       );
-      await suite.expectContains(
-        result.stdout,
-        "incompatible",
-        "Should mention incompatibility"
-      );
+      await suite.expectContains(result.stdout, "ORM        prisma", "Should show selected ORM");
     },
-    { tags: ["validation", "error-handling"] }
+    { tags: ["validation", "compatibility"] }
   );
   suite.test(
     "CLI creates a complete React project",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(
         [
+          "init",
           "test-react-project",
           "--framework=react",
           "--backend=none",
@@ -446,10 +412,7 @@ function createCoreTests() {
         }
       );
       await suite.expectExitCode(result, 0, "Project creation should succeed");
-      await suite.expectFileExists(
-        "test-react-project/package.json",
-        "Should create package.json"
-      );
+      await suite.expectFileExists("test-react-project/package.json", "Should create package.json");
       await suite.expectFileExists(
         "test-react-project/src/App.tsx",
         "Should create React App component"
@@ -462,10 +425,7 @@ function createCoreTests() {
         "test-react-project/tsconfig.json",
         "Should create TypeScript config"
       );
-      await suite.expectFileExists(
-        "test-react-project/tailwind.config.js",
-        "Should create Tailwind config"
-      );
+      await suite.expectFileExists("test-react-project/index.html", "Should create HTML file");
       await suite.expectFileContains(
         "test-react-project/package.json",
         '"react"',
@@ -492,14 +452,367 @@ function createCoreTests() {
   return suite;
 }
 
-// tests/project-generation.test.ts
+// tests/framework-generation.test.ts
 import path3 from "path";
 import { fileURLToPath as fileURLToPath2 } from "url";
 var __filename2 = fileURLToPath2(import.meta.url);
 var __dirname2 = path3.dirname(__filename2);
-var CLI_PATH2 = path3.resolve(process.cwd(), "dist/index.js");
-function createProjectGenerationTests() {
+var CLI_PATH2 = path3.resolve(process.cwd(), "dist/cli.js");
+function createFrameworkGenerationTests() {
   const suite = new TestSuite(CLI_PATH2);
+  suite.beforeAll(async () => {
+    console.log("\u{1F3D7}\uFE0F Setting up framework generation tests...");
+  });
+  suite.afterAll(async () => {
+    console.log("\u{1F9F9} Cleaning up framework generation tests...");
+  });
+  const frameworks = [
+    {
+      name: "react",
+      expectedFiles: ["src/App.tsx", "vite.config.ts", "tsconfig.json"],
+      expectedPackages: ["react", "react-dom", "@vitejs/plugin-react"]
+    },
+    {
+      name: "vue",
+      expectedFiles: ["src/App.vue", "vite.config.ts", "tsconfig.json"],
+      expectedPackages: ["vue", "@vitejs/plugin-vue"]
+    },
+    {
+      name: "angular",
+      expectedFiles: ["src/main.ts", "angular.json", "tsconfig.json"],
+      expectedPackages: ["@angular/core", "@angular/common", "@angular/platform-browser"]
+    },
+    {
+      name: "next",
+      expectedFiles: ["next.config.js", "tsconfig.json", "app/page.tsx"],
+      expectedPackages: ["next", "react", "react-dom"]
+    },
+    {
+      name: "nuxt",
+      expectedFiles: ["nuxt.config.ts", "tsconfig.json", "app.vue"],
+      expectedPackages: ["nuxt", "vue"]
+    },
+    {
+      name: "svelte",
+      expectedFiles: ["src/App.svelte", "vite.config.ts", "tsconfig.json"],
+      expectedPackages: ["svelte", "@sveltejs/vite-plugin-svelte"]
+    },
+    {
+      name: "solid",
+      expectedFiles: ["src/App.tsx", "vite.config.ts", "tsconfig.json"],
+      expectedPackages: ["solid-js", "vite-plugin-solid"]
+    },
+    {
+      name: "astro",
+      expectedFiles: ["src/pages/index.astro", "astro.config.mjs", "tsconfig.json"],
+      expectedPackages: ["astro"]
+    },
+    {
+      name: "remix",
+      expectedFiles: ["remix.config.js", "tsconfig.json", "app/root.tsx"],
+      expectedPackages: ["@remix-run/node", "@remix-run/react"]
+    },
+    {
+      name: "vite",
+      expectedFiles: ["src/main.ts", "vite.config.ts", "tsconfig.json"],
+      expectedPackages: ["vite"]
+    },
+    {
+      name: "vanilla",
+      expectedFiles: ["src/main.js", "index.html", "vite.config.js"],
+      expectedPackages: ["vite"]
+    }
+  ];
+  frameworks.forEach((framework) => {
+    suite.test(
+      `Creates ${framework.name} project with TypeScript and Tailwind`,
+      async (_context) => {
+        const projectName = `${framework.name}-test-project`;
+        const result = await suite.runCLI(
+          [
+            "init",
+            projectName,
+            `--framework=${framework.name}`,
+            "--backend=none",
+            "--database=none",
+            "--orm=none",
+            "--styling=tailwind",
+            "--no-git"
+          ],
+          {
+            input: "n\ny\n",
+            // Docker: no, Confirm: yes
+            timeout: 6e4
+          }
+        );
+        await suite.expectExitCode(result, 0, `${framework.name} project creation should succeed`);
+        await suite.expectFileExists(`${projectName}/package.json`);
+        for (const file of framework.expectedFiles) {
+          await suite.expectFileExists(`${projectName}/${file}`);
+        }
+        for (const pkg of framework.expectedPackages) {
+          await suite.expectFileContains(`${projectName}/package.json`, `"${pkg}"`);
+        }
+        await suite.expectFileContains(`${projectName}/package.json`, '"tailwindcss"');
+        await suite.expectFileExists(`${projectName}/tailwind.config.js`);
+        if (framework.name !== "vanilla") {
+          await suite.expectFileContains(`${projectName}/package.json`, '"typescript"');
+        }
+      },
+      {
+        tags: ["generation", framework.name, "typescript", "tailwind"],
+        timeout: 9e4
+      }
+    );
+    if (framework.name !== "angular") {
+      suite.test(
+        `Creates ${framework.name} project without TypeScript`,
+        async (_context) => {
+          const projectName = `${framework.name}-js-project`;
+          const result = await suite.runCLI(
+            [
+              "init",
+              projectName,
+              `--framework=${framework.name}`,
+              "--backend=none",
+              "--database=none",
+              "--orm=none",
+              "--styling=css",
+              "--no-typescript",
+              "--no-git"
+            ],
+            {
+              input: "n\ny\n",
+              // Docker: no, Confirm: yes
+              timeout: 6e4
+            }
+          );
+          await suite.expectExitCode(
+            result,
+            0,
+            `${framework.name} JavaScript project creation should succeed`
+          );
+          await suite.expectFileExists(`${projectName}/package.json`);
+          await suite.expectFileNotContains(`${projectName}/package.json`, '"typescript"');
+          await suite.expectFileNotExists(`${projectName}/tsconfig.json`);
+          if (framework.name === "vite" || framework.name === "vanilla") {
+            await suite.expectFileExists(`${projectName}/vite.config.js`);
+          }
+        },
+        {
+          tags: ["generation", framework.name, "javascript"],
+          timeout: 9e4
+        }
+      );
+    }
+  });
+  suite.test(
+    "Creates Next.js project with Express backend",
+    async (_context) => {
+      const result = await suite.runCLI(
+        [
+          "init",
+          "next-express-project",
+          "--framework=next",
+          "--backend=express",
+          "--database=none",
+          "--orm=none",
+          "--styling=tailwind",
+          "--no-git"
+        ],
+        {
+          input: "n\ny\n",
+          // Docker: no, Confirm: yes
+          timeout: 6e4
+        }
+      );
+      await suite.expectExitCode(result, 0, "Next.js + Express project creation should succeed");
+      await suite.expectFileExists("next-express-project/package.json");
+      await suite.expectFileExists("next-express-project/next.config.js");
+      await suite.expectFileContains("next-express-project/package.json", '"express"');
+    },
+    {
+      tags: ["generation", "next", "backend", "express"],
+      timeout: 9e4
+    }
+  );
+  suite.test(
+    "Creates React project with Prisma and PostgreSQL",
+    async (_context) => {
+      const result = await suite.runCLI(
+        [
+          "init",
+          "react-prisma-project",
+          "--framework=react",
+          "--backend=node",
+          "--database=postgres",
+          "--orm=prisma",
+          "--styling=tailwind",
+          "--no-git"
+        ],
+        {
+          input: "y\ny\n",
+          // Docker: yes, Confirm: yes
+          timeout: 6e4
+        }
+      );
+      await suite.expectExitCode(result, 0, "React + Prisma project creation should succeed");
+      await suite.expectFileExists("react-prisma-project/package.json");
+      await suite.expectFileExists("react-prisma-project/prisma/schema.prisma");
+      await suite.expectFileExists("react-prisma-project/docker-compose.yml");
+      await suite.expectFileContains("react-prisma-project/package.json", '"@prisma/client"');
+      await suite.expectFileContains("react-prisma-project/package.json", '"prisma"');
+    },
+    {
+      tags: ["generation", "react", "database", "prisma"],
+      timeout: 9e4
+    }
+  );
+  suite.test(
+    "Handles incompatible framework-backend combination",
+    async (_context) => {
+      const result = await suite.runCLI(
+        [
+          "init",
+          "invalid-project",
+          "--framework=angular",
+          "--backend=fastapi",
+          // FastAPI is incompatible with TypeScript
+          "--database=none",
+          "--orm=none",
+          "--styling=css",
+          "--no-git"
+        ],
+        {
+          timeout: 1e4
+        }
+      );
+      if (result.exitCode === 0) {
+        throw new Error("Should have failed for incompatible combination");
+      }
+      await suite.expectContains(
+        result.stderr,
+        "incompatible",
+        "Should show incompatibility error"
+      );
+    },
+    {
+      tags: ["error-handling", "validation", "angular"],
+      timeout: 15e3
+    }
+  );
+  return suite;
+}
+
+// tests/generator-structure.test.ts
+import path4 from "path";
+import { fileURLToPath as fileURLToPath3 } from "url";
+var __filename3 = fileURLToPath3(import.meta.url);
+var __dirname3 = path4.dirname(__filename3);
+var CLI_PATH3 = path4.resolve(process.cwd(), "dist/cli.js");
+function createGeneratorStructureTests() {
+  const suite = new TestSuite(CLI_PATH3);
+  suite.beforeAll(async () => {
+    console.log("\u{1F3D7}\uFE0F Setting up generator structure tests...");
+  });
+  suite.afterAll(async () => {
+    console.log("\u{1F9F9} Cleaning up generator structure tests...");
+  });
+  suite.test(
+    "All framework generators are available",
+    async (_context) => {
+      const generators = await import("./generators-E53HFQJB.js");
+      if (typeof generators.generateTemplate !== "function") {
+        throw new Error("generateTemplate function not found");
+      }
+      const frameworks = [
+        "react",
+        "vue",
+        "angular",
+        "next",
+        "nuxt",
+        "svelte",
+        "solid",
+        "astro",
+        "remix",
+        "vite",
+        "vanilla"
+      ];
+      const mockConfig = {
+        name: "test-project",
+        framework: "",
+        backend: "none",
+        database: "none",
+        orm: "none",
+        styling: "css",
+        typescript: true,
+        git: false,
+        docker: false
+      };
+      for (const framework of frameworks) {
+        try {
+          await generators.generateTemplate({ ...mockConfig, framework }, "/tmp/test-" + framework);
+        } catch (error) {
+          const errorMessage = error.message || "";
+          if (errorMessage.includes("not yet implemented")) {
+            throw new Error(`${framework} generator is not properly implemented: ${errorMessage}`);
+          }
+          if (!errorMessage.includes("ENOENT") && !errorMessage.includes("no such file")) {
+            throw new Error(`Unexpected error for ${framework}: ${errorMessage}`);
+          }
+        }
+      }
+    },
+    {
+      tags: ["structure", "generators"],
+      timeout: 3e4
+    }
+  );
+  suite.test(
+    "Individual generator modules exist",
+    async (_context) => {
+      const generatorModules = [
+        "../src/generators/react-template.js",
+        "../src/generators/vue-template.js",
+        "../src/generators/angular-template.js",
+        "../src/generators/next-template.js",
+        "../src/generators/nuxt-template.js",
+        "../src/generators/svelte-template.js",
+        "../src/generators/solid-template.js",
+        "../src/generators/astro-template.js",
+        "../src/generators/remix-template.js",
+        "../src/generators/vite-template.js",
+        "../src/generators/vanilla-template.js"
+      ];
+      for (const modulePath of generatorModules) {
+        try {
+          const module = await import(modulePath);
+          const frameworkName = modulePath.split("/").pop()?.replace("-template.js", "");
+          const functionName = `generate${frameworkName?.charAt(0).toUpperCase()}${frameworkName?.slice(1)}Template`;
+          if (typeof module[functionName] !== "function") {
+            throw new Error(`${functionName} not found in ${modulePath}`);
+          }
+        } catch (error) {
+          throw new Error(`Failed to import ${modulePath}: ${error.message}`);
+        }
+      }
+    },
+    {
+      tags: ["structure", "imports"],
+      timeout: 1e4
+    }
+  );
+  return suite;
+}
+
+// tests/project-generation.test.ts
+import path5 from "path";
+import { fileURLToPath as fileURLToPath4 } from "url";
+var __filename4 = fileURLToPath4(import.meta.url);
+var __dirname4 = path5.dirname(__filename4);
+var CLI_PATH4 = path5.resolve(process.cwd(), "dist/cli.js");
+function createProjectGenerationTests() {
+  const suite = new TestSuite(CLI_PATH4);
   suite.beforeAll(async () => {
     console.log("\u{1F3D7}\uFE0F Setting up project generation tests...");
   });
@@ -508,9 +821,10 @@ function createProjectGenerationTests() {
   });
   suite.test(
     "Creates React project with TypeScript",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(
         [
+          "init",
           "react-ts-project",
           "--framework=react",
           "--backend=none",
@@ -531,18 +845,9 @@ function createProjectGenerationTests() {
       await suite.expectFileExists("react-ts-project/vite.config.ts");
       await suite.expectFileExists("react-ts-project/tsconfig.json");
       await suite.expectFileExists("react-ts-project/tailwind.config.js");
-      await suite.expectFileContains(
-        "react-ts-project/package.json",
-        '"react"'
-      );
-      await suite.expectFileContains(
-        "react-ts-project/package.json",
-        '"typescript"'
-      );
-      await suite.expectFileContains(
-        "react-ts-project/package.json",
-        '"tailwindcss"'
-      );
+      await suite.expectFileContains("react-ts-project/package.json", '"react"');
+      await suite.expectFileContains("react-ts-project/package.json", '"typescript"');
+      await suite.expectFileContains("react-ts-project/package.json", '"tailwindcss"');
     },
     {
       tags: ["generation", "react", "typescript"],
@@ -551,9 +856,10 @@ function createProjectGenerationTests() {
   );
   suite.test(
     "Creates Vue project without TypeScript",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(
         [
+          "init",
           "vue-js-project",
           "--framework=vue",
           "--backend=none",
@@ -575,10 +881,7 @@ function createProjectGenerationTests() {
       await suite.expectFileExists("vue-js-project/vite.config.js");
       await suite.expectFileNotExists("vue-js-project/tsconfig.json");
       await suite.expectFileContains("vue-js-project/package.json", '"vue"');
-      await suite.expectFileNotContains(
-        "vue-js-project/package.json",
-        '"typescript"'
-      );
+      await suite.expectFileNotContains("vue-js-project/package.json", '"typescript"');
     },
     {
       tags: ["generation", "vue", "javascript"],
@@ -587,9 +890,10 @@ function createProjectGenerationTests() {
   );
   suite.test(
     "Creates full-stack project with Prisma and PostgreSQL",
-    async (context) => {
+    async (_context) => {
       const result = await suite.runCLI(
         [
+          "init",
           "fullstack-project",
           "--framework=next",
           "--backend=node",
@@ -609,26 +913,11 @@ function createProjectGenerationTests() {
       await suite.expectFileExists("fullstack-project/prisma/schema.prisma");
       await suite.expectFileExists("fullstack-project/Dockerfile");
       await suite.expectFileExists("fullstack-project/docker-compose.yml");
-      await suite.expectFileContains(
-        "fullstack-project/package.json",
-        '"next"'
-      );
-      await suite.expectFileContains(
-        "fullstack-project/package.json",
-        '"@prisma/client"'
-      );
-      await suite.expectFileContains(
-        "fullstack-project/package.json",
-        '"prisma"'
-      );
-      await suite.expectFileContains(
-        "fullstack-project/docker-compose.yml",
-        "postgres"
-      );
-      await suite.expectFileContains(
-        "fullstack-project/Dockerfile",
-        "FROM node"
-      );
+      await suite.expectFileContains("fullstack-project/package.json", '"next"');
+      await suite.expectFileContains("fullstack-project/package.json", '"@prisma/client"');
+      await suite.expectFileContains("fullstack-project/package.json", '"prisma"');
+      await suite.expectFileContains("fullstack-project/docker-compose.yml", "postgres");
+      await suite.expectFileContains("fullstack-project/Dockerfile", "FROM node");
     },
     {
       tags: ["generation", "fullstack", "database", "docker"],
@@ -637,12 +926,13 @@ function createProjectGenerationTests() {
   );
   suite.test(
     "Handles existing directory error gracefully",
-    async (context) => {
+    async (_context) => {
       const fs3 = await import("fs-extra");
-      const existingDir = path3.join(context.tempDir, "existing-project");
+      const existingDir = path5.join(_context.tempDir, "existing-project");
       await fs3.ensureDir(existingDir);
       const result = await suite.runCLI(
         [
+          "init",
           "existing-project",
           "--framework=react",
           "--backend=none",
@@ -673,12 +963,12 @@ function createProjectGenerationTests() {
 }
 
 // test-runner.ts
-var __filename3 = fileURLToPath3(import.meta.url);
-var __dirname3 = path4.dirname(__filename3);
+var __filename5 = fileURLToPath5(import.meta.url);
+var __dirname5 = path6.dirname(__filename5);
 async function main() {
   const args = process.argv.slice(2);
   const config = {
-    suites: ["core", "generation"],
+    suites: ["core", "generation", "framework", "structure"],
     reportFormat: "json",
     parallel: false,
     verbose: false
@@ -716,7 +1006,7 @@ async function main() {
   if (config.verbose) {
     console.log("Configuration:", JSON.stringify(config, null, 2));
   }
-  const cliDistPath = path4.resolve(process.cwd(), "dist/index.js");
+  const cliDistPath = path6.resolve(process.cwd(), "dist/index.js");
   if (!await fs2.pathExists(cliDistPath)) {
     console.error('\u274C CLI not built. Run "bun run build" first.');
     console.error(`Looking for CLI at: ${cliDistPath}`);
@@ -733,6 +1023,18 @@ async function main() {
     suites.push({
       name: "Project Generation Tests",
       suite: createProjectGenerationTests()
+    });
+  }
+  if (config.suites.includes("framework")) {
+    suites.push({
+      name: "Framework Generation Tests",
+      suite: createFrameworkGenerationTests()
+    });
+  }
+  if (config.suites.includes("structure")) {
+    suites.push({
+      name: "Generator Structure Tests",
+      suite: createGeneratorStructureTests()
     });
   }
   if (suites.length === 0) {
@@ -807,7 +1109,7 @@ async function main() {
       default:
         reportContent = JSON.stringify(reportData, null, 2);
     }
-    await fs2.ensureDir(path4.dirname(config.reportPath));
+    await fs2.ensureDir(path6.dirname(config.reportPath));
     await fs2.writeFile(config.reportPath, reportContent);
     console.log(`
 \u{1F4CA} Report saved to: ${config.reportPath}`);
@@ -821,7 +1123,7 @@ CLI Test Framework
 Usage: test-runner [options]
 
 Options:
-  --suites <suites>        Comma-separated list of test suites (core,generation)
+  --suites <suites>        Comma-separated list of test suites (core,generation,framework,structure)
   --tags <tags>           Run only tests with specified tags
   --pattern <pattern>     Run only tests matching regex pattern
   --report-format <fmt>   Report format: json, junit, html (default: json)

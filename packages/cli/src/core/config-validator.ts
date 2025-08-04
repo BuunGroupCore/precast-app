@@ -1,5 +1,6 @@
-import { z } from "zod";
 import { consola } from "consola";
+import { z } from "zod";
+
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 export interface ValidationResult {
@@ -17,7 +18,7 @@ export interface CompatibilityRule {
 
 export class ConfigValidator {
   private rules: CompatibilityRule[] = [];
-  
+
   constructor() {
     this.registerDefaultRules();
   }
@@ -33,7 +34,7 @@ export class ConfigValidator {
         return true;
       },
       message: "Next.js requires React",
-      severity: "error"
+      severity: "error",
     });
 
     // Database-ORM compatibility rules
@@ -46,7 +47,7 @@ export class ConfigValidator {
         return true;
       },
       message: "Mongoose ORM can only be used with MongoDB",
-      severity: "error"
+      severity: "error",
     });
 
     this.addRule({
@@ -58,7 +59,7 @@ export class ConfigValidator {
         return true;
       },
       message: "SQLite with Prisma is not recommended for production use",
-      severity: "warning"
+      severity: "warning",
     });
 
     // Styling compatibility
@@ -69,7 +70,7 @@ export class ConfigValidator {
         return true;
       },
       message: "Tailwind CSS will automatically configure PostCSS",
-      severity: "warning"
+      severity: "warning",
     });
 
     // Backend-database rules
@@ -82,7 +83,7 @@ export class ConfigValidator {
         return true;
       },
       message: "Cannot use a database without a backend",
-      severity: "error"
+      severity: "error",
     });
 
     // Docker recommendations
@@ -95,7 +96,7 @@ export class ConfigValidator {
         return true;
       },
       message: "Docker setup is most useful when you have a database",
-      severity: "warning"
+      severity: "warning",
     });
 
     // TypeScript recommendations
@@ -108,7 +109,7 @@ export class ConfigValidator {
         return true;
       },
       message: "TypeScript is highly recommended for Angular and Vue projects",
-      severity: "warning"
+      severity: "warning",
     });
   }
 
@@ -117,7 +118,7 @@ export class ConfigValidator {
   }
 
   removeRule(ruleName: string): boolean {
-    const index = this.rules.findIndex(r => r.name === ruleName);
+    const index = this.rules.findIndex((r) => r.name === ruleName);
     if (index > -1) {
       this.rules.splice(index, 1);
       return true;
@@ -151,7 +152,7 @@ export class ConfigValidator {
       this.validateSchema(config);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        errors.push(...error.errors.map(e => `${e.path.join(".")}: ${e.message}`));
+        errors.push(...error.errors.map((e) => `${e.path.join(".")}: ${e.message}`));
       } else {
         errors.push("Schema validation failed");
       }
@@ -160,15 +161,18 @@ export class ConfigValidator {
     return {
       valid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
   private validateSchema(config: ProjectConfig): void {
     const configSchema = z.object({
-      name: z.string().min(1).regex(/^[a-z0-9-]+$/, {
-        message: "Project name must be lowercase and contain only letters, numbers, and hyphens"
-      }),
+      name: z
+        .string()
+        .min(1)
+        .regex(/^[a-z0-9-]+$/, {
+          message: "Project name must be lowercase and contain only letters, numbers, and hyphens",
+        }),
       framework: z.string().min(1),
       backend: z.string(),
       database: z.string(),
@@ -176,7 +180,7 @@ export class ConfigValidator {
       styling: z.string().min(1),
       typescript: z.boolean(),
       git: z.boolean(),
-      docker: z.boolean()
+      docker: z.boolean(),
     });
 
     configSchema.parse(config);
@@ -193,7 +197,7 @@ export class ConfigValidator {
     const testConfig = {
       ...config,
       [field1]: value1,
-      [field2]: value2
+      [field2]: value2,
     } as ProjectConfig;
 
     const result = this.validate(testConfig);
@@ -261,7 +265,7 @@ export class ConfigValidator {
       mysql: ["prisma", "drizzle", "none"],
       mongodb: ["mongoose", "prisma", "none"],
       sqlite: ["prisma", "drizzle", "none"],
-      none: ["none"]
+      none: ["none"],
     };
 
     return recommendations[database] || ["none"];

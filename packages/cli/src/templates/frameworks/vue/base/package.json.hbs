@@ -1,0 +1,27 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "{{#if typescript}}vue-tsc -b && {{/if}}vite build",
+    "preview": "vite preview"{{#if typescript}},
+    "type-check": "vue-tsc --build --force"{{/if}}
+  },
+  "dependencies": {
+    "vue": "^3.5.13"{{#if (eq styling "tailwind")}},
+    "@tailwindcss/forms": "^0.5.7"{{/if}}
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.0.5"{{#if typescript}},
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "~5.7.2",
+    "vue-tsc": "^2.2.0"{{/if}}{{#if (eq styling "tailwind")}},
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.5.6"{{/if}}{{#if (eq styling "scss")}},
+    "sass": "^1.83.2"{{/if}}
+  }
+}

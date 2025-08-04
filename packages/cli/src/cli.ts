@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-import { Command } from "commander";
-import { fileURLToPath } from "url";
-import fs from "fs-extra";
 import path from "path";
+import { fileURLToPath } from "url";
+
+import { Command } from "commander";
+import fs from "fs-extra";
+
 import { initCommand } from "./commands/init.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,7 +56,7 @@ program
   .command("add <feature>")
   .description("Add a feature to an existing project")
   .option("--install", "Install dependencies after adding feature")
-  .action(async (feature, options) => {
+  .action(async (feature, _options) => {
     console.log("Add command not yet implemented");
     console.log(`Would add feature: ${feature}`);
     // TODO: Implement add command

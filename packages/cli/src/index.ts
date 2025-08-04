@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-import { Command } from "commander";
-import inquirer from "inquirer";
-import chalk from "chalk";
-import ora from "ora";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import chalk from "chalk";
+import { Command } from "commander";
+import inquirer from "inquirer";
+import ora from "ora";
+
 import {
   validateConfiguration,
   frameworkDefs,
@@ -14,6 +16,7 @@ import {
   stylingDefs,
   type ProjectConfig,
 } from "../../shared/stack-config.js";
+
 import { createProject } from "./create-project.js";
 import { logger } from "./utils/logger.js";
 
@@ -72,13 +75,7 @@ program
     };
 
     // Early validation if all required options are provided via CLI
-    if (
-      config.framework &&
-      config.backend &&
-      config.database &&
-      config.orm &&
-      config.styling
-    ) {
+    if (config.framework && config.backend && config.database && config.orm && config.styling) {
       const validation = validateConfiguration(config);
 
       if (!validation.valid) {
@@ -247,13 +244,9 @@ program
     logger.info(`  Database: ${chalk.blue(config.database)}`);
     logger.info(`  ORM: ${chalk.magenta(config.orm)}`);
     logger.info(`  Styling: ${chalk.cyan(config.styling)}`);
-    logger.info(
-      `  TypeScript: ${config.typescript ? chalk.green("✓") : chalk.red("✗")}`,
-    );
+    logger.info(`  TypeScript: ${config.typescript ? chalk.green("✓") : chalk.red("✗")}`);
     logger.info(`  Git: ${config.git ? chalk.green("✓") : chalk.red("✗")}`);
-    logger.info(
-      `  Docker: ${config.docker ? chalk.green("✓") : chalk.red("✗")}`,
-    );
+    logger.info(`  Docker: ${config.docker ? chalk.green("✓") : chalk.red("✗")}`);
 
     // Skip confirmation if --yes flag is used
     if (!options.yes) {

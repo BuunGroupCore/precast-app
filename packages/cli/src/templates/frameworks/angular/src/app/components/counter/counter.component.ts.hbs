@@ -1,0 +1,25 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-counter',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './counter.component.html',
+  styleUrl: './counter.component.{{#if (eq styling 'scss')}}scss{{else}}css{{/if}}'
+})
+export class CounterComponent {
+  count = 0;
+
+  increment(): void {
+    this.count++;
+  }
+
+  decrement(): void {
+    this.count--;
+  }
+
+  reset(): void {
+    this.count = 0;
+  }
+}

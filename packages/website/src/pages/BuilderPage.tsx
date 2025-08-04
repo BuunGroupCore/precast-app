@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../lib/db";
 import { motion } from "framer-motion";
+import { BuilderPageSEO } from "../components/SEO";
 import { ComicDialog } from "../components/ComicDialog";
-import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { ServiceTooltip } from "../components/ServiceTooltip";
 import {
   FaCopy,
@@ -16,8 +16,11 @@ import {
   FaDocker,
   FaDatabase,
   FaGitAlt,
+  FaNpm,
+  FaYarn,
 } from "react-icons/fa";
-import { SiTypescript } from "react-icons/si";
+import { SiTypescript, SiBun, SiPnpm } from "react-icons/si";
+import { BiPackage } from "react-icons/bi";
 import {
   frameworks,
   backends,
@@ -47,6 +50,7 @@ export function BuilderPage() {
   const [savedProjects, setSavedProjects] = useState<any[]>([]);
   const [showSaved, setShowSaved] = useState(false);
   const [showTooltip, setShowTooltip] = useState("");
+  const [packageManager, setPackageManager] = useState<"npx" | "npm" | "yarn" | "pnpm" | "bun">("npx");
   const [dialog, setDialog] = useState<{
     isOpen: boolean;
     title: string;
@@ -121,7 +125,25 @@ export function BuilderPage() {
   }, []);
 
   const generateCommand = () => {
-    const parts = ["npx create-precast-app"];
+    let prefix = "";
+    switch (packageManager) {
+      case "npx":
+        prefix = "npx create-precast-app";
+        break;
+      case "npm":
+        prefix = "npm create precast-app@latest";
+        break;
+      case "yarn":
+        prefix = "yarn create precast-app";
+        break;
+      case "pnpm":
+        prefix = "pnpm create precast-app";
+        break;
+      case "bun":
+        prefix = "bun create precast-app";
+        break;
+    }
+    const parts = [prefix];
 
     parts.push(config.name);
     parts.push(`--framework=${config.framework}`);
@@ -164,45 +186,17 @@ export function BuilderPage() {
   // Stack options are now imported from stack-config
 
   return (
-    <div className="min-h-screen comic-cursor">
-      {/* Comic Book Header */}
-      <header className="border-b-4 border-comic-black bg-comic-yellow sticky top-0 z-50">
-        <div className="burst-bg text-comic-yellow" />
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
-            <a href="/" className="flex items-center">
-              <img
-                src="https://brutalist.precast.dev/logo.png"
-                alt="Precast Logo"
-                className="h-12 cursor-pointer"
-                style={{
-                  filter: "hue-rotate(340deg) saturate(2) brightness(1.2)",
-                }}
-              />
-            </a>
-
-            <nav className="absolute left-1/2 -translate-x-1/2">
-              <a href="/" className="action-text text-2xl text-comic-red">
-                HOME
-              </a>
-            </nav>
-
-            <div>
-              <ThemeSwitcher />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="py-8 px-4">
+    <div>
+      <BuilderPageSEO />
+      <main className="pb-8 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Action Title */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center mb-8"
+            className="text-center mb-6 sm:mb-8"
           >
-            <h2 className="action-text text-6xl text-comic-red mb-4">
+            <h2 className="action-text text-4xl sm:text-6xl text-comic-red mb-4">
               CHOOSE YOUR POWERS!
             </h2>
             <p className="font-comic text-xl">
@@ -288,7 +282,7 @@ export function BuilderPage() {
                 className="comic-card"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-display text-2xl text-comic-red">
+                  <h3 className="font-display text-2xl text-comic-black">
                     PROJECT NAME
                   </h3>
                   <div className="flex gap-2">
@@ -324,11 +318,59 @@ export function BuilderPage() {
                           setConfig(projectConfig);
                           setShowSaved(false);
                         }}
-                        className="w-full text-left p-2 hover:bg-comic-yellow/20 rounded font-comic text-sm"
+                        className="w-full text-left p-2 hover:bg-comic-yellow/20 rounded font-comic text-sm border-b border-comic-black/10 last:border-0"
                       >
-                        <div className="font-bold">{project.name}</div>
-                        <div className="text-xs text-gray-600">
-                          {new Date(project.createdAt).toLocaleDateString()}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-bold">{project.name}</div>
+                            <div className="text-xs text-gray-600">
+                              {new Date(project.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {/* Framework Icon */}
+                            {frameworks.find((f) => f.id === project.framework)?.icon && (
+                              <div className="p-1">
+                                {React.createElement(
+                                  frameworks.find((f) => f.id === project.framework)!.icon,
+                                  {
+                                    size: 16,
+                                    className: frameworks.find((f) => f.id === project.framework)!.color,
+                                  }
+                                )}
+                              </div>
+                            )}
+                            {/* Backend Icon */}
+                            {project.backend !== "none" && backends.find((b) => b.id === project.backend)?.icon && (
+                              <div className="p-1">
+                                {React.createElement(
+                                  backends.find((b) => b.id === project.backend)!.icon,
+                                  {
+                                    size: 16,
+                                    className: backends.find((b) => b.id === project.backend)!.color,
+                                  }
+                                )}
+                              </div>
+                            )}
+                            {/* Database Icon */}
+                            {project.database !== "none" && databases.find((d) => d.id === project.database)?.icon && (
+                              <div className="p-1">
+                                {React.createElement(
+                                  databases.find((d) => d.id === project.database)!.icon,
+                                  {
+                                    size: 16,
+                                    className: databases.find((d) => d.id === project.database)!.color,
+                                  }
+                                )}
+                              </div>
+                            )}
+                            {/* TypeScript Icon */}
+                            {project.typescript && (
+                              <div className="p-1">
+                                <SiTypescript size={16} className="text-blue-600" />
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </button>
                     ))}
@@ -868,14 +910,71 @@ export function BuilderPage() {
                   </div>
                 </div>
 
+                {/* Package Manager Tabs */}
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => setPackageManager("npx")}
+                    className={`flex items-center gap-2 px-3 py-1 font-comic text-sm font-bold border-2 rounded-lg transition-all ${
+                      packageManager === "npx"
+                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
+                        : "bg-comic-black text-comic-yellow border-comic-yellow hover:bg-comic-yellow hover:text-comic-black"
+                    }`}
+                  >
+                    <BiPackage className="text-lg" />
+                    NPX
+                  </button>
+                  <button
+                    onClick={() => setPackageManager("npm")}
+                    className={`flex items-center gap-2 px-3 py-1 font-comic text-sm font-bold border-2 rounded-lg transition-all ${
+                      packageManager === "npm"
+                        ? "bg-comic-red text-comic-white border-comic-black shadow-comic"
+                        : "bg-comic-black text-comic-red border-comic-red hover:bg-comic-red hover:text-comic-white"
+                    }`}
+                  >
+                    <FaNpm className="text-lg" />
+                    NPM
+                  </button>
+                  <button
+                    onClick={() => setPackageManager("yarn")}
+                    className={`flex items-center gap-2 px-3 py-1 font-comic text-sm font-bold border-2 rounded-lg transition-all ${
+                      packageManager === "yarn"
+                        ? "bg-comic-blue text-comic-white border-comic-black shadow-comic"
+                        : "bg-comic-black text-comic-blue border-comic-blue hover:bg-comic-blue hover:text-comic-white"
+                    }`}
+                  >
+                    <FaYarn className="text-lg" />
+                    YARN
+                  </button>
+                  <button
+                    onClick={() => setPackageManager("pnpm")}
+                    className={`flex items-center gap-2 px-3 py-1 font-comic text-sm font-bold border-2 rounded-lg transition-all ${
+                      packageManager === "pnpm"
+                        ? "bg-comic-orange text-comic-white border-comic-black shadow-comic"
+                        : "bg-comic-black text-comic-orange border-comic-orange hover:bg-comic-orange hover:text-comic-white"
+                    }`}
+                  >
+                    <SiPnpm className="text-lg" />
+                    PNPM
+                  </button>
+                  <button
+                    onClick={() => setPackageManager("bun")}
+                    className={`flex items-center gap-2 px-3 py-1 font-comic text-sm font-bold border-2 rounded-lg transition-all ${
+                      packageManager === "bun"
+                        ? "bg-comic-purple text-comic-white border-comic-black shadow-comic"
+                        : "bg-comic-black text-comic-purple border-comic-purple hover:bg-comic-purple hover:text-comic-white"
+                    }`}
+                  >
+                    <SiBun className="text-lg" />
+                    BUN
+                  </button>
+                </div>
+
                 <div className="bg-black/20 rounded p-4 font-mono text-sm">
                   <div className="mb-2 text-xs text-comic-yellow font-comic flex items-center gap-2">
                     <FaLightbulb /> TIP: Click individual flags to copy them!
                   </div>
                   <pre className="whitespace-pre-wrap break-all text-comic-green">
-                    <span className="text-comic-yellow">$</span> npx
-                    create-precast-app{" "}
-                    <span className="text-comic-blue">{config.name}</span>
+                    <span className="text-comic-yellow">$</span> {generateCommand()}
                     {config.framework && (
                       <>
                         {" "}

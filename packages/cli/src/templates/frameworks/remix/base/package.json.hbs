@@ -1,0 +1,41 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "build": "remix vite:build",
+    "dev": "remix vite:dev",
+    "start": "remix-serve build/server/index.js",
+    "typecheck": "tsc"{{#if (eq orm "prisma")}},
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"{{/if}}
+  },
+  "dependencies": {
+    "@remix-run/node": "^2.13.1",
+    "@remix-run/react": "^2.13.1",
+    "@remix-run/serve": "^2.13.1",
+    "isbot": "^4.4.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"{{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}},
+    "axios": "^1.7.7"{{/ifAny}}{{#if (eq orm "prisma")}},
+    "@prisma/client": "^5.20.0"{{/if}}
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.13.1",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8"{{#if (eq styling "tailwind")}},
+    "tailwindcss": "^3.4.13",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},
+    "sass": "^1.79.4"{{/if}}{{#if (eq orm "prisma")}},
+    "prisma": "^5.20.0"{{/if}}
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

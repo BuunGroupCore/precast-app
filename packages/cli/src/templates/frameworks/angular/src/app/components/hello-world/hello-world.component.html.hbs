@@ -1,0 +1,34 @@
+<div{{#if (eq styling "tailwind")}} class="bg-white rounded-lg shadow-md p-6"{{else}} class="card"{{/if}}>
+  <h2{{#if (eq styling "tailwind")}} class="text-2xl font-semibold text-gray-800 mb-4"{{else}} class="card-title"{{/if}}>{{ message }}</h2>
+  
+  <div{{#if (eq styling "tailwind")}} class="space-y-4"{{else}} class="links"{{/if}}>
+    <p{{#if (eq styling "tailwind")}} class="text-gray-600"{{/if}}>
+      Check out the following resources:
+    </p>
+    
+    <ul{{#if (eq styling "tailwind")}} class="space-y-2"{{else}} class="link-list"{{/if}}>
+      <li>
+        <a href="https://angular.dev/"{{#if (eq styling "tailwind")}} class="text-blue-600 hover:text-blue-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+          Angular Documentation
+        </a>
+      </li>
+      <li>
+        <a href="https://angular.dev/cli"{{#if (eq styling "tailwind")}} class="text-blue-600 hover:text-blue-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+          Angular CLI Documentation
+        </a>
+      </li>
+      <li>
+        <a href="https://www.typescriptlang.org/"{{#if (eq styling "tailwind")}} class="text-blue-600 hover:text-blue-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+          TypeScript Documentation
+        </a>
+      </li>
+      {{#if (eq styling "tailwind")}}
+      <li>
+        <a href="https://tailwindcss.com/"{{#if (eq styling "tailwind")}} class="text-blue-600 hover:text-blue-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+          Tailwind CSS Documentation
+        </a>
+      </li>
+      {{/if}}
+    </ul>
+  </div>
+</div>

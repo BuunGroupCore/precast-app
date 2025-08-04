@@ -1,0 +1,84 @@
+<template>
+  <div{{#if (eq styling "tailwind")}} class="bg-white rounded-lg shadow-md p-6"{{else}} class="card"{{/if}}>
+    <h2{{#if (eq styling "tailwind")}} class="text-2xl font-semibold text-gray-800 mb-4"{{else}} class="card-title"{{/if}}>{{ msg }}</h2>
+    
+    <div{{#if (eq styling "tailwind")}} class="space-y-4"{{else}} class="links"{{/if}}>
+      <p{{#if (eq styling "tailwind")}} class="text-gray-600"{{/if}}>
+        Check out the following resources:
+      </p>
+      
+      <ul{{#if (eq styling "tailwind")}} class="space-y-2"{{else}} class="link-list"{{/if}}>
+        <li>
+          <a href="https://vuejs.org/"{{#if (eq styling "tailwind")}} class="text-green-600 hover:text-green-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+            Vue 3 Documentation
+          </a>
+        </li>
+        <li>
+          <a href="https://vitejs.dev/"{{#if (eq styling "tailwind")}} class="text-green-600 hover:text-green-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+            Vite Documentation
+          </a>
+        </li>
+        {{#if typescript}}
+        <li>
+          <a href="https://www.typescriptlang.org/"{{#if (eq styling "tailwind")}} class="text-green-600 hover:text-green-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+            TypeScript Documentation
+          </a>
+        </li>
+        {{/if}}
+        {{#if (eq styling "tailwind")}}
+        <li>
+          <a href="https://tailwindcss.com/"{{#if (eq styling "tailwind")}} class="text-green-600 hover:text-green-700 underline"{{else}} class="link"{{/if}} target="_blank" rel="noopener">
+            Tailwind CSS Documentation
+          </a>
+        </li>
+        {{/if}}
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script{{#if typescript}} lang="ts"{{/if}} setup>
+defineProps<{
+  msg: string
+}>()
+</script>
+
+{{#unless (eq styling "tailwind")}}
+<style{{#if (eq styling "scss")}} lang="scss"{{/if}} scoped>
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.links {
+  margin-top: 1.5rem;
+}
+
+.link-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.link-list li {
+  margin-bottom: 0.5rem;
+}
+
+.link {
+  color: #42b883;
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+</style>
+{{/unless}}

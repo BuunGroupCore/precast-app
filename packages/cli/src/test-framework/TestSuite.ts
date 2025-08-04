@@ -1,6 +1,7 @@
-import { spawn, ChildProcess } from "child_process";
-import fs from "fs-extra";
+import { spawn } from "child_process";
 import path from "path";
+
+import fs from "fs-extra";
 
 export interface TestContext {
   tempDir: string;
@@ -45,14 +46,14 @@ export class TestSuite {
 
   constructor(
     private cliPath: string,
-    private baseTestDir: string = path.join(process.cwd(), "test-output"),
+    private baseTestDir: string = path.join(process.cwd(), "test-output")
   ) {}
 
   // Test registration
   test(
     name: string,
     fn: (context: TestContext) => Promise<void>,
-    options: { timeout?: number; tags?: string[] } = {},
+    options: { timeout?: number; tags?: string[] } = {}
   ) {
     this.tests.push({
       name,
@@ -87,7 +88,7 @@ export class TestSuite {
       timeout?: number;
       cwd?: string;
       env?: Record<string, string>;
-    } = {},
+    } = {}
   ): Promise<CLIRunResult> {
     const startTime = Date.now();
 
@@ -157,17 +158,13 @@ export class TestSuite {
 
   async expectContains(text: string, substring: string, message?: string) {
     if (!text.includes(substring)) {
-      throw new Error(
-        message || `Expected "${text}" to contain "${substring}"`,
-      );
+      throw new Error(message || `Expected "${text}" to contain "${substring}"`);
     }
   }
 
   async expectNotContains(text: string, substring: string, message?: string) {
     if (text.includes(substring)) {
-      throw new Error(
-        message || `Expected "${text}" to not contain "${substring}"`,
-      );
+      throw new Error(message || `Expected "${text}" to not contain "${substring}"`);
     }
   }
 
@@ -191,56 +188,36 @@ export class TestSuite {
     }
   }
 
-  async expectFileContains(
-    filePath: string,
-    content: string,
-    message?: string,
-  ) {
+  async expectFileContains(filePath: string, content: string, message?: string) {
     const fullPath = path.isAbsolute(filePath)
       ? filePath
       : path.join(this.context!.tempDir, filePath);
 
     const fileContent = await fs.readFile(fullPath, "utf-8");
     if (!fileContent.includes(content)) {
-      throw new Error(
-        message || `File ${filePath} does not contain "${content}"`,
-      );
+      throw new Error(message || `File ${filePath} does not contain "${content}"`);
     }
   }
 
-  async expectFileNotContains(
-    filePath: string,
-    content: string,
-    message?: string,
-  ) {
+  async expectFileNotContains(filePath: string, content: string, message?: string) {
     const fullPath = path.isAbsolute(filePath)
       ? filePath
       : path.join(this.context!.tempDir, filePath);
 
     const fileContent = await fs.readFile(fullPath, "utf-8");
     if (fileContent.includes(content)) {
-      throw new Error(
-        message || `File ${filePath} should not contain "${content}"`,
-      );
+      throw new Error(message || `File ${filePath} should not contain "${content}"`);
     }
   }
 
-  async expectExitCode(
-    result: CLIRunResult,
-    expectedCode: number,
-    message?: string,
-  ) {
+  async expectExitCode(result: CLIRunResult, expectedCode: number, message?: string) {
     if (result.exitCode !== expectedCode) {
-      throw new Error(
-        message || `Expected exit code ${expectedCode}, got ${result.exitCode}`,
-      );
+      throw new Error(message || `Expected exit code ${expectedCode}, got ${result.exitCode}`);
     }
   }
 
   // Test execution
-  async run(
-    options: { tags?: string[]; pattern?: RegExp } = {},
-  ): Promise<TestResult[]> {
+  async run(options: { tags?: string[]; pattern?: RegExp } = {}): Promise<TestResult[]> {
     console.log("🧪 Starting CLI Test Suite\n");
 
     // Run beforeAll hooks
@@ -252,13 +229,11 @@ export class TestSuite {
     let testsToRun = this.tests;
     if (options.tags) {
       testsToRun = testsToRun.filter((test) =>
-        test.tags?.some((tag) => options.tags!.includes(tag)),
+        test.tags?.some((tag) => options.tags!.includes(tag))
       );
     }
     if (options.pattern) {
-      testsToRun = testsToRun.filter((test) =>
-        options.pattern!.test(test.name),
-      );
+      testsToRun = testsToRun.filter((test) => options.pattern!.test(test.name));
     }
 
     for (const test of testsToRun) {
@@ -270,7 +245,7 @@ export class TestSuite {
         // Setup test context
         const tempDir = path.join(
           this.baseTestDir,
-          `test-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          `test-${Date.now()}-${Math.random().toString(36).slice(2)}`
         );
         await fs.ensureDir(tempDir);
 
@@ -291,7 +266,7 @@ export class TestSuite {
         await Promise.race([
           test.fn(this.context),
           new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Test timeout")), test.timeout!),
+            setTimeout(() => reject(new Error("Test timeout")), test.timeout!)
           ),
         ]);
 
@@ -340,9 +315,7 @@ export class TestSuite {
     const failed = this.results.filter((r) => !r.passed).length;
     const totalDuration = this.results.reduce((sum, r) => sum + r.duration, 0);
 
-    console.log(
-      `\n📊 Test Results: ${passed} passed, ${failed} failed (${totalDuration}ms total)`,
-    );
+    console.log(`\n📊 Test Results: ${passed} passed, ${failed} failed (${totalDuration}ms total)`);
 
     if (failed > 0) {
       console.log("\n❌ Failed Tests:");
@@ -371,7 +344,7 @@ export class TestSuite {
             tests: this.results,
           },
           null,
-          2,
+          2
         );
 
       case "junit":
@@ -388,8 +361,7 @@ export class TestSuite {
   private generateJUnitReport(): string {
     const total = this.results.length;
     const failures = this.results.filter((r) => !r.passed).length;
-    const duration =
-      this.results.reduce((sum, r) => sum + r.duration, 0) / 1000;
+    const duration = this.results.reduce((sum, r) => sum + r.duration, 0) / 1000;
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="CLI Tests" tests="${total}" failures="${failures}" time="${duration}">`;
@@ -449,7 +421,7 @@ export class TestSuite {
       <h3>${result.name} (${result.duration}ms)</h3>
       ${result.error ? `<div class="error">${result.error}</div>` : ""}
     </div>
-  `,
+  `
     )
     .join("")}
 </body>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Kalam:wght@400;700&family=Comic+Neue:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Kalam:wght@400;700&family=Comic+Neue:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,148 +6,148 @@
 
 /* Theme Variables */
 :root[data-theme="classic"] {
-  --comic-red: #FF1744;
-  --comic-dark-red: #D50000;
-  --comic-blue: #2962FF;
-  --comic-dark-blue: #0D47A1;
-  --comic-yellow: #FFD600;
-  --comic-dark-yellow: #F57F17;
-  --comic-green: #00E676;
-  --comic-dark-green: #00C853;
-  --comic-purple: #AA00FF;
-  --comic-dark-purple: #7200CA;
-  --comic-orange: #FF6D00;
-  --comic-dark-orange: #E65100;
-  --comic-pink: #FF4081;
-  --comic-dark-pink: #F50057;
+  --comic-red: #ff1744;
+  --comic-dark-red: #d50000;
+  --comic-blue: #2962ff;
+  --comic-dark-blue: #0d47a1;
+  --comic-yellow: #ffd600;
+  --comic-dark-yellow: #f57f17;
+  --comic-green: #00e676;
+  --comic-dark-green: #00c853;
+  --comic-purple: #aa00ff;
+  --comic-dark-purple: #7200ca;
+  --comic-orange: #ff6d00;
+  --comic-dark-orange: #e65100;
+  --comic-pink: #ff4081;
+  --comic-dark-pink: #f50057;
   --comic-black: #000000;
-  --comic-white: #FFFFFF;
-  --comic-gray: #F5F5F5;
-  --panel-bg: #FFF8E1;
-  --pow-main: #FFD600;
-  --pow-dark: #F9A825;
-  --bam-main: #FF1744;
-  --bam-dark: #D50000;
-  --zap-main: #00E676;
-  --zap-dark: #00C853;
-  --boom-main: #AA00FF;
-  --boom-dark: #7200CA;
+  --comic-white: #ffffff;
+  --comic-gray: #f5f5f5;
+  --panel-bg: #fff8e1;
+  --pow-main: #ffd600;
+  --pow-dark: #f9a825;
+  --bam-main: #ff1744;
+  --bam-dark: #d50000;
+  --zap-main: #00e676;
+  --zap-dark: #00c853;
+  --boom-main: #aa00ff;
+  --boom-dark: #7200ca;
 }
 
 :root[data-theme="dark"] {
-  --comic-red: #FF5252;
-  --comic-dark-red: #D32F2F;
-  --comic-blue: #448AFF;
-  --comic-dark-blue: #1976D2;
-  --comic-yellow: #FFD740;
-  --comic-dark-yellow: #FFC107;
-  --comic-green: #69F0AE;
-  --comic-dark-green: #00E676;
-  --comic-purple: #E040FB;
-  --comic-dark-purple: #AA00FF;
-  --comic-orange: #FFAB40;
-  --comic-dark-orange: #FF6D00;
-  --comic-pink: #FF80AB;
-  --comic-dark-pink: #FF4081;
+  --comic-red: #ff5252;
+  --comic-dark-red: #d32f2f;
+  --comic-blue: #448aff;
+  --comic-dark-blue: #1976d2;
+  --comic-yellow: #ffd740;
+  --comic-dark-yellow: #ffc107;
+  --comic-green: #69f0ae;
+  --comic-dark-green: #00e676;
+  --comic-purple: #e040fb;
+  --comic-dark-purple: #aa00ff;
+  --comic-orange: #ffab40;
+  --comic-dark-orange: #ff6d00;
+  --comic-pink: #ff80ab;
+  --comic-dark-pink: #ff4081;
   --comic-black: #212121;
-  --comic-white: #FAFAFA;
+  --comic-white: #fafafa;
   --comic-gray: #424242;
   --panel-bg: #303030;
-  --pow-main: #FFD740;
-  --pow-dark: #FFC107;
-  --bam-main: #FF5252;
-  --bam-dark: #D32F2F;
-  --zap-main: #69F0AE;
-  --zap-dark: #00E676;
-  --boom-main: #E040FB;
-  --boom-dark: #AA00FF;
+  --pow-main: #ffd740;
+  --pow-dark: #ffc107;
+  --bam-main: #ff5252;
+  --bam-dark: #d32f2f;
+  --zap-main: #69f0ae;
+  --zap-dark: #00e676;
+  --boom-main: #e040fb;
+  --boom-dark: #aa00ff;
 }
 
 :root[data-theme="retro"] {
-  --comic-red: #FF6B6B;
-  --comic-dark-red: #EE5A6F;
-  --comic-blue: #4ECDC4;
-  --comic-dark-blue: #45B7AA;
-  --comic-yellow: #FFE66D;
-  --comic-dark-yellow: #F7D060;
-  --comic-green: #95E1D3;
-  --comic-dark-green: #81D4C3;
-  --comic-purple: #C7CEEA;
-  --comic-dark-purple: #B8B8D1;
-  --comic-orange: #FECA57;
-  --comic-dark-orange: #F5B342;
-  --comic-pink: #FF9FF3;
-  --comic-dark-pink: #F48FB1;
-  --comic-black: #2D3436;
-  --comic-white: #FFFFFF;
-  --comic-gray: #FAF3E0;
-  --panel-bg: #FFEAA7;
-  --pow-main: #FFE66D;
-  --pow-dark: #F7D060;
-  --bam-main: #FF6B6B;
-  --bam-dark: #EE5A6F;
-  --zap-main: #4ECDC4;
-  --zap-dark: #45B7AA;
-  --boom-main: #C7CEEA;
-  --boom-dark: #B8B8D1;
+  --comic-red: #ff6b6b;
+  --comic-dark-red: #ee5a6f;
+  --comic-blue: #4ecdc4;
+  --comic-dark-blue: #45b7aa;
+  --comic-yellow: #ffe66d;
+  --comic-dark-yellow: #f7d060;
+  --comic-green: #95e1d3;
+  --comic-dark-green: #81d4c3;
+  --comic-purple: #c7ceea;
+  --comic-dark-purple: #b8b8d1;
+  --comic-orange: #feca57;
+  --comic-dark-orange: #f5b342;
+  --comic-pink: #ff9ff3;
+  --comic-dark-pink: #f48fb1;
+  --comic-black: #2d3436;
+  --comic-white: #ffffff;
+  --comic-gray: #faf3e0;
+  --panel-bg: #ffeaa7;
+  --pow-main: #ffe66d;
+  --pow-dark: #f7d060;
+  --bam-main: #ff6b6b;
+  --bam-dark: #ee5a6f;
+  --zap-main: #4ecdc4;
+  --zap-dark: #45b7aa;
+  --boom-main: #c7ceea;
+  --boom-dark: #b8b8d1;
 }
 
 :root[data-theme="neon"] {
-  --comic-red: #FF006E;
-  --comic-dark-red: #C10049;
-  --comic-blue: #3A86FF;
-  --comic-dark-blue: #2968DB;
-  --comic-yellow: #FFBE0B;
-  --comic-dark-yellow: #FB8500;
-  --comic-green: #06FFA5;
-  --comic-dark-green: #00CC82;
-  --comic-purple: #8338EC;
-  --comic-dark-purple: #6023B0;
-  --comic-orange: #FB5607;
-  --comic-dark-orange: #E04502;
-  --comic-pink: #FF006E;
-  --comic-dark-pink: #C10049;
-  --comic-black: #0A0A0A;
-  --comic-white: #FFFFFF;
-  --comic-gray: #1A1A1A;
-  --panel-bg: #0F0F0F;
-  --pow-main: #FFBE0B;
-  --pow-dark: #FB8500;
-  --bam-main: #FF006E;
-  --bam-dark: #C10049;
-  --zap-main: #06FFA5;
-  --zap-dark: #00CC82;
-  --boom-main: #8338EC;
-  --boom-dark: #6023B0;
+  --comic-red: #ff006e;
+  --comic-dark-red: #c10049;
+  --comic-blue: #3a86ff;
+  --comic-dark-blue: #2968db;
+  --comic-yellow: #ffbe0b;
+  --comic-dark-yellow: #fb8500;
+  --comic-green: #06ffa5;
+  --comic-dark-green: #00cc82;
+  --comic-purple: #8338ec;
+  --comic-dark-purple: #6023b0;
+  --comic-orange: #fb5607;
+  --comic-dark-orange: #e04502;
+  --comic-pink: #ff006e;
+  --comic-dark-pink: #c10049;
+  --comic-black: #0a0a0a;
+  --comic-white: #ffffff;
+  --comic-gray: #1a1a1a;
+  --panel-bg: #0f0f0f;
+  --pow-main: #ffbe0b;
+  --pow-dark: #fb8500;
+  --bam-main: #ff006e;
+  --bam-dark: #c10049;
+  --zap-main: #06ffa5;
+  --zap-dark: #00cc82;
+  --boom-main: #8338ec;
+  --boom-dark: #6023b0;
 }
 
 :root[data-theme="manga"] {
-  --comic-red: #FF0000;
-  --comic-dark-red: #CC0000;
+  --comic-red: #ff0000;
+  --comic-dark-red: #cc0000;
   --comic-blue: #000000;
-  --comic-dark-blue: #1A1A1A;
-  --comic-yellow: #FFFFFF;
-  --comic-dark-yellow: #E0E0E0;
+  --comic-dark-blue: #1a1a1a;
+  --comic-yellow: #ffffff;
+  --comic-dark-yellow: #e0e0e0;
   --comic-green: #666666;
-  --comic-dark-green: #4D4D4D;
+  --comic-dark-green: #4d4d4d;
   --comic-purple: #999999;
   --comic-dark-purple: #808080;
   --comic-orange: #333333;
-  --comic-dark-orange: #1A1A1A;
-  --comic-pink: #FF0000;
-  --comic-dark-pink: #CC0000;
+  --comic-dark-orange: #1a1a1a;
+  --comic-pink: #ff0000;
+  --comic-dark-pink: #cc0000;
   --comic-black: #000000;
-  --comic-white: #FFFFFF;
-  --comic-gray: #F5F5F5;
-  --panel-bg: #FFFFFF;
-  --pow-main: #FFFFFF;
-  --pow-dark: #E0E0E0;
+  --comic-white: #ffffff;
+  --comic-gray: #f5f5f5;
+  --panel-bg: #ffffff;
+  --pow-main: #ffffff;
+  --pow-dark: #e0e0e0;
   --bam-main: #000000;
-  --bam-dark: #1A1A1A;
-  --zap-main: #FF0000;
-  --zap-dark: #CC0000;
+  --bam-dark: #1a1a1a;
+  --zap-main: #ff0000;
+  --zap-dark: #cc0000;
   --boom-main: #666666;
-  --boom-dark: #4D4D4D;
+  --boom-dark: #4d4d4d;
 }
 
 @layer base {
@@ -159,7 +159,7 @@
     @apply min-h-screen antialiased;
     background-color: var(--panel-bg);
     color: var(--comic-black);
-    background-image: 
+    background-image:
       repeating-linear-gradient(
         0deg,
         transparent,
@@ -189,7 +189,7 @@
     @apply relative border-4 rounded-lg;
     background-color: var(--comic-white);
     border-color: var(--comic-black);
-    box-shadow: 
+    box-shadow:
       4px 4px 0 var(--comic-black),
       8px 8px 0 rgba(0, 0, 0, 0.5);
     transform: rotate(-0.5deg);
@@ -209,7 +209,7 @@
   }
 
   .speech-bubble::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -15px;
     left: 30px;
@@ -297,7 +297,7 @@
   /* Action Text */
   .action-text {
     @apply inline-block font-display text-4xl uppercase;
-    text-shadow: 
+    text-shadow:
       3px 3px 0 var(--comic-black),
       -1px -1px 0 var(--comic-black),
       1px -1px 0 var(--comic-black),
@@ -339,17 +339,16 @@
     background-color: var(--comic-black);
     border-color: var(--comic-black);
     color: var(--comic-green);
-    box-shadow: 
+    box-shadow:
       4px 4px 0 var(--comic-black),
       8px 8px 0 rgba(0, 0, 0, 0.5);
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 20px,
-        rgba(0, 255, 0, 0.05) 20px,
-        rgba(0, 255, 0, 0.05) 21px
-      );
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 20px,
+      rgba(0, 255, 0, 0.05) 20px,
+      rgba(0, 255, 0, 0.05) 21px
+    );
   }
 
   /* Comic Badge */
@@ -365,7 +364,7 @@
   }
 
   .section-title::before {
-    content: '';
+    content: "";
     @apply absolute -inset-4 rounded-lg;
     background-color: var(--comic-yellow);
     transform: rotate(-2deg);
@@ -375,12 +374,13 @@
   /* Burst Background */
   .burst-bg {
     @apply absolute inset-0;
-    background-image: 
-      radial-gradient(circle at center, 
-        transparent 30%, 
-        currentColor 30%, 
-        currentColor 40%, 
-        transparent 40%);
+    background-image: radial-gradient(
+      circle at center,
+      transparent 30%,
+      currentColor 30%,
+      currentColor 40%,
+      transparent 40%
+    );
     opacity: 0.1;
   }
 
@@ -396,7 +396,7 @@
   }
 
   .comic-tooltip::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -10px;
     left: 50%;
@@ -409,7 +409,7 @@
   }
 
   .comic-tooltip::before {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -7px;
     left: 50%;
@@ -431,7 +431,7 @@
     @apply relative border-4 rounded-lg p-6 max-w-md w-full;
     background-color: var(--comic-white);
     border-color: var(--comic-black);
-    box-shadow: 
+    box-shadow:
       8px 8px 0 var(--comic-black),
       16px 16px 0 rgba(0, 0, 0, 0.5);
     transform: rotate(-1deg);
@@ -476,7 +476,7 @@
   }
 
   .comic-shadow-lg {
-    box-shadow: 
+    box-shadow:
       6px 6px 0 rgba(0, 0, 0, 1),
       12px 12px 0 rgba(0, 0, 0, 0.5);
   }
@@ -489,8 +489,13 @@
 
   /* Speed Lines */
   .speed-lines {
-    background-image: 
-      linear-gradient(90deg, transparent 48%, currentColor 49%, currentColor 51%, transparent 52%);
+    background-image: linear-gradient(
+      90deg,
+      transparent 48%,
+      currentColor 49%,
+      currentColor 51%,
+      transparent 52%
+    );
     background-size: 20px 100%;
   }
 
@@ -516,21 +521,21 @@
 ::-webkit-scrollbar-thumb {
   background-color: var(--comic-red);
   border: 3px solid var(--comic-black);
-  box-shadow: 
+  box-shadow:
     2px 2px 0 var(--comic-black),
     inset -1px -1px 0 var(--comic-dark-red);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--comic-dark-red);
-  box-shadow: 
+  box-shadow:
     3px 3px 0 var(--comic-black),
     inset -1px -1px 0 var(--comic-red);
 }
 
 ::-webkit-scrollbar-thumb:active {
   background-color: var(--comic-red);
-  box-shadow: 
+  box-shadow:
     1px 1px 0 var(--comic-black),
     inset -1px -1px 0 var(--comic-dark-red);
 }
@@ -548,12 +553,16 @@
 
 /* Comic Cursor */
 .comic-cursor {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="0,0 0,24 6,18 11,27 15,25 10,16 20,16" fill="%23FFD600" stroke="%23000" stroke-width="2"/></svg>'), auto;
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="0,0 0,24 6,18 11,27 15,25 10,16 20,16" fill="%23FFD600" stroke="%23000" stroke-width="2"/></svg>'),
+    auto;
 }
 
 /* Comic Pointer Cursor */
 .comic-cursor * {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="0,0 0,24 6,18 11,27 15,25 10,16 20,16" fill="%23FFD600" stroke="%23000" stroke-width="2"/></svg>'), auto;
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="0,0 0,24 6,18 11,27 15,25 10,16 20,16" fill="%23FFD600" stroke="%23000" stroke-width="2"/></svg>'),
+    auto;
 }
 
 .comic-cursor a,
@@ -565,7 +574,9 @@
 .comic-cursor input[type="reset"],
 .comic-cursor select,
 .comic-cursor [tabindex]:not([tabindex="-1"]) {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M5,5 L5,20 L10,15 L15,25 L20,22 L15,12 L25,12 Z" fill="%23FF1744" stroke="%23000" stroke-width="2"/><text x="18" y="10" font-family="Arial Black" font-size="10" fill="%23FFD600" stroke="%23000" stroke-width="1">!</text></svg>'), pointer;
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M5,5 L5,20 L10,15 L15,25 L20,22 L15,12 L25,12 Z" fill="%23FF1744" stroke="%23000" stroke-width="2"/><text x="18" y="10" font-family="Arial Black" font-size="10" fill="%23FFD600" stroke="%23000" stroke-width="1">!</text></svg>'),
+    pointer;
 }
 
 /* Focus Visible Comic Style */
@@ -573,6 +584,40 @@
   @apply outline-none ring-4 ring-offset-2;
   ring-color: var(--comic-yellow);
   ring-offset-color: var(--comic-white);
+}
+
+/* Header Navigation Hover Effects */
+header nav a:hover,
+header nav button:hover {
+  background-color: var(--comic-yellow);
+  color: var(--comic-black);
+  transform: translateY(-2px) rotate(-1deg);
+  box-shadow: 3px 3px 0 var(--comic-black);
+  transition: all 0.2s ease;
+}
+
+header nav a,
+header nav button {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+header nav a::after,
+header nav button::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 3px;
+  background-color: var(--comic-yellow);
+  transition: transform 0.2s ease;
+}
+
+header nav a:hover::after,
+header nav button:hover::after {
+  transform: translateX(-50%) scaleX(1);
 }
 
 /* Animation Classes */
@@ -590,13 +635,12 @@
 
 /* Comic Book Specific Fonts */
 .font-comic {
-  font-family: 'Kalam', 'Comic Neue', cursive;
+  font-family: "Kalam", "Comic Neue", cursive;
 }
 
 .font-action {
-  font-family: 'Bangers', cursive;
+  font-family: "Bangers", cursive;
 }
-
 
 /* Mobile-specific improvements */
 @media (max-width: 768px) {
@@ -605,37 +649,39 @@
     letter-spacing: 0.05em;
     line-height: 1.1;
   }
-  
+
   /* Improve touch targets */
-  button, a, [role="button"] {
+  button,
+  a,
+  [role="button"] {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Better spacing for mobile comic panels */
   .comic-panel {
     padding: 1rem;
     margin: 0.5rem 0;
   }
-  
+
   /* Responsive speech bubbles */
   .speech-bubble {
     padding: 1rem;
     max-width: 95%;
   }
-  
+
   /* Mobile-friendly code blocks */
   .terminal-comic {
     font-size: 0.875rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Improve modal/overlay accessibility on mobile */
   .fixed.inset-0 {
     z-index: 9999;
   }
-  
+
   /* Better mobile navigation visibility */
   .xl\:hidden {
     display: block;
@@ -647,17 +693,17 @@
   .action-text {
     font-size: clamp(2rem, 8vw, 4rem);
   }
-  
+
   .font-display {
     font-size: clamp(1.25rem, 5vw, 2rem);
   }
-  
+
   /* Ensure proper spacing on very small screens */
   .px-4 {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   /* Make sure mobile toggles are easily accessible */
   .fixed.top-36 {
     top: 8rem;

@@ -13,30 +13,28 @@ import {
   FaEnvelope,
   FaHeart,
 } from "react-icons/fa";
+import { SiNpm } from "react-icons/si";
 import { motion } from "framer-motion";
 
 export function Footer() {
   return (
-    <footer 
-      className="border-t-4 py-8 sm:py-12 px-4 relative overflow-hidden" 
-      style={{ 
-        borderColor: 'var(--comic-black)', 
-        backgroundColor: 'var(--comic-black)' 
+    <footer
+      className="border-t-4 py-8 sm:py-12 px-4 relative overflow-hidden"
+      style={{
+        borderColor: "var(--comic-black)",
+        backgroundColor: "var(--comic-black)",
       }}
     >
       {/* Comic book effect dots */}
       <div className="absolute inset-0 opacity-5">
-        <div className="halftone h-full" style={{ color: 'var(--comic-yellow)' }} />
+        <div className="halftone h-full" style={{ color: "var(--comic-yellow)" }} />
       </div>
 
       <div className="max-w-7xl mx-auto relative">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="inline-block"
-            >
+            <motion.div whileHover={{ scale: 1.05 }} className="inline-block">
               <img
                 src="https://brutalist.precast.dev/logo.png"
                 alt="Precast Logo"
@@ -58,8 +56,18 @@ export function Footer() {
                 <FaGithub size={20} />
               </motion.a>
               <motion.a
-                href="https://x.com/buungroup"
+                href="https://www.npmjs.com/package/create-precast-app"
                 whileHover={{ scale: 1.2, rotate: -5 }}
+                whileTap={{ scale: 0.9 }}
+                className="text-comic-white hover:text-comic-red transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <SiNpm size={20} />
+              </motion.a>
+              <motion.a
+                href="https://x.com/buungroup"
+                whileHover={{ scale: 1.2, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 className="text-comic-white hover:text-comic-yellow transition-colors"
                 target="_blank"
@@ -69,7 +77,7 @@ export function Footer() {
               </motion.a>
               <motion.a
                 href="https://www.linkedin.com/company/buun-group"
-                whileHover={{ scale: 1.2, rotate: 5 }}
+                whileHover={{ scale: 1.2, rotate: -5 }}
                 whileTap={{ scale: 0.9 }}
                 className="text-comic-white hover:text-comic-yellow transition-colors"
                 target="_blank"
@@ -79,7 +87,7 @@ export function Footer() {
               </motion.a>
               <motion.a
                 href="https://discord.gg/4Wen9Pg3rG"
-                whileHover={{ scale: 1.2, rotate: -5 }}
+                whileHover={{ scale: 1.2, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 className="text-comic-white hover:text-comic-yellow transition-colors"
                 target="_blank"

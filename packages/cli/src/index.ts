@@ -14,17 +14,15 @@ import {
   databaseDefs,
   ormDefs,
   stylingDefs,
+  runtimeDefs,
   type ProjectConfig,
 } from "../../shared/stack-config.js";
 
 import { createProject } from "./create-project.js";
 import { logger } from "./utils/logger.js";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const program = new Command();
-
 program
   .name("create-precast-app")
   .description("CLI to scaffold modern web applications with your chosen stack")
@@ -35,14 +33,13 @@ program
   .option("-d, --database <database>", "Database")
   .option("-o, --orm <orm>", "ORM")
   .option("-s, --styling <styling>", "Styling solution")
+  .option("-r, --runtime <runtime>", "Runtime environment")
   .option("--no-typescript", "Disable TypeScript")
   .option("--no-git", "Skip git initialization")
   .option("--docker", "Include Docker configuration")
   .option("-y, --yes", "Skip all prompts and use defaults")
   .action(async (projectName, options) => {
     logger.header("🚀 PRECAST APP GENERATOR");
-
-    // Interactive mode if no project name provided
     if (!projectName) {
       const { name } = await inquirer.prompt([
         {
@@ -61,7 +58,6 @@ program
       ]);
       projectName = name;
     }
-
     const config: ProjectConfig = {
       name: projectName,
       framework: options.framework || "",
@@ -69,15 +65,25 @@ program
       database: options.database || "",
       orm: options.orm || "",
       styling: options.styling || "",
+      runtime: options.runtime || "",
       typescript: options.typescript !== false,
       git: options.git !== false,
       docker: options.docker || false,
+      packageManager: options.packageManager || "npm",
+      uiLibrary: undefined,
+      aiContext: undefined,
+      projectPath: path.resolve(process.cwd(), projectName),
+      language: options.typescript !== false ? "typescript" : "javascript",
     };
-
-    // Early validation if all required options are provided via CLI
-    if (config.framework && config.backend && config.database && config.orm && config.styling) {
+    if (
+      config.framework &&
+      config.backend &&
+      config.database &&
+      config.orm &&
+      config.styling &&
+      config.runtime
+    ) {
       const validation = validateConfiguration(config);
-
       if (!validation.valid) {
         logger.error("Configuration errors:");
         validation.errors.forEach((error) => {
@@ -86,8 +92,6 @@ program
         process.exit(1);
       }
     }
-
-    // Interactive prompts for missing options
     if (!config.framework) {
       const { framework } = await inquirer.prompt([
         {
@@ -103,7 +107,6 @@ program
       ]);
       config.framework = framework;
     }
-
     if (!config.backend) {
       const { backend } = await inquirer.prompt([
         {
@@ -119,7 +122,6 @@ program
       ]);
       config.backend = backend;
     }
-
     if (!config.database && config.backend !== "none") {
       const { database } = await inquirer.prompt([
         {
@@ -137,14 +139,11 @@ program
     } else if (config.backend === "none") {
       config.database = "none";
     }
-
     if (!config.orm && config.database !== "none") {
-      // Filter compatible ORMs
       const compatibleOrms = ormDefs.filter((o) => {
         if (o.incompatible?.includes(config.database)) return false;
         return true;
       });
-
       const { orm } = await inquirer.prompt([
         {
           type: "list",
@@ -161,7 +160,6 @@ program
     } else if (config.database === "none") {
       config.orm = "none";
     }
-
     if (!config.styling) {
       const { styling } = await inquirer.prompt([
         {
@@ -177,10 +175,22 @@ program
       ]);
       config.styling = styling;
     }
-
-    // Skip additional prompts if --yes flag is used
+    if (!config.runtime) {
+      const { runtime } = await inquirer.prompt([
+        {
+          type: "list",
+          name: "runtime",
+          message: "Choose your runtime environment:",
+          choices: runtimeDefs.map((r) => ({
+            name: `${r.name} - ${r.description}`,
+            value: r.id,
+            short: r.name,
+          })),
+        },
+      ]);
+      config.runtime = runtime;
+    }
     if (!options.yes) {
-      // Additional options if not specified via CLI
       if (options.typescript === undefined) {
         const { typescript } = await inquirer.prompt([
           {
@@ -192,7 +202,6 @@ program
         ]);
         config.typescript = typescript;
       }
-
       if (options.git === undefined) {
         const { git } = await inquirer.prompt([
           {
@@ -204,7 +213,6 @@ program
         ]);
         config.git = git;
       }
-
       if (!options.docker) {
         const { docker } = await inquirer.prompt([
           {
@@ -217,10 +225,7 @@ program
         config.docker = docker;
       }
     }
-
-    // Validate configuration
     const validation = validateConfiguration(config);
-
     if (!validation.valid) {
       logger.error("Configuration errors:");
       validation.errors.forEach((error) => {
@@ -228,15 +233,12 @@ program
       });
       process.exit(1);
     }
-
     if (validation.warnings.length > 0) {
       logger.warn("Configuration warnings:");
       validation.warnings.forEach((warning) => {
         logger.warn(`  • ${warning}`);
       });
     }
-
-    // Display configuration summary
     logger.info("\n📋 Configuration Summary:");
     logger.info(`  Project: ${chalk.cyan(config.name)}`);
     logger.info(`  Framework: ${chalk.green(config.framework)}`);
@@ -244,11 +246,10 @@ program
     logger.info(`  Database: ${chalk.blue(config.database)}`);
     logger.info(`  ORM: ${chalk.magenta(config.orm)}`);
     logger.info(`  Styling: ${chalk.cyan(config.styling)}`);
+    logger.info(`  Runtime: ${chalk.yellow(config.runtime)}`);
     logger.info(`  TypeScript: ${config.typescript ? chalk.green("✓") : chalk.red("✗")}`);
     logger.info(`  Git: ${config.git ? chalk.green("✓") : chalk.red("✗")}`);
     logger.info(`  Docker: ${config.docker ? chalk.green("✓") : chalk.red("✗")}`);
-
-    // Skip confirmation if --yes flag is used
     if (!options.yes) {
       const { confirm } = await inquirer.prompt([
         {
@@ -258,20 +259,15 @@ program
           default: true,
         },
       ]);
-
       if (!confirm) {
         logger.info("Project creation cancelled");
         process.exit(0);
       }
     }
-
-    // Create the project
     const spinner = ora("Creating your project...").start();
-
     try {
       await createProject(config);
       spinner.succeed("Project created successfully!");
-
       logger.success(`\n✨ Your project is ready!`);
       logger.info(`\nNext steps:`);
       logger.info(`  ${chalk.cyan(`cd ${config.name}`)}`);
@@ -284,5 +280,4 @@ program
       process.exit(1);
     }
   });
-
 program.parse();

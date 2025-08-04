@@ -7,7 +7,7 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "{{#if (eq styling 'scss')}}scss{{else}}css{{/if}}"
+          "style": "{{#if (eq styling "scss')}}scss{{else}}css{{/if}}"
         }
       },
       "root": "",
@@ -24,7 +24,7 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "{{#if (eq styling 'scss')}}scss{{else}}css{{/if}}",
+            "inlineStyleLanguage": "{{#if (eq styling "scss')}}scss{{else}}css{{/if}}",
             "assets": [
               {
                 "glob": "**/*",
@@ -33,7 +33,7 @@
               }
             ],
             "styles": [
-              "src/styles.{{#if (eq styling 'scss')}}scss{{else}}css{{/if}}"
+              "src/styles.{{#if (eq styling "scss')}}scss{{else}}css{{/if}}"
             ],
             "scripts": []
           },

@@ -6,5 +6,10 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [{{#if (eq uiLibrary "daisyui")}}
+    require("daisyui"),{{/if}}
+  ],{{#if (eq uiLibrary "daisyui")}}
+  daisyui: {
+    themes: ["light", "dark", "cupcake"],
+  },{{/if}}
 }{{/if}}

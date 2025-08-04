@@ -4,9 +4,7 @@ export function InstallationDocs() {
   return (
     <div className="space-y-8">
       <section id="installation" className="comic-panel p-6">
-        <h2 className="font-display text-2xl text-comic-purple mb-4">
-          Installation
-        </h2>
+        <h2 className="font-display text-2xl text-comic-purple mb-4">Installation</h2>
         <p className="font-comic mb-4">
           You don't need to install PRECAST globally. You can use it directly with npx:
         </p>
@@ -34,9 +32,7 @@ export function InstallationDocs() {
         <div className="mb-4">
           <CodeBlock code="$ npm install -g create-precast-app" />
         </div>
-        <p className="font-comic mb-4">
-          Then you can use it without npx:
-        </p>
+        <p className="font-comic mb-4">Then you can use it without npx:</p>
         <CodeBlock code="$ create-precast-app my-app" />
       </section>
     </div>

@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type ComicTheme = "classic" | "dark" | "retro" | "neon" | "manga";
 
@@ -26,11 +20,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

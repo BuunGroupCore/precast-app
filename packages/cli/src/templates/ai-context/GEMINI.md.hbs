@@ -1,0 +1,256 @@
+# {{name}} - Gemini AI Context
+
+## Project Information
+- **Name**: {{name}}
+- **Type**: {{framework}} Application
+- **Primary Language**: {{language}}
+- **Package Manager**: {{packageManager}}
+
+## Architecture Overview
+This is a modern {{framework}} application with the following architecture:
+
+### Technology Stack
+| Layer | Technology |
+|-------|------------|
+| Frontend Framework | {{framework}} |
+| Language | {{language}} |
+{{#if styling}}| Styling | {{styling}} |{{/if}}
+{{#if uiLibrary}}| UI Components | {{uiLibrary}} |{{/if}}
+{{#if database}}| Database | {{database}} |{{/if}}
+{{#if orm}}| ORM/Query Builder | {{orm}} |{{/if}}
+| Package Manager | {{packageManager}} |
+
+## Development Patterns
+
+### Component Structure
+{{#if (eq framework "react")}}
+```typescript
+// Functional component with TypeScript
+export function ComponentName({ prop1, prop2 }: ComponentProps) {
+  // Hooks at the top
+  const [state, setState] = useState();
+  
+  // Event handlers
+  const handleEvent = () => {};
+  
+  // Render
+  return <div>{/* JSX */}</div>;
+}
+```
+{{else if (eq framework "vue")}}
+```vue
+<template>
+  <!-- Template with proper structure -->
+</template>
+
+<script setup lang="ts">
+// Composition API with TypeScript
+import { ref, computed } from 'vue'
+
+// Reactive state
+const state = ref()
+
+// Computed properties
+const computedValue = computed(() => {})
+</script>
+```
+{{else if (eq framework "svelte")}}
+```svelte
+<script lang="ts">
+  // Props
+  export let prop1: string;
+  
+  // Reactive statements
+  $: reactiveValue = prop1.toUpperCase();
+</script>
+
+<!-- HTML template -->
+<div>{reactiveValue}</div>
+```
+{{/if}}
+
+{{#if (eq styling "tailwind")}}
+### Styling Approach
+- Use Tailwind CSS utility classes
+- Mobile-first responsive design
+- Custom classes only when necessary
+- Example: `<div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md">`
+{{/if}}
+
+{{#if uiLibrary}}
+### UI Library Usage
+{{#if (eq uiLibrary "shadcn")}}
+#### shadcn/ui Components
+- Components are in `src/components/ui/`
+- Fully customizable and project-owned
+- Import example: `import { Button } from "@/components/ui/button"`
+- Usage: `<Button variant="outline" size="sm">Click me</Button>`
+{{else if (eq uiLibrary "daisyui")}}
+#### DaisyUI Components
+- Use component classes directly
+- Theme-aware components
+- Example: `<button className="btn btn-primary">Click me</button>`
+- Combine with Tailwind utilities
+{{/if}}
+{{/if}}
+
+## File Organization
+```
+src/
+{{#if (eq framework "next")}}
+├── app/              # App Router pages and layouts
+│   ├── layout.tsx    # Root layout
+│   └── page.tsx      # Home page
+├── components/       # Reusable components
+│   {{#if uiLibrary}}├── ui/           # UI library components{{/if}}
+│   └── ...          # Feature components
+├── lib/             # Utilities and helpers
+└── styles/          # Global styles
+{{else if (eq framework "react")}}
+├── components/      # React components
+├── hooks/           # Custom hooks
+├── utils/           # Helper functions
+├── types/           # TypeScript types
+└── styles/          # CSS/SCSS files
+{{else if (eq framework "vue")}}
+├── components/      # Vue components
+├── composables/     # Composition functions
+├── views/           # Page components
+├── utils/           # Helper functions
+└── types/           # TypeScript types
+{{/if}}
+```
+
+## Coding Standards
+
+### TypeScript Usage
+{{#if (eq language "typescript")}}
+- Enable strict mode
+- Define interfaces for all props
+- Avoid `any` type
+- Use proper generics
+- Example:
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+function processUser<T extends User>(user: T): T {
+  // Process user
+  return user;
+}
+```
+{{/if}}
+
+### State Management
+{{#if (eq framework "react")}}
+- Use React hooks for local state
+- Consider Context API for global state
+- Use proper dependency arrays
+{{else if (eq framework "vue")}}
+- Use Composition API reactive refs
+- Consider Pinia for global state
+- Proper computed property usage
+{{else if (eq framework "svelte")}}
+- Use Svelte stores for shared state
+- Reactive statements for derived values
+{{/if}}
+
+{{#if database}}
+### Database Operations
+- Always use prepared statements
+- Implement proper error handling
+- Use transactions for multi-step operations
+{{#if orm}}
+- Leverage {{orm}} features:
+{{#if (eq orm "prisma")}}
+  - Type-safe queries
+  - Migrations
+  - Relations
+{{else if (eq orm "drizzle")}}
+  - Type-safe SQL
+  - Schema definitions
+  - Migrations
+{{/if}}
+{{/if}}
+{{/if}}
+
+## Best Practices
+
+### Performance
+1. Lazy load components and routes
+2. Optimize images and assets
+3. Minimize bundle size
+4. Use proper memoization
+{{#if (eq framework "next")}}
+5. Leverage Next.js optimizations (Image, dynamic imports)
+{{/if}}
+
+### Security
+1. Input validation on all user data
+2. Output encoding to prevent XSS
+3. Use environment variables for secrets
+4. Implement proper authentication
+5. Follow OWASP guidelines
+
+### Accessibility
+1. Semantic HTML elements
+2. Proper ARIA labels
+3. Keyboard navigation support
+4. Screen reader compatibility
+5. Color contrast compliance
+
+## Common Patterns
+
+### API Integration
+```typescript
+// Fetch with error handling
+async function fetchData<T>(url: string): Promise<T> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+}
+```
+
+### Form Handling
+{{#if (eq framework "react")}}
+```typescript
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  // Validation
+  // API call
+  // Error handling
+};
+```
+{{/if}}
+
+## Testing Strategy
+- Unit tests for utilities
+- Component testing for UI
+- Integration tests for features
+- E2E tests for critical paths
+
+## Deployment Considerations
+- Environment-specific configs
+- Build optimization
+- Error monitoring
+- Performance tracking
+{{#if docker}}
+- Docker support included
+{{/if}}
+
+## Getting Help
+When asking for help with this codebase:
+1. Specify the exact file/component
+2. Include relevant error messages
+3. Describe expected vs actual behavior
+4. Mention any recent changes

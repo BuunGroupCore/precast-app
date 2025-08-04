@@ -88,8 +88,8 @@ export function NotFoundPage() {
               OOPS! PAGE NOT FOUND!
             </h2>
             <p className="text-lg text-gray-700 leading-relaxed">
-              Looks like this page got zapped into another dimension! Don't
-              worry, our comic book hero is on the case!
+              Looks like this page got zapped into another dimension! Don't worry, our comic book
+              hero is on the case!
             </p>
           </motion.div>
 

@@ -17,6 +17,16 @@ export interface ProjectConfig {
   typescript: boolean;
   git: boolean;
   docker: boolean;
+  uiLibrary?: string;
+  aiContext?: string[];
+  packageManager: string;
+  projectPath: string;
+  language: string;
+  aiAssistance?: string[];
+  addons?: string[];
+  deploymentMethod?: string;
+  autoInstall?: boolean;
+  runtime?: string;
 }
 
 // Stack definitions without React Icons (for CLI usage)
@@ -57,8 +67,7 @@ export const frameworkDefs: StackOption[] = [
   {
     id: "astro",
     name: "Astro",
-    description:
-      "Build faster websites with Astro's next-gen island architecture",
+    description: "Build faster websites with Astro's next-gen island architecture",
     recommended: ["typescript", "tailwind"],
   },
   {
@@ -77,8 +86,7 @@ export const frameworkDefs: StackOption[] = [
   {
     id: "solid",
     name: "Solid",
-    description:
-      "Simple and performant reactivity for building user interfaces",
+    description: "Simple and performant reactivity for building user interfaces",
     recommended: ["typescript", "tailwind"],
   },
   {
@@ -219,6 +227,45 @@ export const stylingDefs: StackOption[] = [
     name: "Styled Components",
     description: "CSS-in-JS styling",
     dependencies: ["react"],
+  },
+];
+
+export const runtimeDefs: StackOption[] = [
+  {
+    id: "node",
+    name: "Node.js",
+    description: "JavaScript runtime built on Chrome's V8 JavaScript engine",
+    recommended: ["typescript"],
+  },
+  {
+    id: "bun",
+    name: "Bun",
+    description: "Fast all-in-one JavaScript runtime",
+    recommended: ["typescript"],
+  },
+  {
+    id: "deno",
+    name: "Deno",
+    description: "Secure runtime for JavaScript and TypeScript",
+    recommended: ["typescript"],
+  },
+  {
+    id: "cloudflare-workers",
+    name: "Cloudflare Workers",
+    description: "Serverless execution environment",
+    recommended: ["typescript"],
+  },
+  {
+    id: "vercel-edge",
+    name: "Vercel Edge Runtime",
+    description: "Edge runtime for serverless functions",
+    recommended: ["typescript"],
+  },
+  {
+    id: "aws-lambda",
+    name: "AWS Lambda",
+    description: "Serverless compute service",
+    recommended: ["typescript"],
   },
 ];
 

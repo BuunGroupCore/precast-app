@@ -21,3 +21,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improvements to the UI and more (a1cd21aa)
 - improvements to the UI and more (a1cd21aa)
 - improvements to the UI and more (a1cd21aa)
+- improvements (3889b8a7)

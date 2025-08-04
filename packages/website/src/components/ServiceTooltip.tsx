@@ -53,14 +53,8 @@ const serviceInfo = {
     name: "React",
     icon: FaReact,
     color: "text-blue-500",
-    description:
-      "A JavaScript library for building user interfaces with components",
-    features: [
-      "Virtual DOM",
-      "Component-based",
-      "Declarative",
-      "Large ecosystem",
-    ],
+    description: "A JavaScript library for building user interfaces with components",
+    features: ["Virtual DOM", "Component-based", "Declarative", "Large ecosystem"],
     category: "Frontend Framework",
     difficulty: "Intermediate",
     popularity: "★★★★★",
@@ -70,12 +64,7 @@ const serviceInfo = {
     icon: FaVuejs,
     color: "text-green-500",
     description: "Progressive JavaScript framework for building UIs",
-    features: [
-      "Template syntax",
-      "Reactive data",
-      "Easy learning curve",
-      "Flexible",
-    ],
+    features: ["Template syntax", "Reactive data", "Easy learning curve", "Flexible"],
     category: "Frontend Framework",
     difficulty: "Beginner",
     popularity: "★★★★☆",
@@ -85,12 +74,7 @@ const serviceInfo = {
     icon: FaAngular,
     color: "text-red-500",
     description: "Full-featured TypeScript framework by Google",
-    features: [
-      "TypeScript",
-      "Dependency injection",
-      "CLI tools",
-      "Enterprise-ready",
-    ],
+    features: ["TypeScript", "Dependency injection", "CLI tools", "Enterprise-ready"],
     category: "Frontend Framework",
     difficulty: "Advanced",
     popularity: "★★★★☆",
@@ -100,12 +84,7 @@ const serviceInfo = {
     icon: SiNextdotjs,
     color: "text-black",
     description: "React framework with SSR, SSG, and routing built-in",
-    features: [
-      "Server-side rendering",
-      "Static generation",
-      "API routes",
-      "Optimized",
-    ],
+    features: ["Server-side rendering", "Static generation", "API routes", "Optimized"],
     category: "Full-stack Framework",
     difficulty: "Intermediate",
     popularity: "★★★★★",
@@ -145,12 +124,7 @@ const serviceInfo = {
     icon: FaJs,
     color: "text-yellow-500",
     description: "Pure JavaScript without frameworks",
-    features: [
-      "No dependencies",
-      "Full control",
-      "Lightweight",
-      "Standards-based",
-    ],
+    features: ["No dependencies", "Full control", "Lightweight", "Standards-based"],
     category: "Language",
     difficulty: "Intermediate",
     popularity: "★★★★★",
@@ -162,12 +136,7 @@ const serviceInfo = {
     icon: FaNodeJs,
     color: "text-green-600",
     description: "JavaScript runtime for server-side development",
-    features: [
-      "Event-driven",
-      "Non-blocking I/O",
-      "NPM ecosystem",
-      "Fast development",
-    ],
+    features: ["Event-driven", "Non-blocking I/O", "NPM ecosystem", "Fast development"],
     category: "Runtime",
     difficulty: "Intermediate",
     popularity: "★★★★★",
@@ -227,12 +196,7 @@ const serviceInfo = {
     icon: SiSpring,
     color: "text-green-500",
     description: "Java framework for building production-ready applications",
-    features: [
-      "Auto-configuration",
-      "Embedded servers",
-      "Production-ready",
-      "Enterprise",
-    ],
+    features: ["Auto-configuration", "Embedded servers", "Production-ready", "Enterprise"],
     category: "Backend Framework",
     difficulty: "Advanced",
     popularity: "★★★★☆",
@@ -254,12 +218,7 @@ const serviceInfo = {
     icon: SiMongodb,
     color: "text-green-500",
     description: "NoSQL document database with flexible schema",
-    features: [
-      "Document-based",
-      "Horizontal scaling",
-      "Flexible schema",
-      "JSON-like",
-    ],
+    features: ["Document-based", "Horizontal scaling", "Flexible schema", "JSON-like"],
     category: "NoSQL Database",
     difficulty: "Beginner",
     popularity: "★★★★☆",
@@ -291,12 +250,7 @@ const serviceInfo = {
     icon: SiPrisma,
     color: "text-indigo-600",
     description: "Next-generation ORM with type safety and auto-completion",
-    features: [
-      "Type-safe",
-      "Auto-migration",
-      "Query builder",
-      "Database introspection",
-    ],
+    features: ["Type-safe", "Auto-migration", "Query builder", "Database introspection"],
     category: "ORM",
     difficulty: "Beginner",
     popularity: "★★★★☆",
@@ -348,12 +302,7 @@ const serviceInfo = {
     icon: SiStyledcomponents,
     color: "text-pink-500",
     description: "CSS-in-JS library for styling React components",
-    features: [
-      "CSS-in-JS",
-      "Dynamic styling",
-      "Theme support",
-      "No class conflicts",
-    ],
+    features: ["CSS-in-JS", "Dynamic styling", "Theme support", "No class conflicts"],
     category: "CSS-in-JS",
     difficulty: "Intermediate",
     popularity: "★★★☆☆",
@@ -384,14 +333,8 @@ const serviceInfo = {
     name: "TypeScript",
     icon: SiTypescript,
     color: "text-blue-600",
-    description:
-      "Typed superset of JavaScript that compiles to plain JavaScript",
-    features: [
-      "Static typing",
-      "IntelliSense",
-      "Compile-time checks",
-      "Modern JS features",
-    ],
+    description: "Typed superset of JavaScript that compiles to plain JavaScript",
+    features: ["Static typing", "IntelliSense", "Compile-time checks", "Modern JS features"],
     category: "Language",
     difficulty: "Intermediate",
     popularity: "★★★★★",
@@ -400,14 +343,8 @@ const serviceInfo = {
     name: "Docker",
     icon: FaDocker,
     color: "text-blue-500",
-    description:
-      "Platform for developing, shipping, and running applications in containers",
-    features: [
-      "Containerization",
-      "Portable",
-      "Consistent environments",
-      "Scalable",
-    ],
+    description: "Platform for developing, shipping, and running applications in containers",
+    features: ["Containerization", "Portable", "Consistent environments", "Scalable"],
     category: "DevOps Tool",
     difficulty: "Intermediate",
     popularity: "★★★★★",
@@ -543,9 +480,7 @@ export function ServiceTooltip({
                   >
                     {service.category}
                   </span>
-                  <span className="text-comic-gray font-comic">
-                    {service.difficulty}
-                  </span>
+                  <span className="text-comic-gray font-comic">{service.difficulty}</span>
                 </div>
               </div>
             </div>
@@ -573,9 +508,7 @@ export function ServiceTooltip({
                     className="flex items-center gap-2 text-xs"
                   >
                     <div className="w-1 h-1 bg-comic-orange rounded-full flex-shrink-0" />
-                    <span className="font-comic text-comic-darkBlue">
-                      {feature}
-                    </span>
+                    <span className="font-comic text-comic-darkBlue">{feature}</span>
                   </motion.div>
                 ))}
               </div>
@@ -587,9 +520,7 @@ export function ServiceTooltip({
                 <FaBolt className="text-comic-red" size={8} />
                 POPULARITY
               </span>
-              <span className="text-comic-orange font-bold font-display">
-                {service.popularity}
-              </span>
+              <span className="text-comic-orange font-bold font-display">{service.popularity}</span>
             </div>
           </motion.div>
         )}
@@ -601,7 +532,7 @@ export function ServiceTooltip({
 // HOC for easy wrapping of service buttons
 export function withServiceTooltip<T extends { serviceId?: string }>(
   Component: React.ComponentType<T>,
-  defaultPlacement: "top" | "bottom" | "left" | "right" = "top",
+  defaultPlacement: "top" | "bottom" | "left" | "right" = "top"
 ) {
   return function WrappedComponent(props: T) {
     const { serviceId, ...otherProps } = props;

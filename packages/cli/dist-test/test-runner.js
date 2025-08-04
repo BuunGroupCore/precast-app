@@ -3,7 +3,6 @@
 // test-runner.ts
 import path6 from "path";
 import { fileURLToPath as fileURLToPath5 } from "url";
-import fs2 from "fs-extra";
 
 // tests/core.test.ts
 import path2 from "path";
@@ -12,7 +11,8 @@ import { fileURLToPath } from "url";
 // src/test-framework/TestSuite.ts
 import { spawn } from "child_process";
 import path from "path";
-import fs from "fs-extra";
+import fsExtra from "fs-extra";
+var { pathExists, readFile, ensureDir, remove } = fsExtra;
 var TestSuite = class {
   constructor(cliPath, baseTestDir = path.join(process.cwd(), "test-output")) {
     this.cliPath = cliPath;
@@ -25,7 +25,6 @@ var TestSuite = class {
   afterAllHooks = [];
   results = [];
   context = null;
-  // Test registration
   test(name, fn, options = {}) {
     this.tests.push({
       name,
@@ -34,7 +33,6 @@ var TestSuite = class {
       tags: options.tags || []
     });
   }
-  // Hooks
   beforeAll(fn) {
     this.beforeAllHooks.push(fn);
   }
@@ -47,7 +45,6 @@ var TestSuite = class {
   afterEach(fn) {
     this.afterEachHooks.push(fn);
   }
-  // CLI execution
   async runCLI(args, options = {}) {
     const startTime = Date.now();
     return new Promise((resolve) => {
@@ -96,7 +93,6 @@ var TestSuite = class {
       child.on("close", () => clearTimeout(timeout));
     });
   }
-  // Assertions
   async expect(actual, expected, message) {
     if (actual !== expected) {
       throw new Error(message || `Expected ${expected}, got ${actual}`);
@@ -114,26 +110,26 @@ var TestSuite = class {
   }
   async expectFileExists(filePath, message) {
     const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.context.tempDir, filePath);
-    if (!await fs.pathExists(fullPath)) {
+    if (!await pathExists(fullPath)) {
       throw new Error(message || `File ${filePath} does not exist`);
     }
   }
   async expectFileNotExists(filePath, message) {
     const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.context.tempDir, filePath);
-    if (await fs.pathExists(fullPath)) {
+    if (await pathExists(fullPath)) {
       throw new Error(message || `File ${filePath} should not exist`);
     }
   }
   async expectFileContains(filePath, content, message) {
     const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.context.tempDir, filePath);
-    const fileContent = await fs.readFile(fullPath, "utf-8");
+    const fileContent = await readFile(fullPath, "utf-8");
     if (!fileContent.includes(content)) {
       throw new Error(message || `File ${filePath} does not contain "${content}"`);
     }
   }
   async expectFileNotContains(filePath, content, message) {
     const fullPath = path.isAbsolute(filePath) ? filePath : path.join(this.context.tempDir, filePath);
-    const fileContent = await fs.readFile(fullPath, "utf-8");
+    const fileContent = await readFile(fullPath, "utf-8");
     if (fileContent.includes(content)) {
       throw new Error(message || `File ${filePath} should not contain "${content}"`);
     }
@@ -143,7 +139,6 @@ var TestSuite = class {
       throw new Error(message || `Expected exit code ${expectedCode}, got ${result.exitCode}`);
     }
   }
-  // Test execution
   async run(options = {}) {
     console.log("\u{1F9EA} Starting CLI Test Suite\n");
     for (const hook of this.beforeAllHooks) {
@@ -166,12 +161,12 @@ var TestSuite = class {
           this.baseTestDir,
           `test-${Date.now()}-${Math.random().toString(36).slice(2)}`
         );
-        await fs.ensureDir(tempDir);
+        await ensureDir(tempDir);
         this.context = {
           tempDir,
           cliPath: this.cliPath,
           cleanup: async () => {
-            await fs.remove(tempDir);
+            await remove(tempDir);
           }
         };
         for (const hook of this.beforeEachHooks) {
@@ -226,7 +221,6 @@ var TestSuite = class {
     }
     return this.results;
   }
-  // Generate test report
   generateReport(format = "json") {
     switch (format) {
       case "json":
@@ -290,14 +284,12 @@ var TestSuite = class {
 </head>
 <body>
   <h1>CLI Test Report</h1>
-  
   <div class="summary">
     <h2>Summary</h2>
     <p><strong>Total:</strong> ${this.results.length}</p>
     <p><strong>Passed:</strong> ${passed}</p>
     <p><strong>Failed:</strong> ${failed}</p>
   </div>
-
   <h2>Test Results</h2>
   ${this.results.map(
       (result) => `
@@ -721,7 +713,7 @@ function createGeneratorStructureTests() {
   suite.test(
     "All framework generators are available",
     async (_context) => {
-      const generators = await import("./generators-E53HFQJB.js");
+      const generators = await import("./generators-V4D4TCXJ.js");
       if (typeof generators.generateTemplate !== "function") {
         throw new Error("generateTemplate function not found");
       }
@@ -927,9 +919,9 @@ function createProjectGenerationTests() {
   suite.test(
     "Handles existing directory error gracefully",
     async (_context) => {
-      const fs3 = await import("fs-extra");
+      const fs = await import("fs-extra");
       const existingDir = path5.join(_context.tempDir, "existing-project");
-      await fs3.ensureDir(existingDir);
+      await fs.ensureDir(existingDir);
       const result = await suite.runCLI(
         [
           "init",
@@ -967,311 +959,59 @@ var __filename5 = fileURLToPath5(import.meta.url);
 var __dirname5 = path6.dirname(__filename5);
 async function main() {
   const args = process.argv.slice(2);
-  const config = {
-    suites: ["core", "generation", "framework", "structure"],
-    reportFormat: "json",
-    parallel: false,
-    verbose: false
+  const options = {
+    tags: [],
+    suites: [],
+    verbose: false,
+    reportPath: "",
+    reportFormat: "json"
   };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    switch (arg) {
-      case "--suites":
-        config.suites = args[++i].split(",");
-        break;
-      case "--tags":
-        config.tags = args[++i].split(",");
-        break;
-      case "--pattern":
-        config.pattern = args[++i];
-        break;
-      case "--report-format":
-        config.reportFormat = args[++i];
-        break;
-      case "--report-path":
-        config.reportPath = args[++i];
-        break;
-      case "--parallel":
-        config.parallel = true;
-        break;
-      case "--verbose":
-        config.verbose = true;
-        break;
-      case "--help":
-        printHelp();
-        process.exit(0);
+    if (arg === "--tags") {
+      options.tags = args[++i]?.split(",") || [];
+    } else if (arg === "--suites") {
+      options.suites = args[++i]?.split(",") || [];
+    } else if (arg === "--verbose") {
+      options.verbose = true;
+    } else if (arg === "--report-path") {
+      options.reportPath = args[++i] || "";
+    } else if (arg === "--report-format") {
+      options.reportFormat = args[++i] || "json";
     }
-  }
-  console.log("\u{1F680} CLI Test Framework v1.0.0\n");
-  if (config.verbose) {
-    console.log("Configuration:", JSON.stringify(config, null, 2));
-  }
-  const cliDistPath = path6.resolve(process.cwd(), "dist/index.js");
-  if (!await fs2.pathExists(cliDistPath)) {
-    console.error('\u274C CLI not built. Run "bun run build" first.');
-    console.error(`Looking for CLI at: ${cliDistPath}`);
-    process.exit(1);
   }
   const suites = [];
-  if (config.suites.includes("core")) {
-    suites.push({
-      name: "Core CLI Tests",
-      suite: createCoreTests()
-    });
+  if (options.suites.length === 0 || options.suites.includes("core")) {
+    suites.push(createCoreTests());
   }
-  if (config.suites.includes("generation")) {
-    suites.push({
-      name: "Project Generation Tests",
-      suite: createProjectGenerationTests()
-    });
+  if (options.suites.length === 0 || options.suites.includes("generation")) {
+    suites.push(createProjectGenerationTests());
+    suites.push(createFrameworkGenerationTests());
+    suites.push(createGeneratorStructureTests());
   }
-  if (config.suites.includes("framework")) {
-    suites.push({
-      name: "Framework Generation Tests",
-      suite: createFrameworkGenerationTests()
-    });
-  }
-  if (config.suites.includes("structure")) {
-    suites.push({
-      name: "Generator Structure Tests",
-      suite: createGeneratorStructureTests()
-    });
-  }
-  if (suites.length === 0) {
-    console.error("\u274C No test suites selected");
-    process.exit(1);
-  }
-  const allResults = [];
   let totalPassed = 0;
   let totalFailed = 0;
-  let totalDuration = 0;
-  const startTime = Date.now();
-  if (config.parallel && suites.length > 1) {
-    console.log("\u{1F504} Running test suites in parallel...\n");
-    const promises = suites.map(async ({ name, suite }) => {
-      console.log(`\u{1F4CB} Starting ${name}...`);
-      const options = {};
-      if (config.tags) options.tags = config.tags;
-      if (config.pattern) options.pattern = new RegExp(config.pattern);
-      return suite.run(options);
-    });
-    const results = await Promise.all(promises);
-    results.forEach((result) => allResults.push(...result));
-  } else {
-    console.log("\u{1F504} Running test suites sequentially...\n");
-    for (const { name, suite } of suites) {
-      console.log(`\u{1F4CB} Running ${name}...`);
-      const options = {};
-      if (config.tags) options.tags = config.tags;
-      if (config.pattern) options.pattern = new RegExp(config.pattern);
-      const results = await suite.run(options);
-      allResults.push(...results);
-      console.log();
-    }
+  let allResults = [];
+  for (const suite of suites) {
+    const results = await suite.run({ tags: options.tags });
+    const passed = results.filter((r) => r.passed).length;
+    const failed = results.filter((r) => !r.passed).length;
+    totalPassed += passed;
+    totalFailed += failed;
+    allResults = allResults.concat(results);
   }
-  totalPassed = allResults.filter((r) => r.passed).length;
-  totalFailed = allResults.filter((r) => !r.passed).length;
-  totalDuration = Date.now() - startTime;
-  console.log("\u{1F3C1} Final Results:");
-  console.log(`   Total Tests: ${allResults.length}`);
-  console.log(`   Passed: ${totalPassed}`);
-  console.log(`   Failed: ${totalFailed}`);
-  console.log(`   Duration: ${totalDuration}ms`);
-  if (totalFailed > 0) {
-    console.log("\n\u274C Failed Tests:");
-    allResults.filter((r) => !r.passed).forEach((r) => {
-      console.log(`   \u2022 ${r.name}: ${r.error}`);
-    });
+  if (options.reportPath && suites.length > 0) {
+    const report = suites[0].generateReport(options.reportFormat);
+    const fs = await import("fs-extra");
+    await fs.ensureDir(path6.dirname(options.reportPath));
+    await fs.writeFile(options.reportPath, report);
+    console.log(`\u{1F4DD} Report written to ${options.reportPath}`);
   }
-  if (config.reportPath) {
-    const reportData = {
-      summary: {
-        total: allResults.length,
-        passed: totalPassed,
-        failed: totalFailed,
-        duration: totalDuration,
-        timestamp: (/* @__PURE__ */ new Date()).toISOString()
-      },
-      tests: allResults,
-      config
-    };
-    let reportContent;
-    switch (config.reportFormat) {
-      case "json":
-        reportContent = JSON.stringify(reportData, null, 2);
-        break;
-      case "junit":
-        reportContent = generateJUnitReport(reportData);
-        break;
-      case "html":
-        reportContent = generateHTMLReport(reportData);
-        break;
-      default:
-        reportContent = JSON.stringify(reportData, null, 2);
-    }
-    await fs2.ensureDir(path6.dirname(config.reportPath));
-    await fs2.writeFile(config.reportPath, reportContent);
-    console.log(`
-\u{1F4CA} Report saved to: ${config.reportPath}`);
-  }
+  console.log(`
+\u{1F3C1} Final Results: ${totalPassed} passed, ${totalFailed} failed`);
   process.exit(totalFailed > 0 ? 1 : 0);
 }
-function printHelp() {
-  console.log(`
-CLI Test Framework
-
-Usage: test-runner [options]
-
-Options:
-  --suites <suites>        Comma-separated list of test suites (core,generation,framework,structure)
-  --tags <tags>           Run only tests with specified tags
-  --pattern <pattern>     Run only tests matching regex pattern
-  --report-format <fmt>   Report format: json, junit, html (default: json)
-  --report-path <path>    Path to save test report
-  --parallel              Run test suites in parallel
-  --verbose               Verbose output
-  --help                  Show this help message
-
-Examples:
-  test-runner                                    # Run all tests
-  test-runner --suites core                     # Run only core tests
-  test-runner --tags validation,error-handling  # Run tests with specific tags
-  test-runner --pattern "React.*"               # Run tests matching pattern
-  test-runner --report-path ./reports/test.json # Save JSON report
-  test-runner --parallel --verbose              # Parallel execution with verbose output
-`);
-}
-function generateJUnitReport(data) {
-  const { summary, tests } = data;
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="CLI Tests" tests="${summary.total}" failures="${summary.failed}" time="${summary.duration / 1e3}" timestamp="${summary.timestamp}">`;
-  for (const test of tests) {
-    xml += `
-  <testcase name="${escapeXML(test.name)}" time="${test.duration / 1e3}">`;
-    if (!test.passed) {
-      xml += `
-    <failure message="${escapeXML(test.error || "Test failed")}">${escapeXML(test.error || "Test failed")}</failure>`;
-    }
-    xml += `
-  </testcase>`;
-  }
-  xml += `
-</testsuite>`;
-  return xml;
-}
-function generateHTMLReport(data) {
-  const { summary, tests } = data;
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>CLI Test Report</title>
-  <meta charset="utf-8">
-  <style>
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0; padding: 20px; background: #f5f5f5;
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
-    .stat { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .stat-value { font-size: 2em; font-weight: bold; margin-bottom: 5px; }
-    .stat-label { color: #666; }
-    .passed .stat-value { color: #4CAF50; }
-    .failed .stat-value { color: #f44336; }
-    .duration .stat-value { color: #2196F3; }
-    .test-results { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .test { padding: 15px 20px; border-bottom: 1px solid #eee; }
-    .test:last-child { border-bottom: none; }
-    .test.passed { border-left: 4px solid #4CAF50; }
-    .test.failed { border-left: 4px solid #f44336; }
-    .test-name { font-weight: 600; margin-bottom: 5px; }
-    .test-duration { color: #666; font-size: 0.9em; }
-    .test-error { color: #f44336; font-family: monospace; font-size: 0.9em; margin-top: 10px; padding: 10px; background: #ffeaea; border-radius: 4px; }
-    .filters { margin: 20px 0; }
-    .filter-input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>\u{1F9EA} CLI Test Report</h1>
-      <p>Generated on ${new Date(summary.timestamp).toLocaleString()}</p>
-    </div>
-
-    <div class="summary">
-      <div class="stat">
-        <div class="stat-value">${summary.total}</div>
-        <div class="stat-label">Total Tests</div>
-      </div>
-      <div class="stat passed">
-        <div class="stat-value">${summary.passed}</div>
-        <div class="stat-label">Passed</div>
-      </div>
-      <div class="stat failed">
-        <div class="stat-value">${summary.failed}</div>
-        <div class="stat-label">Failed</div>
-      </div>
-      <div class="stat duration">
-        <div class="stat-value">${(summary.duration / 1e3).toFixed(2)}s</div>
-        <div class="stat-label">Duration</div>
-      </div>
-    </div>
-
-    <div class="filters">
-      <input type="text" class="filter-input" id="testFilter" placeholder="Filter tests...">
-      <button onclick="filterTests('passed')">Show Passed</button>
-      <button onclick="filterTests('failed')">Show Failed</button>
-      <button onclick="filterTests('all')">Show All</button>
-    </div>
-
-    <div class="test-results">
-      ${tests.map(
-    (test) => `
-        <div class="test ${test.passed ? "passed" : "failed"}" data-name="${escapeHTML(test.name)}">
-          <div class="test-name">${escapeHTML(test.name)}</div>
-          <div class="test-duration">${test.duration}ms</div>
-          ${test.error ? `<div class="test-error">${escapeHTML(test.error)}</div>` : ""}
-        </div>
-      `
-  ).join("")}
-    </div>
-  </div>
-
-  <script>
-    function filterTests(type) {
-      const tests = document.querySelectorAll('.test');
-      tests.forEach(test => {
-        if (type === 'all') {
-          test.style.display = 'block';
-        } else {
-          test.style.display = test.classList.contains(type) ? 'block' : 'none';
-        }
-      });
-    }
-
-    document.getElementById('testFilter').addEventListener('input', function(e) {
-      const filter = e.target.value.toLowerCase();
-      const tests = document.querySelectorAll('.test');
-      tests.forEach(test => {
-        const name = test.getAttribute('data-name').toLowerCase();
-        test.style.display = name.includes(filter) ? 'block' : 'none';
-      });
-    });
-  </script>
-</body>
-</html>`;
-}
-function escapeXML(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-function escapeHTML(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((error) => {
-    console.error("\u274C Test runner failed:", error);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  console.error("\u274C Test runner failed:", error);
+  process.exit(1);
+});

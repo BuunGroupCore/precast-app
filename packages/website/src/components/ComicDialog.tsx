@@ -59,9 +59,7 @@ export function ComicDialog({
               {effectText[type]}
             </div>
 
-            <h2 className={`comic-dialog-title ${titleColors[type]}`}>
-              {title}
-            </h2>
+            <h2 className={`comic-dialog-title ${titleColors[type]}`}>{title}</h2>
 
             <p className="comic-dialog-content">{message}</p>
 
@@ -79,6 +77,6 @@ export function ComicDialog({
         </div>
       )}
     </AnimatePresence>,
-    document.body,
+    document.body
   );
 }

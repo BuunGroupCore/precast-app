@@ -1,5 +1,11 @@
+/**
+ * Test configuration presets for different testing scenarios
+ */
 import type { TestConfig } from "./test-runner.js";
 
+/**
+ * Default test configuration for development
+ */
 export const defaultConfig: TestConfig = {
   suites: ["core", "generation"],
   reportFormat: "json",
@@ -7,6 +13,9 @@ export const defaultConfig: TestConfig = {
   verbose: false,
 };
 
+/**
+ * CI/CD test configuration with parallel execution and JUnit reporting
+ */
 export const ciConfig: TestConfig = {
   suites: ["core", "generation"],
   reportFormat: "junit",
@@ -15,6 +24,9 @@ export const ciConfig: TestConfig = {
   verbose: true,
 };
 
+/**
+ * Quick test configuration for basic functionality checks
+ */
 export const quickConfig: TestConfig = {
   suites: ["core"],
   tags: ["basic"],
@@ -22,6 +34,9 @@ export const quickConfig: TestConfig = {
   verbose: false,
 };
 
+/**
+ * Comprehensive test configuration with HTML reporting
+ */
 export const fullConfig: TestConfig = {
   suites: ["core", "generation"],
   reportFormat: "html",

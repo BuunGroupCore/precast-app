@@ -1,6 +1,6 @@
 {
   "name": "create-precast-app",
-  "version": "0.1.0",
+  "version": "0.1.8",
   "description": "CLI tool to scaffold modern web applications with your chosen stack",
   "type": "module",
   "main": "./dist/index.js",
@@ -12,7 +12,7 @@
     "create-precast-app": "./dist/cli.js"
   },
   "files": [
-    "dist",
+    "dist/**/*",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
@@ -28,7 +28,7 @@
     "prepack": "echo 'Build should be done before packing'",
     "publish:beta": "bun run build && npm version prerelease --preid=beta && npm publish --tag beta",
     "publish:patch": "bun run build && npm version patch && npm publish",
-    "publish:minor": "bun run build && npm version minor && npm publish", 
+    "publish:minor": "bun run build && npm version minor && npm publish",
     "publish:major": "bun run build && npm version major && npm publish",
     "publish:dry": "echo 'Use: npm publish --dry-run (after ensuring node is in PATH)'",
     "pack:test": "echo 'Files that will be published:' && ls -la dist/ && echo 'Plus: README.md, CHANGELOG.md, LICENSE, package.json'",
@@ -56,6 +56,7 @@
     "globby": "^14.1.0",
     "handlebars": "^4.7.8",
     "inquirer": "^9.2.12",
+    "jsonc-parser": "^3.3.1",
     "ora": "^8.0.1",
     "picocolors": "^1.1.1",
     "zod": "^3.22.4"

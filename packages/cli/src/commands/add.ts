@@ -1,0 +1,209 @@
+import path from "path";
+
+import { text, select, confirm } from "@clack/prompts";
+import { consola } from "consola";
+import fsExtra from "fs-extra";
+interface AddOptions {
+  type?: string;
+  name?: string;
+  typescript?: boolean;
+}
+export async function addCommand(resource: string | undefined, options: AddOptions) {
+  const resourceType =
+    resource ||
+    ((await select({
+      message: "What would you like to add?",
+      options: [
+        { value: "component", label: "Component", hint: "Add a new React/Vue/Svelte component" },
+        { value: "route", label: "Route", hint: "Add a new route/page" },
+        { value: "api", label: "API Endpoint", hint: "Add a new API endpoint" },
+        { value: "hook", label: "Custom Hook", hint: "Add a custom React hook" },
+        { value: "util", label: "Utility Function", hint: "Add a utility function" },
+      ],
+    })) as string);
+  switch (resourceType) {
+    case "component":
+      await addComponent(options);
+      break;
+    case "route":
+      await addRoute(options);
+      break;
+    case "api":
+      await addApiEndpoint(options);
+      break;
+    case "hook":
+      await addHook(options);
+      break;
+    case "util":
+      await addUtility(options);
+      break;
+    default:
+      consola.error(`Unknown resource type: ${resourceType}`);
+  }
+}
+async function addComponent(options: AddOptions) {
+  const name =
+    options.name ||
+    ((await text({
+      message: "Component name:",
+      placeholder: "Button",
+      validate: (value) => {
+        if (!value) return "Component name is required";
+        if (!/^[A-Z][a-zA-Z0-9]*$/.test(value)) {
+          return "Component name must start with uppercase and be alphanumeric";
+        }
+      },
+    })) as string);
+  const framework = await detectFramework();
+  const useTypeScript = options.typescript ?? (await detectTypeScript());
+  const withStyles = await confirm({
+    message: "Include styles?",
+    initialValue: true,
+  });
+  if (typeof withStyles === "symbol") return; // User cancelled
+
+  const withTests = await confirm({
+    message: "Include test file?",
+    initialValue: true,
+  });
+  if (typeof withTests === "symbol") return; // User cancelled
+
+  const withStorybook = await confirm({
+    message: "Include Storybook story?",
+    initialValue: false,
+  });
+  if (typeof withStorybook === "symbol") return; // User cancelled
+  switch (framework) {
+    case "react":
+    case "next":
+      await generateReactComponent(name, {
+        typescript: useTypeScript,
+        withStyles,
+        withTests,
+        withStorybook,
+      });
+      break;
+    case "vue":
+    case "nuxt":
+      await generateVueComponent(name, {
+        typescript: useTypeScript,
+        withStyles,
+        withTests,
+        withStorybook,
+      });
+      break;
+    case "svelte":
+      await generateSvelteComponent(name, {
+        typescript: useTypeScript,
+        withStyles,
+        withTests,
+        withStorybook,
+      });
+      break;
+    default:
+      consola.error(`Unsupported framework: ${framework}`);
+  }
+}
+async function generateReactComponent(
+  name: string,
+  options: {
+    typescript: boolean;
+    withStyles: boolean;
+    withTests: boolean;
+    withStorybook: boolean;
+  }
+) {
+  const ext = options.typescript ? "tsx" : "jsx";
+  const componentDir = path.join(process.cwd(), "src/components", name);
+  await fsExtra.ensureDir(componentDir);
+  const componentContent = `${
+    options.typescript
+      ? `interface ${name}Props {
+  className?: string;
+  children?: React.ReactNode;
+}
+`
+      : ""
+  }export default function ${name}(${options.typescript ? `{ className, children }: ${name}Props` : "props"}) {
+  return (
+    <div className={\`${name.toLowerCase()} \${${options.typescript ? "className" : "props.className"} || ''}\`}>
+      ${options.typescript ? "{children}" : "{props.children}"}
+    </div>
+  );
+}`;
+  await fsExtra.writeFile(path.join(componentDir, `${name}.${ext}`), componentContent);
+  if (options.withStyles) {
+    const stylesContent = `.${name.toLowerCase()} {
+}`;
+    await fsExtra.writeFile(path.join(componentDir, `${name}.module.css`), stylesContent);
+  }
+  if (options.withTests) {
+    const testContent = `import { render, screen } from '@testing-library/react';
+import ${name} from './${name}';
+describe('${name}', () => {
+  it('renders without crashing', () => {
+    render(<${name} />);
+    expect(screen.getByText('${name}')).toBeInTheDocument();
+  });
+});`;
+    await fsExtra.writeFile(path.join(componentDir, `${name}.test.${ext}`), testContent);
+  }
+  if (options.withStorybook) {
+    const storyContent = `import type { Meta, StoryObj } from '@storybook/react';
+import ${name} from './${name}';
+const meta: Meta<typeof ${name}> = {
+  title: 'Components/${name}',
+  component: ${name},
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+};
+export default meta;
+type Story = StoryObj<typeof meta>;
+export const Default: Story = {
+  args: {},
+};`;
+    await fsExtra.writeFile(path.join(componentDir, `${name}.stories.${ext}`), storyContent);
+  }
+  await fsExtra.writeFile(
+    path.join(componentDir, `index.${options.typescript ? "ts" : "js"}`),
+    `export { default } from './${name}';`
+  );
+  consola.success(`Component ${name} created successfully!`);
+  consola.info(`Location: ${componentDir}`);
+}
+async function generateVueComponent(_name: string, _options: any) {
+  consola.info("Vue component generation coming soon!");
+}
+async function generateSvelteComponent(_name: string, _options: any) {
+  consola.info("Svelte component generation coming soon!");
+}
+async function addRoute(_options: AddOptions) {
+  consola.info("Route generation coming soon!");
+}
+async function addApiEndpoint(_options: AddOptions) {
+  consola.info("API endpoint generation coming soon!");
+}
+async function addHook(_options: AddOptions) {
+  consola.info("Hook generation coming soon!");
+}
+async function addUtility(_options: AddOptions) {
+  consola.info("Utility generation coming soon!");
+}
+async function detectFramework(): Promise<string> {
+  const packageJsonPath = path.join(process.cwd(), "package.json");
+  if (await fsExtra.pathExists(packageJsonPath)) {
+    const packageJson = await fsExtra.readJSON(packageJsonPath);
+    const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+    if (deps.next) return "next";
+    if (deps.react) return "react";
+    if (deps.vue) return "vue";
+    if (deps.nuxt) return "nuxt";
+    if (deps.svelte) return "svelte";
+  }
+  return "react"; // default
+}
+async function detectTypeScript(): Promise<boolean> {
+  return await fsExtra.pathExists(path.join(process.cwd(), "tsconfig.json"));
+}

@@ -1,13 +1,13 @@
 <template>
-  <div class="{{#if (eq styling 'tailwind')}}bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto{{else}}hello-world{{/if}}">
-    <h2 class="{{#if (eq styling 'tailwind')}}text-xl font-semibold text-gray-800 mb-4{{else}}hello-title{{/if}}">
+  <div class="{{#if (eq styling "tailwind')}}bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto{{else}}hello-world{{/if}}">
+    <h2 class="{{#if (eq styling "tailwind')}}text-xl font-semibold text-gray-800 mb-4{{else}}hello-title{{/if}}">
       Hello World!
     </h2>
-    <p class="{{#if (eq styling 'tailwind')}}text-gray-600{{else}}hello-description{{/if}}">
+    <p class="{{#if (eq styling "tailwind')}}text-gray-600{{else}}hello-description{{/if}}">
       Welcome to your {{ name }} application! This is a simple component example.
     </p>
-    <div class="{{#if (eq styling 'tailwind')}}mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400{{else}}hello-info{{/if}}">
-      <p class="{{#if (eq styling 'tailwind')}}text-sm text-blue-700{{else}}hello-info-text{{/if}}">
+    <div class="{{#if (eq styling "tailwind')}}mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400{{else}}hello-info{{/if}}">
+      <p class="{{#if (eq styling "tailwind')}}text-sm text-blue-700{{else}}hello-info-text{{/if}}">
         🚀 You're ready to start building amazing things!
       </p>
     </div>

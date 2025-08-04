@@ -18,7 +18,7 @@ const themes: { id: ComicTheme; name: string; colors: string[] }[] = [
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-  const currentTheme = themes.find(t => t.id === theme);
+  const currentTheme = themes.find((t) => t.id === theme);
 
   return (
     <div className="relative">
@@ -55,10 +55,11 @@ export function ThemeSwitcher() {
               exit={{ opacity: 0, scale: 0.8, y: -20 }}
               className="absolute right-0 mt-2 z-50"
             >
-              <div className="comic-panel p-4 min-w-[250px]"
-                   style={{ backgroundColor: 'var(--comic-white)' }}>
-                <h3 className="font-display text-xl mb-3"
-                    style={{ color: 'var(--comic-red)' }}>
+              <div
+                className="comic-panel p-4 min-w-[250px]"
+                style={{ backgroundColor: "var(--comic-white)" }}
+              >
+                <h3 className="font-display text-xl mb-3" style={{ color: "var(--comic-red)" }}>
                   CHOOSE STYLE!
                 </h3>
                 <div className="space-y-2">
@@ -72,9 +73,7 @@ export function ThemeSwitcher() {
                       data-active={theme === t.id}
                       className="w-full filter-btn-comic flex items-center justify-between gap-3 text-left px-3 py-2"
                     >
-                      <span className="font-comic font-bold text-xs">
-                        {t.name}
-                      </span>
+                      <span className="font-comic font-bold text-xs">{t.name}</span>
                       <div className="flex gap-1">
                         {t.colors.map((color, i) => (
                           <div

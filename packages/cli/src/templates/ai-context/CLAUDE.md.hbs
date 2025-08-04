@@ -1,0 +1,184 @@
+# {{name}} - AI Assistant Context
+
+## Project Overview
+This is a {{framework}} application{{#if uiLibrary}} using {{uiLibrary}} for UI components{{/if}}.
+
+## Technology Stack
+- **Framework**: {{framework}}
+- **Language**: {{language}}
+- **Package Manager**: {{packageManager}}
+{{#if styling}}
+- **Styling**: {{styling}}
+{{/if}}
+{{#if uiLibrary}}
+- **UI Library**: {{uiLibrary}}
+{{/if}}
+{{#if database}}
+- **Database**: {{database}}
+{{/if}}
+{{#if orm}}
+- **ORM**: {{orm}}
+{{/if}}
+{{#if auth}}
+- **Authentication**: Enabled
+{{/if}}
+
+## Project Structure
+```
+{{name}}/
+├── src/                 # Source code
+{{#if (eq framework "next")}}
+│   ├── app/            # Next.js App Router
+│   ├── components/     # React components
+│   └── lib/            # Utility functions
+{{else if (eq framework "react")}}
+│   ├── components/     # React components
+│   ├── hooks/          # Custom React hooks
+│   └── utils/          # Utility functions
+{{else if (eq framework "vue")}}
+│   ├── components/     # Vue components
+│   ├── composables/    # Vue composables
+│   └── utils/          # Utility functions
+{{else if (eq framework "svelte")}}
+│   ├── lib/            # Svelte components
+│   └── routes/         # SvelteKit routes
+{{/if}}
+├── public/             # Static assets
+└── package.json        # Dependencies
+```
+
+## Development Guidelines
+
+### Code Style
+{{#if (eq language "typescript")}}
+- Use TypeScript for all new code
+- Prefer interfaces over types for object shapes
+- Use strict mode TypeScript configuration
+{{else}}
+- Use modern JavaScript (ES2022+)
+- Add JSDoc comments for better type hints
+{{/if}}
+{{#if (eq styling "tailwind")}}
+- Use Tailwind CSS utility classes for styling
+- Follow mobile-first responsive design
+{{/if}}
+{{#if uiLibrary}}
+
+### UI Components
+{{#if (eq uiLibrary "shadcn")}}
+- Use shadcn/ui components from `@/components/ui`
+- Components are fully customizable and owned by the project
+- Follow the shadcn/ui patterns for consistency
+{{else if (eq uiLibrary "daisyui")}}
+- Use DaisyUI component classes
+- Refer to DaisyUI documentation for available components
+- Components can be themed using CSS variables
+{{/if}}
+{{/if}}
+
+### Best Practices
+1. Keep components small and focused
+2. Use proper error handling with try-catch blocks
+3. Implement proper loading and error states
+4. Follow accessibility guidelines (WCAG)
+5. Write clean, self-documenting code
+
+{{#if database}}
+### Database Conventions
+- Use meaningful table and column names
+- Always add proper indexes for query performance
+- Implement proper data validation
+{{#if orm}}
+- Use {{orm}} for all database operations
+- Avoid raw SQL queries unless absolutely necessary
+{{/if}}
+{{/if}}
+
+## Common Tasks
+
+### Adding a New Component
+{{#if (eq framework "react")}}
+```tsx
+// src/components/MyComponent.tsx
+interface MyComponentProps {
+  // Define props here
+}
+
+export function MyComponent({ ...props }: MyComponentProps) {
+  return (
+    <div>
+      {/* Component content */}
+    </div>
+  );
+}
+```
+{{else if (eq framework "vue")}}
+```vue
+<!-- src/components/MyComponent.vue -->
+<template>
+  <div>
+    <!-- Component content -->
+  </div>
+</template>
+
+<script setup lang="ts">
+// Component logic here
+</script>
+```
+{{else if (eq framework "svelte")}}
+```svelte
+<!-- src/lib/MyComponent.svelte -->
+<script lang="ts">
+  // Component props and logic
+</script>
+
+<div>
+  <!-- Component content -->
+</div>
+```
+{{/if}}
+
+{{#if (eq framework "next")}}
+### Adding a New Route
+```tsx
+// src/app/my-route/page.tsx
+export default function MyRoutePage() {
+  return (
+    <div>
+      <h1>My Route</h1>
+    </div>
+  );
+}
+```
+{{/if}}
+
+## Important Notes
+- Always validate user input
+- Sanitize data before rendering
+- Use environment variables for sensitive configuration
+- Follow the principle of least privilege for permissions
+- Keep dependencies up to date for security
+
+## Performance Considerations
+- Implement code splitting where appropriate
+- Use lazy loading for heavy components
+- Optimize images and assets
+- Monitor bundle size
+{{#if (eq framework "next")}}
+- Use Next.js Image component for optimized images
+- Implement proper caching strategies
+{{/if}}
+
+## Testing
+- Write unit tests for utility functions
+- Add integration tests for critical paths
+- Test accessibility with screen readers
+- Perform cross-browser testing
+
+## Deployment
+- Environment variables are managed via `.env` files
+- Use `.env.local` for local development
+- Never commit sensitive data to version control
+{{#if docker}}
+- Docker configuration is available for containerized deployment
+{{/if}}

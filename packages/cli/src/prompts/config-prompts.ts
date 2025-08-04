@@ -1,4 +1,4 @@
-import { text, select, confirm } from "@clack/prompts";
+import { text, select, confirm, multiselect } from "@clack/prompts";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 import {
@@ -7,14 +7,15 @@ import {
   databaseDefs,
   ormDefs,
   stylingDefs,
+  runtimeDefs,
 } from "../../../shared/stack-config.js";
 import type { InitOptions } from "../commands/init.js";
-
+import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
+import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
 export async function gatherProjectConfig(
   projectName: string | undefined,
   options: InitOptions
 ): Promise<ProjectConfig> {
-  // Get project name
   const name =
     projectName ||
     ((await text({
@@ -28,8 +29,6 @@ export async function gatherProjectConfig(
         }
       },
     })) as string);
-
-  // Get framework
   const framework =
     options.framework ||
     ((await select({
@@ -40,8 +39,6 @@ export async function gatherProjectConfig(
         hint: f.description,
       })),
     })) as string);
-
-  // Get backend
   const backend =
     options.backend ||
     ((await select({
@@ -52,8 +49,6 @@ export async function gatherProjectConfig(
         hint: b.description,
       })),
     })) as string);
-
-  // Get database (skip if no backend)
   const database =
     backend === "none"
       ? "none"
@@ -66,8 +61,6 @@ export async function gatherProjectConfig(
             hint: d.description,
           })),
         })) as string);
-
-  // Get ORM (skip if no database)
   const orm =
     database === "none"
       ? "none"
@@ -82,8 +75,6 @@ export async function gatherProjectConfig(
               hint: o.description,
             })),
         })) as string);
-
-  // Get styling
   const styling =
     options.styling ||
     ((await select({
@@ -94,8 +85,16 @@ export async function gatherProjectConfig(
         hint: s.description,
       })),
     })) as string);
-
-  // Get TypeScript preference
+  const runtime =
+    options.runtime ||
+    ((await select({
+      message: "Choose your runtime environment:",
+      options: runtimeDefs.map((r) => ({
+        value: r.id,
+        label: r.name,
+        hint: r.description,
+      })),
+    })) as string);
   const typescript =
     options.typescript !== undefined
       ? options.typescript
@@ -105,19 +104,15 @@ export async function gatherProjectConfig(
             message: "Use TypeScript?",
             initialValue: true,
           })) as boolean);
-
-  // Get git preference
   const git =
-    options.git !== undefined
-      ? options.git
+    options.git === false
+      ? false
       : options.yes
         ? true
         : ((await confirm({
             message: "Initialize git repository?",
             initialValue: true,
           })) as boolean);
-
-  // Get Docker preference
   const docker = options.yes
     ? false
     : (options.docker ??
@@ -125,6 +120,96 @@ export async function gatherProjectConfig(
         message: "Include Docker configuration?",
         initialValue: false,
       })) as boolean));
+  let uiLibrary: string | undefined;
+  if (styling === "tailwind" && !options.yes) {
+    const compatibleLibraries = Object.entries(UI_LIBRARY_COMPATIBILITY)
+      .filter(([lib]) => {
+        const { compatible } = checkCompatibility(framework, lib, UI_LIBRARY_COMPATIBILITY);
+        return compatible;
+      })
+      .map(([lib]) => ({
+        value: lib,
+        label: lib === "shadcn" ? "shadcn/ui" : lib === "daisyui" ? "DaisyUI" : lib,
+        hint:
+          lib === "shadcn"
+            ? "Copy-paste components with full control"
+            : lib === "daisyui"
+              ? "Semantic component classes"
+              : undefined,
+      }));
+    if (compatibleLibraries.length > 0) {
+      const selected = (await select({
+        message: "Choose a UI component library (optional):",
+        options: [
+          { value: "none", label: "None", hint: "Just use Tailwind CSS" },
+          ...compatibleLibraries,
+        ],
+      })) as string;
+      uiLibrary = selected === "none" ? undefined : selected;
+    }
+  }
+  let aiContext: string[] = [];
+  if (!options.yes) {
+    const selectedContext = (await multiselect({
+      message: "Include AI assistant context files?",
+      options: [
+        { value: "claude", label: "CLAUDE.md", hint: "Context for Claude AI" },
+        {
+          value: "copilot",
+          label: "GitHub Copilot instructions",
+          hint: "Context for GitHub Copilot",
+        },
+        { value: "gemini", label: "GEMINI.md", hint: "Context for Google Gemini" },
+      ],
+      initialValues: ["claude"],
+      required: false,
+    })) as string[];
+    aiContext = selectedContext || [];
+  }
+
+  // Add Cursor to AI context options if not in --yes mode
+  if (!options.yes && !aiContext.includes("cursor")) {
+    const addCursor = (await confirm({
+      message: "Include Cursor AI rules (.cursorrules)?",
+      initialValue: false,
+    })) as boolean;
+    if (addCursor) {
+      aiContext.push("cursor");
+    }
+  }
+
+  // Deployment method selection
+  let deploymentMethod: string | undefined;
+  if (!options.yes) {
+    const deploymentOptions = Object.values(DEPLOYMENT_CONFIGS).map((config) => ({
+      value: config.id,
+      label: config.name,
+      hint: config.description,
+    }));
+
+    deploymentMethod = (await select({
+      message: "Choose deployment method (optional):",
+      options: [
+        { value: "none", label: "None", hint: "Set up deployment later" },
+        ...deploymentOptions,
+      ],
+    })) as string;
+
+    if (deploymentMethod === "none") {
+      deploymentMethod = undefined;
+    }
+  }
+
+  const packageManager = options.packageManager || "npm";
+
+  // Auto-install dependencies option
+  let autoInstall = false;
+  if (!options.yes) {
+    autoInstall = (await confirm({
+      message: "Install dependencies automatically?",
+      initialValue: true,
+    })) as boolean;
+  }
 
   return {
     name,
@@ -133,8 +218,16 @@ export async function gatherProjectConfig(
     database,
     orm,
     styling,
+    runtime,
     typescript,
     git,
     docker,
+    uiLibrary,
+    aiContext,
+    packageManager,
+    deploymentMethod,
+    autoInstall,
+    projectPath: "", // Will be set later
+    language: typescript ? "typescript" : "javascript",
   };
 }

@@ -41,7 +41,7 @@ export function CodeBlock({ code, language = "bash", showLineNumbers = false }: 
           )}
         </pre>
       </div>
-      
+
       {/* Copy Button */}
       <motion.button
         onClick={copyToClipboard}
@@ -69,7 +69,7 @@ export function CodeBlock({ code, language = "bash", showLineNumbers = false }: 
           <FaCopy className="text-sm" />
         )}
       </motion.button>
-      
+
       {/* Tooltip */}
       {copied && (
         <motion.div
@@ -90,17 +90,17 @@ function formatLine(line: string): string {
   if (line.trim().startsWith("$")) {
     return line.replace(/^\s*(\$)/, '<span class="text-comic-yellow">$</span>');
   }
-  
+
   // Format comments
   if (line.trim().startsWith("#")) {
     return `<span class="text-comic-gray">${line}</span>`;
   }
-  
+
   // Highlight npm/yarn/pnpm/bun commands
   const commandPattern = /^(npm|yarn|pnpm|bun|npx)\s+/;
   if (commandPattern.test(line.trim())) {
     return line.replace(commandPattern, '<span class="text-comic-blue">$&</span>');
   }
-  
+
   return line;
 }

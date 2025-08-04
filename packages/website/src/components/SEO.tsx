@@ -17,8 +17,10 @@ interface SEOProps {
 }
 
 const DEFAULT_TITLE = "Precast - The Superhero CLI Builder for Modern Web Projects";
-const DEFAULT_DESCRIPTION = "Build TypeScript projects with superhuman speed! Precast is a powerful CLI tool that helps you scaffold modern web applications with your preferred technology stack.";
-const DEFAULT_KEYWORDS = "precast, cli, typescript, react, vue, angular, nextjs, web development, scaffolding, boilerplate, starter, template";
+const DEFAULT_DESCRIPTION =
+  "Build TypeScript projects with superhuman speed! Precast is a powerful CLI tool that helps you scaffold modern web applications with your preferred technology stack.";
+const DEFAULT_KEYWORDS =
+  "precast, cli, typescript, react, vue, angular, nextjs, web development, scaffolding, boilerplate, starter, template";
 const DEFAULT_IMAGE = "https://precast.dev/og-image.png";
 const DEFAULT_URL = "https://precast.dev";
 const DEFAULT_AUTHOR = "Buun Group";
@@ -49,13 +51,13 @@ export function SEO({
     const updateMetaTag = (property: string, content: string, isProperty = false) => {
       const attributeName = isProperty ? "property" : "name";
       let element = document.querySelector(`meta[${attributeName}="${property}"]`);
-      
+
       if (!element) {
         element = document.createElement("meta");
         element.setAttribute(attributeName, property);
         document.head.appendChild(element);
       }
-      
+
       element.setAttribute("content", content);
     };
 
@@ -139,21 +141,21 @@ export function HomePageSEO() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Precast CLI",
-    "description": "The superhero CLI builder for modern web projects",
-    "url": "https://precast.dev",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Windows, macOS, Linux",
-    "offers": {
+    name: "Precast CLI",
+    description: "The superhero CLI builder for modern web projects",
+    url: "https://precast.dev",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Windows, macOS, Linux",
+    offers: {
       "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
+      price: "0",
+      priceCurrency: "USD",
     },
-    "author": {
+    author: {
       "@type": "Organization",
-      "name": "Buun Group",
-      "url": "https://buungroup.com"
-    }
+      name: "Buun Group",
+      url: "https://buungroup.com",
+    },
   };
 
   return <SEO jsonLd={jsonLd} />;
@@ -163,11 +165,11 @@ export function BuilderPageSEO() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Precast Project Builder",
-    "description": "Visual project builder for creating modern web applications",
-    "url": "https://precast.dev/builder",
-    "applicationCategory": "DeveloperApplication",
-    "screenshot": "https://precast.dev/builder-screenshot.png"
+    name: "Precast Project Builder",
+    description: "Visual project builder for creating modern web applications",
+    url: "https://precast.dev/builder",
+    applicationCategory: "DeveloperApplication",
+    screenshot: "https://precast.dev/builder-screenshot.png",
   };
 
   return (
@@ -192,13 +194,13 @@ export function DocsPageSEO() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    "headline": "Precast Documentation",
-    "description": "Complete documentation for the Precast CLI tool",
-    "url": "https://precast.dev/docs",
-    "author": {
+    headline: "Precast Documentation",
+    description: "Complete documentation for the Precast CLI tool",
+    url: "https://precast.dev/docs",
+    author: {
       "@type": "Organization",
-      "name": "Buun Group"
-    }
+      name: "Buun Group",
+    },
   };
 
   return (

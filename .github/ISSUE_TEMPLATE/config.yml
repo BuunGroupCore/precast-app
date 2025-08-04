@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/BuunGroupCore/precast-app/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📚 Documentation
+    url: https://precast.dev/docs
+    about: Check our comprehensive documentation
+  - name: 🚀 Showcase Your Project
+    url: https://precast.dev/showcase
+    about: Show off what you've built with Precast CLI
+  - name: ❤️ Support the Project
+    url: https://precast.dev/support
+    about: Learn how to support Precast development
+  - name: 🐦 Follow on Twitter
+    url: https://x.com/buungroup
+    about: Stay updated with the latest news and updates

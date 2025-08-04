@@ -3,7 +3,18 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@precast/ui";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { Footer } from "./Footer";
-import { FaHome, FaTerminal, FaCube, FaBook } from "react-icons/fa";
+import { GitHubStars } from "./GitHubStars";
+import { NpmStats } from "./NpmStats";
+import {
+  FaHome,
+  FaTerminal,
+  FaBook,
+  FaStar,
+  FaCube,
+  FaHeart,
+  FaFolderOpen,
+  FaChartLine,
+} from "react-icons/fa";
 
 interface LayoutProps {
   children: ReactNode;
@@ -31,12 +42,34 @@ export function Layout({ children }: LayoutProps) {
       onClick: () => navigate("/builder"),
     },
     {
-      href: "/components",
-      label: "COMPONENTS",
-      icon: FaCube,
+      label: "RESOURCES",
+      icon: FaFolderOpen,
       color: "var(--comic-green)",
       effect: "BOOM!",
-      onClick: () => navigate("/components"),
+      dropdown: {
+        items: [
+          {
+            label: "SHOWCASE",
+            icon: FaStar,
+            onClick: () => navigate("/showcase"),
+          },
+          {
+            label: "COMPONENTS",
+            icon: FaCube,
+            onClick: () => navigate("/components"),
+          },
+          {
+            label: "METRICS",
+            icon: FaChartLine,
+            onClick: () => navigate("/metrics"),
+          },
+          {
+            label: "SUPPORT",
+            icon: FaHeart,
+            onClick: () => navigate("/support"),
+          },
+        ],
+      },
     },
     {
       href: "/docs",
@@ -58,13 +91,17 @@ export function Layout({ children }: LayoutProps) {
         links={navItems}
         currentPath={location.pathname}
         onLogoClick={() => navigate("/")}
-        rightContent={<ThemeSwitcher />}
+        rightContent={
+          <div className="flex items-center gap-4">
+            <GitHubStars />
+            <NpmStats />
+            <ThemeSwitcher />
+          </div>
+        }
       />
       {/* Consistent padding for all pages to account for fixed header */}
       <div className={`pt-32 min-h-screen flex flex-col ${isDocsPage ? "" : ""}`}>
-        <div className="flex-grow">
-          {children}
-        </div>
+        <div className="flex-grow">{children}</div>
         {!isDocsPage && <Footer />}
       </div>
     </div>

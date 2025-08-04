@@ -1,0 +1,33 @@
+{
+  "buildCommand": "{{deployment.buildCommand}}",
+  "outputDirectory": "{{deployment.outputDir}}",
+  "devCommand": "npm run dev",
+  "installCommand": "{{packageManager}} install",
+  "framework": "{{#if (eq framework 'react')}}create-react-app{{else if (eq framework 'next')}}nextjs{{else if (eq framework 'vue')}}vue{{else if (eq framework 'svelte')}}svelte{{else}}static{{/if}}",
+  {{#if (eq framework 'next')}}
+  "functions": {
+    "app/api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  {{/if}}
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}

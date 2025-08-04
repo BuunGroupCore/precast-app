@@ -1,11 +1,7 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ComponentsPageSEO } from "../components/SEO";
-import {
-  FaExternalLinkAlt,
-  FaGithub,
-  FaTerminal,
-} from "react-icons/fa";
+import { FaExternalLinkAlt, FaGithub, FaTerminal } from "react-icons/fa";
 
 interface ComponentLibrary {
   name: string;
@@ -105,9 +101,8 @@ export function ComponentsPage() {
             </h1>
             <div className="speech-bubble max-w-2xl mx-auto">
               <p className="font-comic text-xl">
-                Discover our collection of <strong>SUPER-POWERED</strong> UI
-                component libraries! Each crafted with unique themes and
-                extraordinary abilities!
+                Discover our collection of <strong>SUPER-POWERED</strong> UI component libraries!
+                Each crafted with unique themes and extraordinary abilities!
               </p>
             </div>
           </motion.div>
@@ -130,9 +125,7 @@ export function ComponentsPage() {
                   className="comic-panel p-6 h-full"
                   style={{
                     backgroundColor:
-                      library.status === "coming-soon"
-                        ? "var(--comic-gray)"
-                        : "var(--comic-white)",
+                      library.status === "coming-soon" ? "var(--comic-gray)" : "var(--comic-white)",
                   }}
                 >
                   {/* Status Badge */}
@@ -147,10 +140,7 @@ export function ComponentsPage() {
 
                   {/* Library Header */}
                   <div className="flex items-start justify-between mb-4">
-                    <h3
-                      className="font-display text-3xl"
-                      style={{ color: library.color }}
-                    >
+                    <h3 className="font-display text-3xl" style={{ color: library.color }}>
                       {library.name}
                     </h3>
                     <div className="flex gap-2">
@@ -236,10 +226,7 @@ export function ComponentsPage() {
       </section>
 
       {/* Call to Action */}
-      <section
-        className="py-20 px-4"
-        style={{ backgroundColor: "var(--comic-yellow)" }}
-      >
+      <section className="py-20 px-4" style={{ backgroundColor: "var(--comic-yellow)" }}>
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -251,8 +238,8 @@ export function ComponentsPage() {
             </h2>
             <div className="speech-bubble bg-comic-white max-w-2xl mx-auto mb-8">
               <p className="font-comic text-xl text-comic-black">
-                Want to create your own <strong>LEGENDARY</strong> component
-                library? Use our CLI builder to kickstart your heroic journey!
+                Want to create your own <strong>LEGENDARY</strong> component library? Use our CLI
+                builder to kickstart your heroic journey!
               </p>
             </div>
             <motion.button

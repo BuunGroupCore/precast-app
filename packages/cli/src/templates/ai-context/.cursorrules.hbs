@@ -1,0 +1,83 @@
+# Cursor AI Rules for {{projectName}}
+
+## Project Context
+This is a {{framework}} project{{#if typescript}} with TypeScript{{/if}}{{#if (ne backend 'none')}} and {{backend}} backend{{/if}}{{#if (ne database 'none')}} using {{database}} database{{#if (ne orm 'none')}} with {{orm}}{{/if}}{{/if}}.
+
+## Tech Stack
+- **Framework**: {{framework}}
+- **Language**: {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}
+{{#if (ne backend 'none')}}
+- **Backend**: {{backend}}
+{{/if}}
+{{#if (ne database 'none')}}
+- **Database**: {{database}}
+{{/if}}
+{{#if (ne orm 'none')}}
+- **ORM**: {{orm}}
+{{/if}}
+- **Styling**: {{styling}}
+{{#if uiLibrary}}
+- **UI Library**: {{uiLibrary}}
+{{/if}}
+
+## Coding Preferences
+- Always use {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}
+- Follow the existing code style and patterns
+- Use modern ES6+ features
+- Prefer functional components in React
+{{#if (eq styling 'tailwind')}}
+- Use Tailwind CSS for styling
+{{/if}}
+{{#if uiLibrary}}
+- Use {{uiLibrary}} components when possible
+{{/if}}
+
+## File Structure
+Follow the existing project structure:
+```
+{{#if (eq framework 'react')}}
+src/
+  components/
+  hooks/
+  pages/
+  utils/
+{{else if (eq framework 'next')}}
+src/
+  app/
+  components/
+  lib/
+{{else if (eq framework 'vue')}}
+src/
+  components/
+  composables/
+  pages/
+  stores/
+{{/if}}
+```
+
+## Best Practices
+- Write clean, readable code
+- Add proper error handling
+- Include JSDoc comments for functions
+- Use semantic HTML elements
+- Ensure accessibility (a11y) compliance
+{{#if typescript}}
+- Always provide proper TypeScript types
+- Avoid using `any` type
+{{/if}}
+{{#if (ne database 'none')}}
+- Handle database operations with proper error handling
+- Use transactions for critical operations
+{{/if}}
+
+## Testing
+- Write unit tests for utilities and components
+- Include integration tests for critical user flows
+- Use meaningful test descriptions
+- Mock external dependencies properly
+
+## Security
+- Validate all user inputs
+- Sanitize data before database operations
+- Use environment variables for sensitive data
+- Implement proper authentication and authorization

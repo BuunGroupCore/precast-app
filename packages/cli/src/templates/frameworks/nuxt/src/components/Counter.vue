@@ -1,28 +1,28 @@
 <template>
-  <div class="{{#if (eq styling 'tailwind')}}bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto{{else}}counter{{/if}}">
-    <h2 class="{{#if (eq styling 'tailwind')}}text-xl font-semibold text-gray-800 mb-4{{else}}counter-title{{/if}}">
+  <div class="{{#if (eq styling "tailwind')}}bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto{{else}}counter{{/if}}">
+    <h2 class="{{#if (eq styling "tailwind')}}text-xl font-semibold text-gray-800 mb-4{{else}}counter-title{{/if}}">
       Counter Example
     </h2>
-    <div class="{{#if (eq styling 'tailwind')}}flex items-center justify-center space-x-4{{else}}counter-controls{{/if}}">
+    <div class="{{#if (eq styling "tailwind')}}flex items-center justify-center space-x-4{{else}}counter-controls{{/if}}">
       <button
         @click="decrement"
-        class="{{#if (eq styling 'tailwind')}}px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors{{else}}counter-button counter-button-minus{{/if}}"
+        class="{{#if (eq styling "tailwind')}}px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors{{else}}counter-button counter-button-minus{{/if}}"
       >
         -
       </button>
-      <span class="{{#if (eq styling 'tailwind')}}text-2xl font-bold text-gray-800 min-w-[3rem] text-center{{else}}counter-value{{/if}}">
+      <span class="{{#if (eq styling "tailwind')}}text-2xl font-bold text-gray-800 min-w-[3rem] text-center{{else}}counter-value{{/if}}">
         {{ count }}
       </span>
       <button
         @click="increment"
-        class="{{#if (eq styling 'tailwind')}}px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors{{else}}counter-button counter-button-plus{{/if}}"
+        class="{{#if (eq styling "tailwind')}}px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors{{else}}counter-button counter-button-plus{{/if}}"
       >
         +
       </button>
     </div>
     <button
       @click="reset"
-      class="{{#if (eq styling 'tailwind')}}mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors w-full{{else}}counter-reset{{/if}}"
+      class="{{#if (eq styling "tailwind')}}mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors w-full{{else}}counter-reset{{/if}}"
     >
       Reset
     </button>

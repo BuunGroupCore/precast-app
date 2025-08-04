@@ -1,0 +1,161 @@
+export interface CompatibilityRule {
+  name?: string;
+  frameworks: string[];
+  requiredDeps?: string[];
+  incompatibleWith?: string[];
+  setupCommand?: string;
+  postInstallSteps?: string[];
+}
+export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
+  shadcn: {
+    name: "shadcn/ui",
+    frameworks: ["react", "next", "remix", "vite"],
+    requiredDeps: [
+      "tailwindcss",
+      "tailwindcss-animate",
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge",
+    ],
+    setupCommand: "npx shadcn-ui@latest init",
+    postInstallSteps: [
+      "Configure components.json",
+      "Add CSS variables to globals.css",
+      "Configure tailwind.config.js",
+    ],
+  },
+  daisyui: {
+    name: "DaisyUI",
+    frameworks: ["react", "vue", "svelte", "next", "nuxt", "remix", "vite", "astro", "solid"],
+    requiredDeps: ["tailwindcss", "daisyui"],
+    incompatibleWith: ["shadcn"],
+    postInstallSteps: ["Add daisyui to tailwind.config.js plugins"],
+  },
+  mui: {
+    name: "Material UI",
+    frameworks: ["react", "next", "remix", "vite"],
+    requiredDeps: ["@mui/material", "@emotion/react", "@emotion/styled"],
+    incompatibleWith: ["preact"],
+  },
+  vuetify: {
+    name: "Vuetify",
+    frameworks: ["vue", "nuxt"],
+    requiredDeps: ["vuetify", "@mdi/font"],
+    postInstallSteps: ["Configure vuetify plugin", "Import Vuetify CSS"],
+  },
+  chakra: {
+    name: "Chakra UI",
+    frameworks: ["react", "next", "remix", "vite"],
+    requiredDeps: ["@chakra-ui/react", "@emotion/react", "@emotion/styled", "framer-motion"],
+  },
+  antd: {
+    name: "Ant Design",
+    frameworks: ["react", "next", "remix", "vite"],
+    requiredDeps: ["antd"],
+  },
+  mantine: {
+    name: "Mantine",
+    frameworks: ["react", "next", "remix", "vite"],
+    requiredDeps: ["@mantine/core", "@mantine/hooks"],
+  },
+  brutalist: {
+    name: "Brutalist UI",
+    frameworks: ["react", "next", "remix", "vite"],
+    requiredDeps: ["tailwindcss", "clsx"],
+    postInstallSteps: [
+      "Install Brutalist UI components manually",
+      "Configure with Tailwind CSS for best results",
+    ],
+  },
+};
+export const AI_ASSISTANCE_COMPATIBILITY: Record<string, CompatibilityRule> = {
+  "claude-sdk": {
+    frameworks: [
+      "react",
+      "vue",
+      "svelte",
+      "next",
+      "nuxt",
+      "remix",
+      "vite",
+      "astro",
+      "solid",
+      "vanilla",
+    ],
+    requiredDeps: ["@anthropic-ai/sdk"],
+    postInstallSteps: ["Add ANTHROPIC_API_KEY to .env", "Configure AI provider in config"],
+  },
+  openai: {
+    frameworks: [
+      "react",
+      "vue",
+      "svelte",
+      "next",
+      "nuxt",
+      "remix",
+      "vite",
+      "astro",
+      "solid",
+      "vanilla",
+    ],
+    requiredDeps: ["openai"],
+    postInstallSteps: ["Add OPENAI_API_KEY to .env", "Configure AI provider in config"],
+  },
+  "vercel-ai": {
+    frameworks: ["react", "vue", "svelte", "next", "nuxt", "remix", "vite", "solid"],
+    requiredDeps: ["ai", "@ai-sdk/openai"],
+    postInstallSteps: ["Configure AI provider", "Set up streaming endpoints"],
+  },
+  langchain: {
+    frameworks: ["react", "vue", "next", "nuxt", "remix", "vite", "vanilla"],
+    requiredDeps: ["langchain", "@langchain/core"],
+    postInstallSteps: ["Configure LLM provider", "Set up vector store if needed"],
+  },
+};
+export function checkCompatibility(
+  framework: string,
+  library: string,
+  compatibilityMap: Record<string, CompatibilityRule>
+): { compatible: boolean; reason?: string; rule?: CompatibilityRule } {
+  const rule = compatibilityMap[library];
+  if (!rule) {
+    return { compatible: false, reason: `Unknown library: ${library}` };
+  }
+  if (!rule.frameworks.includes(framework)) {
+    return {
+      compatible: false,
+      reason: `${library} is not compatible with ${framework}. Supported frameworks: ${rule.frameworks.join(", ")}`,
+    };
+  }
+  return { compatible: true, rule };
+}
+export function getIncompatibleLibraries(
+  selectedLibraries: string[],
+  compatibilityMap: Record<string, CompatibilityRule>
+): string[] {
+  const incompatible: string[] = [];
+  for (const lib of selectedLibraries) {
+    const rule = compatibilityMap[lib];
+    if (rule?.incompatibleWith) {
+      for (const incompatLib of rule.incompatibleWith) {
+        if (selectedLibraries.includes(incompatLib)) {
+          incompatible.push(`${lib} is incompatible with ${incompatLib}`);
+        }
+      }
+    }
+  }
+  return incompatible;
+}
+export function getAllRequiredDeps(
+  libraries: string[],
+  compatibilityMap: Record<string, CompatibilityRule>
+): string[] {
+  const deps = new Set<string>();
+  for (const lib of libraries) {
+    const rule = compatibilityMap[lib];
+    if (rule?.requiredDeps) {
+      rule.requiredDeps.forEach((dep) => deps.add(dep));
+    }
+  }
+  return Array.from(deps);
+}

@@ -1,5 +1,5 @@
 <template>
-  <div class="{{#if (eq styling 'tailwind')}}min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100{{else}}app{{/if}}">
+  <div class="{{#if (eq styling "tailwind')}}min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100{{else}}app{{/if}}">
     <NuxtPage />
   </div>
 </template>

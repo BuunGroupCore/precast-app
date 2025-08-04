@@ -2,29 +2,23 @@ import { consola } from "consola";
 import { z } from "zod";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
-
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
   warnings: string[];
 }
-
 export interface CompatibilityRule {
   name: string;
   check: (config: ProjectConfig) => boolean;
   message: string;
   severity: "error" | "warning";
 }
-
 export class ConfigValidator {
   private rules: CompatibilityRule[] = [];
-
   constructor() {
     this.registerDefaultRules();
   }
-
   private registerDefaultRules() {
-    // Framework-specific rules
     this.addRule({
       name: "next-requires-react",
       check: (config) => {
@@ -36,8 +30,6 @@ export class ConfigValidator {
       message: "Next.js requires React",
       severity: "error",
     });
-
-    // Database-ORM compatibility rules
     this.addRule({
       name: "mongoose-requires-mongodb",
       check: (config) => {
@@ -49,7 +41,6 @@ export class ConfigValidator {
       message: "Mongoose ORM can only be used with MongoDB",
       severity: "error",
     });
-
     this.addRule({
       name: "prisma-sqlite-warning",
       check: (config) => {
@@ -61,19 +52,14 @@ export class ConfigValidator {
       message: "SQLite with Prisma is not recommended for production use",
       severity: "warning",
     });
-
-    // Styling compatibility
     this.addRule({
       name: "tailwind-postcss",
       check: (_config) => {
-        // This is always valid, just informational
         return true;
       },
       message: "Tailwind CSS will automatically configure PostCSS",
       severity: "warning",
     });
-
-    // Backend-database rules
     this.addRule({
       name: "no-backend-no-database",
       check: (config) => {
@@ -85,8 +71,6 @@ export class ConfigValidator {
       message: "Cannot use a database without a backend",
       severity: "error",
     });
-
-    // Docker recommendations
     this.addRule({
       name: "docker-database-recommendation",
       check: (config) => {
@@ -98,8 +82,6 @@ export class ConfigValidator {
       message: "Docker setup is most useful when you have a database",
       severity: "warning",
     });
-
-    // TypeScript recommendations
     this.addRule({
       name: "typescript-recommended",
       check: (config) => {
@@ -112,11 +94,9 @@ export class ConfigValidator {
       severity: "warning",
     });
   }
-
   addRule(rule: CompatibilityRule): void {
     this.rules.push(rule);
   }
-
   removeRule(ruleName: string): boolean {
     const index = this.rules.findIndex((r) => r.name === ruleName);
     if (index > -1) {
@@ -125,12 +105,9 @@ export class ConfigValidator {
     }
     return false;
   }
-
   validate(config: ProjectConfig): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
-
-    // Run all validation rules
     for (const rule of this.rules) {
       try {
         const passed = rule.check(config);
@@ -146,8 +123,6 @@ export class ConfigValidator {
         errors.push(`Validation rule "${rule.name}" failed to execute`);
       }
     }
-
-    // Basic schema validation
     try {
       this.validateSchema(config);
     } catch (error) {
@@ -157,14 +132,12 @@ export class ConfigValidator {
         errors.push("Schema validation failed");
       }
     }
-
     return {
       valid: errors.length === 0,
       errors,
       warnings,
     };
   }
-
   private validateSchema(config: ProjectConfig): void {
     const configSchema = z.object({
       name: z
@@ -182,11 +155,8 @@ export class ConfigValidator {
       git: z.boolean(),
       docker: z.boolean(),
     });
-
     configSchema.parse(config);
   }
-
-  // Helper method to check if a combination is valid
   isCompatible(
     field1: keyof ProjectConfig,
     value1: string,
@@ -199,41 +169,28 @@ export class ConfigValidator {
       [field1]: value1,
       [field2]: value2,
     } as ProjectConfig;
-
     const result = this.validate(testConfig);
     return result.valid;
   }
-
-  // Get recommended values based on current config
   getRecommendations(partialConfig: Partial<ProjectConfig>): Map<keyof ProjectConfig, string[]> {
     const recommendations = new Map<keyof ProjectConfig, string[]>();
-
-    // Framework recommendations
     if (!partialConfig.framework) {
       recommendations.set("framework", ["react", "vue", "next"]);
     }
-
-    // Backend recommendations based on framework
     if (partialConfig.framework && !partialConfig.backend) {
       const backendRecs = this.getBackendRecommendations(partialConfig.framework);
       recommendations.set("backend", backendRecs);
     }
-
-    // Database recommendations based on backend
     if (partialConfig.backend && !partialConfig.database) {
       const dbRecs = this.getDatabaseRecommendations(partialConfig.backend);
       recommendations.set("database", dbRecs);
     }
-
-    // ORM recommendations based on database
     if (partialConfig.database && !partialConfig.orm) {
       const ormRecs = this.getORMRecommendations(partialConfig.database);
       recommendations.set("orm", ormRecs);
     }
-
     return recommendations;
   }
-
   private getBackendRecommendations(framework: string): string[] {
     const recommendations: Record<string, string[]> = {
       next: ["next", "none"],
@@ -247,18 +204,14 @@ export class ConfigValidator {
       vanilla: ["express", "fastify", "hono", "none"],
       astro: ["astro", "none"],
     };
-
     return recommendations[framework] || ["express", "fastify", "hono", "none"];
   }
-
   private getDatabaseRecommendations(backend: string): string[] {
     if (backend === "none") {
       return ["none"];
     }
-
     return ["postgres", "mysql", "mongodb", "sqlite", "none"];
   }
-
   private getORMRecommendations(database: string): string[] {
     const recommendations: Record<string, string[]> = {
       postgres: ["prisma", "drizzle", "none"],
@@ -267,14 +220,10 @@ export class ConfigValidator {
       sqlite: ["prisma", "drizzle", "none"],
       none: ["none"],
     };
-
     return recommendations[database] || ["none"];
   }
 }
-
-// Singleton instance
 let validator: ConfigValidator | null = null;
-
 export function getConfigValidator(): ConfigValidator {
   if (!validator) {
     validator = new ConfigValidator();

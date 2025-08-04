@@ -1,0 +1,23 @@
+name = "{{projectName}}"
+compatibility_date = "2023-05-18"
+
+[env.production]
+account_id = "YOUR_ACCOUNT_ID"
+zone_id = "YOUR_ZONE_ID"
+
+[env.production.build]
+command = "{{deployment.buildCommand}}"
+cwd = "."
+
+[env.production.build.upload]
+format = "service-worker"
+
+[[env.production.route]]
+pattern = "{{projectName}}.pages.dev/*"
+
+[env.preview]
+account_id = "YOUR_ACCOUNT_ID"
+
+[env.preview.build]
+command = "{{deployment.buildCommand}}"
+cwd = "."

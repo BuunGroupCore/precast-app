@@ -1,12 +1,6 @@
 import { IconType } from "react-icons";
-import {
-  FaReact,
-  FaVuejs,
-  FaAngular,
-  FaNodeJs,
-  FaDocker,
-  FaGitAlt,
-} from "react-icons/fa";
+import { BiSolidBoltCircle, BiSolidData, BiSolidCloud } from "react-icons/bi";
+import { FaReact, FaVuejs, FaAngular, FaNodeJs, FaDocker, FaGitAlt } from "react-icons/fa";
 import {
   SiTypescript,
   SiJavascript,
@@ -27,14 +21,20 @@ import {
   SiSvelte,
   SiNuxtdotjs,
   SiDrizzle,
-  SiPython,
+  SiFastify,
+  SiBun,
+  SiCloudflare,
+  SiDeno,
+  SiVercel,
 } from "react-icons/si";
-import { BiSolidBoltCircle } from "react-icons/bi";
+
+import { CssIcon } from "../components/icons/CssIcon";
+import { SassIcon } from "../components/icons/SassIcon";
 
 export interface StackOption {
   id: string;
   name: string;
-  icon: IconType | null;
+  icon: IconType | React.FC<{ className?: string }> | null;
   color: string;
   description?: string;
   dependencies?: string[];
@@ -98,8 +98,7 @@ export const frameworks: StackOption[] = [
     name: "Astro",
     icon: SiAstro,
     color: "text-comic-orange",
-    description:
-      "Build faster websites with Astro's next-gen island architecture",
+    description: "Build faster websites with Astro's next-gen island architecture",
     recommended: ["typescript", "tailwind"],
   },
   {
@@ -124,8 +123,7 @@ export const frameworks: StackOption[] = [
     name: "Solid",
     icon: SiSolid,
     color: "text-comic-blue",
-    description:
-      "Simple and performant reactivity for building user interfaces",
+    description: "Simple and performant reactivity for building user interfaces",
     recommended: ["typescript", "tailwind"],
   },
   {
@@ -180,6 +178,41 @@ export const backends: StackOption[] = [
     color: "text-comic-orange",
     description: "Ultrafast web framework for the Edges",
     dependencies: ["node"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "nextjs",
+    name: "Next.js API",
+    icon: SiNextdotjs,
+    color: "text-comic-black",
+    description: "Full-stack React framework with API routes",
+    dependencies: ["react"],
+    recommended: ["typescript", "prisma"],
+  },
+  {
+    id: "elysia",
+    name: "Elysia",
+    icon: BiSolidBoltCircle,
+    color: "text-comic-blue",
+    description: "Fast and friendly Bun web framework",
+    dependencies: ["node"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "fastify",
+    name: "Fastify",
+    icon: SiFastify,
+    color: "text-comic-black",
+    description: "Fast and low overhead web framework for Node.js",
+    dependencies: ["node"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "convex",
+    name: "Convex",
+    icon: BiSolidData,
+    color: "text-comic-orange",
+    description: "Backend-as-a-Service with real-time sync",
     recommended: ["typescript"],
   },
   {
@@ -258,7 +291,7 @@ export const orms: StackOption[] = [
   {
     id: "drizzle",
     name: "Drizzle",
-    icon: null,
+    icon: SiDrizzle,
     color: "text-comic-green",
     description: "TypeScript ORM that feels like writing SQL",
     dependencies: ["typescript"], // Drizzle is TypeScript-first
@@ -267,7 +300,7 @@ export const orms: StackOption[] = [
   {
     id: "typeorm",
     name: "TypeORM",
-    icon: null,
+    icon: BiSolidData,
     color: "text-comic-orange",
     description: "ORM for TypeScript and JavaScript",
     dependencies: ["node"],
@@ -294,14 +327,14 @@ export const stylings: StackOption[] = [
   {
     id: "css",
     name: "CSS",
-    icon: null,
+    icon: CssIcon as any,
     color: "text-comic-blue",
     description: "Plain CSS",
   },
   {
     id: "scss",
     name: "SCSS",
-    icon: null,
+    icon: SassIcon as any,
     color: "text-comic-pink",
     description: "Sass CSS preprocessor",
   },
@@ -312,6 +345,58 @@ export const stylings: StackOption[] = [
     color: "text-comic-purple",
     description: "CSS-in-JS styling",
     dependencies: ["react"], // Styled Components is React-specific
+  },
+];
+
+// Runtime definitions
+export const runtimes: StackOption[] = [
+  {
+    id: "node",
+    name: "Node.js",
+    icon: FaNodeJs,
+    color: "text-comic-green",
+    description: "JavaScript runtime built on Chrome's V8 JavaScript engine",
+    recommended: ["typescript"],
+  },
+  {
+    id: "bun",
+    name: "Bun",
+    icon: SiBun,
+    color: "text-comic-yellow",
+    description: "Fast all-in-one JavaScript runtime",
+    recommended: ["typescript"],
+  },
+  {
+    id: "deno",
+    name: "Deno",
+    icon: SiDeno,
+    color: "text-comic-black",
+    description: "Secure runtime for JavaScript and TypeScript",
+    recommended: ["typescript"],
+  },
+  {
+    id: "cloudflare-workers",
+    name: "Cloudflare Workers",
+    icon: SiCloudflare,
+    color: "text-comic-orange",
+    description: "Serverless execution environment",
+    recommended: ["typescript"],
+  },
+  {
+    id: "vercel-edge",
+    name: "Vercel Edge Runtime",
+    icon: SiVercel,
+    color: "text-comic-black",
+    description: "Edge runtime for serverless functions",
+    recommended: ["typescript"],
+  },
+  {
+    id: "aws-lambda",
+    name: "AWS Lambda",
+    icon: BiSolidCloud,
+    color: "text-comic-orange",
+    description: "Serverless compute service",
+    recommended: ["typescript"],
   },
 ];
 
@@ -422,7 +507,7 @@ export function getRecommendations(
     database: string;
     orm: string;
     styling: string;
-  }>,
+  }>
 ): {
   typescript?: boolean;
   backend?: string[];
@@ -438,25 +523,19 @@ export function getRecommendations(
     if (framework.recommended.includes("typescript")) {
       recommendations.typescript = true;
     }
-    recommendations.styling = framework.recommended.filter((r) =>
-      stylings.some((s) => s.id === r),
-    );
+    recommendations.styling = framework.recommended.filter((r) => stylings.some((s) => s.id === r));
   }
 
   // Get backend recommendations
   const backend = backends.find((b) => b.id === config.backend);
   if (backend?.recommended) {
-    recommendations.database = backend.recommended.filter((r) =>
-      databases.some((d) => d.id === r),
-    );
+    recommendations.database = backend.recommended.filter((r) => databases.some((d) => d.id === r));
   }
 
   // Get database recommendations
   const database = databases.find((d) => d.id === config.database);
   if (database?.recommended) {
-    recommendations.orm = database.recommended.filter((r) =>
-      orms.some((o) => o.id === r),
-    );
+    recommendations.orm = database.recommended.filter((r) => orms.some((o) => o.id === r));
   }
 
   return recommendations;

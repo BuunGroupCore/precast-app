@@ -1,0 +1,135 @@
+# GitHub Copilot Instructions for {{name}}
+
+## Project Context
+You are working on a {{framework}} application{{#if uiLibrary}} that uses {{uiLibrary}} for UI components{{/if}}.
+
+## Technology Stack
+- Framework: {{framework}}
+- Language: {{language}}
+- Package Manager: {{packageManager}}
+{{#if styling}}- Styling: {{styling}}{{/if}}
+{{#if uiLibrary}}- UI Library: {{uiLibrary}}{{/if}}
+{{#if database}}- Database: {{database}}{{/if}}
+{{#if orm}}- ORM: {{orm}}{{/if}}
+
+## Code Generation Rules
+
+### General Rules
+{{#if (eq language "typescript")}}
+- Always use TypeScript with proper type annotations
+- Avoid using `any` type
+- Prefer `interface` over `type` for object shapes
+{{else}}
+- Use modern JavaScript syntax (ES2022+)
+- Include JSDoc comments for better type inference
+{{/if}}
+- Follow functional programming principles where applicable
+- Prefer composition over inheritance
+
+{{#if (eq framework "react")}}
+### React Specific
+- Use functional components with hooks
+- Prefer named exports for components
+- Use proper prop destructuring
+- Implement proper error boundaries
+- Follow React best practices for performance (useMemo, useCallback)
+{{else if (eq framework "vue")}}
+### Vue Specific
+- Use Composition API with `<script setup>`
+- Use TypeScript for all components
+- Follow Vue 3 best practices
+- Use proper prop validation
+{{else if (eq framework "next")}}
+### Next.js Specific
+- Use App Router patterns
+- Implement proper loading and error states
+- Use Server Components where appropriate
+- Follow Next.js best practices for performance
+{{/if}}
+
+{{#if (eq styling "tailwind")}}
+### Styling Rules
+- Use Tailwind CSS utility classes
+- Avoid inline styles
+- Follow mobile-first responsive design
+- Use Tailwind's design system tokens
+{{/if}}
+
+{{#if uiLibrary}}
+### UI Component Rules
+{{#if (eq uiLibrary "shadcn")}}
+- Import components from `@/components/ui`
+- Maintain consistency with shadcn/ui patterns
+- Components are customizable - modify as needed
+{{else if (eq uiLibrary "daisyui")}}
+- Use DaisyUI component classes
+- Follow DaisyUI theming conventions
+- Combine with Tailwind utilities as needed
+{{/if}}
+{{/if}}
+
+## File Naming Conventions
+{{#if (eq framework "react")}}
+- Components: `PascalCase.tsx` (e.g., `UserProfile.tsx`)
+- Hooks: `camelCase.ts` starting with `use` (e.g., `useAuth.ts`)
+- Utilities: `camelCase.ts` (e.g., `formatDate.ts`)
+{{else if (eq framework "vue")}}
+- Components: `PascalCase.vue` (e.g., `UserProfile.vue`)
+- Composables: `camelCase.ts` starting with `use` (e.g., `useAuth.ts`)
+- Utilities: `camelCase.ts` (e.g., `formatDate.ts`)
+{{/if}}
+
+## Import Order
+1. External dependencies
+2. Internal aliases (e.g., `@/components`)
+3. Relative imports
+4. Style imports
+
+## Error Handling
+- Always use try-catch for async operations
+- Provide meaningful error messages
+- Log errors appropriately
+- Show user-friendly error states
+
+{{#if database}}
+## Database Guidelines
+- Use parameterized queries
+- Implement proper validation
+- Handle connection errors gracefully
+{{#if orm}}- Use {{orm}} methods instead of raw SQL{{/if}}
+{{/if}}
+
+## Security Best Practices
+- Validate all user inputs
+- Sanitize data before rendering
+- Use HTTPS for all external requests
+- Implement proper authentication checks
+- Never expose sensitive data in client code
+
+## Performance Guidelines
+- Implement lazy loading for routes/components
+- Optimize bundle size
+- Use proper caching strategies
+- Minimize re-renders
+{{#if (eq framework "next")}}- Use Next.js optimization features (Image, Link, etc.){{/if}}
+
+## Testing Approach
+- Write tests for critical business logic
+- Test edge cases and error states
+- Maintain good test coverage
+- Use meaningful test descriptions
+
+## Code Comments
+- Add comments for complex logic
+- Document function parameters and return types
+- Explain "why" not "what"
+- Keep comments up to date
+
+## Git Commit Messages
+- Use conventional commits format
+- Be descriptive but concise
+- Reference issue numbers when applicable
+- Examples:
+  - `feat: add user authentication`
+  - `fix: resolve navigation bug in mobile view`
+  - `docs: update API documentation`

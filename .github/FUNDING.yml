@@ -1,3 +1,13 @@
 # These are supported funding model platforms
 
-github: [BuunGroupCore]
+github: [BuunGroupCore]  # Primary GitHub Sponsors
+# patreon: username     # Uncomment if you have Patreon
+# open_collective: username  # Uncomment if you have Open Collective
+# ko_fi: username       # Uncomment if you have Ko-fi
+# tidelift: npm/package-name  # Uncomment if you have Tidelift
+# community_bridge: project-name  # Uncomment if you have Community Bridge
+# liberapay: username   # Uncomment if you have Liberapay
+# issuehunt: username   # Uncomment if you have IssueHunt
+# otechie: username     # Uncomment if you have Otechie
+# lfx_crowdfunding: project-name  # Uncomment if you have LFX Crowdfunding
+# custom: ['https://precast.dev/support']  # Link to your support page

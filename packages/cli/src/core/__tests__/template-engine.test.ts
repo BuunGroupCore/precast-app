@@ -1,7 +1,8 @@
 import os from "os";
 import path from "path";
 
-import { mkdtemp, ensureDir, remove, writeFile, readFile, readJson, pathExists } from "fs-extra";
+import fsExtra from "fs-extra";
+const { mkdtemp, ensureDir, remove, writeFile, readFile, readJson, pathExists } = fsExtra;
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 import { TemplateEngine } from "../template-engine.js";
@@ -12,7 +13,6 @@ describe("TemplateEngine", () => {
   let templateRoot: string;
 
   beforeEach(async () => {
-    // Create temporary directories
     tempDir = await mkdtemp(path.join(os.tmpdir(), "template-test-"));
     templateRoot = path.join(tempDir, "templates");
     await ensureDir(templateRoot);
@@ -21,7 +21,6 @@ describe("TemplateEngine", () => {
   });
 
   afterEach(async () => {
-    // Clean up
     await remove(tempDir);
   });
 
@@ -30,13 +29,8 @@ describe("TemplateEngine", () => {
       const templatePath = path.join(templateRoot, "test.txt.hbs");
       const outputPath = path.join(tempDir, "output.txt");
 
-      // Create template
       await writeFile(templatePath, "Hello {{name}}!");
-
-      // Process template
       await templateEngine.processTemplate(templatePath, outputPath, { name: "World" } as any);
-
-      // Check output
       const content = await readFile(outputPath, "utf-8");
       expect(content).toBe("Hello World!");
     });
@@ -45,19 +39,16 @@ describe("TemplateEngine", () => {
       const templatePath = path.join(templateRoot, "conditional.hbs");
       const outputPath = path.join(tempDir, "conditional.txt");
 
-      // Create template with conditionals
       await writeFile(
         templatePath,
         "{{#if typescript}}TypeScript enabled{{else}}JavaScript{{/if}}"
       );
 
-      // Test with TypeScript enabled
       await templateEngine.processTemplate(templatePath, outputPath, { typescript: true } as any);
 
       let content = await readFile(outputPath, "utf-8");
       expect(content).toBe("TypeScript enabled");
 
-      // Test with TypeScript disabled
       await templateEngine.processTemplate(templatePath, outputPath, { typescript: false } as any, {
         overwrite: true,
       });
@@ -70,7 +61,6 @@ describe("TemplateEngine", () => {
       const templatePath = path.join(templateRoot, "helpers.hbs");
       const outputPath = path.join(tempDir, "helpers.txt");
 
-      // Create template using helpers
       await writeFile(templatePath, "{{#if (eq framework 'react')}}React App{{/if}}");
 
       await templateEngine.processTemplate(templatePath, outputPath, { framework: "react" } as any);
@@ -85,7 +75,6 @@ describe("TemplateEngine", () => {
       const sourceDir = path.join(templateRoot, "project");
       const destDir = path.join(tempDir, "output");
 
-      // Create template directory structure
       await ensureDir(path.join(sourceDir, "src"));
       await writeFile(
         path.join(sourceDir, "package.json.hbs"),
@@ -97,10 +86,8 @@ describe("TemplateEngine", () => {
       );
       await writeFile(path.join(sourceDir, "_gitignore"), "node_modules\n");
 
-      // Copy directory
       await templateEngine.copyTemplateDirectory("project", destDir, { name: "test-app" } as any);
 
-      // Check generated files
       const packageJson = await readJson(path.join(destDir, "package.json"));
       expect(packageJson.name).toBe("test-app");
 
@@ -116,14 +103,12 @@ describe("TemplateEngine", () => {
     it("should process templates based on conditions", async () => {
       const destDir = path.join(tempDir, "output");
 
-      // Create conditional template directories
       await ensureDir(path.join(templateRoot, "feature1"));
       await writeFile(path.join(templateRoot, "feature1", "config.json.hbs"), '{"feature1": true}');
 
       await ensureDir(path.join(templateRoot, "feature2"));
       await writeFile(path.join(templateRoot, "feature2", "config.json.hbs"), '{"feature2": true}');
 
-      // Process conditional templates
       await templateEngine.processConditionalTemplates(
         [
           {
@@ -144,7 +129,6 @@ describe("TemplateEngine", () => {
         { name: "test-app" } as any
       );
 
-      // Check that only feature1 was processed
       expect(await pathExists(path.join(destDir, "config.json"))).toBe(true);
       expect(await pathExists(path.join(destDir, "nested", "config.json"))).toBe(true);
 

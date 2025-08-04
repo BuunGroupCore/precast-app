@@ -3,24 +3,19 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { Command } from "commander";
-import { readJSON } from "fs-extra";
+import fsExtra from "fs-extra";
 
+import { addFeaturesCommand } from "./commands/add-features.js";
+import { addCommand } from "./commands/add.js";
 import { initCommand } from "./commands/init.js";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Read package.json for version
-const packageJson = await readJSON(path.join(__dirname, "..", "package.json"));
-
+const packageJson = await fsExtra.readJSON(path.join(__dirname, "..", "package.json"));
 const program = new Command();
-
 program
   .name("create-precast-app")
   .description("CLI to scaffold modern web applications with your chosen stack")
   .version(packageJson.version);
-
-// Init command (default)
 program
   .command("init [project-name]", { isDefault: true })
   .description("Create a new project")
@@ -30,6 +25,7 @@ program
   .option("-d, --database <database>", "Database")
   .option("-o, --orm <orm>", "ORM")
   .option("-s, --styling <styling>", "Styling solution")
+  .option("-r, --runtime <runtime>", "Runtime environment")
   .option("--no-typescript", "Disable TypeScript")
   .option("--no-git", "Skip git initialization")
   .option("--docker", "Include Docker configuration")
@@ -43,6 +39,7 @@ program
       database: options.database,
       orm: options.orm,
       styling: options.styling,
+      runtime: options.runtime,
       typescript: options.typescript,
       git: options.git,
       docker: options.docker,
@@ -50,25 +47,34 @@ program
       packageManager: options.packageManager,
     });
   });
-
-// Add command (for future implementation)
 program
-  .command("add <feature>")
-  .description("Add a feature to an existing project")
-  .option("--install", "Install dependencies after adding feature")
-  .action(async (feature, _options) => {
-    console.log("Add command not yet implemented");
-    console.log(`Would add feature: ${feature}`);
-    // TODO: Implement add command
+  .command("add [resource]")
+  .description("Add a new resource to your project (component, route, api, etc.)")
+  .option("-n, --name <name>", "Resource name")
+  .option("--no-typescript", "Generate JavaScript instead of TypeScript")
+  .action(async (resource, options) => {
+    await addCommand(resource, {
+      name: options.name,
+      typescript: options.typescript,
+    });
   });
-
-// List command (for future implementation)
+program
+  .command("add-features")
+  .description("Add features to an existing Precast project (UI libraries, AI context files)")
+  .option("--ui <library>", "UI component library to add")
+  .option("--ai <tools...>", "AI assistance tools to add (claude, copilot, cursor, gemini)")
+  .option("-y, --yes", "Skip all prompts and use defaults")
+  .action(async (options) => {
+    await addFeaturesCommand(process.cwd(), {
+      ui: options.ui,
+      ai: options.ai,
+      yes: options.yes,
+    });
+  });
 program
   .command("list")
   .description("List available templates and features")
   .action(async () => {
     console.log("List command not yet implemented");
-    // TODO: Implement list command
   });
-
 program.parse();

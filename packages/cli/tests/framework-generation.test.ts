@@ -2,24 +2,17 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { TestSuite } from "../src/test-framework/index.js";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CLI_PATH = path.resolve(process.cwd(), "dist/cli.js");
-
 export function createFrameworkGenerationTests() {
   const suite = new TestSuite(CLI_PATH);
-
-  // Setup hooks
   suite.beforeAll(async () => {
     console.log("🏗️ Setting up framework generation tests...");
   });
-
   suite.afterAll(async () => {
     console.log("🧹 Cleaning up framework generation tests...");
   });
-
-  // Define all frameworks to test
   const frameworks = [
     {
       name: "react",
@@ -77,8 +70,6 @@ export function createFrameworkGenerationTests() {
       expectedPackages: ["vite"],
     },
   ];
-
-  // Generate test for each framework
   frameworks.forEach((framework) => {
     suite.test(
       `Creates ${framework.name} project with TypeScript and Tailwind`,
@@ -100,27 +91,16 @@ export function createFrameworkGenerationTests() {
             timeout: 60000,
           }
         );
-
         await suite.expectExitCode(result, 0, `${framework.name} project creation should succeed`);
-
-        // Check project structure
         await suite.expectFileExists(`${projectName}/package.json`);
-
-        // Check framework-specific files
         for (const file of framework.expectedFiles) {
           await suite.expectFileExists(`${projectName}/${file}`);
         }
-
-        // Check package.json content for framework packages
         for (const pkg of framework.expectedPackages) {
           await suite.expectFileContains(`${projectName}/package.json`, `"${pkg}"`);
         }
-
-        // Check Tailwind CSS is included
         await suite.expectFileContains(`${projectName}/package.json`, '"tailwindcss"');
         await suite.expectFileExists(`${projectName}/tailwind.config.js`);
-
-        // Check TypeScript is included (except for vanilla)
         if (framework.name !== "vanilla") {
           await suite.expectFileContains(`${projectName}/package.json`, '"typescript"');
         }
@@ -130,10 +110,7 @@ export function createFrameworkGenerationTests() {
         timeout: 90000,
       }
     );
-
-    // Test without TypeScript for frameworks that support it
     if (framework.name !== "angular") {
-      // Angular requires TypeScript
       suite.test(
         `Creates ${framework.name} project without TypeScript`,
         async (_context) => {
@@ -155,21 +132,14 @@ export function createFrameworkGenerationTests() {
               timeout: 60000,
             }
           );
-
           await suite.expectExitCode(
             result,
             0,
             `${framework.name} JavaScript project creation should succeed`
           );
-
-          // Check project structure
           await suite.expectFileExists(`${projectName}/package.json`);
-
-          // Check TypeScript is NOT included
           await suite.expectFileNotContains(`${projectName}/package.json`, '"typescript"');
           await suite.expectFileNotExists(`${projectName}/tsconfig.json`);
-
-          // Check for JavaScript config files
           if (framework.name === "vite" || framework.name === "vanilla") {
             await suite.expectFileExists(`${projectName}/vite.config.js`);
           }
@@ -181,8 +151,6 @@ export function createFrameworkGenerationTests() {
       );
     }
   });
-
-  // Test framework with backend integration
   suite.test(
     "Creates Next.js project with Express backend",
     async (_context) => {
@@ -202,14 +170,9 @@ export function createFrameworkGenerationTests() {
           timeout: 60000,
         }
       );
-
       await suite.expectExitCode(result, 0, "Next.js + Express project creation should succeed");
-
-      // Check project structure
       await suite.expectFileExists("next-express-project/package.json");
       await suite.expectFileExists("next-express-project/next.config.js");
-
-      // Check backend integration
       await suite.expectFileContains("next-express-project/package.json", '"express"');
     },
     {
@@ -217,8 +180,6 @@ export function createFrameworkGenerationTests() {
       timeout: 90000,
     }
   );
-
-  // Test framework with database
   suite.test(
     "Creates React project with Prisma and PostgreSQL",
     async (_context) => {
@@ -238,15 +199,10 @@ export function createFrameworkGenerationTests() {
           timeout: 60000,
         }
       );
-
       await suite.expectExitCode(result, 0, "React + Prisma project creation should succeed");
-
-      // Check project structure
       await suite.expectFileExists("react-prisma-project/package.json");
       await suite.expectFileExists("react-prisma-project/prisma/schema.prisma");
       await suite.expectFileExists("react-prisma-project/docker-compose.yml");
-
-      // Check packages
       await suite.expectFileContains("react-prisma-project/package.json", '"@prisma/client"');
       await suite.expectFileContains("react-prisma-project/package.json", '"prisma"');
     },
@@ -255,8 +211,6 @@ export function createFrameworkGenerationTests() {
       timeout: 90000,
     }
   );
-
-  // Test error handling for incompatible combinations
   suite.test(
     "Handles incompatible framework-backend combination",
     async (_context) => {
@@ -275,12 +229,9 @@ export function createFrameworkGenerationTests() {
           timeout: 10000,
         }
       );
-
-      // Should fail due to incompatibility
       if (result.exitCode === 0) {
         throw new Error("Should have failed for incompatible combination");
       }
-
       await suite.expectContains(
         result.stderr,
         "incompatible",
@@ -292,8 +243,6 @@ export function createFrameworkGenerationTests() {
       timeout: 15000,
     }
   );
-
   return suite;
 }
-
 export default createFrameworkGenerationTests;

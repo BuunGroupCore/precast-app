@@ -16,7 +16,7 @@ const { title } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body class="{{#if (eq styling 'tailwind')}}bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen{{else}}body{{/if}}">
+	<body class="{{#if (eq styling "tailwind')}}bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen{{else}}body{{/if}}">
 		<slot />
 	</body>
 </html>

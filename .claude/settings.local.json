@@ -30,7 +30,11 @@
       "Bash(do sed -i 's|path.join(__dirname, \"\"templates\"\")|path.join(__dirname, \"\"..\"\", \"\"templates\"\")|g' \"$file\")",
       "Bash(done)",
       "Bash(sed:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(for framework in angular astro next nuxt react remix solid svelte vanilla vite vue)",
+      "Bash(do echo \"=== $framework ===\")",
+      "Bash(curl:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

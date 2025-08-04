@@ -3,20 +3,44 @@
   "version": "0.1.0",
   "description": "CLI tool to scaffold modern web applications with your chosen stack",
   "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "create-precast-app": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "tsx watch src/cli.ts",
-    "build": "tsup src/cli.ts src/index.ts --format esm --clean && tsup test-runner.ts --format esm --clean --out-dir dist-test && cp -r src/templates dist/",
-    "prepublishOnly": "bun run build",
-    "test": "bun run build && node dist-test/test-runner.js",
-    "test:ci": "bun run build && node dist-test/test-runner.js --report-path ./reports/test-results.json",
-    "test:core": "bun run build && node dist-test/test-runner.js --suites core",
-    "test:generation": "bun run build && node dist-test/test-runner.js --suites generation",
-    "test:report": "bun run build && node dist-test/test-runner.js --report-path ./reports/test-report.html --report-format html",
-    "test:tags": "bun run build && node dist-test/test-runner.js --tags",
-    "test:verbose": "bun run build && node dist-test/test-runner.js --verbose",
+    "build": "tsup src/cli.ts src/index.ts --format esm --clean && cp -r src/templates dist/",
+    "build:test": "bun run build && tsup test-runner.ts --format esm --clean --out-dir dist-test",
+    "prepublishOnly": "echo 'Build should be done before publishing'",
+    "prepack": "echo 'Build should be done before packing'",
+    "publish:beta": "bun run build && npm version prerelease --preid=beta && npm publish --tag beta",
+    "publish:patch": "bun run build && npm version patch && npm publish",
+    "publish:minor": "bun run build && npm version minor && npm publish", 
+    "publish:major": "bun run build && npm version major && npm publish",
+    "publish:dry": "echo 'Use: npm publish --dry-run (after ensuring node is in PATH)'",
+    "pack:test": "echo 'Files that will be published:' && ls -la dist/ && echo 'Plus: README.md, CHANGELOG.md, LICENSE, package.json'",
+    "publish:check": "bun run build && echo 'Ready for publishing!'",
+    "publish:setup": "./scripts/publish.sh",
+    "test": "bun run build:test && node dist-test/test-runner.js",
+    "test:ci": "bun run build:test && node dist-test/test-runner.js --report-path ./reports/test-results.json",
+    "test:core": "bun run build:test && node dist-test/test-runner.js --suites core",
+    "test:generation": "bun run build:test && node dist-test/test-runner.js --suites generation",
+    "test:report": "bun run build:test && node dist-test/test-runner.js --report-path ./reports/test-report.html --report-format html",
+    "test:tags": "bun run build:test && node dist-test/test-runner.js --tags",
+    "test:verbose": "bun run build:test && node dist-test/test-runner.js --verbose",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
@@ -60,10 +84,35 @@
     "cli",
     "scaffold",
     "generator",
+    "create-app",
+    "boilerplate",
+    "template",
     "react",
     "vue",
     "angular",
-    "typescript"
+    "next",
+    "nuxt",
+    "svelte",
+    "solid",
+    "astro",
+    "remix",
+    "vite",
+    "typescript",
+    "tailwind",
+    "prisma",
+    "drizzle"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "author": {
+    "name": "Precast Team"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BuunGroupCore/precast-app.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/BuunGroupCore/precast-app/issues"
+  },
+  "homepage": "https://github.com/BuunGroupCore/precast-app#readme"
 }

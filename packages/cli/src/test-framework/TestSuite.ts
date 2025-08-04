@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import path from "path";
 
-import fs from "fs-extra";
+import { pathExists, readFile, ensureDir, remove } from "fs-extra";
 
 export interface TestContext {
   tempDir: string;
@@ -173,7 +173,7 @@ export class TestSuite {
       ? filePath
       : path.join(this.context!.tempDir, filePath);
 
-    if (!(await fs.pathExists(fullPath))) {
+    if (!(await pathExists(fullPath))) {
       throw new Error(message || `File ${filePath} does not exist`);
     }
   }
@@ -183,7 +183,7 @@ export class TestSuite {
       ? filePath
       : path.join(this.context!.tempDir, filePath);
 
-    if (await fs.pathExists(fullPath)) {
+    if (await pathExists(fullPath)) {
       throw new Error(message || `File ${filePath} should not exist`);
     }
   }
@@ -193,7 +193,7 @@ export class TestSuite {
       ? filePath
       : path.join(this.context!.tempDir, filePath);
 
-    const fileContent = await fs.readFile(fullPath, "utf-8");
+    const fileContent = await readFile(fullPath, "utf-8");
     if (!fileContent.includes(content)) {
       throw new Error(message || `File ${filePath} does not contain "${content}"`);
     }
@@ -204,7 +204,7 @@ export class TestSuite {
       ? filePath
       : path.join(this.context!.tempDir, filePath);
 
-    const fileContent = await fs.readFile(fullPath, "utf-8");
+    const fileContent = await readFile(fullPath, "utf-8");
     if (fileContent.includes(content)) {
       throw new Error(message || `File ${filePath} should not contain "${content}"`);
     }
@@ -247,13 +247,13 @@ export class TestSuite {
           this.baseTestDir,
           `test-${Date.now()}-${Math.random().toString(36).slice(2)}`
         );
-        await fs.ensureDir(tempDir);
+        await ensureDir(tempDir);
 
         this.context = {
           tempDir,
           cliPath: this.cliPath,
           cleanup: async () => {
-            await fs.remove(tempDir);
+            await remove(tempDir);
           },
         };
 

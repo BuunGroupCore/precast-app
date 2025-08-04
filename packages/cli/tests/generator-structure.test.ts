@@ -66,7 +66,7 @@ export function createGeneratorStructureTests() {
           // with template-related errors, not "generator not implemented" errors
           await generators.generateTemplate({ ...mockConfig, framework }, "/tmp/test-" + framework);
         } catch (error) {
-          const errorMessage = error.message || "";
+          const errorMessage = (error as Error).message || "";
 
           // Check that we're not getting "not yet implemented" errors
           if (errorMessage.includes("not yet implemented")) {
@@ -114,7 +114,7 @@ export function createGeneratorStructureTests() {
             throw new Error(`${functionName} not found in ${modulePath}`);
           }
         } catch (error) {
-          throw new Error(`Failed to import ${modulePath}: ${error.message}`);
+          throw new Error(`Failed to import ${modulePath}: ${(error as Error).message}`);
         }
       }
     },

@@ -65,7 +65,7 @@ export class ConfigValidator {
     // Styling compatibility
     this.addRule({
       name: "tailwind-postcss",
-      check: (config) => {
+      check: (_config) => {
         // This is always valid, just informational
         return true;
       },

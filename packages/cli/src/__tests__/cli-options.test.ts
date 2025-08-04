@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 
 import { execa } from "execa";
-import fs from "fs-extra";
+import { mkdtemp, remove, pathExists, readJson, readFile } from "fs-extra";
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 describe("CLI Options Integration Tests", () => {
@@ -11,14 +11,14 @@ describe("CLI Options Integration Tests", () => {
 
   beforeEach(async () => {
     // Create temporary test directory
-    testDir = await fs.mkdtemp(path.join(os.tmpdir(), "precast-cli-test-"));
+    testDir = await mkdtemp(path.join(os.tmpdir(), "precast-cli-test-"));
     process.chdir(testDir);
   });
 
   afterEach(async () => {
     // Clean up
     process.chdir(path.dirname(testDir));
-    await fs.remove(testDir);
+    await remove(testDir);
   });
 
   describe("Framework + Backend + Database Combinations", () => {
@@ -148,7 +148,7 @@ describe("CLI Options Integration Tests", () => {
           if (testCase.verify.files) {
             for (const file of testCase.verify.files) {
               const filePath = path.join(projectPath, file);
-              expect(await fs.pathExists(filePath), `File ${file} should exist`).toBe(true);
+              expect(await pathExists(filePath), `File ${file} should exist`).toBe(true);
             }
           }
 
@@ -156,13 +156,13 @@ describe("CLI Options Integration Tests", () => {
           if (testCase.verify.notFiles) {
             for (const file of testCase.verify.notFiles) {
               const filePath = path.join(projectPath, file);
-              expect(await fs.pathExists(filePath), `File ${file} should not exist`).toBe(false);
+              expect(await pathExists(filePath), `File ${file} should not exist`).toBe(false);
             }
           }
 
           // Verify package.json
           if (testCase.verify.packageJson) {
-            const pkg = await fs.readJson(path.join(projectPath, "package.json"));
+            const pkg = await readJson(path.join(projectPath, "package.json"));
 
             // Check dependencies
             if (testCase.verify.packageJson.dependencies) {
@@ -189,7 +189,7 @@ describe("CLI Options Integration Tests", () => {
 
           // Verify environment variables
           if (testCase.verify.envVars) {
-            const envContent = await fs.readFile(path.join(projectPath, ".env.example"), "utf-8");
+            const envContent = await readFile(path.join(projectPath, ".env.example"), "utf-8");
 
             for (const envVar of testCase.verify.envVars) {
               expect(envContent).toContain(envVar);
@@ -250,7 +250,7 @@ describe("CLI Options Integration Tests", () => {
       ]);
 
       const gitDir = path.join(testDir, "git-project", ".git");
-      expect(await fs.pathExists(gitDir)).toBe(true);
+      expect(await pathExists(gitDir)).toBe(true);
     });
 
     it("should skip git with --no-git", async () => {
@@ -268,7 +268,7 @@ describe("CLI Options Integration Tests", () => {
       ]);
 
       const gitDir = path.join(testDir, "no-git-project", ".git");
-      expect(await fs.pathExists(gitDir)).toBe(false);
+      expect(await pathExists(gitDir)).toBe(false);
     });
 
     it("should generate Docker files with --docker", async () => {
@@ -291,7 +291,7 @@ describe("CLI Options Integration Tests", () => {
 
       for (const file of dockerFiles) {
         const filePath = path.join(testDir, "docker-project", file);
-        expect(await fs.pathExists(filePath)).toBe(true);
+        expect(await pathExists(filePath)).toBe(true);
       }
     });
   });
@@ -317,7 +317,7 @@ describe("CLI Options Integration Tests", () => {
 
 describe("Database Setup Documentation", () => {
   it("should generate correct PostgreSQL setup instructions", async () => {
-    const readme = await fs.readFile(
+    const readme = await readFile(
       path.join(__dirname, "..", "..", "src", "templates", "base", "README.md.hbs"),
       "utf-8"
     );

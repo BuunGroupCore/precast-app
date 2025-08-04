@@ -1,3 +1,3 @@
-import { validateConfiguration } from "../../shared/stack-config.js";
+import { validateConfiguration } from "../../../shared/stack-config.js";
 
 export { validateConfiguration };

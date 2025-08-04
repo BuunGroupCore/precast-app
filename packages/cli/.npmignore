@@ -1,0 +1,53 @@
+# Source files
+src/
+tests/
+test-runner.ts
+tsconfig.json
+test.config.ts
+
+# Development files
+.eslintrc.*
+.prettierrc.*
+.editorconfig
+.vscode/
+.idea/
+
+# Test artifacts
+dist-test/
+test-output/
+reports/
+coverage/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Build artifacts (keep only dist/)
+node_modules/
+*.log
+*.lock
+bun.lockb
+yarn.lock
+package-lock.json
+
+# Development documentation
+ARCHITECTURE.md
+DEVELOPER-GUIDE.md
+EXPANSION-GUIDE.md
+PROJECT-STATUS.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+test-*
+my-*-app/
+example-*/
+
+# Git files
+.git/
+.gitignore
+.gitattributes

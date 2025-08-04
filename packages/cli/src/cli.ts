@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { Command } from "commander";
-import fs from "fs-extra";
+import { readJSON } from "fs-extra";
 
 import { initCommand } from "./commands/init.js";
 
@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Read package.json for version
-const packageJson = await fs.readJSON(path.join(__dirname, "..", "package.json"));
+const packageJson = await readJSON(path.join(__dirname, "..", "package.json"));
 
 const program = new Command();
 

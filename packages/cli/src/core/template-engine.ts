@@ -1,7 +1,7 @@
 import path from "node:path";
 
 import { consola } from "consola";
-import fs from "fs-extra";
+import { pathExists, readFile, ensureDir, writeFile, copy, readdir } from "fs-extra";
 import { globby } from "globby";
 import handlebars from "handlebars";
 
@@ -48,7 +48,7 @@ export class TemplateEngine {
       str ? str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase() : ""
     );
     this.registerHelper("camelCase", (str) =>
-      str ? str.replace(/-./g, (x) => x[1].toUpperCase()) : ""
+      str ? str.replace(/-./g, (x: string) => x[1].toUpperCase()) : ""
     );
 
     // Conditional includes
@@ -76,7 +76,7 @@ export class TemplateEngine {
   ): Promise<void> {
     try {
       // Check if output exists and handle accordingly
-      if (await fs.pathExists(outputPath)) {
+      if (await pathExists(outputPath)) {
         if (options.skipIfExists) {
           consola.debug(`Skipping existing file: ${outputPath}`);
           return;
@@ -87,17 +87,17 @@ export class TemplateEngine {
       }
 
       // Read and compile template
-      const templateContent = await fs.readFile(templatePath, "utf-8");
+      const templateContent = await readFile(templatePath, "utf-8");
       const template = handlebars.compile(templateContent);
 
       // Process template with context
       const processedContent = template(context);
 
       // Ensure directory exists
-      await fs.ensureDir(path.dirname(outputPath));
+      await ensureDir(path.dirname(outputPath));
 
       // Write processed content
-      await fs.writeFile(outputPath, processedContent);
+      await writeFile(outputPath, processedContent);
 
       consola.debug(`Generated: ${outputPath}`);
     } catch (error) {
@@ -114,7 +114,7 @@ export class TemplateEngine {
   ): Promise<void> {
     const templateDir = path.join(this.templateRoot, sourceDir);
 
-    if (!(await fs.pathExists(templateDir))) {
+    if (!(await pathExists(templateDir))) {
       throw new Error(`Template directory not found: ${templateDir}`);
     }
 
@@ -154,9 +154,9 @@ export class TemplateEngine {
         await this.processTemplate(sourcePath, destPath, context, options);
       } else {
         // Copy non-template files directly
-        await fs.ensureDir(path.dirname(destPath));
+        await ensureDir(path.dirname(destPath));
 
-        if (await fs.pathExists(destPath)) {
+        if (await pathExists(destPath)) {
           if (options.skipIfExists) {
             consola.debug(`Skipping existing file: ${destPath}`);
             continue;
@@ -166,7 +166,7 @@ export class TemplateEngine {
           }
         }
 
-        await fs.copy(sourcePath, destPath, { overwrite: options.overwrite });
+        await copy(sourcePath, destPath, { overwrite: options.overwrite });
         consola.debug(`Copied: ${destPath}`);
       }
     }
@@ -245,11 +245,11 @@ export class TemplateEngine {
   async getAvailableTemplates(category: string): Promise<string[]> {
     const categoryPath = path.join(this.templateRoot, category);
 
-    if (!(await fs.pathExists(categoryPath))) {
+    if (!(await pathExists(categoryPath))) {
       return [];
     }
 
-    const entries = await fs.readdir(categoryPath, { withFileTypes: true });
+    const entries = await readdir(categoryPath, { withFileTypes: true });
     return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
   }
 }

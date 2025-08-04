@@ -1,7 +1,7 @@
 import path from "path";
 
 import { execa } from "execa";
-import fs from "fs-extra";
+import { pathExists, ensureDir, writeFile, remove } from "fs-extra";
 
 import { type ProjectConfig } from "../../shared/stack-config.js";
 
@@ -12,12 +12,12 @@ export async function createProject(config: ProjectConfig) {
   const projectPath = path.resolve(process.cwd(), config.name);
 
   // Check if directory already exists
-  if (await fs.pathExists(projectPath)) {
+  if (await pathExists(projectPath)) {
     throw new Error(`Directory ${config.name} already exists`);
   }
 
   // Create project directory
-  await fs.ensureDir(projectPath);
+  await ensureDir(projectPath);
 
   try {
     // Generate base project structure
@@ -30,7 +30,7 @@ export async function createProject(config: ProjectConfig) {
 
       // Create .gitignore
       const gitignoreContent = generateGitignore(config);
-      await fs.writeFile(path.join(projectPath, ".gitignore"), gitignoreContent);
+      await writeFile(path.join(projectPath, ".gitignore"), gitignoreContent);
 
       // Initial commit
       await execa("git", ["add", "."], { cwd: projectPath });
@@ -45,7 +45,7 @@ export async function createProject(config: ProjectConfig) {
     }
   } catch (error) {
     // Clean up on error
-    await fs.remove(projectPath);
+    await remove(projectPath);
     throw error;
   }
 }
@@ -108,11 +108,11 @@ function generateGitignore(config: ProjectConfig): string {
 async function generateDockerFiles(config: ProjectConfig, projectPath: string) {
   // Dockerfile
   const dockerfile = generateDockerfile(config);
-  await fs.writeFile(path.join(projectPath, "Dockerfile"), dockerfile);
+  await writeFile(path.join(projectPath, "Dockerfile"), dockerfile);
 
   // docker-compose.yml
   const dockerCompose = generateDockerCompose(config);
-  await fs.writeFile(path.join(projectPath, "docker-compose.yml"), dockerCompose);
+  await writeFile(path.join(projectPath, "docker-compose.yml"), dockerCompose);
 
   // .dockerignore
   const dockerignore = [
@@ -128,7 +128,7 @@ async function generateDockerFiles(config: ProjectConfig, projectPath: string) {
     "build",
   ].join("\n");
 
-  await fs.writeFile(path.join(projectPath, ".dockerignore"), dockerignore);
+  await writeFile(path.join(projectPath, ".dockerignore"), dockerignore);
 }
 
 function generateDockerfile(config: ProjectConfig): string {
@@ -261,7 +261,7 @@ function generateDockerCompose(config: ProjectConfig): string {
   const compose = {
     version: "3.8",
     services,
-    volumes: {},
+    volumes: {} as Record<string, Record<string, never>>,
   };
 
   // Add volumes

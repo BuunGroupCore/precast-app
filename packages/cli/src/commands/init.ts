@@ -2,8 +2,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { intro, outro, spinner, confirm, cancel, log } from "@clack/prompts";
-import { execa } from "execa";
-import fs from "fs-extra";
+import { execa, execaSync } from "execa";
+import { pathExists, readdir, ensureDir, remove, existsSync } from "fs-extra";
 import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
@@ -71,8 +71,8 @@ export async function initCommand(projectName: string | undefined, options: Init
 
     // Check if directory exists
     const projectPath = path.resolve(process.cwd(), config.name);
-    if (await fs.pathExists(projectPath)) {
-      const isEmpty = (await fs.readdir(projectPath)).length === 0;
+    if (await pathExists(projectPath)) {
+      const isEmpty = (await readdir(projectPath)).length === 0;
 
       if (!isEmpty) {
         const overwrite = await confirm({
@@ -88,7 +88,7 @@ export async function initCommand(projectName: string | undefined, options: Init
     }
 
     // Create project directory
-    await fs.ensureDir(projectPath);
+    await ensureDir(projectPath);
 
     // Create project
     const s = spinner();
@@ -134,7 +134,7 @@ export async function initCommand(projectName: string | undefined, options: Init
       s.stop("Failed to create project");
 
       // Clean up on error
-      await fs.remove(projectPath);
+      await remove(projectPath);
       throw error;
     }
   } catch (error) {
@@ -163,28 +163,28 @@ async function installDependencies(projectPath: string, packageManager: string) 
 
 function detectPackageManager(): string {
   // Check for lock files
-  if (fs.existsSync("bun.lockb")) return "bun";
-  if (fs.existsSync("pnpm-lock.yaml")) return "pnpm";
-  if (fs.existsSync("yarn.lock")) return "yarn";
-  if (fs.existsSync("package-lock.json")) return "npm";
+  if (existsSync("bun.lockb")) return "bun";
+  if (existsSync("pnpm-lock.yaml")) return "pnpm";
+  if (existsSync("yarn.lock")) return "yarn";
+  if (existsSync("package-lock.json")) return "npm";
 
   // Check if commands are available
   try {
-    execa.sync("bun", ["--version"]);
+    execaSync("bun", ["--version"]);
     return "bun";
   } catch {
     // Command not available
   }
 
   try {
-    execa.sync("pnpm", ["--version"]);
+    execaSync("pnpm", ["--version"]);
     return "pnpm";
   } catch {
     // Command not available
   }
 
   try {
-    execa.sync("yarn", ["--version"]);
+    execaSync("yarn", ["--version"]);
     return "yarn";
   } catch {
     // Command not available

@@ -1,4 +1,5 @@
 import { text, select, confirm, multiselect } from "@clack/prompts";
+import { consola } from "consola";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 import {
@@ -10,6 +11,7 @@ import {
   runtimeDefs,
 } from "../../../shared/stack-config.js";
 import type { InitOptions } from "../commands/init.js";
+import { getAuthPromptOptions, isAuthProviderCompatible } from "../utils/auth-setup.js";
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
 import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
 export async function gatherProjectConfig(
@@ -104,15 +106,26 @@ export async function gatherProjectConfig(
             message: "Use TypeScript?",
             initialValue: true,
           })) as boolean);
-  const git =
-    options.git === false
-      ? false
-      : options.yes
-        ? true
-        : ((await confirm({
-            message: "Initialize git repository?",
-            initialValue: true,
-          })) as boolean);
+  let git = true; // Default to true
+  if (options.git === false) {
+    git = false;
+  } else if (!options.yes) {
+    try {
+      git = (await confirm({
+        message: "Initialize git repository?",
+        initialValue: true,
+      })) as boolean;
+    } catch (error: any) {
+      // Handle EPERM or other stdin errors (common with bun create)
+      if (error.code === "EPERM" || error.errno === -1) {
+        log.warn("Unable to read input. Using default value (git: true)");
+        log.info("You can disable git with --no-git flag");
+        git = true;
+      } else {
+        throw error;
+      }
+    }
+  }
   const docker = options.yes
     ? false
     : (options.docker ??
@@ -120,8 +133,9 @@ export async function gatherProjectConfig(
         message: "Include Docker configuration?",
         initialValue: false,
       })) as boolean));
-  let uiLibrary: string | undefined;
-  if (styling === "tailwind" && !options.yes) {
+  let uiLibrary: string | undefined = options.uiLibrary;
+
+  if (styling === "tailwind" && !options.yes && !options.uiLibrary) {
     const compatibleLibraries = Object.entries(UI_LIBRARY_COMPATIBILITY)
       .filter(([lib]) => {
         const { compatible } = checkCompatibility(framework, lib, UI_LIBRARY_COMPATIBILITY);
@@ -200,6 +214,45 @@ export async function gatherProjectConfig(
     }
   }
 
+  // Authentication provider selection
+  let authProvider: string | undefined;
+
+  // Use provided auth option if available
+  if (options.auth && options.auth !== "none") {
+    // Validate the auth provider
+    const authOptions = getAuthPromptOptions();
+    const validAuth = authOptions.find((opt) => opt.value === options.auth);
+    if (validAuth && isAuthProviderCompatible(options.auth, framework)) {
+      authProvider = options.auth;
+    } else if (validAuth) {
+      consola.warn(`⚠️  ${options.auth} is not compatible with ${framework} framework`);
+    } else {
+      consola.warn(`⚠️  Unknown authentication provider: ${options.auth}`);
+    }
+  } else if (!options.yes && database !== "none" && !options.auth) {
+    const authOptions = getAuthPromptOptions()
+      .filter((option) => isAuthProviderCompatible(option.value, framework))
+      .map((option) => ({
+        value: option.value,
+        label: option.label,
+        hint: option.hint,
+      }));
+
+    if (authOptions.length > 0) {
+      authProvider = (await select({
+        message: "Choose authentication provider (optional):",
+        options: [
+          { value: "none", label: "None", hint: "Set up authentication later" },
+          ...authOptions,
+        ],
+      })) as string;
+
+      if (authProvider === "none") {
+        authProvider = undefined;
+      }
+    }
+  }
+
   const packageManager = options.packageManager || "npm";
 
   // Auto-install dependencies option
@@ -226,6 +279,7 @@ export async function gatherProjectConfig(
     aiContext,
     packageManager,
     deploymentMethod,
+    authProvider,
     autoInstall,
     projectPath: "", // Will be set later
     language: typescript ? "typescript" : "javascript",

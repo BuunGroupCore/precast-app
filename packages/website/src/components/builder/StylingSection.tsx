@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import React from "react";
+import { FaPaintBrush } from "react-icons/fa";
 
 import { stylings } from "../../lib/stack-config";
 
@@ -18,7 +19,14 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
       transition={{ delay: 0.5 }}
       className="comic-card bg-comic-yellow"
     >
-      <h3 className="font-display text-2xl mb-4">STYLING POWERS</h3>
+      <div className="flex items-center gap-3 mb-2">
+        <FaPaintBrush className="text-3xl" />
+        <h3 className="font-display text-2xl">STYLING POWERS</h3>
+      </div>
+      <div className="border-t-3 border-comic-black mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-black/90">
+        Choose your styling approach - from utility-first CSS to component libraries
+      </p>
       <div className="grid grid-cols-3 gap-3">
         {stylings.map((style) => (
           <button

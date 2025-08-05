@@ -1,15 +1,28 @@
+import path from "path";
+
 import { consola } from "consola";
 import { execa } from "execa";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { getAllRequiredDeps, UI_LIBRARY_COMPATIBILITY } from "./dependency-checker.js";
-import { installDependencies, getPackageManagerConfig } from "./package-manager.js";
+import { installDependencies } from "./package-manager.js";
 export async function setupUILibrary(config: ProjectConfig, projectPath: string): Promise<void> {
   if (!config.uiLibrary || config.uiLibrary === "none") {
     return;
   }
-  consola.info(`Setting up ${config.uiLibrary}...`);
+  // Get UI library icon
+  const uiIcons: Record<string, string> = {
+    shadcn: "🎯",
+    daisyui: "🌼",
+    mui: "Ⓜ️",
+    chakra: "⚡",
+    antd: "🐜",
+    mantine: "🎯",
+  };
+  const uiIcon = uiIcons[config.uiLibrary] || "🎨";
+
+  consola.info(`${uiIcon} Setting up ${config.uiLibrary}...`);
   const rule = UI_LIBRARY_COMPATIBILITY[config.uiLibrary];
   if (!rule) {
     consola.warn(`Unknown UI library: ${config.uiLibrary}`);
@@ -45,35 +58,50 @@ export async function setupUILibrary(config: ProjectConfig, projectPath: string)
   }
 }
 async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<void> {
-  consola.info("Initializing shadcn/ui...");
-  const pmConfig = getPackageManagerConfig(config.packageManager);
-  
+  consola.info("🎯 Initializing shadcn/ui...");
+
   try {
-    // Use npx for shadcn-ui regardless of package manager
-    await execa("npx", ["shadcn-ui@latest", "init", "--defaults", "--yes"], {
+    // First, ensure Tailwind files are properly set up
+    const fs = await import("fs-extra");
+
+    // Check if tailwind.config.js exists
+    const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
+    if (!(await fs.pathExists(tailwindConfigPath))) {
+      consola.error("tailwind.config.js not found!");
+      throw new Error("Tailwind CSS must be configured before initializing shadcn/ui");
+    }
+
+    // Use npx for shadcn regardless of package manager
+    // For now, use defaults which will use New York style
+    await execa("npx", ["shadcn@latest", "init", "-y"], {
       cwd: projectPath,
-      stdio: "inherit",
+      stdio: "pipe",
+      timeout: 30000, // 30 second timeout
     });
+
     const essentialComponents = ["button", "card", "input", "label"];
-    consola.info("Adding essential components...");
+    consola.info("🧩 Adding essential components...");
     for (const component of essentialComponents) {
       try {
-        await execa("npx", ["shadcn-ui@latest", "add", component, "--yes"], {
+        await execa("npx", ["shadcn@latest", "add", component, "--yes"], {
           cwd: projectPath,
-          stdio: "inherit",
+          stdio: "pipe", // Use pipe instead of inherit
+          timeout: 30000, // 30 second timeout per component
         });
+        consola.success(`✅ Added ${component} component`);
       } catch (error) {
         consola.warn(`Failed to add ${component} component:`, error);
       }
     }
+    consola.success("🎯 shadcn/ui setup completed");
   } catch (error) {
     consola.warn("Failed to initialize shadcn/ui:", error);
-    consola.info("You can manually initialize it later with: npx shadcn-ui@latest init");
+    consola.info("You can manually initialize it later with: npx shadcn@latest init");
   }
 }
 async function setupDaisyUI(_config: ProjectConfig, _projectPath: string): Promise<void> {
-  consola.info("Configuring DaisyUI...");
+  consola.info("🌼 Configuring DaisyUI...");
   consola.success(
-    "DaisyUI has been installed. Make sure to add it to your tailwind.config.js plugins array."
+    "🎨 DaisyUI has been installed. Make sure to add it to your tailwind.config.js plugins array."
   );
 }

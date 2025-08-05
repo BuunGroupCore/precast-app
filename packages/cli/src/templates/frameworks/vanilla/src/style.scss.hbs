@@ -1,0 +1,66 @@
+{{#if (eq styling "scss")}}* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background: linear-gradient(to bottom right, #f0f9ff, #e0e7ff);
+  min-height: 100vh;
+  color: #333;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.main {
+  text-align: center;
+  max-width: 600px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #1f2937;
+}
+
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 24rem;
+  margin: 0 auto;
+}
+
+.description {
+  font-size: 1.125rem;
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+code {
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.link {
+  color: #3b82f6;
+  text-decoration: underline;
+  
+  &:hover {
+    color: #2563eb;
+  }
+}{{/if}}

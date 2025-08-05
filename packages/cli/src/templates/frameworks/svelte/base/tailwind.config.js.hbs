@@ -1,8 +1,16 @@
-{{#if (eq styling "tailwind")}}/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{html,js,svelte,ts}'],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,vue,svelte,astro}",
+  ],
   theme: {
-    extend: {}
+    extend: {},
   },
-  plugins: []
-};{{/if}}
+  plugins: [{{#if (eq uiLibrary "daisyui")}}
+    require("daisyui"),{{/if}}
+  ],{{#if (eq uiLibrary "daisyui")}}
+  daisyui: {
+    themes: ["light", "dark", "cupcake"],
+  },{{/if}}
+}

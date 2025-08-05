@@ -26,11 +26,16 @@ program
   .option("-o, --orm <orm>", "ORM")
   .option("-s, --styling <styling>", "Styling solution")
   .option("-r, --runtime <runtime>", "Runtime environment")
+  .option(
+    "-u, --ui-library <library>",
+    "UI component library (shadcn, daisyui, mui, chakra, antd, mantine)"
+  )
   .option("--no-typescript", "Disable TypeScript")
   .option("--no-git", "Skip git initialization")
   .option("--docker", "Include Docker configuration")
   .option("--install", "Install dependencies after project creation")
   .option("--pm, --package-manager <pm>", "Package manager to use (npm, yarn, pnpm, bun)")
+  .option("-a, --auth <provider>", "Authentication provider (auth.js, better-auth)")
   .action(async (projectName, options) => {
     await initCommand(projectName, {
       yes: options.yes,
@@ -40,11 +45,13 @@ program
       orm: options.orm,
       styling: options.styling,
       runtime: options.runtime,
+      uiLibrary: options.uiLibrary,
       typescript: options.typescript,
       git: options.git,
       docker: options.docker,
       install: options.install,
       packageManager: options.packageManager,
+      auth: options.auth,
     });
   });
 program
@@ -76,5 +83,13 @@ program
   .description("List available templates and features")
   .action(async () => {
     console.log("List command not yet implemented");
+  });
+
+program
+  .command("banner")
+  .description("Create a banner template file for customization")
+  .action(async () => {
+    const { createBannerTemplate } = await import("./utils/banner.js");
+    await createBannerTemplate();
   });
 program.parse();

@@ -1,8 +1,9 @@
-import React from "react";
 import { motion } from "framer-motion";
+import React from "react";
 import { FaRocket } from "react-icons/fa";
-import { PublicIcon } from "./PublicIcon";
+
 import { deploymentMethods } from "./constants";
+import { PublicIcon } from "./PublicIcon";
 import type { ExtendedProjectConfig } from "./types";
 
 interface DeploymentSectionProps {
@@ -18,10 +19,14 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
       transition={{ delay: 0.8 }}
       className="comic-card"
     >
-      <h3 className="font-display text-2xl mb-4 flex items-center gap-2">
-        <FaRocket className="text-comic-red" />
-        DEPLOYMENT
-      </h3>
+      <div className="flex items-center gap-3 mb-2">
+        <FaRocket className="text-3xl text-comic-red" />
+        <h3 className="font-display text-2xl">DEPLOYMENT</h3>
+      </div>
+      <div className="border-t-3 border-comic-gray mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-gray">
+        Launch your app to the world - choose your deployment platform
+      </p>
       <div className="grid grid-cols-2 gap-3">
         {deploymentMethods.map((deploy) => (
           <button

@@ -9,6 +9,7 @@ import {
   SiAntdesign,
   SiMantine,
 } from "react-icons/si";
+
 import type { AIAssistant, UILibrary, PackageManager, DeploymentMethod } from "./types";
 
 // AI Assistant options
@@ -25,7 +26,7 @@ export const aiAssistants: AIAssistant[] = [
     name: "Claude Code",
     icon: "claude-color",
     color: "text-purple-600",
-    description: "Claude project settings (.claude folder)",
+    description: "AI pair programming with Claude - context-aware code assistance",
     files: [".claude/project.json", ".claude/instructions.md"],
   },
   {
@@ -33,7 +34,7 @@ export const aiAssistants: AIAssistant[] = [
     name: "GitHub Copilot",
     icon: "githubcopilot",
     color: "text-gray-800",
-    description: "Copilot instructions (.github/copilot-instructions.md)",
+    description: "AI-powered code suggestions from GitHub and OpenAI",
     files: [".github/copilot-instructions.md"],
   },
   {
@@ -41,7 +42,7 @@ export const aiAssistants: AIAssistant[] = [
     name: "Cursor",
     icon: "cursor",
     color: "text-blue-600",
-    description: "Cursor AI configuration (.cursorrules)",
+    description: "AI-first code editor with deep codebase understanding",
     files: [".cursorrules"],
   },
   {
@@ -49,7 +50,7 @@ export const aiAssistants: AIAssistant[] = [
     name: "Gemini CLI",
     icon: "gemini-color",
     color: "text-blue-500",
-    description: "Gemini project instructions (gemini.md)",
+    description: "Google's AI assistant for code generation and analysis",
     files: ["gemini.md"],
   },
 ];
@@ -61,21 +62,21 @@ export const packageManagers: PackageManager[] = [
     name: "npm",
     icon: FaNpm,
     color: "text-red-600",
-    description: "Node Package Manager",
+    description: "The default Node.js package manager with the largest ecosystem",
   },
   {
     id: "pnpm",
     name: "pnpm",
     icon: SiPnpm,
     color: "text-orange-500",
-    description: "Fast, disk space efficient package manager",
+    description: "Fast, disk space efficient package manager using hard links",
   },
   {
     id: "bun",
     name: "Bun",
     icon: SiBun,
     color: "text-gray-800",
-    description: "All-in-one JavaScript runtime & toolkit",
+    description: "All-in-one JavaScript runtime & toolkit designed for speed",
   },
 ];
 
@@ -93,35 +94,35 @@ export const deploymentMethods: DeploymentMethod[] = [
     name: "Cloudflare Pages",
     icon: "cloudflare-color",
     color: "text-orange-500",
-    description: "Fast, secure sites on Cloudflare's edge network",
+    description: "JAMstack platform with unlimited bandwidth on Cloudflare's global network",
   },
   {
     id: "azure-static",
     name: "Azure Static Web Apps",
     icon: "microsoft-color",
     color: "text-blue-600",
-    description: "Full-stack web apps with serverless APIs",
+    description: "Full-stack web apps with free SSL, custom domains, and serverless APIs",
   },
   {
     id: "vercel",
     name: "Vercel",
     icon: "vercel",
     color: "text-black",
-    description: "The platform for frontend developers",
+    description: "Frontend cloud platform with zero-config deployments and edge functions",
   },
   {
     id: "netlify",
     name: "Netlify",
     icon: "netlify",
     color: "text-teal-500",
-    description: "Build and deploy modern web projects",
+    description: "Git-based continuous deployment with serverless functions and forms",
   },
   {
     id: "github-pages",
     name: "GitHub Pages",
     icon: FaGithub,
     color: "text-gray-800",
-    description: "Host directly from your GitHub repository",
+    description: "Free static site hosting directly from your GitHub repository",
   },
 ];
 
@@ -140,7 +141,7 @@ export const uiLibraries: UILibrary[] = [
     name: "DaisyUI",
     icon: SiDaisyui,
     color: "text-pink-500",
-    description: "Tailwind CSS component library",
+    description: "Beautiful Tailwind CSS components with semantic class names",
     frameworks: ["*"], // Available for all frameworks
     requires: ["tailwind"], // Requires Tailwind CSS
   },
@@ -149,16 +150,16 @@ export const uiLibraries: UILibrary[] = [
     name: "shadcn/ui",
     icon: SiShadcnui,
     color: "text-gray-800",
-    description: "Copy-paste React components",
+    description: "Beautifully designed components that you can copy and paste into your apps",
     frameworks: ["react", "next", "remix", "vite"],
     requires: ["tailwind"],
   },
   {
     id: "brutalist",
     name: "Brutalist UI",
-    icon: null,
+    icon: "precast",
     color: "text-black",
-    description: "Bold, raw design components",
+    description: "Bold, raw, and unapologetic design components with comic book aesthetics",
     frameworks: ["react", "next", "remix"],
     requires: ["tailwind"], // Best with Tailwind
   },
@@ -167,7 +168,7 @@ export const uiLibraries: UILibrary[] = [
     name: "Material UI",
     icon: SiMui,
     color: "text-blue-600",
-    description: "React components for faster development",
+    description: "React components implementing Google's Material Design system",
     frameworks: ["react", "next", "remix"],
   },
   {
@@ -175,7 +176,7 @@ export const uiLibraries: UILibrary[] = [
     name: "Chakra UI",
     icon: SiChakraui,
     color: "text-teal-500",
-    description: "Simple, modular React component library",
+    description: "Simple, modular and accessible component library for React",
     frameworks: ["react", "next", "remix"],
   },
   {
@@ -183,7 +184,7 @@ export const uiLibraries: UILibrary[] = [
     name: "Ant Design",
     icon: SiAntdesign,
     color: "text-blue-500",
-    description: "Enterprise-class UI design language",
+    description: "Enterprise-class UI design language and React components",
     frameworks: ["react", "next", "remix"],
   },
   {
@@ -191,7 +192,7 @@ export const uiLibraries: UILibrary[] = [
     name: "Mantine",
     icon: SiMantine,
     color: "text-blue-600",
-    description: "Full-featured React components library",
+    description: "Full-featured React components and hooks library with dark mode support",
     frameworks: ["react", "next", "remix"],
   },
 ];

@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun install:*)",
+      "Bash(bun add:*)",
+      "Bash(bun remove:*)",
+      "Bash(bun run:*)",
+      "Bash(bun test:*)",
+      "Bash(bun build:*)",
+      "Bash(bunx:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npx:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(rm:*)",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(echo:*)",
+      "Bash(node:*)",
+      "Bash(git:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:npmjs.com)",
+      "WebFetch(domain:typescriptlang.org)",
+      "WebFetch(domain:nodejs.org)",
+      "WebFetch(domain:commander.js.org)",
+      "WebFetch(domain:handlebarsjs.com)",
+      "WebSearch"
+    ],
+    "deny": []
+  }
+}

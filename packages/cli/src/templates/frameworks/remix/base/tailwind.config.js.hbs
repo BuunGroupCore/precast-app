@@ -1,6 +1,9 @@
-{{#if (eq styling "tailwind")}}/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./app/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,vue,svelte,astro}",
+  ],
   theme: {
     extend: {},
   },
@@ -10,4 +13,4 @@ export default {
   daisyui: {
     themes: ["light", "dark", "cupcake"],
   },{{/if}}
-}{{/if}}
+}

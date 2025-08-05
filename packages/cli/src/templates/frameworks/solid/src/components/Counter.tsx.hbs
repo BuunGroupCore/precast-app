@@ -1,0 +1,43 @@
+import { createSignal } from 'solid-js';
+
+export default function Counter() {
+  const [count, setCount] = createSignal(0);
+
+  return (
+    {{#if (eq styling "tailwind")}}
+    <div class="bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Counter</h2>
+      <div class="flex items-center justify-center space-x-4">
+        <button 
+          onClick={() => setCount(count() - 1)}
+          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          -
+        </button>
+        <span class="text-2xl font-bold text-gray-800 min-w-[3rem] text-center">
+          {count()}
+        </span>
+        <button 
+          onClick={() => setCount(count() + 1)}
+          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          +
+        </button>
+      </div>
+    </div>
+    {{else}}
+    <div class="card">
+      <h2 class="card-title">Counter</h2>
+      <div class="counter-controls">
+        <button onClick={() => setCount(count() - 1)} class="btn btn-minus">
+          -
+        </button>
+        <span class="counter-value">{count()}</span>
+        <button onClick={() => setCount(count() + 1)} class="btn btn-plus">
+          +
+        </button>
+      </div>
+    </div>
+    {{/if}}
+  );
+}

@@ -4,13 +4,20 @@ import { fileURLToPath } from "url";
 import { intro, outro, spinner, confirm, cancel, log } from "@clack/prompts";
 import { execa } from "execa";
 import fsExtra from "fs-extra";
-const { pathExists, readdir, ensureDir, remove } = fsExtra;
 import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
 import { gatherProjectConfig } from "../prompts/config-prompts.js";
+import { displayBanner } from "../utils/banner.js";
 import { displayConfigSummary } from "../utils/display-config.js";
-import { detectPackageManager, checkPackageManagerAvailable } from "../utils/package-manager.js";
+import {
+  detectPackageManager,
+  checkPackageManagerAvailable,
+  installAllDependencies,
+} from "../utils/package-manager.js";
+import { runSecurityAudit } from "../utils/security-audit.js";
+import { setupUILibrary } from "../utils/ui-library-setup.js";
+import { addSecurityOverridesToProject } from "../utils/update-dependencies.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export interface InitOptions {
@@ -21,13 +28,16 @@ export interface InitOptions {
   orm?: string;
   styling?: string;
   runtime?: string;
+  uiLibrary?: string;
   typescript?: boolean;
   git?: boolean;
   docker?: boolean;
   install?: boolean;
   packageManager?: "npm" | "yarn" | "pnpm" | "bun";
+  auth?: string;
 }
 export async function initCommand(projectName: string | undefined, options: InitOptions) {
+  await displayBanner();
   intro(pc.bgCyan(pc.black(" create-precast-app ")));
   try {
     const config = await gatherProjectConfig(projectName, options);
@@ -58,8 +68,9 @@ export async function initCommand(projectName: string | undefined, options: Init
       }
     }
     const projectPath = path.resolve(process.cwd(), config.name);
-    if (await pathExists(projectPath)) {
-      const isEmpty = (await readdir(projectPath)).length === 0;
+    config.projectPath = projectPath;
+    if (await fsExtra.pathExists(projectPath)) {
+      const isEmpty = (await fsExtra.readdir(projectPath)).length === 0;
       if (!isEmpty) {
         const overwrite = await confirm({
           message: `Directory ${config.name} already exists and is not empty. Continue?`,
@@ -71,13 +82,17 @@ export async function initCommand(projectName: string | undefined, options: Init
         }
       }
     }
-    await ensureDir(projectPath);
+    await fsExtra.ensureDir(projectPath);
     const s = spinner();
     s.start("Creating project structure");
     try {
       const { generateTemplate } = await import("../generators/index.js");
       await generateTemplate(config, projectPath);
       s.stop("Project structure created");
+
+      // Add security overrides to package.json
+      const pm = options.packageManager || (await detectPackageManager());
+      await addSecurityOverridesToProject(projectPath, config.framework, pm);
       if (config.git) {
         s.start("Initializing git repository");
         await initializeGit(projectPath);
@@ -89,9 +104,40 @@ export async function initCommand(projectName: string | undefined, options: Init
         if (!(await checkPackageManagerAvailable(pm))) {
           log.warning(`Package manager ${pm} not available, falling back to npm`);
         }
-        // Install all dependencies from package.json
-        await execa(pm, ["install"], { cwd: projectPath, stdio: "inherit" });
+        // Install all dependencies from package.json using enhanced function with fallbacks
+        await installAllDependencies({
+          packageManager: pm,
+          projectPath: projectPath,
+        });
         s.stop("Dependencies installed");
+
+        // Run security audit after dependencies are installed
+        s.start("Running security audit");
+        try {
+          await runSecurityAudit({
+            packageManager: pm,
+            projectPath: projectPath,
+            autoFix: true,
+          });
+          s.stop("Security audit completed");
+        } catch (error) {
+          s.stop("Security audit failed");
+          log.warn(
+            `Security audit failed: ${error instanceof Error ? error.message : "Unknown error"}`
+          );
+        }
+
+        // Setup UI library AFTER dependencies are installed
+        if (config.uiLibrary && config.framework !== "vanilla") {
+          s.start(`Setting up ${config.uiLibrary}`);
+          try {
+            await setupUILibrary(config, projectPath);
+            s.stop(`${config.uiLibrary} setup completed`);
+          } catch {
+            s.stop(`Failed to setup ${config.uiLibrary}`);
+            log.warn(`UI library setup failed. You can retry manually later.`);
+          }
+        }
       }
       outro(pc.green("✨ Project created successfully!"));
       log.message("");
@@ -101,12 +147,14 @@ export async function initCommand(projectName: string | undefined, options: Init
         const pm = options.packageManager || (await detectPackageManager());
         log.message(`  ${pc.cyan(`${pm} install`)}`);
       }
-      log.message(`  ${pc.cyan(`${options.packageManager || (await detectPackageManager())} run dev`)}`);
+      log.message(
+        `  ${pc.cyan(`${options.packageManager || (await detectPackageManager())} run dev`)}`
+      );
       log.message("");
       log.message("Happy coding! 🚀");
     } catch (error) {
       s.stop("Failed to create project");
-      await remove(projectPath);
+      await fsExtra.remove(projectPath);
       throw error;
     }
   } catch (error) {
@@ -115,29 +163,37 @@ export async function initCommand(projectName: string | undefined, options: Init
   }
 }
 async function initializeGit(projectPath: string) {
-  await execa("git", ["init"], { cwd: projectPath });
-  await execa("git", ["add", "."], { cwd: projectPath });
+  await execa("git", ["init"], { cwd: projectPath, stdio: "pipe" });
+  await execa("git", ["add", "."], { cwd: projectPath, stdio: "pipe" });
   try {
-    await execa("git", ["config", "user.name"], { cwd: projectPath });
-    await execa("git", ["config", "user.email"], { cwd: projectPath });
+    await execa("git", ["config", "user.name"], { cwd: projectPath, stdio: "pipe" });
+    await execa("git", ["config", "user.email"], { cwd: projectPath, stdio: "pipe" });
   } catch {
     log.warning("Git author not configured. Setting project-specific configuration.");
     let userName = "Precast User";
     let userEmail = "user@example.com";
     try {
-      const { stdout: globalName } = await execa("git", ["config", "--global", "user.name"]);
+      const { stdout: globalName } = await execa("git", ["config", "--global", "user.name"], {
+        stdio: "pipe",
+      });
       if (globalName) userName = globalName;
-    } catch {}
+    } catch {
+      // Global name not set, using default
+    }
     try {
-      const { stdout: globalEmail } = await execa("git", ["config", "--global", "user.email"]);
+      const { stdout: globalEmail } = await execa("git", ["config", "--global", "user.email"], {
+        stdio: "pipe",
+      });
       if (globalEmail) userEmail = globalEmail;
-    } catch {}
-    await execa("git", ["config", "user.name", userName], { cwd: projectPath });
-    await execa("git", ["config", "user.email", userEmail], { cwd: projectPath });
+    } catch {
+      // Global email not set, using default
+    }
+    await execa("git", ["config", "user.name", userName], { cwd: projectPath, stdio: "pipe" });
+    await execa("git", ["config", "user.email", userEmail], { cwd: projectPath, stdio: "pipe" });
     log.message(`Git configured with: ${userName} <${userEmail}>`);
     log.message("To set your global git identity, run:");
     log.message(`  git config --global user.name "Your Name"`);
     log.message(`  git config --global user.email "your.email@example.com"`);
   }
-  await execa("git", ["commit", "-m", "Initial commit"], { cwd: projectPath });
+  await execa("git", ["commit", "-m", "Initial commit"], { cwd: projectPath, stdio: "pipe" });
 }

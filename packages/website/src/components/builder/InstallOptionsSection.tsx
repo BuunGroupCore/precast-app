@@ -1,6 +1,7 @@
-import React from "react";
 import { motion } from "framer-motion";
+import React from "react";
 import { BiPackage } from "react-icons/bi";
+
 import { packageManagers } from "./constants";
 import type { ExtendedProjectConfig } from "./types";
 
@@ -20,10 +21,14 @@ export const InstallOptionsSection: React.FC<InstallOptionsSectionProps> = ({
       transition={{ delay: 0.75 }}
       className="comic-card bg-comic-green text-comic-white"
     >
-      <h3 className="font-display text-2xl mb-4 flex items-center gap-2">
-        <BiPackage />
-        INSTALL OPTIONS
-      </h3>
+      <div className="flex items-center gap-3 mb-2">
+        <BiPackage className="text-3xl" />
+        <h3 className="font-display text-2xl">INSTALL OPTIONS</h3>
+      </div>
+      <div className="border-t-3 border-comic-darkGreen mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-white/90">
+        Configure package management - choose your package manager and auto-install settings
+      </p>
 
       {/* Auto Install Toggle */}
       <div className="mb-4">

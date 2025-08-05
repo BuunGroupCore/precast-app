@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import React from "react";
+import { FaLayerGroup } from "react-icons/fa";
 
 import { frameworks } from "../../lib/stack-config";
 
@@ -18,7 +19,14 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
       transition={{ delay: 0.2 }}
       className="comic-card bg-comic-red text-comic-white"
     >
-      <h3 className="font-display text-2xl mb-4">CHOOSE FRAMEWORK</h3>
+      <div className="flex items-center gap-3 mb-2">
+        <FaLayerGroup className="text-3xl" />
+        <h3 className="font-display text-2xl">CHOOSE FRAMEWORK</h3>
+      </div>
+      <div className="border-t-3 border-comic-darkRed mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-white/90">
+        The foundation of your app - pick the JavaScript framework that powers your user interface
+      </p>
       <div className="grid grid-cols-3 gap-3">
         {frameworks.map((fw) => (
           <button

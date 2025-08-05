@@ -1,10 +1,5 @@
-import { ReactNode } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@precast/ui";
-import { ThemeSwitcher } from "./ThemeSwitcher";
-import { Footer } from "./Footer";
-import { GitHubStars } from "./GitHubStars";
-import { NpmStats } from "./NpmStats";
+import { ReactNode, useState } from "react";
 import {
   FaHome,
   FaTerminal,
@@ -14,7 +9,15 @@ import {
   FaHeart,
   FaFolderOpen,
   FaChartLine,
+  FaCog,
 } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
+
+import { Footer } from "./Footer";
+import { GitHubStars } from "./GitHubStars";
+import { NpmStats } from "./NpmStats";
+import { SettingsDialog } from "./SettingsDialog";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,6 +26,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showSettings, setShowSettings] = useState(false);
 
   const navItems = [
     {
@@ -96,6 +100,13 @@ export function Layout({ children }: LayoutProps) {
             <GitHubStars />
             <NpmStats />
             <ThemeSwitcher />
+            <button
+              onClick={() => setShowSettings(true)}
+              className="settings-cog p-2 bg-comic-yellow text-comic-black rounded-lg border-2 border-comic-black hover:bg-comic-orange transition-colors font-comic font-bold"
+              title="Settings"
+            >
+              <FaCog className="text-lg" />
+            </button>
           </div>
         }
       />
@@ -104,6 +115,9 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex-grow">{children}</div>
         {!isDocsPage && <Footer />}
       </div>
+
+      {/* Settings Dialog */}
+      <SettingsDialog isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }

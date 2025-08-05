@@ -1,6 +1,14 @@
 import { IconType } from "react-icons";
-import { BiSolidBoltCircle, BiSolidData, BiSolidCloud } from "react-icons/bi";
-import { FaReact, FaVuejs, FaAngular, FaNodeJs, FaDocker, FaGitAlt } from "react-icons/fa";
+import { BiSolidBoltCircle, BiSolidData, BiSolidCloud, BiSolidKey } from "react-icons/bi";
+import {
+  FaReact,
+  FaVuejs,
+  FaAngular,
+  FaNodeJs,
+  FaDocker,
+  FaGitAlt,
+  FaUserShield,
+} from "react-icons/fa";
 import {
   SiTypescript,
   SiJavascript,
@@ -26,9 +34,14 @@ import {
   SiCloudflare,
   SiDeno,
   SiVercel,
+  SiAuth0,
 } from "react-icons/si";
 
+import { BetterAuthIcon } from "../components/icons/BetterAuthIcon";
+import { ClerkIcon } from "../components/icons/ClerkIcon";
 import { CssIcon } from "../components/icons/CssIcon";
+import { LuciaIcon } from "../components/icons/LuciaIcon";
+import { PassportIcon } from "../components/icons/PassportIcon";
 import { SassIcon } from "../components/icons/SassIcon";
 
 export interface StackOption {
@@ -307,6 +320,15 @@ export const orms: StackOption[] = [
     incompatible: ["supabase", "firebase", "none"],
   },
   {
+    id: "mongoose",
+    name: "Mongoose",
+    icon: SiMongodb,
+    color: "text-comic-green",
+    description: "Elegant MongoDB object modeling for Node.js",
+    dependencies: ["node"],
+    incompatible: ["postgres", "mysql", "supabase", "firebase", "none"],
+  },
+  {
     id: "none",
     name: "None",
     icon: null,
@@ -397,6 +419,95 @@ export const runtimes: StackOption[] = [
     color: "text-comic-orange",
     description: "Serverless compute service",
     recommended: ["typescript"],
+  },
+];
+
+// Authentication providers
+export const authProviders: StackOption[] = [
+  {
+    id: "auth.js",
+    name: "Auth.js",
+    icon: FaUserShield,
+    color: "text-comic-purple",
+    description: "Complete open-source authentication solution (formerly NextAuth.js)",
+    dependencies: ["react"],
+    recommended: ["next", "database"],
+  },
+  {
+    id: "better-auth",
+    name: "Better Auth",
+    icon: BetterAuthIcon as any,
+    color: "text-comic-green",
+    description: "Type-safe, framework-agnostic authentication library",
+    recommended: ["typescript", "database"],
+  },
+  {
+    id: "passport",
+    name: "Passport.js",
+    icon: PassportIcon as any,
+    color: "text-comic-blue",
+    description: "Simple, unobtrusive authentication middleware for Node.js",
+    dependencies: ["node"],
+    recommended: ["express", "typescript"],
+  },
+  {
+    id: "clerk",
+    name: "Clerk",
+    icon: ClerkIcon as any,
+    color: "text-comic-purple",
+    description: "Complete user management platform with built-in auth",
+    dependencies: ["react"],
+    recommended: ["next", "typescript"],
+  },
+  {
+    id: "auth0",
+    name: "Auth0",
+    icon: SiAuth0,
+    color: "text-comic-orange",
+    description: "Universal authentication & authorization platform",
+    recommended: ["typescript"],
+  },
+  {
+    id: "supabase-auth",
+    name: "Supabase Auth",
+    icon: SiSupabase,
+    color: "text-comic-green",
+    description: "Built-in authentication with Supabase",
+    dependencies: ["supabase"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "firebase-auth",
+    name: "Firebase Auth",
+    icon: SiFirebase,
+    color: "text-comic-orange",
+    description: "Firebase Authentication service",
+    dependencies: ["firebase"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "lucia",
+    name: "Lucia",
+    icon: LuciaIcon as any,
+    color: "text-comic-yellow",
+    description: "Simple and flexible authentication library",
+    recommended: ["typescript", "database"],
+  },
+  {
+    id: "iron-session",
+    name: "Iron Session",
+    icon: BiSolidKey,
+    color: "text-comic-red",
+    description: "Stateless session utility using signed and encrypted cookies",
+    dependencies: ["node"],
+    recommended: ["next", "typescript"],
+  },
+  {
+    id: "none",
+    name: "None",
+    icon: null,
+    color: "text-gray-500",
+    description: "No authentication",
   },
 ];
 

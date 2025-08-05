@@ -13,3 +13,6 @@ export * from "./ProjectNameSection";
 export * from "./PresetTemplatesSection";
 export * from "./StackSummarySection";
 export * from "./RuntimeSection";
+export * from "./AuthSection";
+export * from "./PowerUpsSection";
+export * from "./MCPServersSection";

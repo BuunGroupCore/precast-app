@@ -1,0 +1,25 @@
+import { createSignal } from 'solid-js';
+import Counter from './components/Counter';
+import HelloWorld from './components/HelloWorld';
+
+function App() {
+  return (
+    {{#if (eq styling "tailwind")}}
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-8">
+      <main class="text-center space-y-8">
+        <HelloWorld name="{{name}}" />
+        <Counter />
+      </main>
+    </div>
+    {{else}}
+    <div class="container">
+      <main class="main">
+        <HelloWorld name="{{name}}" />
+        <Counter />
+      </main>
+    </div>
+    {{/if}}
+  );
+}
+
+export default App;

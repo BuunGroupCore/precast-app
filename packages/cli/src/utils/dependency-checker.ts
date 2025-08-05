@@ -10,14 +10,8 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
   shadcn: {
     name: "shadcn/ui",
     frameworks: ["react", "next", "remix", "vite"],
-    requiredDeps: [
-      "tailwindcss",
-      "tailwindcss-animate",
-      "class-variance-authority",
-      "clsx",
-      "tailwind-merge",
-    ],
-    setupCommand: "npx shadcn-ui@latest init",
+    requiredDeps: ["tailwindcss-animate", "class-variance-authority", "clsx", "tailwind-merge"],
+    setupCommand: "npx shadcn@latest init",
     postInstallSteps: [
       "Configure components.json",
       "Add CSS variables to globals.css",
@@ -27,7 +21,7 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
   daisyui: {
     name: "DaisyUI",
     frameworks: ["react", "vue", "svelte", "next", "nuxt", "remix", "vite", "astro", "solid"],
-    requiredDeps: ["tailwindcss", "daisyui"],
+    requiredDeps: ["daisyui"],
     incompatibleWith: ["shadcn"],
     postInstallSteps: ["Add daisyui to tailwind.config.js plugins"],
   },
@@ -61,7 +55,7 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
   brutalist: {
     name: "Brutalist UI",
     frameworks: ["react", "next", "remix", "vite"],
-    requiredDeps: ["tailwindcss", "clsx"],
+    requiredDeps: ["clsx"],
     postInstallSteps: [
       "Install Brutalist UI components manually",
       "Configure with Tailwind CSS for best results",

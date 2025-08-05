@@ -11,6 +11,9 @@ export interface ExtendedProjectConfig
   packageManager?: string;
   deploymentMethod?: string;
   runtime?: string;
+  auth?: string;
+  powerups?: string[];
+  mcpServers?: string[];
 }
 
 // AI Assistant options

@@ -1,25 +1,19 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import {
-  FaCheck,
-  FaCopy,
-  FaDocker,
-  FaGitAlt,
-  FaHistory,
-  FaMagic,
-  FaNpm,
-  FaYarn,
-} from "react-icons/fa";
-import { SiBun, SiPnpm, SiTypescript } from "react-icons/si";
+import { FaCheck, FaCopy, FaHistory, FaMagic, FaNpm, FaYarn } from "react-icons/fa";
+import { SiBun, SiPnpm } from "react-icons/si";
 
 import {
   AIAssistanceSection,
+  AuthSection,
   BackendSection,
   DatabaseSection,
   DeploymentSection,
   ExtendedProjectConfig,
   FrameworkSection,
   InstallOptionsSection,
+  MCPServersSection,
+  PowerUpsSection,
   PresetTemplatesSection,
   ProjectNameSection,
   RuntimeSection,
@@ -29,7 +23,6 @@ import {
 } from "../components/builder";
 import { GenericComicDialog } from "../components/GenericComicDialog";
 import { BuilderPageSEO } from "../components/SEO";
-import { ServiceTooltip } from "../components/ServiceTooltip";
 import { db, type SavedProject } from "../lib/db";
 import { backends, databases, frameworks, orms, stylings } from "../lib/stack-config";
 
@@ -50,6 +43,8 @@ export function BuilderPage() {
     packageManager: "bun",
     deploymentMethod: "none",
     runtime: "bun",
+    auth: "none",
+    mcpServers: [],
   });
   const [copied, setCopied] = useState(false);
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
@@ -75,6 +70,8 @@ export function BuilderPage() {
     packageManager: "bun",
     deploymentMethod: "none",
     runtime: "bun",
+    auth: "none",
+    mcpServers: [],
   };
 
   const resetToDefaults = () => {
@@ -82,10 +79,44 @@ export function BuilderPage() {
     setPackageManager("bun");
   };
 
-  // Load saved projects on mount
+  // Load saved projects and user settings on mount
   useEffect(() => {
     loadSavedProjects();
+    loadUserSettings();
   }, []);
+
+  const loadUserSettings = async () => {
+    try {
+      const userSettings = await db.userSettings.orderBy("updatedAt").last();
+      if (userSettings) {
+        // Apply user settings as new defaults
+        const newDefaults: ExtendedProjectConfig = {
+          name: "my-awesome-project",
+          framework: userSettings.preferredFramework || "react",
+          backend: userSettings.preferredBackend || "node",
+          database: userSettings.preferredDatabase || "postgres",
+          orm: userSettings.preferredOrm || "prisma",
+          styling: userSettings.preferredStyling || "tailwind",
+          runtime: userSettings.preferredRuntime || "bun",
+          auth: userSettings.preferredAuth || "none",
+          uiLibrary: userSettings.preferredUILibrary || "none",
+          packageManager: userSettings.preferredPackageManager || "bun",
+          deploymentMethod: userSettings.preferredDeployment || "none",
+          typescript: userSettings.defaultTypescript ?? true,
+          git: userSettings.defaultGit ?? true,
+          docker: userSettings.defaultDocker ?? false,
+          autoInstall: userSettings.defaultAutoInstall ?? true,
+          aiAssistant: "none",
+          mcpServers: [],
+        };
+
+        setConfig(newDefaults);
+        setPackageManager(userSettings.preferredPackageManager || "bun");
+      }
+    } catch (error) {
+      console.error("Failed to load user settings:", error);
+    }
+  };
 
   const loadSavedProjects = async () => {
     const projects = await db.savedProjects.toArray();
@@ -135,7 +166,7 @@ export function BuilderPage() {
     let prefix = "";
     switch (packageManager) {
       case "npx":
-        prefix = "npx create-precast-app";
+        prefix = "npx create-precast-app@latest";
         break;
       case "npm":
         prefix = "npm create precast-app@latest";
@@ -152,22 +183,26 @@ export function BuilderPage() {
     }
     const parts = [prefix];
     parts.push(config.name);
+
+    // Required options
     parts.push(`--framework=${config.framework}`);
-
-    if (config.backend !== "none") {
-      parts.push(`--backend=${config.backend}`);
-    }
-
-    if (config.database !== "none") {
-      parts.push(`--database=${config.database}`);
-    }
-
-    if (config.orm !== "none" && config.database !== "none") {
-      parts.push(`--orm=${config.orm}`);
-    }
-
+    parts.push(`--backend=${config.backend || "none"}`);
+    parts.push(`--database=${config.database || "none"}`);
+    parts.push(`--orm=${config.orm || "none"}`);
     parts.push(`--styling=${config.styling}`);
+    parts.push(`--runtime=${config.runtime || "node"}`);
 
+    // Auth option (CLI supports this)
+    if (config.auth && config.auth !== "none") {
+      parts.push(`--auth=${config.auth}`);
+    }
+
+    // Package manager
+    if (config.packageManager && config.packageManager !== "bun") {
+      parts.push(`--pm=${config.packageManager}`);
+    }
+
+    // Boolean flags
     if (!config.typescript) {
       parts.push("--no-typescript");
     }
@@ -180,29 +215,20 @@ export function BuilderPage() {
       parts.push("--docker");
     }
 
-    if (config.aiAssistant && config.aiAssistant !== "none") {
-      parts.push(`--ai=${config.aiAssistant}`);
+    if (config.autoInstall) {
+      parts.push("--install");
     }
 
-    if (config.uiLibrary && config.uiLibrary !== "none") {
-      parts.push(`--ui=${config.uiLibrary}`);
-    }
+    // Add --yes flag to skip all prompts
+    parts.push("--yes");
 
-    if (!config.autoInstall) {
-      parts.push("--no-install");
-    }
-
-    if (config.packageManager && config.packageManager !== "bun") {
-      parts.push(`--pm=${config.packageManager}`);
-    }
-
-    if (config.deploymentMethod && config.deploymentMethod !== "none") {
-      parts.push(`--deploy=${config.deploymentMethod}`);
-    }
-
-    if (config.runtime && config.runtime !== "node") {
-      parts.push(`--runtime=${config.runtime}`);
-    }
+    // These options are not supported by the CLI yet, so we'll comment them out
+    // TODO: Add these to the CLI
+    // --ui (uiLibrary)
+    // --ai (aiAssistant)
+    // --deploy (deploymentMethod)
+    // --powerups
+    // --mcp-servers
 
     return parts.join(" ");
   };
@@ -258,67 +284,24 @@ export function BuilderPage() {
               {/* 6. Database Selection - If backend exists */}
               <DatabaseSection config={config} setConfig={setConfig} />
 
-              {/* 7. Additional Options - Development tools */}
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-                className="comic-card"
-              >
-                <h3 className="font-display text-2xl mb-4 text-comic-darkBlue">POWER-UPS</h3>
-                <div className="space-y-4">
-                  <ServiceTooltip serviceId="typescript">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={config.typescript}
-                        onChange={(e) => setConfig({ ...config, typescript: e.target.checked })}
-                        className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-                      />
-                      <div className="flex items-center gap-2">
-                        <SiTypescript className="text-comic-blue text-xl" />
-                        <span className="font-comic font-bold">TypeScript</span>
-                      </div>
-                    </label>
-                  </ServiceTooltip>
-                  <ServiceTooltip serviceId="git">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={config.git}
-                        onChange={(e) => setConfig({ ...config, git: e.target.checked })}
-                        className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-                      />
-                      <div className="flex items-center gap-2">
-                        <FaGitAlt className="text-comic-orange text-xl" />
-                        <span className="font-comic font-bold">Git</span>
-                      </div>
-                    </label>
-                  </ServiceTooltip>
-                  <ServiceTooltip serviceId="docker">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={config.docker}
-                        onChange={(e) => setConfig({ ...config, docker: e.target.checked })}
-                        className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-                      />
-                      <div className="flex items-center gap-2">
-                        <FaDocker className="text-comic-blue text-xl" />
-                        <span className="font-comic font-bold">Docker</span>
-                      </div>
-                    </label>
-                  </ServiceTooltip>
-                </div>
-              </motion.div>
+              {/* 7. Authentication Section - User management */}
+              <AuthSection config={config} setConfig={setConfig} />
 
-              {/* 8. AI Assistance Section - Development assistance */}
+              {/* 8. Power-ups - Development tools and extensions */}
+              <PowerUpsSection config={config} setConfig={setConfig} />
+
+              {/* 9. AI Assistance Section - Development assistance */}
               <AIAssistanceSection config={config} setConfig={setConfig} />
 
-              {/* 9. Install Options Section - Package management */}
+              {/* 10. MCP Servers Section - AI-powered integrations (only for Claude Code) */}
+              {config.aiAssistant === "claude" && (
+                <MCPServersSection config={config} setConfig={setConfig} />
+              )}
+
+              {/* 11. Install Options Section - Package management */}
               <InstallOptionsSection config={config} setConfig={setConfig} />
 
-              {/* 10. Deployment Options Section - Where to deploy */}
+              {/* 12. Deployment Options Section - Where to deploy */}
               <DeploymentSection config={config} setConfig={setConfig} />
             </div>
 

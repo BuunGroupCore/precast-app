@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FaTimes } from "react-icons/fa";
 
@@ -8,9 +8,22 @@ interface GenericComicDialogProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
-export function GenericComicDialog({ isOpen, onClose, title, children }: GenericComicDialogProps) {
+export function GenericComicDialog({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = "md",
+}: GenericComicDialogProps) {
+  const sizeClasses = {
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-4xl",
+    xl: "max-w-6xl",
+  };
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -48,7 +61,7 @@ export function GenericComicDialog({ isOpen, onClose, title, children }: Generic
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: "spring", bounce: 0.3 }}
-            className="relative max-w-md w-full comic-panel bg-comic-white p-6 max-h-[80vh] overflow-auto"
+            className={`relative ${sizeClasses[size]} w-full comic-panel bg-comic-white p-6 max-h-[90vh] overflow-auto`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}

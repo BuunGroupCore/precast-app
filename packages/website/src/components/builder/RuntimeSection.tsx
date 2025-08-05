@@ -19,10 +19,14 @@ export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfi
       transition={{ delay: 0.45 }}
       className="comic-card bg-comic-yellow text-comic-black"
     >
-      <h3 className="font-display text-2xl mb-4 flex items-center gap-2">
-        <FaCogs />
-        RUNTIME
-      </h3>
+      <div className="flex items-center gap-3 mb-2">
+        <FaCogs className="text-3xl" />
+        <h3 className="font-display text-2xl">RUNTIME</h3>
+      </div>
+      <div className="border-t-3 border-comic-black mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-black/90">
+        Choose your JavaScript runtime - from classic Node.js to modern edge runtimes
+      </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {runtimes.map((runtime) => (
           <button

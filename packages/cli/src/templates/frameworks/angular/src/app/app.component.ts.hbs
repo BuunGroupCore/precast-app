@@ -8,7 +8,7 @@ import { CounterComponent } from './components/counter/counter.component';
   standalone: true,
   imports: [CommonModule, HelloWorldComponent, CounterComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.{{#if (eq styling "scss')}}scss{{else}}css{{/if}}'
+  styleUrl: './app.component.css'
 })
 export class AppComponent {
   title = '{{name}}';

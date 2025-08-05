@@ -19,10 +19,14 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
       transition={{ delay: 0.4 }}
       className="comic-card bg-comic-green text-comic-white"
     >
-      <h3 className="font-display text-2xl mb-4 flex items-center gap-2">
-        <FaDatabase />
-        DATABASE
-      </h3>
+      <div className="flex items-center gap-3 mb-2">
+        <FaDatabase className="text-3xl" />
+        <h3 className="font-display text-2xl">DATABASE</h3>
+      </div>
+      <div className="border-t-3 border-comic-darkGreen mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-white/90">
+        Store your data - pick from SQL databases, NoSQL, or backend-as-a-service options
+      </p>
       <div className="grid grid-cols-3 gap-3">
         {databases.map((db) => (
           <button

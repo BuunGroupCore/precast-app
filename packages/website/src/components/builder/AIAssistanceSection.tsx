@@ -384,10 +384,14 @@ This is a modern {{framework}} application with the following architecture:
       transition={{ delay: 0.6 }}
       className="comic-card bg-comic-purple text-comic-white"
     >
-      <h3 className="font-display text-2xl mb-4 flex items-center gap-2">
-        <FaBrain />
-        AI ASSISTANCE
-      </h3>
+      <div className="flex items-center gap-3 mb-2">
+        <FaBrain className="text-3xl" />
+        <h3 className="font-display text-2xl">AI ASSISTANCE</h3>
+      </div>
+      <div className="border-t-3 border-comic-darkPurple mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-white/90">
+        Supercharge your development - integrate AI coding assistants for smarter, faster coding
+      </p>
       <div className="grid grid-cols-2 gap-3">
         {aiAssistants.map((ai) => (
           <button

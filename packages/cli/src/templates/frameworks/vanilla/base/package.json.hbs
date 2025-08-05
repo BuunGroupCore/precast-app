@@ -17,8 +17,8 @@
     {{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}}"axios": "^1.7.7"{{#if (eq orm "prisma")}},{{/if}}{{/ifAny}}{{#if (eq orm "prisma")}}"@prisma/client": "^5.20.0"{{/if}}
   },
   "devDependencies": {
-    "vite": "^5.4.8"{{#if typescript}},
-    "typescript": "^5.6.3"{{/if}}{{#if (eq styling "tailwind")}},
+    "vite": "^5.4.0"{{#if typescript}},
+    "typescript": "^5.7.2"{{/if}}{{#if (eq styling "tailwind")}},
     "tailwindcss": "^3.4.13",
     "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},

@@ -27,6 +27,7 @@ export interface ProjectConfig {
   deploymentMethod?: string;
   autoInstall?: boolean;
   runtime?: string;
+  authProvider?: string;
 }
 
 // Stack definitions without React Icons (for CLI usage)

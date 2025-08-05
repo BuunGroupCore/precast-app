@@ -709,3 +709,67 @@ header nav button:hover::after {
     top: 8rem;
   }
 }
+
+/* Settings Cog Spin Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.settings-cog:hover svg {
+  animation: spin 1s linear infinite;
+}
+
+/* Comic Dropdown Styling */
+.comic-select {
+  @apply relative w-full p-3 pr-10 font-comic font-bold text-sm 
+         border-3 rounded-lg transition-all duration-200
+         bg-comic-white text-comic-black
+         appearance-none cursor-pointer;
+  border-color: var(--comic-black);
+  box-shadow: 3px 3px 0 var(--comic-black);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path d="M2,4 L6,8 L10,4" fill="none" stroke="%23000" stroke-width="2"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.comic-select:hover {
+  background-color: var(--comic-yellow);
+  box-shadow: 4px 4px 0 var(--comic-black);
+  transform: translateY(-1px);
+}
+
+.comic-select:focus {
+  outline: none;
+  ring: 4px solid var(--comic-yellow);
+  ring-offset: 2px;
+}
+
+/* Comic Select Option with Icons */
+.comic-select option {
+  @apply font-comic font-bold py-2;
+  background-color: var(--comic-white);
+  color: var(--comic-black);
+}
+
+.comic-select-wrapper {
+  @apply relative;
+}
+
+.comic-select-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--comic-black);
+}

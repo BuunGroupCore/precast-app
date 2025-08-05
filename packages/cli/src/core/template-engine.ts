@@ -143,10 +143,18 @@ export class TemplateEngine {
   }
   private shouldSkipFile(file: string, context: TemplateContext): boolean {
     const fileName = path.basename(file);
+
+    // Config files are always .js regardless of TypeScript usage
+    const isConfigFile = fileName.match(/\.(config|rc)\.(js|mjs|cjs)\.hbs$/);
+
     if (!context.typescript && (fileName.endsWith(".ts.hbs") || fileName.endsWith(".tsx.hbs"))) {
       return true;
     }
-    if (context.typescript && (fileName.endsWith(".js.hbs") || fileName.endsWith(".jsx.hbs"))) {
+    if (
+      context.typescript &&
+      (fileName.endsWith(".js.hbs") || fileName.endsWith(".jsx.hbs")) &&
+      !isConfigFile
+    ) {
       return true;
     }
     if (context.styling !== "scss" && fileName.endsWith(".scss.hbs")) {

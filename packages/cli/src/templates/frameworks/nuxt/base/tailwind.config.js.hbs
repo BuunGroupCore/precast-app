@@ -1,15 +1,16 @@
-{{#if (eq styling "tailwind")}}/** @type {import('tailwindcss').Config} */
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: [
-    './components/**/*.{js,vue,ts}',
-    './layouts/**/*.vue',
-    './pages/**/*.vue',
-    './plugins/**/*.{js,ts}',
-    './app.vue',
-    './error.vue'
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,vue,svelte,astro}",
   ],
   theme: {
-    extend: {}
+    extend: {},
   },
-  plugins: []
-}{{/if}}
+  plugins: [{{#if (eq uiLibrary "daisyui")}}
+    require("daisyui"),{{/if}}
+  ],{{#if (eq uiLibrary "daisyui")}}
+  daisyui: {
+    themes: ["light", "dark", "cupcake"],
+  },{{/if}}
+}

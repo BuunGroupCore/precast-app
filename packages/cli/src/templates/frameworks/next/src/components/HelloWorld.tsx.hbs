@@ -4,16 +4,14 @@ interface HelloWorldProps {
 
 export default function HelloWorld({ greeting = 'Hello from Next.js!' }: HelloWorldProps) {
   return (
-{{{{raw}}}}
-    <div className="{{{{/raw}}}}{{#if (eq styling "tailwind")}}bg-gradient-to-r from-purple-500 to-pink-500 text-white p-8 rounded-lg shadow-lg{{else}}hello-world{{/if}}{{{{raw}}}}">
-      <h2 className="{{{{/raw}}}}{{#if (eq styling "tailwind")}}text-2xl font-bold mb-2{{else}}hello-world-title{{/if}}{{{{raw}}}}">
+    <div className="{{#if (eq styling "tailwind")}}bg-gradient-to-r from-purple-500 to-pink-500 text-white p-8 rounded-lg shadow-lg{{else}}hello-world{{/if}}">
+      <h2 className="{{#if (eq styling "tailwind")}}text-2xl font-bold mb-2{{else}}hello-world-title{{/if}}">
         {greeting}
       </h2>
-      <p className="{{{{/raw}}}}{{#if (eq styling "tailwind")}}text-lg opacity-90{{else}}hello-world-description{{/if}}{{{{raw}}}}">
-        This is a simple component example using {{{{/raw}}}}{{#if typescript}}TypeScript{{else}}JavaScript{{/if}}{{{{raw}}}}.
+      <p className="{{#if (eq styling "tailwind")}}text-lg opacity-90{{else}}hello-world-description{{/if}}">
+        This is a simple component example using {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}.
       </p>
     </div>
-{{{{/raw}}}}
   )
 }
 

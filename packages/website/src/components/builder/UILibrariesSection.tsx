@@ -27,10 +27,14 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
       transition={{ delay: 0.55 }}
       className="comic-card"
     >
-      <h3 className="font-display text-2xl mb-4 text-comic-blue flex items-center gap-2">
-        <FaPaintBrush />
-        UI COMPONENTS
-      </h3>
+      <div className="flex items-center gap-3 mb-2">
+        <FaPaintBrush className="text-3xl text-comic-blue" />
+        <h3 className="font-display text-2xl text-comic-blue">UI COMPONENTS</h3>
+      </div>
+      <div className="border-t-3 border-comic-gray mb-3"></div>
+      <p className="font-comic text-sm mb-4 text-comic-gray">
+        Pre-built component libraries - speed up development with ready-made UI components
+      </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {getAvailableUILibraries().map((lib) => (
           <button

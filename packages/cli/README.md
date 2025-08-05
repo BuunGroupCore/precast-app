@@ -70,6 +70,17 @@ npx create-precast-app my-app -y
 - `--install` - Install dependencies after creation
 - `--pm <manager>` - Package manager (npm, yarn, pnpm, bun)
 
+## 🔐 Security Features
+
+- **Automatic vulnerability scanning** - Runs security audits after dependency installation
+- **Auto-fix vulnerabilities** - Attempts to fix security issues automatically
+- **Secure dependency versions** - All templates use the latest secure versions
+- **esbuild vulnerability mitigation** - Automatic overrides for CVE-2024-23334
+- **Weekly dependency updates** - Automated PRs for security updates
+- **Build-time security checks** - Security audit runs during build process
+
+See [SECURITY.md](./docs/SECURITY.md) for more details.
+
 ## 🏗️ Architecture
 
 ```

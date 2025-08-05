@@ -1,6 +1,6 @@
 {
   "name": "create-precast-app",
-  "version": "0.1.8",
+  "version": "0.1.21",
   "description": "CLI tool to scaffold modern web applications with your chosen stack",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,7 +22,10 @@
   },
   "scripts": {
     "dev": "tsx watch src/cli.ts",
-    "build": "tsup src/cli.ts src/index.ts --format esm --clean && cp -r src/templates dist/",
+    "build": "tsup src/cli.ts src/index.ts --format esm --clean && cp -r src/templates dist/ && bun run audit:fix",
+    "audit:fix": "command -v npm >/dev/null 2>&1 && (npm audit --audit-level=moderate || npm audit fix) || echo 'npm not available, skipping audit'",
+    "update:templates": "bun run src/scripts/update-template-deps.ts && bun run build",
+    "security:check": "npm audit --audit-level=moderate",
     "build:test": "bun run build && tsup test-runner.ts --format esm --clean --out-dir dist-test",
     "prepublishOnly": "echo 'Build should be done before publishing'",
     "prepack": "echo 'Build should be done before packing'",

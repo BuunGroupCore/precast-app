@@ -22,11 +22,12 @@
     "@prisma/client": "^5.20.0"{{/if}}
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.2",
-    "vite": "^5.4.8"{{#if typescript}},
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.0"{{#if typescript}},
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
-    "typescript": "^5.5.4"{{/if}}{{#if (eq styling "tailwind")}},
+    "@types/node": "^20.14.0",
+    "typescript": "^5.7.2"{{/if}}{{#if (eq styling "tailwind")}},
     "tailwindcss": "^3.4.13",
     "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},

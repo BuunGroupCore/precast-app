@@ -12,7 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - cleaned up errors and warnings added all seo images (2750449c)
 
-### Documentation
+### Documen
+- cleaned up errors and warnings added all seo images (4a58ff42)
+- cleaned up errors and warnings added all seo images (4a58ff42)
+- cleaned up errors and warnings added all seo images (4a58ff42)
+- cleaned up errors and warnings added all seo images (4a58ff42)
+- cleaned up errors and warnings added all seo images (4a58ff42)
+- cleaned up errors and warnings added all seo images (4a58ff42)
+- cleaned up errors and warnings added all seo images (4a58ff42)tation
 
 - pipelines and clean up (c1415c7f)
 

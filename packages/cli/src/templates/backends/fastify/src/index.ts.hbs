@@ -1,0 +1,67 @@
+import Fastify, { FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const fastify: FastifyInstance = Fastify({
+  logger: {
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug'
+  }
+});
+
+const PORT = Number(process.env.PORT) || 3001;
+const HOST = process.env.HOST || 'localhost';
+
+// Register plugins
+await fastify.register(helmet);
+await fastify.register(cors);
+
+// Routes
+fastify.get('/api/health', async (request, reply) => {
+  return {
+    status: 'ok',
+    message: '{{config.name}} API is running',
+    timestamp: new Date().toISOString()
+  };
+});
+
+fastify.get('/api/hello', async (request, reply) => {
+  return {
+    message: 'Hello from {{config.name}} API!',
+    version: '1.0.0'
+  };
+});
+
+// 404 handler
+fastify.setNotFoundHandler(async (request, reply) => {
+  reply.status(404).send({
+    error: 'Route not found',
+    path: request.url
+  });
+});
+
+// Error handler
+fastify.setErrorHandler(async (error, request, reply) => {
+  fastify.log.error(error);
+  
+  reply.status(500).send({
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+  });
+});
+
+// Start server
+const start = async () => {
+  try {
+    await fastify.listen({ port: PORT, host: HOST });
+    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+    console.log(`📋 Health check: http://${HOST}:${PORT}/api/health`);
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
+
+start();

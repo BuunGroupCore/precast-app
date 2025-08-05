@@ -2,6 +2,7 @@ import path from "path";
 
 import { execa } from "execa";
 import fsExtra from "fs-extra";
+const { pathExists, ensureDir, writeFile, remove } = fsExtra;
 
 import { type ProjectConfig } from "../../shared/stack-config.js";
 
@@ -12,13 +13,12 @@ import { logger } from "./utils/logger.js";
 import { writePrecastConfig } from "./utils/precast-config.js";
 import { getTemplateRoot } from "./utils/template-path.js";
 
-const { writeFile } = fsExtra;
 export async function createProject(config: ProjectConfig) {
   const projectPath = path.resolve(process.cwd(), config.name);
-  if (await fsExtra.pathExists(projectPath)) {
+  if (await pathExists(projectPath)) {
     throw new Error(`Directory ${config.name} already exists`);
   }
-  await fsExtra.ensureDir(projectPath);
+  await ensureDir(projectPath);
   try {
     // Update config with projectPath
     const configWithPath = { ...config, projectPath };
@@ -39,7 +39,7 @@ export async function createProject(config: ProjectConfig) {
       logger.debug("Initializing git repository...");
       await execa("git", ["init"], { cwd: projectPath });
       const gitignoreContent = generateGitignore(config);
-      await fsExtra.writeFile(path.join(projectPath, ".gitignore"), gitignoreContent);
+      await writeFile(path.join(projectPath, ".gitignore"), gitignoreContent);
       await execa("git", ["add", "."], { cwd: projectPath });
       await execa("git", ["commit", "-m", "Initial commit"], {
         cwd: projectPath,
@@ -49,7 +49,7 @@ export async function createProject(config: ProjectConfig) {
       await generateDockerFiles(config, projectPath);
     }
   } catch (error) {
-    await fsExtra.remove(projectPath);
+    await remove(projectPath);
     throw error;
   }
 }

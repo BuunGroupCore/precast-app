@@ -239,81 +239,136 @@ export async function installAllDependencies(options: {
     pnpm: "📦",
     bun: "🥟",
   };
-  const pmIcon = pmIcons[pm.id] || "📦";
 
-  // Check if package.json contains packages known to have Bun postinstall issues
+  // Check if this is a workspace and scan all package.json files for problematic packages
   let shouldFallbackFromBun = false;
   if (pm.id === "bun") {
     try {
       const fs = await import("fs-extra");
-      const packageJsonPath = `${options.projectPath}/package.json`;
-      if (await fs.pathExists(packageJsonPath)) {
-        const packageJson = await fs.readJSON(packageJsonPath);
-        const problematicPackages = [
-          "prisma",
-          "@prisma/client",
-          "@prisma/engines",
-          "esbuild",
-          "@esbuild/",
-          "sharp",
-          "playwright",
-          "puppeteer",
-          "sqlite3",
-          "bcrypt",
-          "canvas",
-          "node-sass",
-        ];
-        const allDeps = {
-          ...packageJson.dependencies,
-          ...packageJson.devDependencies,
-        };
+      const path = await import("path");
 
-        const foundProblematic = problematicPackages.some((pkg) =>
-          pkg.endsWith("/") ? Object.keys(allDeps).some((dep) => dep.startsWith(pkg)) : allDeps[pkg]
-        );
-        if (foundProblematic) {
-          consola.warn(
-            "🚨 Detected packages with known Bun postinstall issues (Prisma, esbuild, native modules, etc.)"
-          );
-          consola.info("💡 Automatically falling back to npm for better compatibility");
-          consola.info("📝 Note: Prisma requires Node.js for its postinstall scripts");
-          shouldFallbackFromBun = true;
+      const problematicPackages = [
+        "prisma",
+        "@prisma/client",
+        "@prisma/engines",
+        "esbuild",
+        "@esbuild/",
+        "sharp",
+        "playwright",
+        "puppeteer",
+        "sqlite3",
+        "bcrypt",
+        "canvas",
+        "node-sass",
+        "tsx", // Often causes issues with Bun
+        "tsup", // Can have esbuild dependencies
+      ];
+
+      // Check root package.json
+      const rootPackageJsonPath = `${options.projectPath}/package.json`;
+      const packageJsonPaths = [rootPackageJsonPath];
+
+      // Check for workspace structure and add workspace package.json files
+      if (await fs.pathExists(rootPackageJsonPath)) {
+        const rootPackageJson = await fs.readJSON(rootPackageJsonPath);
+        if (rootPackageJson.workspaces) {
+          // This is a workspace - check all sub-packages
+          const appsDir = path.join(options.projectPath, "apps");
+          const packagesDir = path.join(options.projectPath, "packages");
+
+          // Check apps/* directories
+          if (await fs.pathExists(appsDir)) {
+            const appDirs = await fs.readdir(appsDir);
+            for (const appDir of appDirs) {
+              const appPackageJson = path.join(appsDir, appDir, "package.json");
+              if (await fs.pathExists(appPackageJson)) {
+                packageJsonPaths.push(appPackageJson);
+              }
+            }
+          }
+
+          // Check packages/* directories
+          if (await fs.pathExists(packagesDir)) {
+            const packageDirs = await fs.readdir(packagesDir);
+            for (const packageDir of packageDirs) {
+              const packagePackageJson = path.join(packagesDir, packageDir, "package.json");
+              if (await fs.pathExists(packagePackageJson)) {
+                packageJsonPaths.push(packagePackageJson);
+              }
+            }
+          }
         }
       }
-    } catch {
-      // If we can't read package.json, continue with normal flow
+
+      // Scan all package.json files for problematic packages
+      for (const packageJsonPath of packageJsonPaths) {
+        if (await fs.pathExists(packageJsonPath)) {
+          const packageJson = await fs.readJSON(packageJsonPath);
+          const allDeps = {
+            ...packageJson.dependencies,
+            ...packageJson.devDependencies,
+          };
+
+          const foundProblematic = problematicPackages.some((pkg) =>
+            pkg.endsWith("/")
+              ? Object.keys(allDeps).some((dep) => dep.startsWith(pkg))
+              : allDeps[pkg]
+          );
+
+          if (foundProblematic) {
+            const problemPackages = problematicPackages.filter((pkg) =>
+              pkg.endsWith("/")
+                ? Object.keys(allDeps).some((dep) => dep.startsWith(pkg))
+                : allDeps[pkg]
+            );
+            consola.warn(
+              `🚨 Detected packages with known Bun postinstall issues: ${problemPackages.join(", ")}`
+            );
+            consola.info("💡 Automatically using npm for better compatibility");
+            consola.info("📝 Note: These packages require Node.js for postinstall scripts");
+            shouldFallbackFromBun = true;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      consola.debug("Error checking for problematic packages:", error);
+      // If we can't read package.json files, continue with normal flow
     }
   }
 
-  consola.info(`${pmIcon} Installing all dependencies with ${pm.id}...`);
+  // If we detected problematic packages, use npm instead of bun immediately
+  let actualPackageManager = pm.id;
+  if (pm.id === "bun" && shouldFallbackFromBun) {
+    try {
+      await execa("npm", ["--version"], { stdio: "ignore" });
+      actualPackageManager = "npm";
+      consola.info("🔄 Using npm instead of bun to avoid postinstall script issues...");
+    } catch {
+      consola.warn("npm not available, will attempt bun but expect failures...");
+    }
+  }
+
+  const actualPm = getPackageManagerConfig(actualPackageManager);
+  const actualPmIcon = pmIcons[actualPm.id] || "📦";
+
+  consola.info(`${actualPmIcon} Installing all dependencies with ${actualPm.id}...`);
 
   try {
-    // Aggressive fallback for Bun when problematic packages detected
-    if (pm.id === "bun" && shouldFallbackFromBun) {
-      try {
-        await execa("npm", ["--version"], { stdio: "ignore" });
-        consola.info("🔄 Using npm instead of bun to avoid postinstall script issues...");
-
-        await execa("npm", ["install"], {
-          cwd: options.projectPath,
-          stdio: "inherit",
-        });
-        consola.success("✅ Dependencies installed successfully with npm (avoided Bun issues)");
-        return;
-      } catch {
-        consola.warn("npm not available, will attempt bun but expect failures...");
-      }
-    }
-
-    await execa(pm.id, ["install"], {
+    await execa(actualPm.id, ["install"], {
       cwd: options.projectPath,
       stdio: "inherit",
     });
-    consola.success(`✅ Dependencies installed successfully with ${pm.id}`);
+    consola.success(`✅ Dependencies installed successfully with ${actualPm.id}`);
   } catch (error) {
-    consola.error(`❌ Failed to install dependencies with ${pm.id}:`, error);
+    consola.error(`❌ Failed to install dependencies with ${actualPm.id}:`, error);
 
-    // If bun failed and npm is available, try fallback
+    // If we already tried npm as a fallback, don't try again
+    if (actualPm.id === "npm") {
+      throw error;
+    }
+
+    // If the original attempt failed and we haven't tried npm yet, try it
     if (pm.id === "bun") {
       try {
         await execa("npm", ["--version"], { stdio: "ignore" });

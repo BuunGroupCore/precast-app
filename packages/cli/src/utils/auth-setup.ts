@@ -3,8 +3,9 @@ import * as path from "path";
 
 import { consola } from "consola";
 import fsExtra from "fs-extra";
+const { writeFile, ensureDir, pathExists, readFile } = fsExtra;
 
-import type { ProjectConfig } from "../types";
+import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { installDependencies } from "./package-manager";
 
@@ -207,7 +208,7 @@ export default {
   },
 } satisfies NextAuthConfig;`;
 
-    await fsExtra.writeFile(authConfigPath, authConfigContent);
+    await writeFile(authConfigPath, authConfigContent);
 
     // Create auth.ts
     const authPath = path.join(config.projectPath, `auth.${ext}`);
@@ -222,7 +223,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
 });`;
 
-    await fsExtra.writeFile(authPath, authContent);
+    await writeFile(authPath, authContent);
 
     // Create middleware.ts
     const middlewarePath = path.join(config.projectPath, `middleware.${ext}`);
@@ -235,7 +236,7 @@ export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };`;
 
-    await fsExtra.writeFile(middlewarePath, middlewareContent);
+    await writeFile(middlewarePath, middlewareContent);
   } else {
     // For other frameworks, create a generic auth config
     const authConfigPath = path.join(config.projectPath, "src", `auth.config.${ext}`);
@@ -277,8 +278,8 @@ export const authConfig: AuthConfig = {
   secret: process.env.AUTH_SECRET,
 };`;
 
-    await fsExtra.ensureDir(path.dirname(authConfigPath));
-    await fsExtra.writeFile(authConfigPath, authConfigContent);
+    await ensureDir(path.dirname(authConfigPath));
+    await writeFile(authConfigPath, authConfigContent);
   }
 }
 
@@ -321,8 +322,8 @@ export const auth = betterAuth({
 
 export type Auth = typeof auth;`;
 
-  await fsExtra.ensureDir(path.dirname(authPath));
-  await fsExtra.writeFile(authPath, authContent);
+  await ensureDir(path.dirname(authPath));
+  await writeFile(authPath, authContent);
 
   // Create client auth file
   const clientAuthPath = path.join(config.projectPath, "src", "lib", `auth-client.${ext}`);
@@ -332,7 +333,7 @@ export const authClient = createAuthClient({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 });`;
 
-  await fsExtra.writeFile(clientAuthPath, clientAuthContent);
+  await writeFile(clientAuthPath, clientAuthContent);
 }
 
 // Generate a cryptographically secure random secret
@@ -361,8 +362,8 @@ async function updateEnvFile(config: ProjectConfig, provider: AuthProvider): Pro
   const envExamplePath = path.join(config.projectPath, ".env.example");
 
   let envContent = "";
-  if (await fsExtra.pathExists(envPath)) {
-    envContent = await fsExtra.readFile(envPath, "utf-8");
+  if (await pathExists(envPath)) {
+    envContent = await readFile(envPath, "utf-8");
   }
 
   const envVars: string[] = [];
@@ -436,7 +437,7 @@ async function updateEnvFile(config: ProjectConfig, provider: AuthProvider): Pro
       envVars.join("\n") +
       "\n";
 
-    await fsExtra.writeFile(envPath, newEnvContent);
+    await writeFile(envPath, newEnvContent);
 
     // Write .env.example with example values
     const exampleContent =
@@ -446,12 +447,12 @@ async function updateEnvFile(config: ProjectConfig, provider: AuthProvider): Pro
       exampleEnvVars.join("\n") +
       "\n";
 
-    await fsExtra.writeFile(envExamplePath, exampleContent);
+    await writeFile(envExamplePath, exampleContent);
 
     // Also create .env if it doesn't exist
     const envMainPath = path.join(config.projectPath, ".env");
-    if (!(await fsExtra.pathExists(envMainPath))) {
-      await fsExtra.writeFile(envMainPath, newEnvContent);
+    if (!(await pathExists(envMainPath))) {
+      await writeFile(envMainPath, newEnvContent);
     }
 
     consola.success("✅ Generated authentication secrets in .env files");
@@ -508,8 +509,8 @@ export default function SignInPage() {
   );
 }`;
 
-    await fsExtra.ensureDir(path.dirname(signInPath));
-    await fsExtra.writeFile(signInPath, signInContent);
+    await ensureDir(path.dirname(signInPath));
+    await writeFile(signInPath, signInContent);
 
     // Create error page
     const errorPath = path.join(
@@ -549,16 +550,16 @@ export default function SignInPage() {
   );
 }`;
 
-    await fsExtra.writeFile(errorPath, errorContent);
+    await writeFile(errorPath, errorContent);
   }
 }
 
 async function updatePrismaSchema(config: ProjectConfig, provider: AuthProvider): Promise<void> {
   const schemaPath = path.join(config.projectPath, "prisma", "schema.prisma");
 
-  if (!(await fsExtra.pathExists(schemaPath))) {
+  if (!(await pathExists(schemaPath))) {
     // Create basic Prisma schema if it doesn't exist
-    await fsExtra.ensureDir(path.dirname(schemaPath));
+    await ensureDir(path.dirname(schemaPath));
 
     const databaseProvider =
       config.database === "postgres"
@@ -582,11 +583,11 @@ datasource db {
 }
 `;
 
-    await fsExtra.writeFile(schemaPath, basicSchema);
+    await writeFile(schemaPath, basicSchema);
   }
 
   // Read existing schema
-  let schemaContent = await fsExtra.readFile(schemaPath, "utf-8");
+  let schemaContent = await readFile(schemaPath, "utf-8");
 
   // Check if auth models already exist
   if (schemaContent.includes("model User") || schemaContent.includes("model Account")) {
@@ -700,7 +701,7 @@ model VerificationToken {
   schemaContent += authModels;
 
   // Write updated schema
-  await fsExtra.writeFile(schemaPath, schemaContent);
+  await writeFile(schemaPath, schemaContent);
 
   consola.success("✅ Updated Prisma schema with authentication models");
   consola.info("Run 'npx prisma migrate dev' to create the database tables");
@@ -710,12 +711,12 @@ async function createPrismaClient(config: ProjectConfig): Promise<void> {
   const ext = config.language === "typescript" ? "ts" : "js";
   const clientPath = path.join(config.projectPath, "src", "lib", `prisma.${ext}`);
 
-  if (await fsExtra.pathExists(clientPath)) {
+  if (await pathExists(clientPath)) {
     consola.info("Prisma client already exists");
     return;
   }
 
-  await fsExtra.ensureDir(path.dirname(clientPath));
+  await ensureDir(path.dirname(clientPath));
 
   const clientContent = `import { PrismaClient } from "@prisma/client";
 
@@ -729,7 +730,7 @@ if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = prisma;
 }`;
 
-  await fsExtra.writeFile(clientPath, clientContent);
+  await writeFile(clientPath, clientContent);
   consola.success("✅ Created Prisma client");
 }
 

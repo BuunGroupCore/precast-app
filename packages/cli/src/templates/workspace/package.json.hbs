@@ -1,0 +1,23 @@
+{
+  "name": "{{config.name}}",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "turbo": "^1.12.4",
+    {{#if config.typescript}}"typescript": "^5.4.2",{{/if}}
+    "eslint": "^8.57.0"
+  },
+  "packageManager": "{{config.packageManager}}@latest"
+}

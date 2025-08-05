@@ -2,6 +2,7 @@ import path from "node:path";
 
 import { consola } from "consola";
 import fsExtra from "fs-extra";
+const { pathExists, readFile, ensureDir, writeFile, copy, readdir } = fsExtra;
 import { globby } from "globby";
 import handlebars from "handlebars";
 
@@ -58,7 +59,7 @@ export class TemplateEngine {
     options: TemplateOptions = {}
   ): Promise<void> {
     try {
-      if (await fsExtra.pathExists(outputPath)) {
+      if (await pathExists(outputPath)) {
         if (options.skipIfExists) {
           consola.debug(`Skipping existing file: ${outputPath}`);
           return;
@@ -67,11 +68,11 @@ export class TemplateEngine {
           throw new Error(`File already exists: ${outputPath}`);
         }
       }
-      const templateContent = await fsExtra.readFile(templatePath, "utf-8");
+      const templateContent = await readFile(templatePath, "utf-8");
       const template = handlebars.compile(templateContent);
       const processedContent = template(context);
-      await fsExtra.ensureDir(path.dirname(outputPath));
-      await fsExtra.writeFile(outputPath, processedContent);
+      await ensureDir(path.dirname(outputPath));
+      await writeFile(outputPath, processedContent);
       consola.debug(`Generated: ${outputPath}`);
     } catch (error) {
       consola.error(`Error processing template ${templatePath}:`, error);
@@ -93,7 +94,7 @@ export class TemplateEngine {
       const contextValue = context[contextKey];
       if (contextValue === variantSuffix) {
         const variantPath = path.join(dir, `${baseName}-${variantSuffix}${ext}`);
-        if (await fsExtra.pathExists(variantPath)) {
+        if (await pathExists(variantPath)) {
           selectedTemplate = variantPath;
           break;
         }
@@ -108,7 +109,7 @@ export class TemplateEngine {
     options: TemplateOptions = {}
   ): Promise<void> {
     const templateDir = path.join(this.templateRoot, sourceDir);
-    if (!(await fsExtra.pathExists(templateDir))) {
+    if (!(await pathExists(templateDir))) {
       throw new Error(`Template directory not found: ${templateDir}`);
     }
     const files = await globby("**/*", {
@@ -136,8 +137,8 @@ export class TemplateEngine {
       if (file.endsWith(".hbs")) {
         await this.processTemplate(sourcePath, destPath, context, options);
       } else {
-        await fsExtra.ensureDir(path.dirname(destPath));
-        await fsExtra.copy(sourcePath, destPath);
+        await ensureDir(path.dirname(destPath));
+        await copy(sourcePath, destPath);
       }
     }
   }
@@ -204,10 +205,10 @@ export class TemplateEngine {
   }
   async getAvailableTemplates(category: string): Promise<string[]> {
     const categoryPath = path.join(this.templateRoot, category);
-    if (!(await fsExtra.pathExists(categoryPath))) {
+    if (!(await pathExists(categoryPath))) {
       return [];
     }
-    const entries = await fsExtra.readdir(categoryPath, { withFileTypes: true });
+    const entries = await readdir(categoryPath, { withFileTypes: true });
     return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
   }
 }

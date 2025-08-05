@@ -1,0 +1,76 @@
+# {{config.name}}
+
+A modern full-stack application built with {{config.framework}} and {{config.backend}}.
+
+## Project Structure
+
+```
+{{config.name}}/
+├── apps/
+│   ├── web/          # Frontend ({{config.framework}})
+│   └── api/          # Backend ({{config.backend}})
+├── packages/
+│   └── shared/       # Shared utilities and types
+├── package.json      # Root workspace configuration
+└── turbo.json        # Turborepo configuration
+```
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   {{config.packageManager}} install
+   ```
+
+2. Start development servers:
+   ```bash
+   {{config.packageManager}} run dev
+   ```
+
+   This will start:
+   - Frontend: http://localhost:3000
+   - Backend: http://localhost:3001
+
+## Available Scripts
+
+- `{{config.packageManager}} run dev` - Start development servers
+- `{{config.packageManager}} run build` - Build all applications
+- `{{config.packageManager}} run start` - Start production servers
+- `{{config.packageManager}} run lint` - Lint all packages
+- `{{config.packageManager}} run type-check` - Type check all packages
+
+## Tech Stack
+
+### Frontend (apps/web)
+- **Framework**: {{config.framework}}
+- **Styling**: {{config.styling}}
+{{#if config.uiLibrary}}- **UI Library**: {{config.uiLibrary}}{{/if}}
+{{#if config.typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
+
+### Backend (apps/api)
+- **Framework**: {{config.backend}}
+{{#if config.database}}- **Database**: {{config.database}}{{/if}}
+{{#if config.orm}}- **ORM**: {{config.orm}}{{/if}}
+{{#if config.typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
+
+### Shared (packages/shared)
+- Shared types and utilities
+- Common constants and helpers
+
+## Deployment
+
+Each application can be deployed independently:
+
+- **Frontend**: Deploy `apps/web` to Vercel, Netlify, or similar
+- **Backend**: Deploy `apps/api` to Railway, Render, or similar
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests and linting
+4. Submit a pull request
+
+## License
+
+MIT

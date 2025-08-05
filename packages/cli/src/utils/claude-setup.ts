@@ -419,5 +419,3 @@ async function addToGitignore(projectPath: string, entry: string): Promise<void>
     consola.debug("Failed to update .gitignore:", error);
   }
 }
-
-

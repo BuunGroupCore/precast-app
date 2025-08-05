@@ -1,19 +1,15 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import {
   FaRocket,
   FaClock,
-  FaCode,
-  FaCog,
   FaLightbulb,
   FaUsers,
   FaArrowLeft,
   FaCheckCircle,
   FaTimesCircle,
   FaBolt,
-  FaFrown,
-  FaSmile,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export function OriginStoryPage() {
   const navigate = useNavigate();
@@ -60,8 +56,8 @@ export function OriginStoryPage() {
           <div className="speech-bubble max-w-4xl mx-auto mb-12">
             <p className="font-comic text-xl md:text-2xl">
               <FaRocket className="inline text-comic-red mr-2" />
-              Every superhero has an origin story. Here's how <strong>PRECAST</strong> was born from
-              the frustration of repetitive development setup and the dream of
+              Every superhero has an origin story. Here&apos;s how <strong>PRECAST</strong> was born
+              from the frustration of repetitive development setup and the dream of
               <span className="text-comic-red font-bold"> LIGHTNING-FAST PROJECT CREATION!</span>
             </p>
           </div>

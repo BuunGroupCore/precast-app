@@ -11,6 +11,12 @@ export async function generateBackendTemplate(
   config: ProjectConfig,
   projectPath: string
 ) {
+  // Skip generation for next-api as it's integrated into Next.js
+  if (backend === "next-api") {
+    consola.info("Next.js API routes are integrated into the Next.js framework");
+    return;
+  }
+
   const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);
 

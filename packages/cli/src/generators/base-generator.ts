@@ -21,7 +21,8 @@ export async function generateBaseTemplate(
   const pluginManager = getPluginManager();
 
   // Check if this should be a monorepo (both frontend and backend)
-  const isMonorepo = config.backend && config.backend !== "none";
+  // Note: next-api is integrated into Next.js, so it's not a monorepo
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
   const context = {
     config,

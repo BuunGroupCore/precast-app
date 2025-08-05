@@ -6,13 +6,13 @@ on:
     paths:
       - 'packages/cli/**'
       - 'packages/shared/**'
-      - '.github/workflows/test.yml'
+      - '.github/workflows/cli-test.yml'
   pull_request:
     branches: [main]
     paths:
       - 'packages/cli/**'
       - 'packages/shared/**'
-      - '.github/workflows/test.yml'
+      - '.github/workflows/cli-test.yml'
 
 jobs:
   test:

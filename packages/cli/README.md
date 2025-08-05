@@ -1,232 +1,227 @@
-# Create Precast App - Modern CLI Architecture
+# create-precast-app
 
-A powerful, extensible CLI for scaffolding modern web applications with a template-based architecture.
+CLI tool for scaffolding full-stack web applications with modern frameworks and tools.
 
-## ✨ Features
+## Features
 
-- 🎯 **Template-Based Generation** - Handlebars templates for maintainable code generation
-- 🔌 **Plugin System** - Extensible architecture with lifecycle hooks
-- ✅ **Smart Validation** - Configuration compatibility checking with helpful errors
-- 🎨 **Beautiful CLI** - Modern prompts with progress indicators
-- 🐳 **Docker Support** - Optional containerization for databases and apps
-- 🧪 **Comprehensive Testing** - Test suite for all configuration combinations
+- **Multi-framework support** - React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Remix, Astro, Vite, and Vanilla JS
+- **Backend integration** - Express, Fastify, Hono, NestJS, Koa, or Next.js API Routes
+- **Database setup** - PostgreSQL, MySQL, MongoDB, SQLite with Prisma or Drizzle ORM
+- **Authentication** - Auth.js or Better Auth with social providers
+- **UI libraries** - Shadcn/ui, DaisyUI, Material UI, Chakra UI, Ant Design
+- **Claude Code integration** - Automatic .claude folder setup with project-specific configurations
+- **Smart package manager handling** - Detects and handles Bun compatibility issues automatically
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Interactive mode
-npx create-precast-app
+npx create-precast-app@latest
 
 # With options
 npx create-precast-app my-app --framework react --backend express --database postgres
 
-# Skip all prompts
+# Skip all prompts with defaults
 npx create-precast-app my-app -y
 ```
 
-## 📋 Available Options
+## Available Options
 
 ### Frameworks
-- `react` - React with Vite
-- `vue` - Vue 3 (coming soon)
-- `angular` - Angular (coming soon)
-- `next` - Next.js (coming soon)
-- `nuxt` - Nuxt 3 (coming soon)
-- `svelte` - SvelteKit (coming soon)
-- `solid` - SolidJS (coming soon)
-- `astro` - Astro (coming soon)
+
+- `react` - React 18 with Vite
+- `vue` - Vue 3 with Vite
+- `angular` - Angular 17+
+- `next` - Next.js 14 App Router
+- `nuxt` - Nuxt 3
+- `svelte` - SvelteKit
+- `solid` - SolidJS
+- `remix` - Remix
+- `astro` - Astro
+- `vite` - Vanilla Vite
+- `vanilla` - Vanilla JavaScript/TypeScript
 
 ### Backends
+
 - `express` - Express.js server
 - `fastify` - Fastify server
 - `hono` - Hono server
+- `nestjs` - NestJS framework
+- `koa` - Koa server
+- `nextjs-api` - Next.js API Routes
 - `none` - Frontend only
 
 ### Databases
+
 - `postgres` - PostgreSQL
 - `mysql` - MySQL
 - `mongodb` - MongoDB
 - `sqlite` - SQLite
-- `supabase` - Supabase
-- `firebase` - Firebase
 - `none` - No database
 
 ### ORMs
+
 - `prisma` - Prisma ORM (SQL databases + MongoDB)
 - `drizzle` - Drizzle ORM (SQL databases)
-- `mongoose` - Mongoose (MongoDB only)
 - `none` - No ORM
 
 ### Styling
+
 - `tailwind` - Tailwind CSS
 - `css` - Plain CSS
 - `scss` - SCSS/Sass
-- `styled-components` - Styled Components
+
+### UI Libraries
+
+- `shadcn` - shadcn/ui components
+- `daisyui` - DaisyUI components
+- `mui` - Material UI
+- `chakra` - Chakra UI
+- `ant` - Ant Design
+- `none` - No UI library
+
+### Authentication
+
+- `auth.js` - Auth.js (NextAuth v5)
+- `better-auth` - Better Auth
+- `none` - No authentication
 
 ### Additional Options
+
 - `--typescript` / `--no-typescript` - TypeScript support (default: true)
 - `--git` / `--no-git` - Initialize git repository (default: true)
+- `--install` / `--no-install` - Install dependencies after creation
+- `--ai` - Include AI context files (.claude, cursor, etc)
 - `--docker` - Include Docker configuration
-- `--install` - Install dependencies after creation
+- `--eslint` - Add ESLint configuration
+- `--prettier` - Add Prettier configuration
+- `--mcp` - Add Model Context Protocol configuration
 - `--pm <manager>` - Package manager (npm, yarn, pnpm, bun)
+- `-y, --yes` - Skip prompts and use defaults
 
-## 🔐 Security Features
+## Command Line Usage
 
-- **Automatic vulnerability scanning** - Runs security audits after dependency installation
-- **Auto-fix vulnerabilities** - Attempts to fix security issues automatically
-- **Secure dependency versions** - All templates use the latest secure versions
-- **esbuild vulnerability mitigation** - Automatic overrides for CVE-2024-23334
-- **Weekly dependency updates** - Automated PRs for security updates
-- **Build-time security checks** - Security audit runs during build process
+```bash
+# Create a new project
+create-precast-app [project-name] [options]
 
-See [SECURITY.md](./docs/SECURITY.md) for more details.
+# Add features to existing project
+create-precast-app add [feature] [options]
 
-## 🏗️ Architecture
+# Show version
+create-precast-app --version
+
+# Show help
+create-precast-app --help
+```
+
+## Project Structure
 
 ```
 packages/cli/
 ├── src/
-│   ├── core/                    # Core systems
-│   │   ├── template-engine.ts   # Handlebars template processor
-│   │   ├── plugin-manager.ts    # Plugin lifecycle management
-│   │   └── config-validator.ts  # Configuration validation
-│   ├── templates/               # Template files
-│   │   ├── frameworks/          # Framework-specific templates
-│   │   │   └── react/          # React templates
-│   │   ├── features/           # Feature templates
-│   │   │   ├── auth/          # Authentication
-│   │   │   ├── testing/       # Testing setup
-│   │   │   └── database/      # Database configs
-│   │   └── base/              # Common templates
-│   ├── generators/             # Template generators
-│   ├── commands/               # CLI commands
-│   └── plugins/                # Built-in plugins
+│   ├── commands/        # CLI commands (init, add)
+│   ├── generators/      # Framework generators
+│   ├── templates/       # Handlebars templates
+│   ├── utils/           # Utilities (auth, package manager, etc)
+│   └── cli.ts          # Main entry point
+├── tests/              # Vitest test files
+├── dist/               # Built output
+└── package.json
 ```
 
-## 🗄️ Database Configuration
-
-### How It Works
+## Database Configuration
 
 When you select a database, the CLI:
 
-1. **Validates** ORM compatibility
-2. **Generates** connection configuration in `.env.example`
-3. **Adds** required dependencies
-4. **Creates** configuration files (Prisma schema, Drizzle config, etc.)
-5. **Sets up** Docker Compose (if Docker enabled)
+- Validates ORM compatibility
+- Generates connection configuration in `.env.example`
+- Adds required dependencies
+- Creates configuration files (Prisma schema, Drizzle config, etc.)
+- Sets up Docker Compose (if Docker enabled)
 
-### PostgreSQL Example
+### Example: PostgreSQL with Prisma
 
-When you select PostgreSQL with Prisma:
+Generated files include:
 
-#### Generated `.env.example`:
-```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/myapp
+- `.env.example` with `DATABASE_URL`
+- `docker-compose.yml` for local development
+- Database scripts in `package.json`:
+  - `db:generate` - Generate Prisma client
+  - `db:migrate` - Run migrations
+  - `db:push` - Push schema changes
+  - `db:studio` - Open Prisma Studio
+
+### Database Setup
+
+```bash
+# Using Docker (recommended)
+docker-compose up -d
+npm run db:migrate
+
+# Using local database
+# 1. Install your database
+# 2. Update DATABASE_URL in .env
+# 3. Run migrations
 ```
 
-#### Generated `docker-compose.yml`:
-```yaml
-services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: myapp
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-```
-
-#### Generated Scripts in `package.json`:
-```json
-{
-  "scripts": {
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:push": "prisma db push",
-    "db:studio": "prisma studio"
-  }
-}
-```
-
-### Setting Up Your Database
-
-1. **Using Docker (Recommended)**:
-   ```bash
-   # Start database
-   docker-compose up -d
-
-   # Run migrations
-   npm run db:migrate
-   ```
-
-2. **Using Local Database**:
-   - Install PostgreSQL/MySQL/MongoDB
-   - Update DATABASE_URL in `.env`
-   - Run migrations
-
-## 🧪 Testing
+## Testing
 
 ### Running Tests
 
 ```bash
 # Build the CLI
-npm run build
+bun run build
 
 # Run all tests
-npm test
+bun test
 
-# Run specific test
-npm test -- --grep "PostgreSQL"
+# Generate test combinations
+bun smart-test-generator.ts
+
+# Run tests with coverage
+bun test --coverage
 ```
 
 ### Test Coverage
 
 The test suite covers:
-- ✅ All framework combinations
-- ✅ All database + ORM combinations
-- ✅ TypeScript/JavaScript generation
-- ✅ All styling options
-- ✅ Docker configuration
-- ✅ Git initialization
-- ✅ Validation rules
 
-## 🔧 Extending the CLI
+- All framework combinations
+- Database and ORM compatibility
+- TypeScript/JavaScript generation
+- Styling options
+- Authentication setups
+- UI library integrations
+- Package manager handling
 
-See [EXPANSION-GUIDE.md](./EXPANSION-GUIDE.md) for detailed instructions on:
-- Adding new frameworks
-- Creating feature templates
-- Writing plugins
-- Testing new options
+## Development
 
-### Quick Example: Adding a Feature
+### Building from Source
 
-1. Create template structure:
-   ```
-   src/templates/features/auth/
-   ├── react/
-   │   ├── src/
-   │   │   ├── components/
-   │   │   │   └── LoginForm.tsx.hbs
-   │   │   └── hooks/
-   │   │       └── useAuth.ts.hbs
-   │   └── package.json.hbs
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/BuunGroupCore/precast-app.git
+cd precast-app/packages/cli
 
-2. Update generator to use templates:
-   ```typescript
-   await templateEngine.processConditionalTemplates([
-     {
-       condition: config.auth === true,
-       sourceDir: "features/auth/react",
-       destDir: "src",
-     }
-   ], projectPath, config);
-   ```
+# Install dependencies
+bun install
 
-## 📚 Template System
+# Build the CLI
+bun run build
+
+# Test locally
+./dist/cli.js init test-project
+```
+
+### Adding New Frameworks
+
+1. Create a generator file in `src/generators/[framework]-template.ts`
+2. Add templates in `src/templates/frameworks/[framework]/`
+3. Update framework definitions in `shared/stack-config.ts`
+4. Add tests for the new framework
+
+## Template System
 
 ### Handlebars Helpers
 
@@ -247,6 +242,7 @@ See [EXPANSION-GUIDE.md](./EXPANSION-GUIDE.md) for detailed instructions on:
 ```
 
 ### Available Helpers
+
 - `eq` - Equality check
 - `and`, `or`, `not` - Logical operators
 - `includes` - Array includes
@@ -254,53 +250,48 @@ See [EXPANSION-GUIDE.md](./EXPANSION-GUIDE.md) for detailed instructions on:
 - `capitalize` - Capitalize string
 - `kebabCase` - Convert to kebab-case
 
-## 🤝 Contributing
+## Contributing
 
-1. Fork the repository
-2. Create your feature branch
-3. Add tests for new features
-4. Ensure all tests pass
-5. Submit a pull request
+Contributions are welcome! Please ensure all tests pass before submitting a pull request.
 
-## 📝 License
+## License
 
 MIT
 
----
+## Package Manager Support
 
-## Comparison with Original
+The CLI automatically detects your preferred package manager and handles compatibility issues:
 
-### Old Approach (String-based)
-```typescript
-function generatePackageJson(config) {
-  return JSON.stringify({
-    name: config.name,
-    dependencies: {
-      react: "^18.2.0",
-      ...(config.styling === "tailwind" && {
-        tailwindcss: "^3.0.0"
-      })
-    }
-  }, null, 2);
-}
-```
+- **Bun** - Uses `--ignore-scripts` flag to avoid postinstall script failures
+- **npm** - Standard npm with automatic vulnerability fixing
+- **Yarn** - Classic Yarn support
+- **pnpm** - Efficient disk space usage
 
-### New Approach (Template-based)
-```handlebars
-{
-  "name": "{{name}}",
-  "dependencies": {
-    "react": "^18.3.1"
-    {{#if (eq styling "tailwind")}}
-    ,"tailwindcss": "^3.4.0"
-    {{/if}}
-  }
-}
-```
+### Bun Compatibility
 
-### Benefits
-- ✅ Easier to maintain
-- ✅ Version control friendly
-- ✅ No string escaping issues
-- ✅ Better IDE support
-- ✅ Reusable templates
+When using Bun, the CLI automatically adds `--ignore-scripts` to avoid issues with packages that have postinstall scripts (like esbuild, prisma, sharp). This ensures smooth installation without manual intervention.
+
+## Claude Code Integration
+
+Every generated project includes:
+
+- `.claude/settings.json` - Project-specific permissions and configuration
+- `CLAUDE.md` - Comprehensive project context for Claude
+- MCP configuration for enhanced Claude Code features
+- Framework-specific permissions (e.g., WebFetch for documentation sites)
+
+## Troubleshooting
+
+### Installation Issues
+
+If you encounter installation errors:
+
+1. **With Bun**: The CLI automatically uses `--ignore-scripts`. If issues persist, try using npm instead.
+2. **Permission errors**: Run with `sudo` on Unix systems or as Administrator on Windows
+3. **Network issues**: Check your internet connection and proxy settings
+
+### Common Issues
+
+- **"Command not found"**: Ensure npx is installed or install globally with `npm i -g create-precast-app`
+- **Template errors**: Update to the latest version with `npm update create-precast-app`
+- **Database connection**: Ensure Docker is running if using containerized databases

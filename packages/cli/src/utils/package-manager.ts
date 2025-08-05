@@ -160,6 +160,12 @@ export async function installDependencies(
       }
     }
 
+    // For Bun, add --ignore-scripts flag to avoid postinstall script failures
+    if (pm.id === "bun" && !args.includes("--ignore-scripts")) {
+      args.push("--ignore-scripts");
+      consola.info("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
+    }
+
     await execa(pm.id, args, {
       cwd: options.projectPath,
       stdio: "inherit",
@@ -241,7 +247,11 @@ export async function installAllDependencies(options: {
   };
 
   // Check if this is a workspace and scan all package.json files for problematic packages
-  let shouldFallbackFromBun = false;
+  const shouldFallbackFromBun = false;
+
+  // NOTE: Automatic fallback is disabled since we now use --ignore-scripts with Bun
+  // This code is kept for reference but not executed
+  /*
   if (pm.id === "bun") {
     try {
       const fs = await import("fs-extra");
@@ -336,6 +346,7 @@ export async function installAllDependencies(options: {
       // If we can't read package.json files, continue with normal flow
     }
   }
+  */
 
   // If we detected problematic packages, use npm instead of bun immediately
   let actualPackageManager = pm.id;
@@ -355,7 +366,14 @@ export async function installAllDependencies(options: {
   consola.info(`${actualPmIcon} Installing all dependencies with ${actualPm.id}...`);
 
   try {
-    await execa(actualPm.id, ["install"], {
+    // For Bun, use --ignore-scripts to avoid postinstall script failures
+    const installArgs = ["install"];
+    if (actualPm.id === "bun") {
+      installArgs.push("--ignore-scripts");
+      consola.info("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
+    }
+
+    await execa(actualPm.id, installArgs, {
       cwd: options.projectPath,
       stdio: "inherit",
     });

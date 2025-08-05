@@ -152,7 +152,7 @@ export async function addSecurityOverridesToProject(
 ): Promise<void> {
   const packageJsonPath = path.join(projectPath, "package.json");
 
-  if (!(await fsExtra.pathExists(packageJsonPath))) {
+  if (!(await pathExists(packageJsonPath))) {
     return;
   }
 

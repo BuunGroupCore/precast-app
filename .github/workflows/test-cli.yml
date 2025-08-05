@@ -1,0 +1,240 @@
+name: CLI Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'packages/cli/**'
+      - 'packages/shared/**'
+      - '.github/workflows/test-cli.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+      - 'packages/cli/**'
+      - 'packages/shared/**'
+      - '.github/workflows/test-cli.yml'
+  schedule:
+    # Run comprehensive tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Test type to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - quick
+          - standard
+          - comprehensive
+          - all
+
+jobs:
+  # Quick tests for PRs - runs first for fast feedback
+  quick-tests:
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.test_type != 'comprehensive')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+            
+      - name: Install dependencies
+        run: bun install
+        working-directory: packages/cli
+        
+      - name: Build CLI
+        run: bun run build
+        working-directory: packages/cli
+        
+      - name: Run linting
+        run: bun run lint
+        working-directory: packages/cli
+        
+      - name: Run type checking  
+        run: bun run typecheck
+        working-directory: packages/cli
+        
+      - name: Run quick tests
+        run: |
+          # Test basic CLI functionality
+          node dist/cli.js --help
+          node dist/cli.js --version
+          
+          # Create and verify a simple project
+          node dist/cli.js init quick-test --framework=react --backend=none --database=none --orm=none --styling=css --runtime=node --no-git --yes
+          test -d quick-test
+          test -f quick-test/package.json
+          test -f quick-test/precast.jsonc
+          rm -rf quick-test
+        working-directory: packages/cli
+
+  # Standard tests - runs on push and scheduled
+  standard-tests:
+    if: github.event_name != 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.test_type != 'quick')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+        
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install
+        working-directory: packages/cli
+        
+      - name: Build CLI
+        run: bun run build
+        working-directory: packages/cli
+        
+      - name: Run type checking
+        run: bun run typecheck
+        working-directory: packages/cli
+        
+      - name: Run linting
+        run: bun run lint
+        working-directory: packages/cli
+        
+      - name: Generate smart test combinations
+        run: bun smart-test-generator.ts
+        working-directory: packages/cli
+        
+      - name: Run unit tests with Vitest
+        run: bun test
+        working-directory: packages/cli
+        
+      - name: Generate test report
+        run: bun tests/test-reporter.ts
+        working-directory: packages/cli
+        if: always()
+        
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-node-${{ matrix.node-version }}
+          path: |
+            packages/cli/test-report.json
+            packages/cli/test-report.md
+          
+      - name: Test CLI direct execution
+        run: |
+          # Test help command
+          node dist/cli.js --help
+          
+          # Test version command
+          node dist/cli.js --version
+          
+          # Test basic project creation
+          node dist/cli.js init ci-test-basic --framework=react --backend=none --database=none --orm=none --styling=tailwind --runtime=node --no-git --yes
+          
+          # Verify project was created
+          test -d ci-test-basic
+          test -f ci-test-basic/package.json
+          test -f ci-test-basic/precast.jsonc
+          
+          # Test monorepo project creation
+          node dist/cli.js init ci-test-monorepo --framework=react --backend=express --database=postgres --orm=prisma --styling=tailwind --runtime=node --no-git --yes
+          
+          # Verify monorepo structure
+          test -d ci-test-monorepo/apps
+          test -d ci-test-monorepo/packages
+          test -f ci-test-monorepo/turbo.json
+          test -f ci-test-monorepo/precast.jsonc
+          
+          # Cleanup
+          rm -rf ci-test-basic ci-test-monorepo
+        working-directory: packages/cli
+
+  # Comprehensive cross-platform tests - runs on schedule or manual trigger
+  cross-platform-tests:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.test_type == 'comprehensive' || inputs.test_type == 'all'))
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18, 20]
+        
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install
+        working-directory: packages/cli
+        
+      - name: Build CLI
+        run: bun run build
+        working-directory: packages/cli
+        
+      - name: Test CLI commands
+        run: |
+          node dist/cli.js --help
+          node dist/cli.js --version
+          node dist/cli.js init xplat-test --framework=react --backend=none --database=none --orm=none --styling=css --runtime=node --no-git --yes
+          test -d xplat-test
+          test -f xplat-test/package.json
+          test -f xplat-test/precast.jsonc
+          rm -rf xplat-test
+        working-directory: packages/cli
+        shell: bash
+
+  # Summary job for PR comments
+  test-summary:
+    if: always() && github.event_name == 'pull_request'
+    needs: [quick-tests]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Post test summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = core.summary
+              .addHeading('CLI Test Results')
+              .addRaw(`✅ Quick tests: ${{ needs.quick-tests.result }}`)
+              .addBreak()
+              .addRaw('For comprehensive tests, merge to main or run manually');
+              
+            await summary.write();

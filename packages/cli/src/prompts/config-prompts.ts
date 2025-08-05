@@ -118,8 +118,8 @@ export async function gatherProjectConfig(
     } catch (error: any) {
       // Handle EPERM or other stdin errors (common with bun create)
       if (error.code === "EPERM" || error.errno === -1) {
-        log.warn("Unable to read input. Using default value (git: true)");
-        log.info("You can disable git with --no-git flag");
+        consola.warn("Unable to read input. Using default value (git: true)");
+        consola.info("You can disable git with --no-git flag");
         git = true;
       } else {
         throw error;

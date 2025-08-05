@@ -52,7 +52,12 @@ export const PACKAGE_MANAGERS: Record<PackageManager, PackageManagerConfig> = {
   },
 };
 
-export function getPackageManagerConfig(packageManager: string): PackageManagerConfig {
+export /**
+ * Get the configuration for a specific package manager
+ * @param packageManager - The package manager name
+ * @returns The package manager configuration
+ */
+function getPackageManagerConfig(packageManager: string): PackageManagerConfig {
   const pm = packageManager as PackageManager;
   const config = PACKAGE_MANAGERS[pm];
   if (!config) {
@@ -62,8 +67,11 @@ export function getPackageManagerConfig(packageManager: string): PackageManagerC
   return config;
 }
 
+/**
+ * Detect which package manager to use based on lock files and availability
+ * @returns The detected package manager
+ */
 export async function detectPackageManager(): Promise<PackageManager> {
-  // Check for lock files in order of preference
   const fs = await import("fs-extra");
 
   if (await fs.pathExists("bun.lockb")) return "bun";

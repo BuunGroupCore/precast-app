@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Precast Configuration",
+  "description": "Configuration file for Precast projects",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the Precast CLI that created this project"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the project was created"
+    },
+    "framework": {
+      "type": "string",
+      "enum": ["react", "vue", "angular", "next", "nuxt", "svelte", "solid", "remix", "astro", "vite", "vanilla"],
+      "description": "Frontend framework used in the project"
+    },
+    "language": {
+      "type": "string",
+      "enum": ["typescript", "javascript"],
+      "description": "Programming language"
+    },
+    "backend": {
+      "type": "string",
+      "enum": ["express", "fastify", "hono", "nestjs", "koa", "nextjs-api", "none"],
+      "description": "Backend framework"
+    },
+    "database": {
+      "type": "string",
+      "enum": ["postgres", "mysql", "mongodb", "sqlite", "none"],
+      "description": "Database system"
+    },
+    "orm": {
+      "type": "string",
+      "enum": ["prisma", "drizzle", "none"],
+      "description": "Object-Relational Mapping library"
+    },
+    "styling": {
+      "type": "string",
+      "enum": ["tailwind", "css", "scss"],
+      "description": "Styling solution"
+    },
+    "uiLibrary": {
+      "type": "string",
+      "enum": ["shadcn", "daisyui", "mui", "chakra", "ant", "none"],
+      "description": "UI component library"
+    },
+    "typescript": {
+      "type": "boolean",
+      "description": "Whether TypeScript is enabled"
+    },
+    "git": {
+      "type": "boolean",
+      "description": "Whether Git repository was initialized"
+    },
+    "docker": {
+      "type": "boolean",
+      "description": "Whether Docker configuration was included"
+    },
+    "packageManager": {
+      "type": "string",
+      "enum": ["npm", "yarn", "pnpm", "bun"],
+      "description": "Package manager used for the project"
+    },
+    "aiAssistance": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI assistance tools configured"
+    },
+    "addons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional features or plugins installed"
+    }
+  },
+  "required": ["version", "createdAt", "framework", "language", "typescript", "git", "packageManager"],
+  "additionalProperties": false
+}

@@ -3,7 +3,7 @@ import path from "node:path";
 import fsExtra from "fs-extra";
 import * as JSONC from "jsonc-parser";
 
-import type { ProjectConfig } from "../types";
+import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { getPackageVersion } from "./package-utils";
 
@@ -28,6 +28,10 @@ export interface PrecastConfig {
   addons?: string[];
 }
 
+/**
+ * Write the precast configuration file to the project directory
+ * @param projectConfig - The project configuration to write
+ */
 export async function writePrecastConfig(projectConfig: ProjectConfig) {
   const precastConfig: PrecastConfig = {
     version: await getPackageVersion(),
@@ -48,7 +52,7 @@ export async function writePrecastConfig(projectConfig: ProjectConfig) {
   };
 
   const baseContent = {
-    $schema: "https://precast.dev/schema.json",
+    $schema: "https://precast.dev/precast.schema.json",
     ...precastConfig,
   };
 
@@ -62,16 +66,17 @@ export async function writePrecastConfig(projectConfig: ProjectConfig) {
 
   configContent = JSONC.applyEdits(configContent, formatResult);
 
-  const finalContent = `// Precast configuration file
-// This file tracks your project configuration
-// Safe to modify or delete
-
-${configContent}`;
+  const finalContent = `${configContent}`;
 
   const configPath = path.join(projectConfig.projectPath, PRECAST_CONFIG_FILE);
   await fsExtra.writeFile(configPath, finalContent, "utf-8");
 }
 
+/**
+ * Read the precast configuration file from a project directory
+ * @param projectDir - The directory to read the configuration from
+ * @returns The precast configuration or null if not found
+ */
 export async function readPrecastConfig(projectDir: string): Promise<PrecastConfig | null> {
   try {
     const configPath = path.join(projectDir, PRECAST_CONFIG_FILE);
@@ -99,6 +104,11 @@ export async function readPrecastConfig(projectDir: string): Promise<PrecastConf
   }
 }
 
+/**
+ * Update the precast configuration file with partial updates
+ * @param projectDir - The directory containing the configuration file
+ * @param updates - Partial configuration updates to apply
+ */
 export async function updatePrecastConfig(
   projectDir: string,
   updates: Partial<Pick<PrecastConfig, "uiLibrary" | "aiAssistance" | "addons">>
@@ -131,6 +141,11 @@ export async function updatePrecastConfig(
   }
 }
 
+/**
+ * Detect if a directory is a precast project and return its configuration
+ * @param projectDir - The directory to check
+ * @returns The project configuration or null if not a precast project
+ */
 export async function detectPrecastProject(projectDir: string): Promise<ProjectConfig | null> {
   const config = await readPrecastConfig(projectDir);
 
@@ -143,14 +158,14 @@ export async function detectPrecastProject(projectDir: string): Promise<ProjectC
     name: path.basename(projectDir),
     framework: config.framework,
     language: config.language,
-    backend: config.backend,
-    database: config.database,
-    orm: config.orm,
-    styling: config.styling,
+    backend: config.backend || "none",
+    database: config.database || "none",
+    orm: config.orm || "none",
+    styling: config.styling || "css",
     uiLibrary: config.uiLibrary,
     typescript: config.typescript,
     git: config.git,
-    docker: config.docker,
+    docker: config.docker ?? false,
     packageManager: config.packageManager,
     projectPath: projectDir,
     aiAssistance: config.aiAssistance,

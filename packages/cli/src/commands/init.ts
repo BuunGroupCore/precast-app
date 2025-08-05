@@ -36,6 +36,12 @@ export interface InitOptions {
   packageManager?: "npm" | "yarn" | "pnpm" | "bun";
   auth?: string;
 }
+
+/**
+ * Initialize a new project with the specified configuration
+ * @param projectName - Name of the project to create
+ * @param options - Configuration options for the project
+ */
 export async function initCommand(projectName: string | undefined, options: InitOptions) {
   await displayBanner();
   intro(pc.bgCyan(pc.black(" create-precast-app ")));
@@ -88,6 +94,10 @@ export async function initCommand(projectName: string | undefined, options: Init
     try {
       const { generateTemplate } = await import("../generators/index.js");
       await generateTemplate(config, projectPath);
+
+      const { writePrecastConfig } = await import("../utils/precast-config.js");
+      await writePrecastConfig(config);
+
       s.stop("Project structure created");
 
       // Add security overrides to package.json
@@ -162,6 +172,10 @@ export async function initCommand(projectName: string | undefined, options: Init
     process.exit(1);
   }
 }
+/**
+ * Initialize a git repository in the project directory
+ * @param projectPath - Path to the project directory
+ */
 async function initializeGit(projectPath: string) {
   await execa("git", ["init"], { cwd: projectPath, stdio: "pipe" });
   await execa("git", ["add", "."], { cwd: projectPath, stdio: "pipe" });

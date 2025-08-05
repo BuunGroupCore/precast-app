@@ -3,7 +3,7 @@ import path from "path";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
 
-import type { ProjectConfig } from "../../shared/stack-config.js";
+import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 interface MCPServerConfig {
   command: string;

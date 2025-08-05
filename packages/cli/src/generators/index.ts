@@ -69,7 +69,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     const { setupMCPConfiguration } = await import("../utils/mcp-setup.js");
     await setupMCPConfiguration(projectPath, config);
   } catch (error) {
-    logger.warn("Failed to setup MCP configuration:", error);
+    logger.warn(`Failed to setup MCP configuration: ${error}`);
   }
 
   // Setup additional AI context files if requested

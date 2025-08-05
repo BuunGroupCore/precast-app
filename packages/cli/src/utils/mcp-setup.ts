@@ -275,6 +275,23 @@ export const mcpServers: MCPServer[] = [
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
   },
+
+  // Real Community MCP Servers that exist
+  {
+    id: "docker",
+    name: "Docker MCP Server",
+    description: "Manage Docker containers, images, and compose services",
+    category: "productivity",
+    triggers: {
+      any: false, // Only show when docker is used
+    },
+    config: {
+      server_name: "docker",
+      command: "npx",
+      args: ["-y", "docker-mcp"],
+    },
+    repository: "https://github.com/QuantGeekDev/docker-mcp",
+  },
 ];
 
 export function getRelevantMCPServers(config: ProjectConfig): MCPServer[] {

@@ -1,6 +1,6 @@
 {
   "name": "create-precast-app",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "CLI tool to scaffold modern web applications with your chosen stack",
   "type": "module",
   "main": "./dist/index.js",
@@ -37,13 +37,9 @@
     "pack:test": "echo 'Files that will be published:' && ls -la dist/ && echo 'Plus: README.md, CHANGELOG.md, LICENSE, package.json'",
     "publish:check": "bun run build && echo 'Ready for publishing!'",
     "publish:setup": "./scripts/publish.sh",
-    "test": "bun run build:test && node dist-test/test-runner.js",
-    "test:ci": "bun run build:test && node dist-test/test-runner.js --report-path ./reports/test-results.json",
-    "test:core": "bun run build:test && node dist-test/test-runner.js --suites core",
-    "test:generation": "bun run build:test && node dist-test/test-runner.js --suites generation",
-    "test:report": "bun run build:test && node dist-test/test-runner.js --report-path ./reports/test-report.html --report-format html",
-    "test:tags": "bun run build:test && node dist-test/test-runner.js --tags",
-    "test:verbose": "bun run build:test && node dist-test/test-runner.js --verbose",
+    "test": "bun run build && vitest run",
+    "test:watch": "bun run build && vitest watch",
+    "test:ui": "bun run build && vitest --ui",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
@@ -68,7 +64,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/handlebars": "^4.1.0",
     "@types/inquirer": "^9.0.7",
-    "@types/node": "^20.10.5",
+    "@types/node": "^24.2.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
     "eslint-config-prettier": "^10.1.8",
@@ -79,7 +75,7 @@
     "tsup": "^8.0.1",
     "tsx": "^4.20.3",
     "typescript": "^5.3.3",
-    "vitest": "^1.1.0"
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=18.0.0"

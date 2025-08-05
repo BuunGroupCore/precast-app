@@ -131,7 +131,7 @@ node --inspect-brk -r tsx/cjs src/cli.ts test-app
 Add console logs to templates:
 
 ```handlebars
-{{!-- In package.json.hbs --}}
+{{! In package.json.hbs }}
 {{log "Database:" database}}
 {{log "ORM:" orm}}
 ```
@@ -234,14 +234,14 @@ Test helpers in isolation:
 
 ```javascript
 // test-helpers.js
-import handlebars from 'handlebars';
+import handlebars from "handlebars";
 
 // Register helpers
-handlebars.registerHelper('eq', (a, b) => a === b);
+handlebars.registerHelper("eq", (a, b) => a === b);
 
 // Test
 const template = handlebars.compile('{{#if (eq framework "react")}}React!{{/if}}');
-console.log(template({ framework: 'react' })); // "React!"
+console.log(template({ framework: "react" })); // "React!"
 ```
 
 ## Common Issues
@@ -288,6 +288,7 @@ node --cpu-prof -r tsx/cjs src/cli.ts profile-test -y
 Before releasing:
 
 1. Clean build:
+
    ```bash
    rm -rf dist dist-test node_modules
    npm install
@@ -295,6 +296,7 @@ Before releasing:
    ```
 
 2. Test as a user would:
+
    ```bash
    cd /tmp
    npx /path/to/cli/dist/cli.js test-release

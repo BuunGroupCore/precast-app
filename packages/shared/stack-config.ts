@@ -107,28 +107,45 @@ export const backendDefs: StackOption[] = [
   {
     id: "node",
     name: "Node.js",
-    description: "JavaScript runtime built on Chrome's V8 JavaScript engine",
-    recommended: ["typescript", "express"],
+    description: "JavaScript runtime with Express.js framework",
+    recommended: ["typescript"],
   },
   {
     id: "express",
     name: "Express",
     description: "Fast, unopinionated, minimalist web framework for Node.js",
-    dependencies: ["node"],
     recommended: ["typescript"],
   },
   {
-    id: "fastapi",
-    name: "FastAPI",
-    description: "Modern, fast web framework for building APIs with Python",
-    incompatible: ["typescript"],
-    recommended: ["postgres", "mysql"],
+    id: "fastify",
+    name: "Fastify",
+    description: "Fast and low overhead web framework for Node.js",
+    recommended: ["typescript"],
   },
   {
     id: "hono",
     name: "Hono",
     description: "Ultrafast web framework for the Edges",
-    dependencies: ["node"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "nestjs",
+    name: "NestJS",
+    description: "Progressive Node.js framework for building scalable server-side applications",
+    recommended: ["typescript"],
+    dependencies: ["typescript"],
+  },
+  {
+    id: "koa",
+    name: "Koa",
+    description: "Modern, lightweight web framework created by the Express team",
+    recommended: ["typescript"],
+  },
+  {
+    id: "next-api",
+    name: "Next.js API Routes",
+    description: "API routes with Next.js",
+    dependencies: ["next"],
     recommended: ["typescript"],
   },
   {
@@ -293,13 +310,8 @@ export function validateConfiguration(config: ProjectConfig): {
   const backend = backendDefs.find((b) => b.id === config.backend);
   if (backend?.dependencies) {
     for (const dep of backend.dependencies) {
-      if (
-        dep === "node" &&
-        config.backend !== "node" &&
-        !config.backend.includes("express") &&
-        !config.backend.includes("hono")
-      ) {
-        warnings.push(`${backend.name} is typically used with Node.js`);
+      if (dep === "next" && config.framework !== "next") {
+        errors.push(`${backend.name} requires Next.js framework`);
       }
     }
   }
@@ -329,7 +341,7 @@ export function validateConfiguration(config: ProjectConfig): {
           errors.push(`${orm.name} requires TypeScript`);
         }
         if (dep === "node" && config.backend === "none") {
-          errors.push(`${orm.name} requires a Node.js backend`);
+          errors.push(`${orm.name} requires a backend`);
         }
       }
     }
@@ -350,10 +362,7 @@ export function validateConfiguration(config: ProjectConfig): {
     errors.push(`${styling.name} requires React`);
   }
 
-  // Auto-fix logic
-  if (config.backend === "express" || config.backend === "hono") {
-    config.backend = "node";
-  }
+  // Auto-fix logic - no longer needed as backends are now direct options
 
   return {
     valid: errors.length === 0,

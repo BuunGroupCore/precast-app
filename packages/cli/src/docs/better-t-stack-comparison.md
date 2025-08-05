@@ -7,37 +7,45 @@ Better-T-Stack is a modern TypeScript project scaffolding CLI that offers severa
 ## Key Differences
 
 ### 1. Command Structure
+
 - **Better-T-Stack**: Uses `trpc-cli` for router-based command handling
 - **Precast**: Uses Commander.js for traditional CLI commands
 
 ### 2. Unique Better-T-Stack Features
 
 #### a) Configuration File System
+
 Better-T-Stack creates a `bts.jsonc` configuration file that:
+
 - Tracks project configuration with JSON schema support
 - Allows for project detection and future modifications
 - Includes version tracking and creation timestamp
 
 #### b) Analytics & Telemetry
+
 - Uses PostHog for anonymous usage analytics
 - Tracks project creation patterns
 - Respects user privacy with opt-out mechanism
 
 #### c) Monorepo Support
+
 - Built-in Turborepo integration
 - Multiple app support (web, native, backend)
 - Shared packages structure
 
 #### d) React Native/Expo Support
+
 - Offers `native-nativewind` and `native-unistyles` options
 - Full mobile app scaffolding
 
 #### e) Advanced Backend Options
+
 - Convex (serverless backend)
 - Cloudflare Workers deployment
 - Multiple runtime options (Bun, Node, Workers)
 
 #### f) Database Hosting Integration
+
 - Pre-configured setups for:
   - Turso
   - Neon
@@ -47,18 +55,22 @@ Better-T-Stack creates a `bts.jsonc` configuration file that:
   - Prisma Postgres
 
 #### g) Documentation Frameworks
+
 - Starlight (Astro-based)
 - Fumadocs (Next.js-based)
 
 #### h) Example Templates
+
 - Todo app example
 - AI integration example with Vercel AI SDK
 
 #### i) Web Builder
+
 - Online project configuration builder at better-t-stack.dev/new
 - Generates CLI command from web interface
 
 #### j) Better Auth Integration
+
 - Custom authentication library integration
 - Pre-configured auth flows
 
@@ -67,6 +79,7 @@ Better-T-Stack creates a `bts.jsonc` configuration file that:
 ### High Priority Improvements
 
 1. **Add Configuration File System**
+
    ```typescript
    // precast.jsonc
    {
@@ -134,21 +147,25 @@ Better-T-Stack creates a `bts.jsonc` configuration file that:
 ## Implementation Plan
 
 ### Phase 1: Core Infrastructure
+
 1. Implement configuration file system
 2. Add project detection logic
 3. Create `precast add` command
 
 ### Phase 2: Expand Options
+
 1. Add serverless backend options
 2. Implement database hosting presets
 3. Add monorepo support
 
 ### Phase 3: Advanced Features
+
 1. Build web configurator
 2. Add mobile app templates
 3. Implement example templates
 
 ### Phase 4: Polish
+
 1. Add analytics (if desired)
 2. Create comprehensive docs
 3. Build community templates
@@ -156,6 +173,7 @@ Better-T-Stack creates a `bts.jsonc` configuration file that:
 ## Code Quality Observations
 
 Better-T-Stack demonstrates several good practices:
+
 - Clear separation of concerns
 - Modular setup functions
 - Comprehensive error handling

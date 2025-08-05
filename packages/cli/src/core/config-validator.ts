@@ -23,7 +23,7 @@ export class ConfigValidator {
       name: "next-requires-react",
       check: (config) => {
         if (config.framework === "next") {
-          return true; // Next.js is React-based, so this is always valid
+          return true;
         }
         return true;
       },
@@ -45,7 +45,7 @@ export class ConfigValidator {
       name: "prisma-sqlite-warning",
       check: (config) => {
         if (config.orm === "prisma" && config.database === "sqlite") {
-          return false; // This will trigger a warning
+          return false;
         }
         return true;
       },

@@ -1,0 +1,764 @@
+// Auto-generated smart test combinations
+// Generated: 2025-08-05T06:54:51.732Z
+// 
+// 📊 Smart Test Suite Analysis
+// ============================
+// 
+// Total Combinations: 30
+// Estimated Duration: 4 minutes
+// 
+// By Category:
+// - Critical: 9 tests (30%)
+// - Common: 6 tests (20%)
+// - Edge Cases: 5 tests (17%)
+// - Experimental: 3 tests (10%)
+// - Random: 7 tests (23%)
+// 
+// By Technology:
+// - TypeScript: 23 tests
+// - JavaScript: 7 tests
+// - Full-Stack: 20 tests
+// - Frontend-Only: 5 tests
+// 
+// Recommended Test Orders:
+// 1. Quick Smoke Test: Run 'critical' tests (9 tests, ~1 min)
+// 2. Standard CI: Run 'critical' + 'common' (15 tests, ~2 min)
+// 3. Full Regression: Run all tests (30 tests, ~4 min)
+// 
+
+export const SMART_TEST_COMBINATIONS = {
+  critical: [
+  {
+    "framework": "react",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-frontend-only",
+    "category": "critical",
+    "expectedDuration": 5000
+  },
+  {
+    "framework": "react",
+    "backend": "express",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-express-postgres",
+    "category": "critical",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "react",
+    "backend": "nestjs",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-nestjs-postgres",
+    "category": "critical",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "next",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "next-frontend-only",
+    "category": "critical",
+    "expectedDuration": 6000
+  },
+  {
+    "framework": "next",
+    "backend": "next-api",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "next-fullstack",
+    "category": "critical",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "vue",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "vue-frontend-only",
+    "category": "critical",
+    "expectedDuration": 5000
+  },
+  {
+    "framework": "vue",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "vue-fastify-postgres",
+    "category": "critical",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "react",
+    "backend": "hono",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-hono-edge",
+    "category": "critical",
+    "expectedDuration": 7000
+  },
+  {
+    "framework": "svelte",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "svelte-fastify-postgres",
+    "category": "critical",
+    "expectedDuration": 8000
+  }
+],
+  common: [
+  {
+    "framework": "react",
+    "backend": "express",
+    "database": "none",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "node",
+    "typescript": false,
+    "name": "react-express-js",
+    "category": "common",
+    "expectedDuration": 6000
+  },
+  {
+    "framework": "vue",
+    "backend": "express",
+    "database": "mongodb",
+    "orm": "none",
+    "styling": "scss",
+    "runtime": "node",
+    "typescript": false,
+    "name": "vue-express-mongodb-js",
+    "category": "common",
+    "expectedDuration": 7000
+  },
+  {
+    "framework": "next",
+    "backend": "koa",
+    "database": "mongodb",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "next-koa-mongodb",
+    "category": "common",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "react",
+    "backend": "express",
+    "database": "mysql",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-express-mysql-drizzle",
+    "category": "common",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "remix",
+    "backend": "express",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "remix-express-postgres",
+    "category": "common",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "astro",
+    "backend": "express",
+    "database": "postgres",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "astro-express-postgres",
+    "category": "common",
+    "expectedDuration": 8000
+  }
+],
+  edge: [
+  {
+    "framework": "vanilla",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "node",
+    "typescript": false,
+    "name": "vanilla-minimal",
+    "category": "edge",
+    "expectedDuration": 4000
+  },
+  {
+    "framework": "vanilla",
+    "backend": "node",
+    "database": "none",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "node",
+    "typescript": false,
+    "name": "vanilla-node-backend",
+    "category": "edge",
+    "expectedDuration": 5000
+  },
+  {
+    "framework": "solid",
+    "backend": "hono",
+    "database": "postgres",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "solid-hono-postgres",
+    "category": "edge",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "svelte",
+    "backend": "koa",
+    "database": "mysql",
+    "orm": "typeorm",
+    "styling": "scss",
+    "runtime": "node",
+    "typescript": true,
+    "name": "svelte-koa-mysql-typeorm",
+    "category": "edge",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "react",
+    "backend": "fastify",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-fastify-api-only",
+    "category": "edge",
+    "expectedDuration": 6000
+  }
+],
+  experimental: [
+  {
+    "framework": "solid",
+    "backend": "hono",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "solid-hono-experimental",
+    "category": "experimental",
+    "expectedDuration": 7000
+  },
+  {
+    "framework": "astro",
+    "backend": "hono",
+    "database": "postgres",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "astro-hono-drizzle",
+    "category": "experimental",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "angular",
+    "backend": "nestjs",
+    "database": "postgres",
+    "orm": "typeorm",
+    "styling": "scss",
+    "runtime": "node",
+    "typescript": true,
+    "name": "angular-nestjs-typeorm",
+    "category": "experimental",
+    "expectedDuration": 10000
+  }
+],
+  random: [
+  {
+    "framework": "astro",
+    "backend": "nestjs",
+    "database": "mongodb",
+    "orm": "typeorm",
+    "styling": "scss",
+    "runtime": "bun",
+    "typescript": true,
+    "name": "random-astro-nestjs-mongodb-0",
+    "category": "experimental",
+    "expectedDuration": 6243.924027591683
+  },
+  {
+    "framework": "vue",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "deno",
+    "typescript": true,
+    "name": "random-vue-fastify-postgres-2",
+    "category": "experimental",
+    "expectedDuration": 8209.635710204177
+  },
+  {
+    "framework": "vanilla",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "typeorm",
+    "styling": "tailwind",
+    "runtime": "aws-lambda",
+    "typescript": true,
+    "name": "random-vanilla-fastify-postgres-3",
+    "category": "experimental",
+    "expectedDuration": 7487.363770934735
+  },
+  {
+    "framework": "nuxt",
+    "backend": "hono",
+    "database": "supabase",
+    "orm": "drizzle",
+    "styling": "css",
+    "runtime": "deno",
+    "typescript": false,
+    "name": "random-nuxt-hono-supabase-4",
+    "category": "experimental",
+    "expectedDuration": 8875.893004192494
+  },
+  {
+    "framework": "solid",
+    "backend": "fastify",
+    "database": "mysql",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "cloudflare-workers",
+    "typescript": false,
+    "name": "random-solid-fastify-mysql-5",
+    "category": "experimental",
+    "expectedDuration": 8512.003912450018
+  },
+  {
+    "framework": "remix",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "styled-components",
+    "runtime": "cloudflare-workers",
+    "typescript": true,
+    "name": "random-remix-none-none-6",
+    "category": "experimental",
+    "expectedDuration": 6323.842334231237
+  },
+  {
+    "framework": "vanilla",
+    "backend": "fastify",
+    "database": "firebase",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "bun",
+    "typescript": false,
+    "name": "random-vanilla-fastify-firebase-7",
+    "category": "experimental",
+    "expectedDuration": 8687.376038078604
+  }
+],
+  all: [
+  {
+    "framework": "react",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-frontend-only",
+    "category": "critical",
+    "expectedDuration": 5000
+  },
+  {
+    "framework": "react",
+    "backend": "express",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-express-postgres",
+    "category": "critical",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "react",
+    "backend": "nestjs",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-nestjs-postgres",
+    "category": "critical",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "next",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "next-frontend-only",
+    "category": "critical",
+    "expectedDuration": 6000
+  },
+  {
+    "framework": "next",
+    "backend": "next-api",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "next-fullstack",
+    "category": "critical",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "vue",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "vue-frontend-only",
+    "category": "critical",
+    "expectedDuration": 5000
+  },
+  {
+    "framework": "vue",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "vue-fastify-postgres",
+    "category": "critical",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "react",
+    "backend": "hono",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-hono-edge",
+    "category": "critical",
+    "expectedDuration": 7000
+  },
+  {
+    "framework": "svelte",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "svelte-fastify-postgres",
+    "category": "critical",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "react",
+    "backend": "express",
+    "database": "none",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "node",
+    "typescript": false,
+    "name": "react-express-js",
+    "category": "common",
+    "expectedDuration": 6000
+  },
+  {
+    "framework": "vue",
+    "backend": "express",
+    "database": "mongodb",
+    "orm": "none",
+    "styling": "scss",
+    "runtime": "node",
+    "typescript": false,
+    "name": "vue-express-mongodb-js",
+    "category": "common",
+    "expectedDuration": 7000
+  },
+  {
+    "framework": "next",
+    "backend": "koa",
+    "database": "mongodb",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "next-koa-mongodb",
+    "category": "common",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "react",
+    "backend": "express",
+    "database": "mysql",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-express-mysql-drizzle",
+    "category": "common",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "remix",
+    "backend": "express",
+    "database": "postgres",
+    "orm": "prisma",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "remix-express-postgres",
+    "category": "common",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "astro",
+    "backend": "express",
+    "database": "postgres",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "astro-express-postgres",
+    "category": "common",
+    "expectedDuration": 8000
+  },
+  {
+    "framework": "vanilla",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "node",
+    "typescript": false,
+    "name": "vanilla-minimal",
+    "category": "edge",
+    "expectedDuration": 4000
+  },
+  {
+    "framework": "vanilla",
+    "backend": "node",
+    "database": "none",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "node",
+    "typescript": false,
+    "name": "vanilla-node-backend",
+    "category": "edge",
+    "expectedDuration": 5000
+  },
+  {
+    "framework": "solid",
+    "backend": "hono",
+    "database": "postgres",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "solid-hono-postgres",
+    "category": "edge",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "svelte",
+    "backend": "koa",
+    "database": "mysql",
+    "orm": "typeorm",
+    "styling": "scss",
+    "runtime": "node",
+    "typescript": true,
+    "name": "svelte-koa-mysql-typeorm",
+    "category": "edge",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "react",
+    "backend": "fastify",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "react-fastify-api-only",
+    "category": "edge",
+    "expectedDuration": 6000
+  },
+  {
+    "framework": "solid",
+    "backend": "hono",
+    "database": "none",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "solid-hono-experimental",
+    "category": "experimental",
+    "expectedDuration": 7000
+  },
+  {
+    "framework": "astro",
+    "backend": "hono",
+    "database": "postgres",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "node",
+    "typescript": true,
+    "name": "astro-hono-drizzle",
+    "category": "experimental",
+    "expectedDuration": 9000
+  },
+  {
+    "framework": "angular",
+    "backend": "nestjs",
+    "database": "postgres",
+    "orm": "typeorm",
+    "styling": "scss",
+    "runtime": "node",
+    "typescript": true,
+    "name": "angular-nestjs-typeorm",
+    "category": "experimental",
+    "expectedDuration": 10000
+  },
+  {
+    "framework": "astro",
+    "backend": "nestjs",
+    "database": "mongodb",
+    "orm": "typeorm",
+    "styling": "scss",
+    "runtime": "bun",
+    "typescript": true,
+    "name": "random-astro-nestjs-mongodb-0",
+    "category": "experimental",
+    "expectedDuration": 6243.924027591683
+  },
+  {
+    "framework": "vue",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "none",
+    "styling": "tailwind",
+    "runtime": "deno",
+    "typescript": true,
+    "name": "random-vue-fastify-postgres-2",
+    "category": "experimental",
+    "expectedDuration": 8209.635710204177
+  },
+  {
+    "framework": "vanilla",
+    "backend": "fastify",
+    "database": "postgres",
+    "orm": "typeorm",
+    "styling": "tailwind",
+    "runtime": "aws-lambda",
+    "typescript": true,
+    "name": "random-vanilla-fastify-postgres-3",
+    "category": "experimental",
+    "expectedDuration": 7487.363770934735
+  },
+  {
+    "framework": "nuxt",
+    "backend": "hono",
+    "database": "supabase",
+    "orm": "drizzle",
+    "styling": "css",
+    "runtime": "deno",
+    "typescript": false,
+    "name": "random-nuxt-hono-supabase-4",
+    "category": "experimental",
+    "expectedDuration": 8875.893004192494
+  },
+  {
+    "framework": "solid",
+    "backend": "fastify",
+    "database": "mysql",
+    "orm": "drizzle",
+    "styling": "tailwind",
+    "runtime": "cloudflare-workers",
+    "typescript": false,
+    "name": "random-solid-fastify-mysql-5",
+    "category": "experimental",
+    "expectedDuration": 8512.003912450018
+  },
+  {
+    "framework": "remix",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "styling": "styled-components",
+    "runtime": "cloudflare-workers",
+    "typescript": true,
+    "name": "random-remix-none-none-6",
+    "category": "experimental",
+    "expectedDuration": 6323.842334231237
+  },
+  {
+    "framework": "vanilla",
+    "backend": "fastify",
+    "database": "firebase",
+    "orm": "none",
+    "styling": "css",
+    "runtime": "bun",
+    "typescript": false,
+    "name": "random-vanilla-fastify-firebase-7",
+    "category": "experimental",
+    "expectedDuration": 8687.376038078604
+  }
+],
+};
+
+export default SMART_TEST_COMBINATIONS;

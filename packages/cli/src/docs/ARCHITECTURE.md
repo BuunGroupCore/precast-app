@@ -7,6 +7,7 @@ We've successfully redesigned your CLI to follow modern best practices inspired 
 ### Key Improvements Implemented
 
 #### 1. **Template Engine System** (`src/core/template-engine.ts`)
+
 - Replaced string concatenation with Handlebars templates
 - Support for conditional template processing
 - Custom helpers for common operations (eq, and, or, includes, etc.)
@@ -14,6 +15,7 @@ We've successfully redesigned your CLI to follow modern best practices inspired 
 - Batch template processing with overwrite protection
 
 #### 2. **Plugin Architecture** (`src/core/plugin-manager.ts`)
+
 - Lifecycle hooks: preGenerate, generate, postGenerate
 - Configuration validation and transformation
 - Install hooks for dependency management
@@ -21,6 +23,7 @@ We've successfully redesigned your CLI to follow modern best practices inspired 
 - Example TypeScript plugin demonstrating the system
 
 #### 3. **Configuration Validator** (`src/core/config-validator.ts`)
+
 - Compatibility rules system
 - Custom validation rules with error/warning severity
 - Recommendations based on partial configuration
@@ -28,6 +31,7 @@ We've successfully redesigned your CLI to follow modern best practices inspired 
 - Helpful error messages
 
 #### 4. **Modern CLI Experience**
+
 - Beautiful prompts using @clack/prompts
 - Progress indicators and spinners
 - Configuration summary display
@@ -35,6 +39,7 @@ We've successfully redesigned your CLI to follow modern best practices inspired 
 - Better error handling and user feedback
 
 #### 5. **Template-Based React Generator**
+
 - Converted from string-based to template-based generation
 - Organized template structure:
   ```
@@ -53,6 +58,7 @@ We've successfully redesigned your CLI to follow modern best practices inspired 
 - Conditional features (TypeScript, styling options, backend integration)
 
 #### 6. **Improved Command Structure**
+
 - New CLI entry point with Commander.js
 - Modular command system (init, add, list)
 - Comprehensive option flags
@@ -61,6 +67,7 @@ We've successfully redesigned your CLI to follow modern best practices inspired 
 ## How It Works
 
 ### Template Processing Flow
+
 1. User runs `create-precast-app my-app`
 2. CLI gathers configuration through prompts or flags
 3. Configuration is validated with helpful warnings
@@ -101,6 +108,7 @@ npx create-precast-app my-app \
 To fully integrate this new architecture:
 
 1. **Update package.json**: Point main entry to new CLI
+
    ```json
    {
      "bin": {
@@ -120,7 +128,7 @@ To fully integrate this new architecture:
 
 4. **Implement Add Command**: Allow adding features to existing projects
 
-5. **Create More Plugins**: 
+5. **Create More Plugins**:
    - ESLint/Prettier setup
    - Git hooks (Husky)
    - Documentation generation
@@ -137,6 +145,7 @@ bun test src/core/__tests__/template-engine.test.ts
 ## Summary
 
 Your CLI now has a solid foundation that:
+
 - Follows best practices from successful tools like create-better-t-stack
 - Is easier to maintain and extend
 - Provides a better developer experience

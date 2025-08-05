@@ -14,6 +14,7 @@ import {
   SiSlack,
   SiDiscord,
   SiAuth0,
+  SiDocker,
 } from "react-icons/si";
 
 export interface MCPServer {
@@ -393,6 +394,24 @@ export const mcpServers: MCPServer[] = [
       },
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/google-analytics",
+  },
+
+  // Real Community MCP Servers
+  {
+    id: "docker",
+    name: "Docker MCP Server",
+    description: "Manage Docker containers, images, and compose services",
+    icon: SiDocker,
+    category: "productivity",
+    triggers: {
+      any: false, // Only show when explicitly needed
+    },
+    config: {
+      server_name: "docker",
+      command: "npx",
+      args: ["-y", "docker-mcp"],
+    },
+    repository: "https://github.com/QuantGeekDev/docker-mcp",
   },
 ];
 

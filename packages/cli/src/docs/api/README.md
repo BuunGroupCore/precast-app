@@ -10,23 +10,23 @@ Validates project configuration and provides compatibility checking.
 
 ```typescript
 class ConfigValidator {
-  constructor()
-  
+  constructor();
+
   /**
    * Adds a validation rule
    */
-  addRule(rule: CompatibilityRule): void
-  
+  addRule(rule: CompatibilityRule): void;
+
   /**
    * Removes a validation rule by name
    */
-  removeRule(ruleName: string): boolean
-  
+  removeRule(ruleName: string): boolean;
+
   /**
    * Validates a project configuration
    */
-  validate(config: ProjectConfig): ValidationResult
-  
+  validate(config: ProjectConfig): ValidationResult;
+
   /**
    * Checks if two configuration values are compatible
    */
@@ -36,16 +36,17 @@ class ConfigValidator {
     field2: keyof ProjectConfig,
     value2: string,
     config: Partial<ProjectConfig>
-  ): boolean
-  
+  ): boolean;
+
   /**
    * Gets recommendations based on current configuration
    */
-  getRecommendations(partialConfig: Partial<ProjectConfig>): Map<keyof ProjectConfig, string[]>
+  getRecommendations(partialConfig: Partial<ProjectConfig>): Map<keyof ProjectConfig, string[]>;
 }
 ```
 
 **Usage:**
+
 ```typescript
 import { getConfigValidator } from "./core/config-validator.js";
 
@@ -63,13 +64,13 @@ Processes Handlebars templates with conditional logic.
 
 ```typescript
 class TemplateEngine {
-  constructor(templateRoot: string)
-  
+  constructor(templateRoot: string);
+
   /**
    * Registers a custom Handlebars helper
    */
-  registerHelper(name: string, helper: handlebars.HelperDelegate): void
-  
+  registerHelper(name: string, helper: handlebars.HelperDelegate): void;
+
   /**
    * Processes a single template file
    */
@@ -78,8 +79,8 @@ class TemplateEngine {
     outputPath: string,
     context: TemplateContext,
     options?: TemplateOptions
-  ): Promise<void>
-  
+  ): Promise<void>;
+
   /**
    * Copies and processes an entire template directory
    */
@@ -88,8 +89,8 @@ class TemplateEngine {
     destDir: string,
     context: TemplateContext,
     options?: TemplateOptions
-  ): Promise<void>
-  
+  ): Promise<void>;
+
   /**
    * Processes templates based on conditions
    */
@@ -102,27 +103,25 @@ class TemplateEngine {
     projectDir: string,
     context: TemplateContext,
     options?: TemplateOptions
-  ): Promise<void>
-  
+  ): Promise<void>;
+
   /**
    * Gets available templates in a category
    */
-  getAvailableTemplates(category: string): Promise<string[]>
+  getAvailableTemplates(category: string): Promise<string[]>;
 }
 ```
 
 **Usage:**
+
 ```typescript
 import { createTemplateEngine } from "./core/template-engine.js";
 
 const templateEngine = createTemplateEngine("/path/to/templates");
 
-await templateEngine.copyTemplateDirectory(
-  "frameworks/react/base",
-  projectPath,
-  config,
-  { overwrite: true }
-);
+await templateEngine.copyTemplateDirectory("frameworks/react/base", projectPath, config, {
+  overwrite: true,
+});
 ```
 
 ### PluginManager
@@ -134,51 +133,52 @@ class PluginManager {
   /**
    * Registers a plugin
    */
-  register(plugin: Plugin): void
-  
+  register(plugin: Plugin): void;
+
   /**
    * Unregisters a plugin
    */
-  unregister(pluginName: string): boolean
-  
+  unregister(pluginName: string): boolean;
+
   /**
    * Gets a plugin by name
    */
-  getPlugin(name: string): Plugin | undefined
-  
+  getPlugin(name: string): Plugin | undefined;
+
   /**
    * Gets all registered plugins in execution order
    */
-  getAllPlugins(): Plugin[]
-  
+  getAllPlugins(): Plugin[];
+
   /**
    * Executes a hook across all registered plugins
    */
   executeHook<K extends keyof Plugin>(
     hookName: K,
     context: K extends "validateConfig" | "transformConfig" ? ProjectConfig : PluginContext
-  ): Promise<any>
-  
+  ): Promise<any>;
+
   /**
    * Validates configuration using all plugin validators
    */
-  validateConfig(config: ProjectConfig): Promise<{ valid: boolean; errors: string[] }>
-  
+  validateConfig(config: ProjectConfig): Promise<{ valid: boolean; errors: string[] }>;
+
   /**
    * Transforms configuration using all plugin transformers
    */
-  transformConfig(config: ProjectConfig): Promise<ProjectConfig>
-  
+  transformConfig(config: ProjectConfig): Promise<ProjectConfig>;
+
   // Convenience methods for lifecycle hooks
-  runPreGenerate(context: PluginContext): Promise<void>
-  runGenerate(context: PluginContext): Promise<void>
-  runPostGenerate(context: PluginContext): Promise<void>
-  runBeforeInstall(context: PluginContext): Promise<void>
-  runAfterInstall(context: PluginContext): Promise<void>
+  runPreGenerate(context: PluginContext): Promise<void>;
+  runGenerate(context: PluginContext): Promise<void>;
+  runPostGenerate(context: PluginContext): Promise<void>;
+  runBeforeInstall(context: PluginContext): Promise<void>;
+  runAfterInstall(context: PluginContext): Promise<void>;
 }
 ```
 
 **Usage:**
+
 ```typescript
 import { getPluginManager, createPlugin } from "./core/plugin-manager.js";
 
@@ -189,7 +189,7 @@ const myPlugin = createPlugin({
   name: "my-plugin",
   generate: async (context) => {
     // Plugin logic
-  }
+  },
 });
 
 pluginManager.register(myPlugin);
@@ -206,15 +206,15 @@ Main configuration interface for generated projects.
 
 ```typescript
 interface ProjectConfig {
-  name: string;                    // Project name
-  framework: string;               // Frontend framework
-  backend: string;                 // Backend framework
-  database: string;                // Database type
-  orm: string;                     // ORM/ODM
-  styling: string;                 // Styling solution
-  typescript: boolean;             // TypeScript enabled
-  git: boolean;                    // Git initialization
-  docker: boolean;                 // Docker configuration
+  name: string; // Project name
+  framework: string; // Frontend framework
+  backend: string; // Backend framework
+  database: string; // Database type
+  orm: string; // ORM/ODM
+  styling: string; // Styling solution
+  typescript: boolean; // TypeScript enabled
+  git: boolean; // Git initialization
+  docker: boolean; // Docker configuration
 }
 ```
 
@@ -272,8 +272,8 @@ Options for template processing.
 
 ```typescript
 interface TemplateOptions {
-  overwrite?: boolean;     // Overwrite existing files
-  skipIfExists?: boolean;  // Skip if file exists
+  overwrite?: boolean; // Overwrite existing files
+  skipIfExists?: boolean; // Skip if file exists
 }
 ```
 
@@ -308,16 +308,16 @@ Options for the init command.
 
 ```typescript
 interface InitOptions {
-  yes?: boolean;                                    // Skip prompts
-  framework?: string;                               // Framework choice
-  backend?: string;                                 // Backend choice
-  database?: string;                                // Database choice
-  orm?: string;                                     // ORM choice
-  styling?: string;                                 // Styling choice
-  typescript?: boolean;                             // TypeScript flag
-  git?: boolean;                                    // Git flag
-  docker?: boolean;                                 // Docker flag
-  install?: boolean;                                // Install dependencies
+  yes?: boolean; // Skip prompts
+  framework?: string; // Framework choice
+  backend?: string; // Backend choice
+  database?: string; // Database choice
+  orm?: string; // ORM choice
+  styling?: string; // Styling choice
+  typescript?: boolean; // TypeScript flag
+  git?: boolean; // Git flag
+  docker?: boolean; // Docker flag
+  install?: boolean; // Install dependencies
   packageManager?: "npm" | "yarn" | "pnpm" | "bun"; // Package manager
 }
 ```
@@ -333,7 +333,7 @@ interface InitOptions {
 function gatherProjectConfig(
   projectName: string | undefined,
   options: InitOptions
-): Promise<ProjectConfig>
+): Promise<ProjectConfig>;
 ```
 
 ### Display Utilities
@@ -342,12 +342,12 @@ function gatherProjectConfig(
 /**
  * Displays a formatted summary of the project configuration
  */
-function displayConfigSummary(config: ProjectConfig): void
+function displayConfigSummary(config: ProjectConfig): void;
 
 /**
  * Formats a partial configuration as a string for display
  */
-function displayConfig(config: Partial<ProjectConfig>): string
+function displayConfig(config: Partial<ProjectConfig>): string;
 ```
 
 ### Template Path Resolution
@@ -356,7 +356,7 @@ function displayConfig(config: Partial<ProjectConfig>): string
 /**
  * Resolves the template root directory based on the current execution context
  */
-function getTemplateRoot(): string
+function getTemplateRoot(): string;
 ```
 
 ### Project Creation
@@ -365,7 +365,7 @@ function getTemplateRoot(): string
 /**
  * Creates a new project based on the provided configuration
  */
-function createProject(config: ProjectConfig): Promise<void>
+function createProject(config: ProjectConfig): Promise<void>;
 ```
 
 ### Logger
@@ -392,22 +392,22 @@ Each framework has a dedicated generator function:
 /**
  * Generates a React project template
  */
-function generateReactTemplate(config: ProjectConfig, projectPath: string): Promise<void>
+function generateReactTemplate(config: ProjectConfig, projectPath: string): Promise<void>;
 
 /**
  * Generates a Vue project template
  */
-function generateVueTemplate(config: ProjectConfig, projectPath: string): Promise<void>
+function generateVueTemplate(config: ProjectConfig, projectPath: string): Promise<void>;
 
 /**
  * Generates an Angular project template
  */
-function generateAngularTemplate(config: ProjectConfig, projectPath: string): Promise<void>
+function generateAngularTemplate(config: ProjectConfig, projectPath: string): Promise<void>;
 
 /**
  * Generates a Next.js project template
  */
-function generateNextTemplate(config: ProjectConfig, projectPath: string): Promise<void>
+function generateNextTemplate(config: ProjectConfig, projectPath: string): Promise<void>;
 
 // ... similar functions for other frameworks
 ```
@@ -484,10 +484,7 @@ import { createTemplateEngine } from "../core/template-engine.js";
 import { getPluginManager } from "../core/plugin-manager.js";
 import { getTemplateRoot } from "../utils/template-path.js";
 
-export async function generateMyFrameworkTemplate(
-  config: ProjectConfig, 
-  projectPath: string
-) {
+export async function generateMyFrameworkTemplate(config: ProjectConfig, projectPath: string) {
   const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);
   const pluginManager = getPluginManager();
@@ -503,21 +500,24 @@ export async function generateMyFrameworkTemplate(
     await pluginManager.runPreGenerate(context);
 
     await templateEngine.copyTemplateDirectory(
-      "frameworks/my-framework/base", 
-      projectPath, 
+      "frameworks/my-framework/base",
+      projectPath,
       config,
       { overwrite: true }
     );
 
-    await templateEngine.processConditionalTemplates([
-      {
-        condition: config.typescript,
-        sourceDir: "features/typescript/my-framework",
-      },
-    ], projectPath, config);
+    await templateEngine.processConditionalTemplates(
+      [
+        {
+          condition: config.typescript,
+          sourceDir: "features/typescript/my-framework",
+        },
+      ],
+      projectPath,
+      config
+    );
 
     await pluginManager.runPostGenerate(context);
-
   } catch (error) {
     console.error(`Failed to generate My Framework template:`, error);
     throw error;
@@ -538,7 +538,7 @@ export const myCustomPlugin = createPlugin({
 
   validateConfig(config: ProjectConfig) {
     const errors: string[] = [];
-    
+
     if (config.myCustomOption && !config.requiredDependency) {
       errors.push("My custom option requires the required dependency");
     }
@@ -551,14 +551,18 @@ export const myCustomPlugin = createPlugin({
 
   async generate(context: PluginContext) {
     const { config, projectPath, templateEngine } = context;
-    
+
     if (config.myCustomOption) {
-      await templateEngine.processConditionalTemplates([
-        {
-          condition: true,
-          sourceDir: "features/my-custom-feature",
-        },
-      ], projectPath, config);
+      await templateEngine.processConditionalTemplates(
+        [
+          {
+            condition: true,
+            sourceDir: "features/my-custom-feature",
+          },
+        ],
+        projectPath,
+        config
+      );
     }
   },
 
@@ -577,34 +581,32 @@ import { getTemplateRoot } from "./utils/template-path.js";
 const templateEngine = createTemplateEngine(getTemplateRoot());
 
 // Register custom helper
-templateEngine.registerHelper("uppercase", (str) => 
-  str ? str.toUpperCase() : ""
-);
+templateEngine.registerHelper("uppercase", (str) => (str ? str.toUpperCase() : ""));
 
 // Process single template
-await templateEngine.processTemplate(
-  "/path/to/template.hbs",
-  "/path/to/output.txt",
-  { name: "MyProject", framework: "react" }
-);
+await templateEngine.processTemplate("/path/to/template.hbs", "/path/to/output.txt", {
+  name: "MyProject",
+  framework: "react",
+});
 
 // Copy template directory
-await templateEngine.copyTemplateDirectory(
-  "frameworks/react/base",
-  "/path/to/project",
-  config,
-  { overwrite: true }
-);
+await templateEngine.copyTemplateDirectory("frameworks/react/base", "/path/to/project", config, {
+  overwrite: true,
+});
 
 // Process conditional templates
-await templateEngine.processConditionalTemplates([
-  {
-    condition: config.typescript,
-    sourceDir: "features/typescript/react",
-  },
-  {
-    condition: (ctx) => ctx.styling === "tailwind",
-    sourceDir: "features/tailwind",
-  },
-], projectPath, config);
+await templateEngine.processConditionalTemplates(
+  [
+    {
+      condition: config.typescript,
+      sourceDir: "features/typescript/react",
+    },
+    {
+      condition: (ctx) => ctx.styling === "tailwind",
+      sourceDir: "features/tailwind",
+    },
+  ],
+  projectPath,
+  config
+);
 ```

@@ -19,6 +19,6 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*", "../shared/**/*", "tests/**/*", "test-runner.ts"],
+  "include": ["src/**/*", "../shared/**/*", "tests/**/*", "test-runner.ts", "dynamic-test-generator.ts", "smart-test-generator.ts"],
   "exclude": ["node_modules", "dist"]
 }

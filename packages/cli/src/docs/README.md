@@ -36,7 +36,7 @@ graph TD
     C --> D[Template Engine]
     D --> E[Plugin System]
     E --> F[Project Generation]
-    
+
     G[Templates] --> D
     H[Plugins] --> E
     I[Shared Config] --> B

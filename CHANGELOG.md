@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Documentation
 
-- improvements (4356387f)
+### Fixed
+
+- fix (b27de366)
+
+- fix (b27de366)
+- fix (b27de366)
+- fix (b27de366)
+- fix (b27de366)
+- fix (b27de366)

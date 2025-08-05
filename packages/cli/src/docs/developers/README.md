@@ -13,13 +13,13 @@ graph TB
         CMD[Commands]
         PROMPTS[Interactive Prompts]
     end
-    
+
     subgraph "Core System"
         CONFIG[Config Validator]
         TEMPLATE[Template Engine]
         PLUGIN[Plugin Manager]
     end
-    
+
     subgraph "Generation Layer"
         GEN[Generator Registry]
         REACT[React Generator]
@@ -28,20 +28,20 @@ graph TB
         NEXT[Next.js Generator]
         OTHER[Other Generators...]
     end
-    
+
     subgraph "Template System"
         BASE[Base Templates]
         FRAMEWORK[Framework Templates]
         FEATURE[Feature Templates]
     end
-    
+
     subgraph "Plugin System"
         TS[TypeScript Plugin]
         DOCKER[Docker Plugin]
         GIT[Git Plugin]
         CUSTOM[Custom Plugins...]
     end
-    
+
     CLI --> CMD
     CMD --> PROMPTS
     CMD --> CONFIG
@@ -53,11 +53,11 @@ graph TB
     GEN --> ANGULAR
     GEN --> NEXT
     GEN --> OTHER
-    
+
     TEMPLATE --> BASE
     TEMPLATE --> FRAMEWORK
     TEMPLATE --> FEATURE
-    
+
     PLUGIN --> TS
     PLUGIN --> DOCKER
     PLUGIN --> GIT
@@ -76,12 +76,13 @@ graph LR
     B --> C[Validation Rules]
     C --> D[Compatibility Check]
     D --> E[Final Config]
-    
+
     F[Stack Definitions] --> C
     G[Plugin Validators] --> C
 ```
 
 **Key Files:**
+
 - `src/core/config-validator.ts` - Configuration validation
 - `src/prompts/config-prompts.ts` - Interactive prompts
 - `packages/shared/stack-config.ts` - Stack definitions
@@ -97,12 +98,13 @@ graph TD
     C --> D[Context Processing]
     D --> E[Conditional Logic]
     E --> F[File Generation]
-    
+
     G[Project Config] --> D
     H[Custom Helpers] --> C
 ```
 
 **Features:**
+
 - Handlebars template compilation
 - Conditional file processing
 - Custom helper functions
@@ -118,25 +120,26 @@ sequenceDiagram
     participant PluginManager
     participant Plugin1
     participant Plugin2
-    
+
     CLI->>PluginManager: Initialize
     PluginManager->>Plugin1: register()
     PluginManager->>Plugin2: register()
-    
+
     CLI->>PluginManager: runPreGenerate()
     PluginManager->>Plugin1: preGenerate()
     PluginManager->>Plugin2: preGenerate()
-    
+
     CLI->>PluginManager: runGenerate()
     PluginManager->>Plugin1: generate()
     PluginManager->>Plugin2: generate()
-    
+
     CLI->>PluginManager: runPostGenerate()
     PluginManager->>Plugin1: postGenerate()
     PluginManager->>Plugin2: postGenerate()
 ```
 
 **Plugin Hooks:**
+
 - `validateConfig` - Validate configuration
 - `transformConfig` - Transform configuration
 - `preGenerate` - Pre-generation setup
@@ -191,23 +194,27 @@ packages/cli/
 ### Local Development
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/your-org/precast-app.git
    cd precast-app
    ```
 
 2. **Install dependencies**:
+
    ```bash
    bun install
    ```
 
 3. **Build the CLI**:
+
    ```bash
    cd packages/cli
    bun run build
    ```
 
 4. **Link for local testing**:
+
    ```bash
    npm link
    ```
@@ -230,6 +237,7 @@ graph LR
 ```
 
 **Commands:**
+
 ```bash
 # Development build with watch
 bun run dev
@@ -261,7 +269,7 @@ Each framework generator follows this pattern:
  * Generates a [Framework] project template
  */
 export async function generate[Framework]Template(
-  config: ProjectConfig, 
+  config: ProjectConfig,
   projectPath: string
 ) {
   const templateRoot = getTemplateRoot();
@@ -281,8 +289,8 @@ export async function generate[Framework]Template(
 
     // Copy base templates
     await templateEngine.copyTemplateDirectory(
-      "frameworks/[framework]/base", 
-      projectPath, 
+      "frameworks/[framework]/base",
+      projectPath,
       config,
       { overwrite: true }
     );
@@ -320,26 +328,27 @@ export async function generate[Framework]Template(
 ### Adding a New Generator
 
 1. **Create generator file**:
+
    ```bash
    touch src/generators/my-framework-template.ts
    ```
 
 2. **Implement generator function**:
+
    ```typescript
-   export async function generateMyFrameworkTemplate(
-     config: ProjectConfig,
-     projectPath: string
-   ) {
+   export async function generateMyFrameworkTemplate(config: ProjectConfig, projectPath: string) {
      // Implementation
    }
    ```
 
 3. **Create template directory**:
+
    ```bash
    mkdir -p src/templates/frameworks/my-framework/{base,src}
    ```
 
 4. **Add to generator registry**:
+
    ```typescript
    // In src/generators/index.ts
    import { generateMyFrameworkTemplate } from "./my-framework-template.js";
@@ -403,7 +412,7 @@ export const myPlugin = createPlugin({
 
   validateConfig(config: ProjectConfig) {
     const errors: string[] = [];
-    
+
     // Add validation logic
     if (config.someCondition && !config.requiredField) {
       errors.push("Required field missing when condition is true");
@@ -425,12 +434,16 @@ export const myPlugin = createPlugin({
 
   async generate(context: PluginContext) {
     // Add custom generation logic
-    await context.templateEngine.processConditionalTemplates([
-      {
-        condition: context.config.myFeature,
-        sourceDir: "features/my-feature",
-      },
-    ], context.projectPath, context.config);
+    await context.templateEngine.processConditionalTemplates(
+      [
+        {
+          condition: context.config.myFeature,
+          sourceDir: "features/my-feature",
+        },
+      ],
+      context.projectPath,
+      context.config
+    );
   },
 });
 ```
@@ -484,12 +497,12 @@ src/templates/
 Built-in helpers for template logic:
 
 ```handlebars
-{{!-- String manipulation --}}
+{{! String manipulation }}
 {{capitalize framework}}
 {{kebabCase projectName}}
 {{camelCase variableName}}
 
-{{!-- Conditionals --}}
+{{! Conditionals }}
 {{#if typescript}}
   // TypeScript specific code
 {{/if}}
@@ -506,7 +519,7 @@ Built-in helpers for template logic:
   // Show only for TypeScript React projects
 {{/ifAll}}
 
-{{!-- Arrays --}}
+{{! Arrays }}
 {{#includes dependencies "express"}}
   // Express specific code
 {{/includes}}
@@ -623,6 +636,7 @@ Follow conventional commit format:
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -632,6 +646,7 @@ Types:
 - `chore`: Build/tooling changes
 
 Examples:
+
 ```
 feat(generators): add Solid.js generator
 fix(template-engine): resolve path resolution issue
@@ -641,6 +656,7 @@ docs(api): update plugin development guide
 ### Pull Request Process
 
 1. **Fork and branch**:
+
    ```bash
    git checkout -b feature/my-new-feature
    ```
@@ -652,6 +668,7 @@ docs(api): update plugin development guide
 4. **Update documentation** if needed
 
 5. **Run quality checks**:
+
    ```bash
    bun run lint
    bun run type-check
@@ -678,6 +695,7 @@ graph LR
 ```
 
 Releases use semantic versioning:
+
 - `MAJOR`: Breaking changes
 - `MINOR`: New features (backward compatible)
 - `PATCH`: Bug fixes
@@ -695,16 +713,19 @@ DEBUG=1 create-precast-app my-project
 ### Common Issues
 
 **Template path resolution**:
+
 - Check `getTemplateRoot()` logic
 - Verify template directory structure
 - Debug with `console.log` in development
 
 **Plugin execution**:
+
 - Add logging to plugin hooks
 - Check plugin registration
 - Verify hook execution order
 
 **Configuration validation**:
+
 - Test validation rules in isolation
 - Check rule execution order
 - Verify error message clarity

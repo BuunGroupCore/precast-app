@@ -67,7 +67,10 @@
       "Bash(./packages/cli/dist/cli.js init test-astro --framework astro --styling tailwind --backend none --database none --orm none --runtime node --install --yes)",
       "Bash(packages/cli/dist/cli.js init test-vue --framework vue --styling tailwind --backend none --database none --orm none --runtime node --install --yes)",
       "Bash(packages/cli/dist/cli.js init test-angular --framework angular --styling tailwind --backend none --database none --orm none --runtime node --install --yes)",
-      "Bash(packages/cli/dist/cli.js init test-remix --framework remix --styling tailwind --backend none --database none --orm none --runtime node --install --yes)"
+      "Bash(packages/cli/dist/cli.js init test-remix --framework remix --styling tailwind --backend none --database none --orm none --runtime node --install --yes)",
+      "Bash(../dist/cli.js init:*)",
+      "Bash(./dist/cli.js --help)",
+      "Bash(bun:*)"
     ],
     "deny": []
   }

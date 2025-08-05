@@ -27,6 +27,7 @@ create-precast-app
 ```
 
 The CLI will prompt you for:
+
 - Project name
 - Frontend framework
 - Backend option
@@ -55,71 +56,71 @@ create-precast-app my-project \
 
 ### Frontend Frameworks
 
-| Framework | Description | TypeScript | Key Features |
-|-----------|-------------|------------|--------------|
-| `react` | JavaScript library for UIs | Optional | Component-based, Virtual DOM |
-| `vue` | Progressive JavaScript framework | Optional | Reactive data, Template syntax |
-| `angular` | Platform for web applications | Required | Full framework, Dependency injection |
-| `next` | React framework for production | Optional | SSR/SSG, API routes, File routing |
-| `nuxt` | Vue framework | Optional | SSR/SSG, Auto-imports, Modules |
-| `svelte` | Compiled web framework | Optional | No virtual DOM, Small bundles |
-| `solid` | Reactive JavaScript library | Optional | Fine-grained reactivity |
-| `astro` | Static site generator | Optional | Island architecture, Multi-framework |
-| `remix` | Full-stack React framework | Optional | Progressive enhancement, Data loading |
-| `vite` | Frontend build tool | Optional | Fast HMR, Plugin ecosystem |
-| `vanilla` | Plain JavaScript | Optional | No framework dependencies |
+| Framework | Description                      | TypeScript | Key Features                          |
+| --------- | -------------------------------- | ---------- | ------------------------------------- |
+| `react`   | JavaScript library for UIs       | Optional   | Component-based, Virtual DOM          |
+| `vue`     | Progressive JavaScript framework | Optional   | Reactive data, Template syntax        |
+| `angular` | Platform for web applications    | Required   | Full framework, Dependency injection  |
+| `next`    | React framework for production   | Optional   | SSR/SSG, API routes, File routing     |
+| `nuxt`    | Vue framework                    | Optional   | SSR/SSG, Auto-imports, Modules        |
+| `svelte`  | Compiled web framework           | Optional   | No virtual DOM, Small bundles         |
+| `solid`   | Reactive JavaScript library      | Optional   | Fine-grained reactivity               |
+| `astro`   | Static site generator            | Optional   | Island architecture, Multi-framework  |
+| `remix`   | Full-stack React framework       | Optional   | Progressive enhancement, Data loading |
+| `vite`    | Frontend build tool              | Optional   | Fast HMR, Plugin ecosystem            |
+| `vanilla` | Plain JavaScript                 | Optional   | No framework dependencies             |
 
 ### Backend Options
 
-| Backend | Description | Language | Use Case |
-|---------|-------------|----------|----------|
-| `express` | Minimalist web framework | JavaScript/TypeScript | APIs, Web servers |
-| `fastapi` | Modern Python web framework | Python | APIs, Machine learning |
-| `hono` | Ultrafast edge runtime framework | JavaScript/TypeScript | Edge computing, APIs |
-| `none` | Frontend only | N/A | Static sites, JAMstack |
+| Backend   | Description                      | Language              | Use Case               |
+| --------- | -------------------------------- | --------------------- | ---------------------- |
+| `express` | Minimalist web framework         | JavaScript/TypeScript | APIs, Web servers      |
+| `fastapi` | Modern Python web framework      | Python                | APIs, Machine learning |
+| `hono`    | Ultrafast edge runtime framework | JavaScript/TypeScript | Edge computing, APIs   |
+| `none`    | Frontend only                    | N/A                   | Static sites, JAMstack |
 
 ### Databases
 
-| Database | Type | Description | Best For |
-|----------|------|-------------|----------|
-| `postgres` | SQL | Advanced relational database | Complex queries, ACID compliance |
-| `mysql` | SQL | Popular relational database | Web applications, WordPress |
-| `mongodb` | NoSQL | Document database | Flexible schemas, JSON-like data |
-| `sqlite` | SQL | File-based database | Development, Small applications |
-| `firebase` | BaaS | Google's backend service | Rapid prototyping, Real-time apps |
-| `supabase` | BaaS | Open source Firebase alternative | PostgreSQL-based, Real-time |
-| `none` | N/A | No database | Static sites, External APIs |
+| Database   | Type  | Description                      | Best For                          |
+| ---------- | ----- | -------------------------------- | --------------------------------- |
+| `postgres` | SQL   | Advanced relational database     | Complex queries, ACID compliance  |
+| `mysql`    | SQL   | Popular relational database      | Web applications, WordPress       |
+| `mongodb`  | NoSQL | Document database                | Flexible schemas, JSON-like data  |
+| `sqlite`   | SQL   | File-based database              | Development, Small applications   |
+| `firebase` | BaaS  | Google's backend service         | Rapid prototyping, Real-time apps |
+| `supabase` | BaaS  | Open source Firebase alternative | PostgreSQL-based, Real-time       |
+| `none`     | N/A   | No database                      | Static sites, External APIs       |
 
 ### ORMs
 
-| ORM | Languages | Databases | Features |
-|-----|-----------|-----------|----------|
-| `prisma` | TypeScript/JavaScript | PostgreSQL, MySQL, SQLite | Type-safe, Schema migrations |
-| `drizzle` | TypeScript | PostgreSQL, MySQL, SQLite | SQL-like syntax, Edge-ready |
-| `typeorm` | TypeScript/JavaScript | Most SQL databases | Decorators, Active Record |
-| `mongoose` | JavaScript/TypeScript | MongoDB | Schema validation, Middleware |
-| `none` | N/A | N/A | Direct database access |
+| ORM        | Languages             | Databases                 | Features                      |
+| ---------- | --------------------- | ------------------------- | ----------------------------- |
+| `prisma`   | TypeScript/JavaScript | PostgreSQL, MySQL, SQLite | Type-safe, Schema migrations  |
+| `drizzle`  | TypeScript            | PostgreSQL, MySQL, SQLite | SQL-like syntax, Edge-ready   |
+| `typeorm`  | TypeScript/JavaScript | Most SQL databases        | Decorators, Active Record     |
+| `mongoose` | JavaScript/TypeScript | MongoDB                   | Schema validation, Middleware |
+| `none`     | N/A                   | N/A                       | Direct database access        |
 
 ### Styling Solutions
 
-| Option | Description | Framework Support | Features |
-|--------|-------------|-------------------|----------|
-| `tailwind` | Utility-first CSS framework | All | Utility classes, Design system |
-| `scss` | CSS preprocessor | All | Variables, Nesting, Mixins |
-| `css` | Plain CSS | All | Standard CSS, CSS modules |
-| `styled-components` | CSS-in-JS | React, Next.js, Remix | Component styling, Theming |
+| Option              | Description                 | Framework Support     | Features                       |
+| ------------------- | --------------------------- | --------------------- | ------------------------------ |
+| `tailwind`          | Utility-first CSS framework | All                   | Utility classes, Design system |
+| `scss`              | CSS preprocessor            | All                   | Variables, Nesting, Mixins     |
+| `css`               | Plain CSS                   | All                   | Standard CSS, CSS modules      |
+| `styled-components` | CSS-in-JS                   | React, Next.js, Remix | Component styling, Theming     |
 
 ### Additional Options
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--typescript` | Enable TypeScript | `true` |
-| `--no-typescript` | Disable TypeScript | |
-| `--git` | Initialize Git repository | `true` |
-| `--no-git` | Skip Git initialization | |
-| `--docker` | Include Docker configuration | `false` |
-| `--yes, -y` | Skip prompts, use defaults | `false` |
-| `--install` | Install dependencies after creation | `false` |
+| Flag              | Description                         | Default |
+| ----------------- | ----------------------------------- | ------- |
+| `--typescript`    | Enable TypeScript                   | `true`  |
+| `--no-typescript` | Disable TypeScript                  |         |
+| `--git`           | Initialize Git repository           | `true`  |
+| `--no-git`        | Skip Git initialization             |         |
+| `--docker`        | Include Docker configuration        | `false` |
+| `--yes, -y`       | Skip prompts, use defaults          | `false` |
+| `--install`       | Install dependencies after creation | `false` |
 
 ## Project Structure
 
@@ -185,11 +186,13 @@ create-precast-app my-vue-app \
 After project creation:
 
 1. **Navigate to project directory**:
+
    ```bash
    cd my-project
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    # or
@@ -201,6 +204,7 @@ After project creation:
    ```
 
 3. **Start development server**:
+
    ```bash
    npm run dev
    ```
@@ -216,21 +220,25 @@ After project creation:
 ### Common Issues
 
 **Template not found error**:
+
 - Ensure you're using the latest version
 - Check network connectivity
 - Try clearing npm cache: `npm cache clean --force`
 
 **TypeScript errors**:
+
 - Run `npm run type-check` to see detailed errors
 - Ensure all dependencies are installed
 - Check tsconfig.json configuration
 
 **Database connection issues**:
+
 - Verify database credentials in .env
 - Ensure database server is running
 - Check network connectivity to database
 
 **Build failures**:
+
 - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
 - Check for conflicting global packages
 - Verify Node.js version compatibility

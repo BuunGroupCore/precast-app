@@ -36,7 +36,7 @@ graph TD
     E --> F[Conditional Logic]
     F --> G[Generate Output]
     G --> H[Write to File System]
-    
+
     I[Project Config] --> D
     J[Custom Helpers] --> E
     K[Skip Rules] --> F
@@ -67,25 +67,31 @@ logo.png               -> logo.png (copied directly)
 All templates receive the complete `ProjectConfig` as context:
 
 ```handlebars
-{{!-- Project details --}}
-Project: {{name}}
-Framework: {{framework}}
-Backend: {{backend}}
-Database: {{database}}
-ORM: {{orm}}
-Styling: {{styling}}
+{{! Project details }}
+Project:
+{{name}}
+Framework:
+{{framework}}
+Backend:
+{{backend}}
+Database:
+{{database}}
+ORM:
+{{orm}}
+Styling:
+{{styling}}
 
-{{!-- Boolean flags --}}
+{{! Boolean flags }}
 {{#if typescript}}
-TypeScript is enabled
+  TypeScript is enabled
 {{/if}}
 
 {{#if git}}
-Git repository will be initialized
+  Git repository will be initialized
 {{/if}}
 
 {{#if docker}}
-Docker configuration included
+  Docker configuration included
 {{/if}}
 ```
 
@@ -108,58 +114,61 @@ await templateEngine.processTemplate(templatePath, outputPath, context);
 ### String Manipulation
 
 ```handlebars
-{{!-- Capitalize first letter --}}
-{{capitalize "hello world"}}  {{!-- -> "Hello world" --}}
+{{! Capitalize first letter }}
+{{capitalize "hello world"}}
+{{! -> "Hello world" }}
 
-{{!-- Convert to kebab-case --}}
-{{kebabCase "HelloWorld"}}    {{!-- -> "hello-world" --}}
+{{! Convert to kebab-case }}
+{{kebabCase "HelloWorld"}}
+{{! -> "hello-world" }}
 
-{{!-- Convert to camelCase --}}
-{{camelCase "hello-world"}}   {{!-- -> "helloWorld" --}}
+{{! Convert to camelCase }}
+{{camelCase "hello-world"}}
+{{! -> "helloWorld" }}
 ```
 
 ### Conditional Logic
 
 ```handlebars
-{{!-- Equality check --}}
+{{! Equality check }}
 {{#eq framework "react"}}
-React-specific content
+  React-specific content
 {{/eq}}
 
-{{!-- Logical operations --}}
+{{! Logical operations }}
 {{#and typescript (eq framework "react")}}
-TypeScript React content
+  TypeScript React content
 {{/and}}
 
 {{#or (eq framework "react") (eq framework "vue")}}
-React or Vue content
+  React or Vue content
 {{/or}}
 
 {{#not (eq backend "none")}}
-Backend-specific content
+  Backend-specific content
 {{/not}}
 ```
 
 ### Array Operations
 
 ```handlebars
-{{!-- Check if array includes value --}}
+{{! Check if array includes value }}
 {{#includes dependencies "express"}}
-Express is included
+  Express is included
 {{/includes}}
 ```
 
 ### Advanced Conditionals
 
 ```handlebars
-{{!-- Show if ANY condition is true --}}
+{{! Show if ANY condition is true }}
 {{#ifAny typescript (eq styling "tailwind") docker}}
-At least one of: TypeScript, Tailwind, or Docker
+  At least one of: TypeScript, Tailwind, or Docker
 {{/ifAny}}
 
-{{!-- Show if ALL conditions are true --}}
+{{! Show if ALL conditions are true }}
 {{#ifAll typescript (eq framework "react") (eq styling "tailwind")}}
-TypeScript React with Tailwind
+  TypeScript React with Tailwind
 {{/ifAll}}
 ```
 
@@ -168,104 +177,70 @@ TypeScript React with Tailwind
 ### Package.json Template
 
 ```handlebars
-{
-  "name": "{{kebabCase name}}",
-  "version": "0.1.0",
-  "private": true,
-  {{#if (eq framework "next")}}
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+{ "name": "{{kebabCase name}}", "version": "0.1.0", "private": true,
+{{#if (eq framework "next")}}
+  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "lint": "next lint"
   },
-  {{else if (eq framework "react")}}
-  "scripts": {
-    "dev": "vite",
-    "build": "{{#if typescript}}tsc && {{/if}}vite build",
-    "preview": "vite preview"
-  },
-  {{/if}}
-  "dependencies": {
-    {{#eq framework "react"}}
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"{{#if (or (includes styling "tailwind") (includes styling "scss"))}},{{/if}}
-    {{/eq}}
-    {{#eq framework "vue"}}
-    "vue": "^3.3.4"{{#if (or (includes styling "tailwind") (includes styling "scss"))}},{{/if}}
-    {{/eq}}
-    {{#includes styling "tailwind"}}
-    "tailwindcss": "^3.3.0",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.24"{{#if (includes styling "scss")}},{{/if}}
-    {{/includes}}
-    {{#includes styling "scss"}}
-    "sass": "^1.63.6"
-    {{/includes}}
-  },
-  "devDependencies": {
-    {{#if typescript}}
-    "typescript": "^5.0.0",
-    {{#eq framework "react"}}
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    {{/eq}}
-    {{/if}}
-    {{#eq framework "react"}}
-    "@vitejs/plugin-react": "^4.0.0",
-    "vite": "^4.4.0"
-    {{/eq}}
-    {{#eq framework "vue"}}
-    "@vitejs/plugin-vue": "^4.2.0",
-    "vite": "^4.4.0"
-    {{/eq}}
-  }
-}
+{{else if (eq framework "react")}}
+  "scripts": { "dev": "vite", "build": "{{#if typescript}}tsc && {{/if}}vite build", "preview":
+  "vite preview" },
+{{/if}}
+"dependencies": {
+{{#eq framework "react"}}
+  "react": "^18.2.0", "react-dom": "^18.2.0"{{#if
+    (or (includes styling "tailwind") (includes styling "scss"))
+  }},{{/if}}
+{{/eq}}
+{{#eq framework "vue"}}
+  "vue": "^3.3.4"{{#if (or (includes styling "tailwind") (includes styling "scss"))}},{{/if}}
+{{/eq}}
+{{#includes styling "tailwind"}}
+  "tailwindcss": "^3.3.0", "autoprefixer": "^10.4.14", "postcss": "^8.4.24"{{#if
+    (includes styling "scss")
+  }},{{/if}}
+{{/includes}}
+{{#includes styling "scss"}}
+  "sass": "^1.63.6"
+{{/includes}}
+}, "devDependencies": {
+{{#if typescript}}
+  "typescript": "^5.0.0",
+  {{#eq framework "react"}}
+    "@types/react": "^18.2.0", "@types/react-dom": "^18.2.0",
+  {{/eq}}
+{{/if}}
+{{#eq framework "react"}}
+  "@vitejs/plugin-react": "^4.0.0", "vite": "^4.4.0"
+{{/eq}}
+{{#eq framework "vue"}}
+  "@vitejs/plugin-vue": "^4.2.0", "vite": "^4.4.0"
+{{/eq}}
+} }
 ```
 
 ### TypeScript Configuration
 
 ```handlebars
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    {{#eq framework "react"}}
-    "jsx": "react-jsx",
-    {{/eq}}
-    {{#eq framework "vue"}}
-    "jsx": "preserve",
-    {{/eq}}
-    
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
-  },
-  "include": [
-    "src"{{#if (eq framework "vue")}},
-    "*.vue"{{/if}}
-  ],
-  "references": [
-    { "path": "./tsconfig.node.json" }
-  ]
-}
+{ "compilerOptions": { "target": "ES2020", "useDefineForClassFields": true, "lib": ["ES2020", "DOM",
+"DOM.Iterable"], "module": "ESNext", "skipLibCheck": true, /* Bundler mode */ "moduleResolution":
+"bundler", "allowImportingTsExtensions": true, "resolveJsonModule": true, "isolatedModules": true,
+"noEmit": true,
+{{#eq framework "react"}}
+  "jsx": "react-jsx",
+{{/eq}}
+{{#eq framework "vue"}}
+  "jsx": "preserve",
+{{/eq}}
+
+/* Linting */ "strict": true, "noUnusedLocals": true, "noUnusedParameters": true,
+"noFallthroughCasesInSwitch": true }, "include": [ "src"{{#if (eq framework "vue")}}, "*.vue"{{/if}}
+], "references": [ { "path": "./tsconfig.node.json" } ] }
 ```
 
 ### Component Templates
 
 React Component:
+
 ```handlebars
 {{#if typescript}}
 import React from 'react';
@@ -300,43 +275,41 @@ export default {{capitalize name}};
 ```
 
 Vue Component:
+
 ```handlebars
 <template>
   <div>
-    <h1>{{ name }} Component</h1>
+    <h1>{{name}} Component</h1>
     {{#if (eq styling "tailwind")}}
-    <p class="text-blue-600">
-      This is a Tailwind-styled component
-    </p>
+      <p class="text-blue-600">
+        This is a Tailwind-styled component
+      </p>
     {{else}}
-    <p>
-      This is a basic component
-    </p>
+      <p>
+        This is a basic component
+      </p>
     {{/if}}
   </div>
 </template>
 
 {{#if typescript}}
-<script setup lang="ts">
-// TypeScript component logic here
-defineProps<{
-  // Define props here
-}>();
-</script>
+  <script setup lang="ts">
+    // TypeScript component logic here defineProps<{ // Define props here }>();
+  </script>
 {{else}}
-<script setup>
-// JavaScript component logic here
-</script>
+  <script setup>
+    // JavaScript component logic here
+  </script>
 {{/if}}
 
 {{#if (eq styling "scss")}}
-<style lang="scss" scoped>
+  <style lang="scss" scoped>
 // SCSS styles here
 </style>
 {{else if (ne styling "tailwind")}}
-<style scoped>
-/* CSS styles here */
-</style>
+  <style scoped>
+    /* CSS styles here */
+  </style>
 {{/if}}
 ```
 
@@ -383,24 +356,28 @@ private shouldSkipFile(file: string, context: TemplateContext): boolean {
 Use conditional template processing for optional features:
 
 ```typescript
-await templateEngine.processConditionalTemplates([
-  {
-    condition: config.typescript,
-    sourceDir: "features/typescript/base",
-  },
-  {
-    condition: config.styling === "tailwind",
-    sourceDir: "features/tailwind",
-  },
-  {
-    condition: config.docker,
-    sourceDir: "features/docker",
-  },
-  {
-    condition: (ctx) => ctx.backend !== "none",
-    sourceDir: "features/api",
-  },
-], projectPath, config);
+await templateEngine.processConditionalTemplates(
+  [
+    {
+      condition: config.typescript,
+      sourceDir: "features/typescript/base",
+    },
+    {
+      condition: config.styling === "tailwind",
+      sourceDir: "features/tailwind",
+    },
+    {
+      condition: config.docker,
+      sourceDir: "features/docker",
+    },
+    {
+      condition: (ctx) => ctx.backend !== "none",
+      sourceDir: "features/api",
+    },
+  ],
+  projectPath,
+  config
+);
 ```
 
 ## Creating New Templates
@@ -408,11 +385,13 @@ await templateEngine.processConditionalTemplates([
 ### Framework Template
 
 1. **Create directory structure**:
+
    ```bash
    mkdir -p src/templates/frameworks/my-framework/{base,src}
    ```
 
 2. **Add base files**:
+
    ```
    src/templates/frameworks/my-framework/
    ├── base/
@@ -428,18 +407,15 @@ await templateEngine.processConditionalTemplates([
 
 3. **Implement generator**:
    ```typescript
-   export async function generateMyFrameworkTemplate(
-     config: ProjectConfig,
-     projectPath: string
-   ) {
+   export async function generateMyFrameworkTemplate(config: ProjectConfig, projectPath: string) {
      const templateEngine = createTemplateEngine(getTemplateRoot());
-     
+
      await templateEngine.copyTemplateDirectory(
        "frameworks/my-framework/base",
        projectPath,
        config
      );
-     
+
      await templateEngine.copyTemplateDirectory(
        "frameworks/my-framework/src",
        path.join(projectPath, "src"),
@@ -451,11 +427,13 @@ await templateEngine.processConditionalTemplates([
 ### Feature Template
 
 1. **Create feature directory**:
+
    ```bash
    mkdir -p src/templates/features/my-feature/{base,react,vue}
    ```
 
 2. **Add feature files**:
+
    ```
    src/templates/features/my-feature/
    ├── base/
@@ -468,17 +446,21 @@ await templateEngine.processConditionalTemplates([
 
 3. **Use in generator**:
    ```typescript
-   await templateEngine.processConditionalTemplates([
-     {
-       condition: config.myFeature,
-       sourceDir: "features/my-feature/base",
-     },
-     {
-       condition: config.myFeature && config.framework === "react",
-       sourceDir: "features/my-feature/react",
-       destDir: ".",
-     },
-   ], projectPath, config);
+   await templateEngine.processConditionalTemplates(
+     [
+       {
+         condition: config.myFeature,
+         sourceDir: "features/my-feature/base",
+       },
+       {
+         condition: config.myFeature && config.framework === "react",
+         sourceDir: "features/my-feature/react",
+         destDir: ".",
+       },
+     ],
+     projectPath,
+     config
+   );
    ```
 
 ## Custom Helpers
@@ -519,14 +501,15 @@ templateEngine.registerHelper("classNames", (...classes) => {
 ### Using Custom Helpers
 
 ```handlebars
-{{!-- Use custom helpers --}}
-Package: {{packageName name}}
+{{! Use custom helpers }}
+Package:
+{{packageName name}}
 
-{{!-- Import helper --}}
+{{! Import helper }}
 {{{import "react" framework}}}
 
-{{!-- Conditional classes --}}
-<div class="{{classNames "base-class" (if typescript "ts-class") (if tailwind "tw-class")}}">
+{{! Conditional classes }}
+<div class="{{classNames 'base-class' (if typescript 'ts-class') (if tailwind 'tw-class')}}">
   Content
 </div>
 ```
@@ -585,14 +568,14 @@ describe("Full Template Generation", () => {
   it("should generate complete React project", async () => {
     const config = loadFixture("react-typescript.json");
     const tempDir = await createTempDir();
-    
+
     await generateReactTemplate(config, tempDir);
-    
+
     // Verify structure
     expect(await pathExists(path.join(tempDir, "package.json"))).toBe(true);
     expect(await pathExists(path.join(tempDir, "src/App.tsx"))).toBe(true);
     expect(await pathExists(path.join(tempDir, "tsconfig.json"))).toBe(true);
-    
+
     // Verify content
     const packageJson = await readJson(path.join(tempDir, "package.json"));
     expect(packageJson.dependencies).toHaveProperty("react");

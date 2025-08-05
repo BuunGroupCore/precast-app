@@ -11,7 +11,7 @@ graph TD
     B --> D[Docker Plugin]
     B --> E[Git Plugin]
     B --> F[Custom Plugins]
-    
+
     G[Lifecycle Hooks] --> H[validateConfig]
     G --> I[transformConfig]
     G --> J[preGenerate]
@@ -19,9 +19,9 @@ graph TD
     G --> L[postGenerate]
     G --> M[beforeInstall]
     G --> N[afterInstall]
-    
+
     A --> G
-    
+
     subgraph "Execution Flow"
         O[Register Plugins] --> P[Validate Config]
         P --> Q[Transform Config]
@@ -64,10 +64,10 @@ Plugins receive a context object with access to core systems:
 
 ```typescript
 interface PluginContext {
-  config: ProjectConfig;           // Project configuration
-  projectPath: string;             // Target project directory
-  templateEngine: TemplateEngine;  // Template processing engine
-  logger: typeof consola;          // Logging utility
+  config: ProjectConfig; // Project configuration
+  projectPath: string; // Target project directory
+  templateEngine: TemplateEngine; // Template processing engine
+  logger: typeof consola; // Logging utility
 }
 ```
 
@@ -82,12 +82,12 @@ Validates project configuration and returns errors:
 ```typescript
 validateConfig(config: ProjectConfig): { valid: boolean; errors?: string[] } {
   const errors: string[] = [];
-  
+
   // Validation logic
   if (config.framework === "angular" && !config.typescript) {
     errors.push("Angular requires TypeScript");
   }
-  
+
   return {
     valid: errors.length === 0,
     errors,
@@ -108,7 +108,7 @@ transformConfig(config: ProjectConfig): ProjectConfig {
       typescript: true,
     };
   }
-  
+
   return config;
 }
 ```
@@ -122,7 +122,7 @@ Setup tasks before template generation:
 ```typescript
 async preGenerate(context: PluginContext): Promise<void> {
   const { config, logger } = context;
-  
+
   if (config.typescript) {
     logger.debug("Preparing TypeScript configuration");
     // Setup tasks
@@ -137,7 +137,7 @@ Main plugin logic and template processing:
 ```typescript
 async generate(context: PluginContext): Promise<void> {
   const { config, projectPath, templateEngine } = context;
-  
+
   if (config.docker) {
     await templateEngine.processConditionalTemplates([
       {
@@ -160,7 +160,7 @@ Cleanup and finalization tasks:
 ```typescript
 async postGenerate(context: PluginContext): Promise<void> {
   const { config, logger } = context;
-  
+
   if (config.typescript) {
     logger.success("TypeScript configuration completed");
   }
@@ -176,7 +176,7 @@ Tasks before dependency installation:
 ```typescript
 async beforeInstall(context: PluginContext): Promise<void> {
   const { config, projectPath } = context;
-  
+
   // Prepare environment for installation
   if (config.docker) {
     // Set up Docker environment
@@ -191,7 +191,7 @@ Tasks after dependency installation:
 ```typescript
 async afterInstall(context: PluginContext): Promise<void> {
   const { config, projectPath } = context;
-  
+
   // Post-install setup
   if (config.typescript) {
     // Run TypeScript type checking
@@ -213,7 +213,7 @@ export const typescriptPlugin = createPlugin({
 
   validateConfig(config: ProjectConfig) {
     const errors: string[] = [];
-    
+
     if (config.framework === "angular" && !config.typescript) {
       errors.push("Angular projects require TypeScript");
     }
@@ -239,20 +239,24 @@ export const typescriptPlugin = createPlugin({
 
     const { templateEngine, projectPath, config } = context;
 
-    await templateEngine.processConditionalTemplates([
-      {
-        condition: true,
-        sourceDir: "features/typescript/base",
-      },
-      {
-        condition: config.framework === "react",
-        sourceDir: "features/typescript/react",
-      },
-      {
-        condition: config.framework === "vue",
-        sourceDir: "features/typescript/vue",
-      },
-    ], projectPath, config);
+    await templateEngine.processConditionalTemplates(
+      [
+        {
+          condition: true,
+          sourceDir: "features/typescript/base",
+        },
+        {
+          condition: config.framework === "react",
+          sourceDir: "features/typescript/react",
+        },
+        {
+          condition: config.framework === "vue",
+          sourceDir: "features/typescript/vue",
+        },
+      ],
+      projectPath,
+      config
+    );
   },
 });
 ```
@@ -315,7 +319,7 @@ export const dockerPlugin = createPlugin({
     if (!context.config.docker) return;
 
     context.logger.debug("Preparing Docker configuration");
-    
+
     // Validate Docker requirements
     // Set up environment variables
   },
@@ -326,42 +330,54 @@ export const dockerPlugin = createPlugin({
     const { config, projectPath, templateEngine } = context;
 
     // Generate base Docker files
-    await templateEngine.processConditionalTemplates([
-      {
-        condition: true,
-        sourceDir: "features/docker/base",
-      },
-    ], projectPath, config);
+    await templateEngine.processConditionalTemplates(
+      [
+        {
+          condition: true,
+          sourceDir: "features/docker/base",
+        },
+      ],
+      projectPath,
+      config
+    );
 
     // Generate database-specific Docker configuration
     if (config.database !== "none") {
-      await templateEngine.processConditionalTemplates([
-        {
-          condition: config.database === "postgres",
-          sourceDir: "features/docker/postgres",
-        },
-        {
-          condition: config.database === "mysql",
-          sourceDir: "features/docker/mysql",
-        },
-        {
-          condition: config.database === "mongodb",
-          sourceDir: "features/docker/mongodb",
-        },
-      ], projectPath, config);
+      await templateEngine.processConditionalTemplates(
+        [
+          {
+            condition: config.database === "postgres",
+            sourceDir: "features/docker/postgres",
+          },
+          {
+            condition: config.database === "mysql",
+            sourceDir: "features/docker/mysql",
+          },
+          {
+            condition: config.database === "mongodb",
+            sourceDir: "features/docker/mongodb",
+          },
+        ],
+        projectPath,
+        config
+      );
     }
 
     // Generate framework-specific Docker configuration
-    await templateEngine.processConditionalTemplates([
-      {
-        condition: config.framework === "next",
-        sourceDir: "features/docker/next",
-      },
-      {
-        condition: config.framework === "nuxt",
-        sourceDir: "features/docker/nuxt",
-      },
-    ], projectPath, config);
+    await templateEngine.processConditionalTemplates(
+      [
+        {
+          condition: config.framework === "next",
+          sourceDir: "features/docker/next",
+        },
+        {
+          condition: config.framework === "nuxt",
+          sourceDir: "features/docker/nuxt",
+        },
+      ],
+      projectPath,
+      config
+    );
   },
 
   async postGenerate(context: PluginContext) {
@@ -394,7 +410,7 @@ export const packageJsonPlugin = createPlugin({
         ...packageJson.scripts,
         "type-check": config.typescript ? "tsc --noEmit" : undefined,
         "lint:fix": "eslint . --fix",
-        "format": "prettier --write .",
+        format: "prettier --write .",
       };
 
       // Add metadata
@@ -435,7 +451,7 @@ import { gitPlugin } from "./git-plugin.js";
 
 export function registerBuiltinPlugins() {
   const pluginManager = getPluginManager();
-  
+
   // Register built-in plugins
   pluginManager.register(typescriptPlugin);
   pluginManager.register(dockerPlugin);
@@ -457,7 +473,7 @@ export async function discoverPlugins(pluginDir: string) {
   for (const file of pluginFiles) {
     try {
       const pluginModule = await import(path.join(pluginDir, file));
-      
+
       if (pluginModule.plugin && typeof pluginModule.plugin === "object") {
         pluginManager.register(pluginModule.plugin);
       }
@@ -475,7 +491,7 @@ export async function discoverPlugins(pluginDir: string) {
 ```typescript
 export const pluginA = createPlugin({
   name: "plugin-a",
-  
+
   async generate(context: PluginContext) {
     // Set data for other plugins
     context.sharedData = context.sharedData || {};
@@ -487,11 +503,11 @@ export const pluginA = createPlugin({
 
 export const pluginB = createPlugin({
   name: "plugin-b",
-  
+
   async generate(context: PluginContext) {
     // Read data from other plugins
     const dataFromA = context.sharedData?.pluginA?.someValue;
-    
+
     if (dataFromA) {
       // Use the data
     }
@@ -505,14 +521,14 @@ export const pluginB = createPlugin({
 export const dependentPlugin = createPlugin({
   name: "dependent-plugin",
   dependencies: ["typescript", "docker"],
-  
+
   async preGenerate(context: PluginContext) {
     const pluginManager = getPluginManager();
-    
+
     // Check if dependencies are registered
     const hasTypeScript = pluginManager.getPlugin("typescript");
     const hasDocker = pluginManager.getPlugin("docker");
-    
+
     if (!hasTypeScript || !hasDocker) {
       throw new Error("Required plugins not found");
     }
@@ -625,10 +641,7 @@ my-precast-plugin/
   "peerDependencies": {
     "create-precast-app": "^1.0.0"
   },
-  "files": [
-    "dist",
-    "templates"
-  ]
+  "files": ["dist", "templates"]
 }
 ```
 

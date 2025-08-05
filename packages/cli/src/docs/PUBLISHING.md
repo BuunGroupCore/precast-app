@@ -5,6 +5,7 @@ This guide explains how to publish the CLI package to npm.
 ## Prerequisites
 
 1. **npm Account**: Make sure you have an npm account and are logged in
+
    ```bash
    npm login
    ```
@@ -28,12 +29,14 @@ This guide explains how to publish the CLI package to npm.
 ### 2. Manual Publishing
 
 #### Beta Release
+
 ```bash
 # For beta/prerelease versions
 bun run publish:beta
 ```
 
 #### Production Release
+
 ```bash
 # For patch releases (0.1.0 -> 0.1.1)
 bun run publish:patch
@@ -48,12 +51,14 @@ bun run publish:major
 ### 3. Automated Publishing via GitHub Actions
 
 #### Beta Release
+
 1. Push to main branch
 2. Go to GitHub Actions
 3. Run "Publish CLI Package" workflow manually
 4. Select "beta" tag
 
 #### Production Release
+
 1. Create and push a git tag:
    ```bash
    git tag v1.0.0
@@ -64,6 +69,7 @@ bun run publish:major
 ### 4. What Gets Published
 
 The published package includes:
+
 - `dist/` - Compiled JavaScript files and templates
 - `README.md` - Package documentation
 - `CHANGELOG.md` - Version history
@@ -113,16 +119,19 @@ After publishing, verify the package:
 ### 8. Troubleshooting
 
 #### Build Issues
+
 - Ensure all dependencies are installed: `bun install`
 - Clear build cache: `rm -rf dist dist-test`
 - Rebuild: `bun run build`
 
 #### Publishing Issues
+
 - Check npm login: `npm whoami`
 - Verify package name availability: `npm view create-precast-app`
 - Check permissions: Contact package maintainers
 
 #### Template Issues
+
 - Verify templates directory exists in dist: `ls -la dist/templates`
 - Test template resolution: Run CLI with verbose output
 
@@ -136,6 +145,7 @@ After publishing, verify the package:
 ## Package Configuration
 
 The package is configured with:
+
 - **Public access**: Anyone can install it
 - **ESM format**: Modern JavaScript modules
 - **Node.js 18+**: Minimum supported version

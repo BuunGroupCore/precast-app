@@ -14,7 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- cleaned up errors and warnings added all seo images (2750449c)
+
+- ran bun lint fix (28364873)
+- ran bun lint fix (28364873)
+- ran bun lint fix (28364873)
+- ran bun lint fix (28364873)
+- ran bun lint fix (28364873)
+- ran bun lint fix (28364873)
+- ran bun lint fix (28364873)
+- ran bun lint fix (28364873)- cleaned up errors and warnings added all seo images (2750449c)
 
 ### Documen
 - cleaned up errors and warnings added all seo images (4a58ff42)

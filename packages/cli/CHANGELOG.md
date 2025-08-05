@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+### Fixed
+
+- changes for fixes (ef0fa0a6)
+
 ### Added
 
 - cleaned up errors and warnings added all seo images (2750449c)

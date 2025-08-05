@@ -1,7 +1,7 @@
 import path from "path";
 
 import { consola } from "consola";
-import fsExtra from "fs-extra";
+import { ensureDir, writeJSON, writeFile, pathExists, readFile } from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -21,15 +21,15 @@ export async function setupClaudeIntegration(
   try {
     // Create .claude directory
     const claudeDir = path.join(projectPath, ".claude");
-    await fsExtra.ensureDir(claudeDir);
+    await ensureDir(claudeDir);
 
     // Create settings.json with project-specific permissions
     const settings = await generateClaudeSettings(config);
-    await fsExtra.writeJSON(path.join(claudeDir, "settings.json"), settings, { spaces: 2 });
+    await writeJSON(path.join(claudeDir, "settings.json"), settings, { spaces: 2 });
 
     // Create CLAUDE.md in project root
     const claudeMd = await generateClaudeMd(config);
-    await fsExtra.writeFile(path.join(projectPath, "CLAUDE.md"), claudeMd);
+    await writeFile(path.join(projectPath, "CLAUDE.md"), claudeMd);
 
     // Create .gitignore entry for .claude/settings.local.json
     await addToGitignore(projectPath, ".claude/settings.local.json");
@@ -400,8 +400,8 @@ async function addToGitignore(projectPath: string, entry: string): Promise<void>
 
   try {
     let content = "";
-    if (await fsExtra.pathExists(gitignorePath)) {
-      content = await fsExtra.readFile(gitignorePath, "utf-8");
+    if (await pathExists(gitignorePath)) {
+      content = await readFile(gitignorePath, "utf-8");
     }
 
     // Check if entry already exists
@@ -413,7 +413,7 @@ async function addToGitignore(projectPath: string, entry: string): Promise<void>
         content += `\n# Local development\n${entry}\n`;
       }
 
-      await fsExtra.writeFile(gitignorePath, content);
+      await writeFile(gitignorePath, content);
     }
   } catch (error) {
     consola.debug("Failed to update .gitignore:", error);

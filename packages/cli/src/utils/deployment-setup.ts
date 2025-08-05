@@ -1,7 +1,7 @@
 import path from "path";
 
 import { consola } from "consola";
-import fsExtra from "fs-extra";
+import { pathExists, readJson, writeJson } from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import type { TemplateEngine } from "../core/template-engine.js";
@@ -100,8 +100,8 @@ export async function setupDeploymentConfig(
 
     // Update package.json scripts if needed
     const packageJsonPath = path.join(projectPath, "package.json");
-    if (await fsExtra.pathExists(packageJsonPath)) {
-      const packageJson = await fsExtra.readJson(packageJsonPath);
+    if (await pathExists(packageJsonPath)) {
+      const packageJson = await readJson(packageJsonPath);
 
       // Add deployment-specific scripts
       if (!packageJson.scripts) packageJson.scripts = {};
@@ -125,7 +125,7 @@ export async function setupDeploymentConfig(
           break;
       }
 
-      await fsExtra.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+      await writeJson(packageJsonPath, packageJson, { spaces: 2 });
     }
 
     consola.success(`${deployConfig.name} deployment configuration added!`);

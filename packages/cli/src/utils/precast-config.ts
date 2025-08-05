@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import fsExtra from "fs-extra";
+import { writeFile, pathExists, readFile } from "fs-extra";
 import * as JSONC from "jsonc-parser";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
@@ -69,7 +69,7 @@ export async function writePrecastConfig(projectConfig: ProjectConfig) {
   const finalContent = `${configContent}`;
 
   const configPath = path.join(projectConfig.projectPath, PRECAST_CONFIG_FILE);
-  await fsExtra.writeFile(configPath, finalContent, "utf-8");
+  await writeFile(configPath, finalContent, "utf-8");
 }
 
 /**
@@ -81,11 +81,11 @@ export async function readPrecastConfig(projectDir: string): Promise<PrecastConf
   try {
     const configPath = path.join(projectDir, PRECAST_CONFIG_FILE);
 
-    if (!(await fsExtra.pathExists(configPath))) {
+    if (!(await pathExists(configPath))) {
       return null;
     }
 
-    const configContent = await fsExtra.readFile(configPath, "utf-8");
+    const configContent = await readFile(configPath, "utf-8");
 
     const errors: JSONC.ParseError[] = [];
     const config = JSONC.parse(configContent, errors, {
@@ -116,11 +116,11 @@ export async function updatePrecastConfig(
   try {
     const configPath = path.join(projectDir, PRECAST_CONFIG_FILE);
 
-    if (!(await fsExtra.pathExists(configPath))) {
+    if (!(await pathExists(configPath))) {
       return;
     }
 
-    const configContent = await fsExtra.readFile(configPath, "utf-8");
+    const configContent = await readFile(configPath, "utf-8");
 
     let modifiedContent = configContent;
 
@@ -135,7 +135,7 @@ export async function updatePrecastConfig(
       modifiedContent = JSONC.applyEdits(modifiedContent, editResult);
     }
 
-    await fsExtra.writeFile(configPath, modifiedContent, "utf-8");
+    await writeFile(configPath, modifiedContent, "utf-8");
   } catch {
     // Silently fail if config update fails
   }

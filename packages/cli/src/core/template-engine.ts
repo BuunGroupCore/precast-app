@@ -1,8 +1,7 @@
 import path from "node:path";
 
 import { consola } from "consola";
-import fsExtra from "fs-extra";
-const { pathExists, readFile, ensureDir, writeFile, copy, readdir } = fsExtra;
+import { pathExists, readFile, ensureDir, writeFile, copy, readdir } from "fs-extra";
 import { globby } from "globby";
 import handlebars from "handlebars";
 

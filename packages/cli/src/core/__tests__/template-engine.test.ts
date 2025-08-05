@@ -1,8 +1,7 @@
 import os from "os";
 import path from "path";
 
-import fsExtra from "fs-extra";
-const { mkdtemp, ensureDir, remove, writeFile, readFile, readJson, pathExists } = fsExtra;
+import { mkdtemp, ensureDir, remove, writeFile, readFile, readJson, pathExists } from "fs-extra";
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 import { TemplateEngine } from "../template-engine.js";

@@ -1,7 +1,7 @@
 import path from "path";
 
 import { consola } from "consola";
-import fsExtra from "fs-extra";
+import { ensureDir, writeFile, pathExists, readFile } from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -357,11 +357,11 @@ export async function setupMCPConfiguration(
 
     // Ensure .claude directory exists
     const claudeDir = path.join(projectPath, ".claude");
-    await fsExtra.ensureDir(claudeDir);
+    await ensureDir(claudeDir);
 
     // Write MCP configuration
     const mcpConfigPath = path.join(claudeDir, "mcp.json");
-    await fsExtra.writeFile(mcpConfigPath, JSON.stringify(mcpConfig, null, 2) + "\n");
+    await writeFile(mcpConfigPath, JSON.stringify(mcpConfig, null, 2) + "\n");
 
     // Create environment template with MCP variables
     await createMCPEnvTemplate(projectPath, relevantServers);
@@ -399,8 +399,8 @@ async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): 
 
   // Check if .env.example already exists
   let existingContent = "";
-  if (await fsExtra.pathExists(envExamplePath)) {
-    existingContent = await fsExtra.readFile(envExamplePath, "utf-8");
+  if (await pathExists(envExamplePath)) {
+    existingContent = await readFile(envExamplePath, "utf-8");
     // Skip if MCP section already exists
     if (existingContent.includes("# MCP (Model Context Protocol) Configuration")) {
       return;
@@ -423,5 +423,5 @@ async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): 
   ].join("\n");
 
   const updatedContent = existingContent + mcpSection;
-  await fsExtra.writeFile(envExamplePath, updatedContent);
+  await writeFile(envExamplePath, updatedContent);
 }

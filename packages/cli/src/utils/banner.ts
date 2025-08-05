@@ -1,7 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import fsExtra from "fs-extra";
+import { pathExists, readFile, writeFile } from "fs-extra";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,15 +27,15 @@ export async function loadCustomBanner(): Promise<string | null> {
     // Look for banner file in CLI root directory
     const bannerPath = path.join(__dirname, "..", "..", "banner.txt");
 
-    if (await fsExtra.pathExists(bannerPath)) {
-      const customBanner = await fsExtra.readFile(bannerPath, "utf-8");
+    if (await pathExists(bannerPath)) {
+      const customBanner = await readFile(bannerPath, "utf-8");
       return customBanner.trim();
     }
 
     // Also check for banner in current working directory
     const cwdBannerPath = path.join(process.cwd(), "precast-banner.txt");
-    if (await fsExtra.pathExists(cwdBannerPath)) {
-      const customBanner = await fsExtra.readFile(cwdBannerPath, "utf-8");
+    if (await pathExists(cwdBannerPath)) {
+      const customBanner = await readFile(cwdBannerPath, "utf-8");
       return customBanner.trim();
     }
 
@@ -73,8 +73,8 @@ export async function createBannerTemplate(): Promise<void> {
 # Or place 'banner.txt' in the CLI installation directory
 `;
 
-  if (!(await fsExtra.pathExists(bannerPath))) {
-    await fsExtra.writeFile(bannerPath, template.trim());
+  if (!(await pathExists(bannerPath))) {
+    await writeFile(bannerPath, template.trim());
     console.log(`Created banner template at ${bannerPath}`);
     console.log("Customize this file with your own ASCII art!");
   } else {

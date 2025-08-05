@@ -1,7 +1,7 @@
 import path from "path";
 
 import { consola } from "consola";
-import fsExtra from "fs-extra";
+import { readdir, pathExists, readFile, writeFile } from "fs-extra";
 
 interface DependencyUpdate {
   package: string;
@@ -93,15 +93,15 @@ export async function updateTemplateDependencies(): Promise<void> {
   consola.info("📦 Updating template dependencies to secure versions...");
 
   const templatesDir = path.join(__dirname, "..", "templates", "frameworks");
-  const frameworks = await fsExtra.readdir(templatesDir);
+  const frameworks = await readdir(templatesDir);
 
   for (const framework of frameworks) {
     const packageJsonPath = path.join(templatesDir, framework, "base", "package.json.hbs");
 
-    if (await fsExtra.pathExists(packageJsonPath)) {
+    if (await pathExists(packageJsonPath)) {
       consola.info(`Updating ${framework} dependencies...`);
 
-      let content = await fsExtra.readFile(packageJsonPath, "utf-8");
+      let content = await readFile(packageJsonPath, "utf-8");
       let updated = false;
 
       // Update dependency versions
@@ -137,7 +137,7 @@ export async function updateTemplateDependencies(): Promise<void> {
       }
 
       if (updated) {
-        await fsExtra.writeFile(packageJsonPath, content);
+        await writeFile(packageJsonPath, content);
       }
     }
   }
@@ -156,7 +156,7 @@ export async function addSecurityOverridesToProject(
     return;
   }
 
-  const content = await fsExtra.readFile(packageJsonPath, "utf-8");
+  const content = await readFile(packageJsonPath, "utf-8");
   const packageJson = JSON.parse(content);
 
   // Check if we need to add overrides (for frameworks that need them)
@@ -168,7 +168,7 @@ export async function addSecurityOverridesToProject(
 
   if (needsOverrides && !packageJson.overrides) {
     packageJson.overrides = getSecurityOverrides(framework, packageManager);
-    await fsExtra.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
+    await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
     consola.info("📝 Added security overrides to package.json");
   }
 }

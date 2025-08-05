@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 
 import { intro, outro, spinner, confirm, cancel, log } from "@clack/prompts";
 import { execa } from "execa";
-import fsExtra from "fs-extra";
+import { pathExists, readdir, ensureDir, remove } from "fs-extra";
 import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
@@ -75,8 +75,8 @@ export async function initCommand(projectName: string | undefined, options: Init
     }
     const projectPath = path.resolve(process.cwd(), config.name);
     config.projectPath = projectPath;
-    if (await fsExtra.pathExists(projectPath)) {
-      const isEmpty = (await fsExtra.readdir(projectPath)).length === 0;
+    if (await pathExists(projectPath)) {
+      const isEmpty = (await readdir(projectPath)).length === 0;
       if (!isEmpty) {
         const overwrite = await confirm({
           message: `Directory ${config.name} already exists and is not empty. Continue?`,
@@ -88,7 +88,7 @@ export async function initCommand(projectName: string | undefined, options: Init
         }
       }
     }
-    await fsExtra.ensureDir(projectPath);
+    await ensureDir(projectPath);
     const s = spinner();
     s.start("Creating project structure");
     try {
@@ -164,7 +164,7 @@ export async function initCommand(projectName: string | undefined, options: Init
       log.message("Happy coding! 🚀");
     } catch (error) {
       s.stop("Failed to create project");
-      await fsExtra.remove(projectPath);
+      await remove(projectPath);
       throw error;
     }
   } catch (error) {

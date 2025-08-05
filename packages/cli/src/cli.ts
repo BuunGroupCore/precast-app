@@ -3,14 +3,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { Command } from "commander";
-import fsExtra from "fs-extra";
+import { readJSON } from "fs-extra";
 
 import { addFeaturesCommand } from "./commands/add-features.js";
 import { addCommand } from "./commands/add.js";
 import { initCommand } from "./commands/init.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const packageJson = await fsExtra.readJSON(path.join(__dirname, "..", "package.json"));
+const packageJson = await readJSON(path.join(__dirname, "..", "package.json"));
 const program = new Command();
 program
   .name("create-precast-app")

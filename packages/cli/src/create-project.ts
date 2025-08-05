@@ -1,8 +1,7 @@
 import path from "path";
 
 import { execa } from "execa";
-import fsExtra from "fs-extra";
-const { pathExists, ensureDir, writeFile, remove } = fsExtra;
+import { pathExists, ensureDir, writeFile, remove } from "fs-extra";
 
 import { type ProjectConfig } from "../../shared/stack-config.js";
 

@@ -2,7 +2,7 @@ import path from "path";
 
 import { text, select, confirm } from "@clack/prompts";
 import { consola } from "consola";
-import fsExtra from "fs-extra";
+import { ensureDir, writeFile, pathExists, readJSON } from "fs-extra";
 interface AddOptions {
   type?: string;
   name?: string;
@@ -115,7 +115,7 @@ async function generateReactComponent(
 ) {
   const ext = options.typescript ? "tsx" : "jsx";
   const componentDir = path.join(process.cwd(), "src/components", name);
-  await fsExtra.ensureDir(componentDir);
+  await ensureDir(componentDir);
   const componentContent = `${
     options.typescript
       ? `interface ${name}Props {
@@ -131,11 +131,11 @@ async function generateReactComponent(
     </div>
   );
 }`;
-  await fsExtra.writeFile(path.join(componentDir, `${name}.${ext}`), componentContent);
+  await writeFile(path.join(componentDir, `${name}.${ext}`), componentContent);
   if (options.withStyles) {
     const stylesContent = `.${name.toLowerCase()} {
 }`;
-    await fsExtra.writeFile(path.join(componentDir, `${name}.module.css`), stylesContent);
+    await writeFile(path.join(componentDir, `${name}.module.css`), stylesContent);
   }
   if (options.withTests) {
     const testContent = `import { render, screen } from '@testing-library/react';
@@ -146,7 +146,7 @@ describe('${name}', () => {
     expect(screen.getByText('${name}')).toBeInTheDocument();
   });
 });`;
-    await fsExtra.writeFile(path.join(componentDir, `${name}.test.${ext}`), testContent);
+    await writeFile(path.join(componentDir, `${name}.test.${ext}`), testContent);
   }
   if (options.withStorybook) {
     const storyContent = `import type { Meta, StoryObj } from '@storybook/react';
@@ -164,9 +164,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {},
 };`;
-    await fsExtra.writeFile(path.join(componentDir, `${name}.stories.${ext}`), storyContent);
+    await writeFile(path.join(componentDir, `${name}.stories.${ext}`), storyContent);
   }
-  await fsExtra.writeFile(
+  await writeFile(
     path.join(componentDir, `index.${options.typescript ? "ts" : "js"}`),
     `export { default } from './${name}';`
   );
@@ -193,8 +193,8 @@ async function addUtility(_options: AddOptions) {
 }
 async function detectFramework(): Promise<string> {
   const packageJsonPath = path.join(process.cwd(), "package.json");
-  if (await fsExtra.pathExists(packageJsonPath)) {
-    const packageJson = await fsExtra.readJSON(packageJsonPath);
+  if (await pathExists(packageJsonPath)) {
+    const packageJson = await readJSON(packageJsonPath);
     const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
     if (deps.next) return "next";
     if (deps.react) return "react";
@@ -205,5 +205,5 @@ async function detectFramework(): Promise<string> {
   return "react"; // default
 }
 async function detectTypeScript(): Promise<boolean> {
-  return await fsExtra.pathExists(path.join(process.cwd(), "tsconfig.json"));
+  return await pathExists(path.join(process.cwd(), "tsconfig.json"));
 }

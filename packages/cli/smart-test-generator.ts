@@ -2,8 +2,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import fsExtra from "fs-extra";
-const { writeFile, ensureDir } = fsExtra;
+import { writeFile, ensureDir } from "fs-extra";
 
 import {
   frameworkDefs,

@@ -2,8 +2,7 @@ import * as crypto from "crypto";
 import * as path from "path";
 
 import { consola } from "consola";
-import fsExtra from "fs-extra";
-const { writeFile, ensureDir, pathExists, readFile } = fsExtra;
+import { writeFile, ensureDir, pathExists, readFile } from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 

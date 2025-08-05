@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { select, multiselect, confirm } from "@clack/prompts";
 import { execa } from "execa";
-import fsExtra from "fs-extra";
+import { ensureDir, readFile, writeFile } from "fs-extra";
 
 import { UI_LIBRARY_COMPATIBILITY, checkCompatibility } from "../utils/dependency-checker.js";
 import { logger } from "../utils/logger.js";
@@ -192,14 +192,14 @@ async function generateAIContextFiles(projectDir: string, aiTools: string[], con
     switch (tool) {
       case "claude": {
         const claudeDir = path.join(projectDir, ".claude");
-        await fsExtra.ensureDir(claudeDir);
+        await ensureDir(claudeDir);
 
         // Generate CLAUDE.md from template
         const templatePath = path.join(
           import.meta.dirname,
           "../templates/ai-context/CLAUDE.md.hbs"
         );
-        const template = await fsExtra.readFile(templatePath, "utf-8");
+        const template = await readFile(templatePath, "utf-8");
         const content = template
           .replace(/{{name}}/g, config.name)
           .replace(/{{framework}}/g, config.framework)
@@ -208,25 +208,25 @@ async function generateAIContextFiles(projectDir: string, aiTools: string[], con
           .replace(/{{packageManager}}/g, config.packageManager)
           .replace(/{{styling}}/g, config.styling || "css");
 
-        await fsExtra.writeFile(path.join(claudeDir, "CLAUDE.md"), content);
+        await writeFile(path.join(claudeDir, "CLAUDE.md"), content);
         break;
       }
 
       case "copilot": {
         const githubDir = path.join(projectDir, ".github");
-        await fsExtra.ensureDir(githubDir);
+        await ensureDir(githubDir);
 
         const templatePath = path.join(
           import.meta.dirname,
           "../templates/ai-context/copilot-instructions.md.hbs"
         );
-        const template = await fsExtra.readFile(templatePath, "utf-8");
+        const template = await readFile(templatePath, "utf-8");
         const content = template
           .replace(/{{name}}/g, config.name)
           .replace(/{{framework}}/g, config.framework)
           .replace(/{{language}}/g, config.language);
 
-        await fsExtra.writeFile(path.join(githubDir, "copilot-instructions.md"), content);
+        await writeFile(path.join(githubDir, "copilot-instructions.md"), content);
         break;
       }
 
@@ -235,13 +235,13 @@ async function generateAIContextFiles(projectDir: string, aiTools: string[], con
           import.meta.dirname,
           "../templates/ai-context/.cursorrules.hbs"
         );
-        const template = await fsExtra.readFile(templatePath, "utf-8");
+        const template = await readFile(templatePath, "utf-8");
         const content = template
           .replace(/{{name}}/g, config.name)
           .replace(/{{framework}}/g, config.framework)
           .replace(/{{language}}/g, config.language);
 
-        await fsExtra.writeFile(path.join(projectDir, ".cursorrules"), content);
+        await writeFile(path.join(projectDir, ".cursorrules"), content);
         break;
       }
 
@@ -250,13 +250,13 @@ async function generateAIContextFiles(projectDir: string, aiTools: string[], con
           import.meta.dirname,
           "../templates/ai-context/GEMINI.md.hbs"
         );
-        const template = await fsExtra.readFile(templatePath, "utf-8");
+        const template = await readFile(templatePath, "utf-8");
         const content = template
           .replace(/{{name}}/g, config.name)
           .replace(/{{framework}}/g, config.framework)
           .replace(/{{language}}/g, config.language);
 
-        await fsExtra.writeFile(path.join(projectDir, "GEMINI.md"), content);
+        await writeFile(path.join(projectDir, "GEMINI.md"), content);
         break;
       }
     }

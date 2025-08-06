@@ -6,6 +6,10 @@ export interface CompatibilityRule {
   setupCommand?: string;
   postInstallSteps?: string[];
 }
+
+/**
+ * UI library compatibility rules mapping
+ */
 export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
   shadcn: {
     name: "shadcn/ui",
@@ -62,6 +66,10 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
     ],
   },
 };
+
+/**
+ * AI assistance compatibility rules mapping
+ */
 export const AI_ASSISTANCE_COMPATIBILITY: Record<string, CompatibilityRule> = {
   "claude-sdk": {
     frameworks: [
@@ -106,6 +114,14 @@ export const AI_ASSISTANCE_COMPATIBILITY: Record<string, CompatibilityRule> = {
     postInstallSteps: ["Configure LLM provider", "Set up vector store if needed"],
   },
 };
+
+/**
+ * Check if a library is compatible with a framework
+ * @param framework - Framework name
+ * @param library - Library name
+ * @param compatibilityMap - Compatibility rules map
+ * @returns Compatibility check result
+ */
 export function checkCompatibility(
   framework: string,
   library: string,
@@ -123,6 +139,13 @@ export function checkCompatibility(
   }
   return { compatible: true, rule };
 }
+
+/**
+ * Get list of incompatible library combinations
+ * @param selectedLibraries - List of selected libraries
+ * @param compatibilityMap - Compatibility rules map
+ * @returns List of incompatibility messages
+ */
 export function getIncompatibleLibraries(
   selectedLibraries: string[],
   compatibilityMap: Record<string, CompatibilityRule>
@@ -140,6 +163,13 @@ export function getIncompatibleLibraries(
   }
   return incompatible;
 }
+
+/**
+ * Get all required dependencies for selected libraries
+ * @param libraries - List of library names
+ * @param compatibilityMap - Compatibility rules map
+ * @returns List of required dependency packages
+ */
 export function getAllRequiredDeps(
   libraries: string[],
   compatibilityMap: Record<string, CompatibilityRule>

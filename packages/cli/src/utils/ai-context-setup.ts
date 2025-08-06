@@ -4,6 +4,13 @@ import { consola } from "consola";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import type { TemplateEngine } from "../core/template-engine.js";
+
+/**
+ * Setup AI context files for various AI coding assistants
+ * @param config - Project configuration
+ * @param projectPath - Path to the project directory
+ * @param templateEngine - Template engine instance
+ */
 export async function setupAIContextFiles(
   config: ProjectConfig,
   projectPath: string,
@@ -17,8 +24,7 @@ export async function setupAIContextFiles(
     try {
       switch (context) {
         case "claude":
-          // Claude context is now handled by setupClaudeIntegration
-          // which creates both .claude/settings.json and CLAUDE.md
+          // Handled by setupClaudeIntegration
           break;
         case "copilot":
           await templateEngine.processTemplate(

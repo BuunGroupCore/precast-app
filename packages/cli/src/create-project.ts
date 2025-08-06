@@ -1,7 +1,9 @@
 import path from "path";
 
 import { execa } from "execa";
-import { pathExists, ensureDir, writeFile, remove } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, ensureDir, writeFile, remove } = fsExtra;
 
 import { type ProjectConfig } from "../../shared/stack-config.js";
 
@@ -12,6 +14,10 @@ import { logger } from "./utils/logger.js";
 import { writePrecastConfig } from "./utils/precast-config.js";
 import { getTemplateRoot } from "./utils/template-path.js";
 
+/**
+ * Create a new project with the given configuration
+ * @param config - Project configuration
+ */
 export async function createProject(config: ProjectConfig) {
   const projectPath = path.resolve(process.cwd(), config.name);
   if (await pathExists(projectPath)) {
@@ -19,15 +25,12 @@ export async function createProject(config: ProjectConfig) {
   }
   await ensureDir(projectPath);
   try {
-    // Update config with projectPath
     const configWithPath = { ...config, projectPath };
 
     await generateTemplate(configWithPath, projectPath);
 
-    // Write Precast configuration file
     await writePrecastConfig(configWithPath);
 
-    // Setup deployment configuration if specified
     if (config.deploymentMethod && config.deploymentMethod !== "none") {
       const templateRoot = getTemplateRoot();
       const templateEngine = createTemplateEngine(templateRoot);
@@ -52,6 +55,12 @@ export async function createProject(config: ProjectConfig) {
     throw error;
   }
 }
+
+/**
+ * Generate .gitignore content based on project configuration
+ * @param config - Project configuration
+ * @returns Gitignore file content
+ */
 function generateGitignore(config: ProjectConfig): string {
   const lines = [
     "# Dependencies",
@@ -100,6 +109,12 @@ function generateGitignore(config: ProjectConfig): string {
   }
   return lines.join("\n");
 }
+
+/**
+ * Generate Docker configuration files
+ * @param config - Project configuration
+ * @param projectPath - Path to the project directory
+ */
 async function generateDockerFiles(config: ProjectConfig, projectPath: string) {
   const dockerfile = generateDockerfile(config);
   await writeFile(path.join(projectPath, "Dockerfile"), dockerfile);
@@ -119,20 +134,23 @@ async function generateDockerFiles(config: ProjectConfig, projectPath: string) {
   ].join("\n");
   await writeFile(path.join(projectPath, ".dockerignore"), dockerignore);
 }
+
+/**
+ * Generate Dockerfile content based on project configuration
+ * @param config - Project configuration
+ * @returns Dockerfile content
+ */
 function generateDockerfile(config: ProjectConfig): string {
   const lines = [
     `FROM node:20-alpine AS base`,
     "",
-    "# Install dependencies only when needed",
     "FROM base AS deps",
     "RUN apk add --no-cache libc6-compat",
     "WORKDIR /app",
     "",
-    "# Install dependencies",
     "COPY package.json package-lock.json* ./",
     "RUN npm ci",
     "",
-    "# Rebuild the source code only when needed",
     "FROM base AS builder",
     "WORKDIR /app",
     "COPY --from=deps /app/node_modules ./node_modules",
@@ -145,7 +163,6 @@ function generateDockerfile(config: ProjectConfig): string {
     lines.push("RUN npm run build", "");
   }
   lines.push(
-    "# Production image",
     "FROM base AS runner",
     "WORKDIR /app",
     "",
@@ -184,6 +201,12 @@ function generateDockerfile(config: ProjectConfig): string {
   }
   return lines.join("\n");
 }
+
+/**
+ * Generate docker-compose.yml content based on project configuration
+ * @param config - Project configuration
+ * @returns Docker Compose YAML content
+ */
 function generateDockerCompose(config: ProjectConfig): string {
   const services: any = {
     app: {

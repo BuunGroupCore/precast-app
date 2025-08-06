@@ -1,7 +1,9 @@
 import path from "node:path";
 
 import { consola } from "consola";
-import { pathExists, readFile, ensureDir, writeFile, copy, readdir } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, readFile, ensureDir, writeFile, copy, readdir } = fsExtra;
 import { globby } from "globby";
 import handlebars from "handlebars";
 
@@ -13,6 +15,10 @@ export interface TemplateOptions {
   overwrite?: boolean;
   skipIfExists?: boolean;
 }
+
+/**
+ * Template engine for processing Handlebars templates
+ */
 export class TemplateEngine {
   private templateRoot: string;
   private helpers: Map<string, handlebars.HelperDelegate> = new Map();
@@ -20,6 +26,10 @@ export class TemplateEngine {
     this.templateRoot = templateRoot;
     this.registerDefaultHelpers();
   }
+
+  /**
+   * Register default Handlebars helpers
+   */
   private registerDefaultHelpers() {
     this.registerHelper("eq", (a, b) => a === b);
     this.registerHelper("and", (a, b) => a && b);
@@ -47,10 +57,24 @@ export class TemplateEngine {
       return args.every(Boolean) ? options.fn(this) : options.inverse(this);
     });
   }
+
+  /**
+   * Register a custom Handlebars helper
+   * @param name - Helper name
+   * @param helper - Helper function
+   */
   registerHelper(name: string, helper: handlebars.HelperDelegate) {
     this.helpers.set(name, helper);
     handlebars.registerHelper(name, helper);
   }
+
+  /**
+   * Process a single template file
+   * @param templatePath - Path to template file
+   * @param outputPath - Path where processed file will be written
+   * @param context - Template context data
+   * @param options - Processing options
+   */
   async processTemplate(
     templatePath: string,
     outputPath: string,
@@ -78,6 +102,15 @@ export class TemplateEngine {
       throw new Error(`Failed to process template: ${templatePath}`);
     }
   }
+
+  /**
+   * Process a template with variant support
+   * @param baseTemplatePath - Base template path
+   * @param outputPath - Output file path
+   * @param context - Template context
+   * @param variants - Variant mappings
+   * @param options - Processing options
+   */
   async processVariantTemplate(
     baseTemplatePath: string,
     outputPath: string,
@@ -101,6 +134,14 @@ export class TemplateEngine {
     }
     await this.processTemplate(selectedTemplate, outputPath, context, options);
   }
+
+  /**
+   * Copy and process an entire template directory
+   * @param sourceDir - Source directory relative to template root
+   * @param destDir - Destination directory
+   * @param context - Template context
+   * @param options - Processing options
+   */
   async copyTemplateDirectory(
     sourceDir: string,
     destDir: string,
@@ -141,10 +182,16 @@ export class TemplateEngine {
       }
     }
   }
+
+  /**
+   * Determine if a file should be skipped based on context
+   * @param file - File path
+   * @param context - Template context
+   * @returns True if file should be skipped
+   */
   private shouldSkipFile(file: string, context: TemplateContext): boolean {
     const fileName = path.basename(file);
 
-    // Config files are always .js regardless of TypeScript usage
     const isConfigFile = fileName.match(/\.(config|rc)\.(js|mjs|cjs)\.hbs$/);
 
     if (!context.typescript && (fileName.endsWith(".ts.hbs") || fileName.endsWith(".tsx.hbs"))) {
@@ -183,6 +230,14 @@ export class TemplateEngine {
     }
     return false;
   }
+
+  /**
+   * Process templates conditionally based on context
+   * @param templates - Array of template configurations
+   * @param projectDir - Project directory
+   * @param context - Template context
+   * @param options - Processing options
+   */
   async processConditionalTemplates(
     templates: Array<{
       condition: boolean | ((ctx: TemplateContext) => boolean);
@@ -202,6 +257,12 @@ export class TemplateEngine {
       }
     }
   }
+
+  /**
+   * Get list of available templates in a category
+   * @param category - Template category
+   * @returns List of template names
+   */
   async getAvailableTemplates(category: string): Promise<string[]> {
     const categoryPath = path.join(this.templateRoot, category);
     if (!(await pathExists(categoryPath))) {
@@ -211,13 +272,25 @@ export class TemplateEngine {
     return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
   }
 }
+
 let templateEngine: TemplateEngine | null = null;
+
+/**
+ * Create or get singleton template engine instance
+ * @param templateRoot - Root directory for templates
+ * @returns Template engine instance
+ */
 export function createTemplateEngine(templateRoot: string): TemplateEngine {
   if (!templateEngine) {
     templateEngine = new TemplateEngine(templateRoot);
   }
   return templateEngine;
 }
+
+/**
+ * Get the current template engine instance
+ * @returns Template engine instance
+ */
 export function getTemplateEngine(): TemplateEngine {
   if (!templateEngine) {
     throw new Error("Template engine not initialized. Call createTemplateEngine first.");

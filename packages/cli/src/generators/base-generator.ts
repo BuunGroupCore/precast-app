@@ -10,6 +10,13 @@ import { getTemplateRoot } from "../utils/template-path.js";
 
 import { generateBackendTemplate } from "./backend-generator.js";
 
+/**
+ * Generate the base template for a framework
+ * @param framework - Framework name
+ * @param config - Project configuration
+ * @param projectPath - Project directory path
+ * @param additionalDirs - Additional directories to copy
+ */
 export async function generateBaseTemplate(
   framework: string,
   config: ProjectConfig,
@@ -20,8 +27,6 @@ export async function generateBaseTemplate(
   const templateEngine = createTemplateEngine(templateRoot);
   const pluginManager = getPluginManager();
 
-  // Check if this should be a monorepo (both frontend and backend)
-  // Note: next-api is integrated into Next.js, so it's not a monorepo
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
   const context = {
@@ -35,10 +40,8 @@ export async function generateBaseTemplate(
     await pluginManager.runPreGenerate(context);
 
     if (isMonorepo) {
-      // Generate monorepo structure
       await generateMonorepoProject(framework, config, projectPath, templateEngine);
     } else {
-      // Generate single app structure (existing behavior)
       await generateSingleAppProject(framework, config, projectPath, templateEngine);
     }
 
@@ -63,18 +66,23 @@ export async function generateBaseTemplate(
   }
 }
 
+/**
+ * Generate a single application project structure
+ * @param framework - Framework name
+ * @param config - Project configuration
+ * @param projectPath - Project directory path
+ * @param templateEngine - Template engine instance
+ */
 async function generateSingleAppProject(
   framework: string,
   config: ProjectConfig,
   projectPath: string,
   templateEngine: any
 ) {
-  // Copy framework base files (existing behavior)
   await templateEngine.copyTemplateDirectory(`frameworks/${framework}/base`, projectPath, config, {
     overwrite: true,
   });
 
-  // Copy framework source files
   const srcDir = `frameworks/${framework}/src`;
   if (
     await templateEngine
@@ -87,6 +95,13 @@ async function generateSingleAppProject(
   }
 }
 
+/**
+ * Generate a monorepo project structure with separate frontend and backend
+ * @param framework - Frontend framework name
+ * @param config - Project configuration
+ * @param projectPath - Project directory path
+ * @param templateEngine - Template engine instance
+ */
 async function generateMonorepoProject(
   framework: string,
   config: ProjectConfig,
@@ -95,19 +110,16 @@ async function generateMonorepoProject(
 ) {
   consola.info("Generating monorepo structure...");
 
-  // Create workspace structure
   await templateEngine.copyTemplateDirectory("workspace", projectPath, config, {
     overwrite: true,
   });
 
-  // Create apps and packages directories
   const appsDir = path.join(projectPath, "apps");
   const packagesDir = path.join(projectPath, "packages");
 
   await fs.mkdir(appsDir, { recursive: true });
   await fs.mkdir(packagesDir, { recursive: true });
 
-  // Generate frontend in apps/web
   const webDir = path.join(appsDir, "web");
   await fs.mkdir(webDir, { recursive: true });
 
@@ -126,21 +138,18 @@ async function generateMonorepoProject(
     });
   }
 
-  // Generate backend in apps/api
   if (config.backend && config.backend !== "none") {
     const apiDir = path.join(appsDir, "api");
     await fs.mkdir(apiDir, { recursive: true });
     await generateBackendTemplate(config.backend, config, apiDir);
   }
 
-  // Generate shared package in packages/shared
   const sharedDir = path.join(packagesDir, "shared");
   await fs.mkdir(sharedDir, { recursive: true });
   await templateEngine.copyTemplateDirectory("shared", sharedDir, config, {
     overwrite: true,
   });
 
-  // Copy shared source files
   const sharedSrcExists = await templateEngine
     .getAvailableTemplates("shared")
     .then((dirs: string[]) => dirs.includes("src"))

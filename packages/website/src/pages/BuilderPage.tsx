@@ -5,6 +5,7 @@ import { SiBun, SiPnpm } from "react-icons/si";
 
 import {
   AIAssistanceSection,
+  ApiSection,
   AuthSection,
   BackendSection,
   DatabaseSection,
@@ -277,6 +278,9 @@ export function BuilderPage() {
 
               {/* 4. Backend Selection - If needed */}
               <BackendSection config={config} setConfig={setConfig} />
+
+              {/* 4.5. API Communication - If backend is selected */}
+              <ApiSection config={config} setConfig={setConfig} />
 
               {/* 5. Runtime Selection - Execution environment */}
               <RuntimeSection config={config} setConfig={setConfig} />

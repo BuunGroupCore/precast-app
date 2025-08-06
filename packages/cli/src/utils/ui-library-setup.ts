@@ -7,11 +7,16 @@ import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { getAllRequiredDeps, UI_LIBRARY_COMPATIBILITY } from "./dependency-checker.js";
 import { installDependencies } from "./package-manager.js";
+
+/**
+ * Setup UI library for the project
+ * @param config - Project configuration
+ * @param projectPath - Path to the project directory
+ */
 export async function setupUILibrary(config: ProjectConfig, projectPath: string): Promise<void> {
   if (!config.uiLibrary || config.uiLibrary === "none") {
     return;
   }
-  // Get UI library icon
   const uiIcons: Record<string, string> = {
     shadcn: "🎯",
     daisyui: "🌼",
@@ -57,22 +62,24 @@ export async function setupUILibrary(config: ProjectConfig, projectPath: string)
     throw error;
   }
 }
+
+/**
+ * Setup shadcn/ui components and configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project directory
+ */
 async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<void> {
   consola.info("🎯 Initializing shadcn/ui...");
 
   try {
-    // First, ensure Tailwind files are properly set up
     const fs = await import("fs-extra");
 
-    // Check if tailwind.config.js exists
     const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
     if (!(await fs.pathExists(tailwindConfigPath))) {
       consola.error("tailwind.config.js not found!");
       throw new Error("Tailwind CSS must be configured before initializing shadcn/ui");
     }
 
-    // Use npx for shadcn regardless of package manager
-    // For now, use defaults which will use New York style
     await execa("npx", ["shadcn@latest", "init", "-y"], {
       cwd: projectPath,
       stdio: "pipe",
@@ -85,8 +92,8 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
       try {
         await execa("npx", ["shadcn@latest", "add", component, "--yes"], {
           cwd: projectPath,
-          stdio: "pipe", // Use pipe instead of inherit
-          timeout: 30000, // 30 second timeout per component
+          stdio: "pipe",
+          timeout: 30000,
         });
         consola.success(`✅ Added ${component} component`);
       } catch (error) {
@@ -99,6 +106,12 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
     consola.info("You can manually initialize it later with: npx shadcn@latest init");
   }
 }
+
+/**
+ * Setup DaisyUI configuration
+ * @param _config - Project configuration (unused)
+ * @param _projectPath - Path to the project directory (unused)
+ */
 async function setupDaisyUI(_config: ProjectConfig, _projectPath: string): Promise<void> {
   consola.info("🌼 Configuring DaisyUI...");
   consola.success(

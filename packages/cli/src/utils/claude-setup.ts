@@ -1,7 +1,9 @@
 import path from "path";
 
 import { consola } from "consola";
-import { ensureDir, writeJSON, writeFile, pathExists, readFile } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { ensureDir, writeJSON, writeFile, pathExists, readFile } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -12,6 +14,11 @@ interface ClaudeSettings {
   };
 }
 
+/**
+ * Setup Claude Code integration for the project
+ * @param config - Project configuration
+ * @param projectPath - Path to the project directory
+ */
 export async function setupClaudeIntegration(
   config: ProjectConfig,
   projectPath: string
@@ -19,19 +26,15 @@ export async function setupClaudeIntegration(
   consola.info("🤖 Setting up Claude Code integration...");
 
   try {
-    // Create .claude directory
     const claudeDir = path.join(projectPath, ".claude");
     await ensureDir(claudeDir);
 
-    // Create settings.json with project-specific permissions
     const settings = await generateClaudeSettings(config);
     await writeJSON(path.join(claudeDir, "settings.json"), settings, { spaces: 2 });
 
-    // Create CLAUDE.md in project root
     const claudeMd = await generateClaudeMd(config);
     await writeFile(path.join(projectPath, "CLAUDE.md"), claudeMd);
 
-    // Create .gitignore entry for .claude/settings.local.json
     await addToGitignore(projectPath, ".claude/settings.local.json");
 
     consola.success("Claude Code integration configured successfully");
@@ -40,6 +43,11 @@ export async function setupClaudeIntegration(
   }
 }
 
+/**
+ * Generate Claude settings based on project configuration
+ * @param config - Project configuration
+ * @returns Claude settings object
+ */
 async function generateClaudeSettings(config: ProjectConfig): Promise<ClaudeSettings> {
   const settings: ClaudeSettings = {
     permissions: {
@@ -48,7 +56,6 @@ async function generateClaudeSettings(config: ProjectConfig): Promise<ClaudeSett
     },
   };
 
-  // Add package manager specific permissions
   const pm = config.packageManager || "npm";
   const pmCommands = [
     `Bash(${pm} install:*)`,
@@ -69,7 +76,6 @@ async function generateClaudeSettings(config: ProjectConfig): Promise<ClaudeSett
 
   settings.permissions!.allow!.push(...pmCommands);
 
-  // Add common development permissions
   settings.permissions!.allow!.push(
     "Bash(mkdir:*)",
     "Bash(touch:*)",
@@ -91,7 +97,6 @@ async function generateClaudeSettings(config: ProjectConfig): Promise<ClaudeSett
     "WebSearch"
   );
 
-  // Add framework-specific permissions
   if (config.framework === "next") {
     settings.permissions!.allow!.push("WebFetch(domain:nextjs.org)", "WebFetch(domain:vercel.com)");
   } else if (config.framework === "vue" || config.framework === "nuxt") {
@@ -395,6 +400,11 @@ const newUser = await prisma.user.create({
   return examples.join("\n");
 }
 
+/**
+ * Add an entry to the project's .gitignore file
+ * @param projectPath - Path to the project directory
+ * @param entry - Entry to add to .gitignore
+ */
 async function addToGitignore(projectPath: string, entry: string): Promise<void> {
   const gitignorePath = path.join(projectPath, ".gitignore");
 
@@ -404,9 +414,7 @@ async function addToGitignore(projectPath: string, entry: string): Promise<void>
       content = await readFile(gitignorePath, "utf-8");
     }
 
-    // Check if entry already exists
     if (!content.includes(entry)) {
-      // Add to local development section or create it
       if (content.includes("# Local development")) {
         content = content.replace(/# Local development/, `# Local development\n${entry}`);
       } else {

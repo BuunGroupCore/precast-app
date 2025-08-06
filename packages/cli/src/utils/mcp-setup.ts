@@ -1,7 +1,9 @@
 import path from "path";
 
 import { consola } from "consola";
-import { ensureDir, writeFile, pathExists, readFile } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { ensureDir, writeFile, pathExists, readFile } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -44,8 +46,10 @@ interface MCPServer {
   repository?: string;
 }
 
+/**
+ * List of available MCP servers and their configurations
+ */
 export const mcpServers: MCPServer[] = [
-  // Database MCP Servers
   {
     id: "mongodb",
     name: "MongoDB MCP Server",
@@ -163,7 +167,6 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/firebase",
   },
 
-  // Development and Deployment MCP Servers
   {
     id: "github",
     name: "GitHub MCP Server",
@@ -219,7 +222,6 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/vercel",
   },
 
-  // Authentication MCP Servers
   {
     id: "auth0",
     name: "Auth0 MCP Server",
@@ -241,7 +243,6 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/auth0",
   },
 
-  // Development Tools - Always useful
   {
     id: "git",
     name: "Git MCP Server",
@@ -276,7 +277,6 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
   },
 
-  // Real Community MCP Servers that exist
   {
     id: "docker",
     name: "Docker MCP Server",
@@ -294,31 +294,31 @@ export const mcpServers: MCPServer[] = [
   },
 ];
 
+/**
+ * Get MCP servers relevant to the project configuration
+ * @param config - Project configuration
+ * @returns List of relevant MCP servers
+ */
 export function getRelevantMCPServers(config: ProjectConfig): MCPServer[] {
   return mcpServers.filter((server) => {
     const { triggers } = server;
 
-    // Always include servers with any: true
     if (triggers.any === true) {
       return true;
     }
 
-    // Check framework triggers
     if (triggers.frameworks?.includes(config.framework)) {
       return true;
     }
 
-    // Check database triggers
     if (triggers.databases?.includes(config.database)) {
       return true;
     }
 
-    // Check deployment triggers (if deployment is configured)
     if (config.deploymentMethod && triggers.deployments?.includes(config.deploymentMethod)) {
       return true;
     }
 
-    // Check auth triggers (if auth is configured)
     if (config.authProvider && triggers.auth?.includes(config.authProvider)) {
       return true;
     }
@@ -327,6 +327,11 @@ export function getRelevantMCPServers(config: ProjectConfig): MCPServer[] {
   });
 }
 
+/**
+ * Setup MCP configuration for the project
+ * @param projectPath - Path to the project directory
+ * @param config - Project configuration
+ */
 export async function setupMCPConfiguration(
   projectPath: string,
   config: ProjectConfig
@@ -341,12 +346,10 @@ export async function setupMCPConfiguration(
       return;
     }
 
-    // Create MCP configuration
     const mcpConfig: MCPConfig = {
       mcpServers: {},
     };
 
-    // Add each relevant server to the configuration
     for (const server of relevantServers) {
       mcpConfig.mcpServers[server.config.server_name] = {
         command: server.config.command,
@@ -355,15 +358,12 @@ export async function setupMCPConfiguration(
       };
     }
 
-    // Ensure .claude directory exists
     const claudeDir = path.join(projectPath, ".claude");
     await ensureDir(claudeDir);
 
-    // Write MCP configuration
     const mcpConfigPath = path.join(claudeDir, "mcp.json");
     await writeFile(mcpConfigPath, JSON.stringify(mcpConfig, null, 2) + "\n");
 
-    // Create environment template with MCP variables
     await createMCPEnvTemplate(projectPath, relevantServers);
 
     consola.success(`✅ MCP configuration created with ${relevantServers.length} servers:`);
@@ -377,10 +377,14 @@ export async function setupMCPConfiguration(
   }
 }
 
+/**
+ * Create environment template file with MCP variables
+ * @param projectPath - Path to the project directory
+ * @param servers - List of MCP servers to include
+ */
 async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): Promise<void> {
   const envExamplePath = path.join(projectPath, ".env.example");
 
-  // Collect all unique environment variables
   const envVars = new Set<string>();
   const envComments: Record<string, string> = {};
 
@@ -397,17 +401,14 @@ async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): 
     return;
   }
 
-  // Check if .env.example already exists
   let existingContent = "";
   if (await pathExists(envExamplePath)) {
     existingContent = await readFile(envExamplePath, "utf-8");
-    // Skip if MCP section already exists
     if (existingContent.includes("# MCP (Model Context Protocol) Configuration")) {
       return;
     }
   }
 
-  // Add MCP section to .env.example
   const mcpSection = [
     "",
     "# =============================================================================",

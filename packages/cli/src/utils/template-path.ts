@@ -1,20 +1,23 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { existsSync } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { existsSync } = fsExtra;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+/**
+ * Get the root path for templates directory
+ * @returns Path to the templates directory
+ */
 export function getTemplateRoot(): string {
-  // In production, templates are in the same directory as the compiled JS
   const prodPath = path.join(__dirname, "templates");
 
-  // In development, templates are in src/templates
   const devPath = path.join(__dirname, "..", "templates");
 
-  // Alternative path for different build structures
   const altPath = path.join(__dirname, "..", "..", "templates");
 
-  // Check if we're in a dist directory and templates might be at dist/templates
   const distPath = __dirname.includes("dist")
     ? path.join(__dirname.split("dist")[0], "dist", "templates")
     : null;
@@ -32,7 +35,6 @@ export function getTemplateRoot(): string {
     return distPath;
   }
 
-  // Last resort: check relative to cwd
   const cwd = process.cwd();
   const cwdPath = path.join(cwd, "dist", "templates");
   if (existsSync(cwdPath)) {

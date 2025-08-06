@@ -70,7 +70,10 @@
       "Bash(packages/cli/dist/cli.js init test-remix --framework remix --styling tailwind --backend none --database none --orm none --runtime node --install --yes)",
       "Bash(../dist/cli.js init:*)",
       "Bash(./dist/cli.js --help)",
-      "Bash(bun:*)"
+      "Bash(bun:*)",
+      "WebFetch(domain:storybook.js.org)",
+      "WebFetch(domain:www.i18next.com)",
+      "WebFetch(domain:vite-pwa-org.netlify.app)"
     ],
     "deny": []
   }

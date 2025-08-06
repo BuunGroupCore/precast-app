@@ -14,6 +14,7 @@ import {
   FaImages,
   FaMobileAlt,
   FaBolt,
+  FaRoute,
 } from "react-icons/fa";
 import {
   SiTurborepo,
@@ -22,6 +23,7 @@ import {
   SiStorybook,
   SiSentry,
   SiCypress,
+  SiReactrouter,
 } from "react-icons/si";
 
 export interface PowerUp {
@@ -37,9 +39,18 @@ export interface PowerUp {
     | "monitoring"
     | "accessibility"
     | "optimization"
-    | "workflow";
+    | "workflow"
+    | "api";
   frameworks?: string[]; // Compatible frameworks, * for all
   dependencies?: string[]; // Required dependencies
+  requiresBackend?: boolean; // Only show when backend is selected
+  recommended?: {
+    frameworks?: string[]; // Recommended for these frameworks
+    backends?: string[]; // Recommended for these backends
+    databases?: string[]; // Recommended for these databases
+    styling?: string[]; // Recommended for these styling solutions
+    reason?: string; // Why it's recommended
+  };
 }
 
 export const powerUps: PowerUp[] = [
@@ -47,15 +58,19 @@ export const powerUps: PowerUp[] = [
   {
     id: "fumadocs",
     name: "Fumadocs",
-    description: "Beautiful documentation site generator for Next.js",
+    description: "Beautiful documentation site generator for Next.js App Router",
     icon: FaBook,
     category: "docs",
     frameworks: ["next"],
+    recommended: {
+      frameworks: ["next"],
+      reason: "Modern docs solution for App Router",
+    },
   },
   {
     id: "docusaurus",
     name: "Docusaurus",
-    description: "Easy to maintain open source documentation websites",
+    description: "Easy to maintain open source documentation websites (React SPA)",
     icon: FaFileAlt,
     category: "docs",
     frameworks: ["react"],
@@ -66,7 +81,12 @@ export const powerUps: PowerUp[] = [
     description: "Build UI components and pages in isolation",
     icon: SiStorybook,
     category: "docs",
-    frameworks: ["react", "vue", "angular", "svelte"],
+    frameworks: ["react", "vue", "angular", "svelte", "solid", "next", "nuxt", "remix"],
+    recommended: {
+      frameworks: ["react", "vue", "angular"],
+      styling: ["tailwind", "css"],
+      reason: "Perfect for component library development",
+    },
   },
 
   // Build Tools
@@ -77,6 +97,11 @@ export const powerUps: PowerUp[] = [
     icon: SiTurborepo,
     category: "build",
     frameworks: ["*"],
+    recommended: {
+      frameworks: ["next"],
+      backends: ["hono", "express", "fastify"],
+      reason: "Vercel's official monorepo solution",
+    },
   },
   {
     id: "nx",
@@ -92,8 +117,12 @@ export const powerUps: PowerUp[] = [
     description: "Zero-config PWA plugin for Vite",
     icon: FaMobileAlt,
     category: "build",
-    frameworks: ["react", "vue", "svelte"],
+    frameworks: ["*"],
     dependencies: ["vite"],
+    recommended: {
+      frameworks: ["vite", "vue", "svelte", "solid"],
+      reason: "Seamless PWA integration for Vite apps",
+    },
   },
 
   // Git Workflow
@@ -130,6 +159,10 @@ export const powerUps: PowerUp[] = [
     icon: FaBolt,
     category: "linting",
     frameworks: ["*"],
+    recommended: {
+      frameworks: ["vite", "solid", "svelte"],
+      reason: "Faster alternative to ESLint + Prettier",
+    },
   },
   {
     id: "prettier",
@@ -156,6 +189,10 @@ export const powerUps: PowerUp[] = [
     icon: FaCheckCircle,
     category: "testing",
     frameworks: ["*"],
+    recommended: {
+      frameworks: ["vite", "vue", "svelte", "solid", "react"],
+      reason: "Native Vite integration for blazing fast tests",
+    },
   },
   {
     id: "playwright",
@@ -164,6 +201,10 @@ export const powerUps: PowerUp[] = [
     icon: FaCheckCircle,
     category: "testing",
     frameworks: ["*"],
+    recommended: {
+      frameworks: ["next", "nuxt", "remix", "astro"],
+      reason: "Best for server-side rendered apps",
+    },
   },
   {
     id: "cypress",
@@ -182,6 +223,12 @@ export const powerUps: PowerUp[] = [
     icon: SiSentry,
     category: "monitoring",
     frameworks: ["*"],
+    recommended: {
+      frameworks: ["next", "remix", "nuxt"],
+      backends: ["hono", "express", "fastify"],
+      databases: ["postgres", "mysql"],
+      reason: "Essential for production error tracking",
+    },
   },
   {
     id: "posthog",
@@ -190,14 +237,19 @@ export const powerUps: PowerUp[] = [
     icon: FaChartLine,
     category: "monitoring",
     frameworks: ["*"],
+    recommended: {
+      frameworks: ["next", "react", "vue", "nuxt"],
+      backends: ["hono", "express", "fastify"],
+      reason: "Privacy-focused analytics with full control",
+    },
   },
   {
     id: "vercel-analytics",
     name: "Vercel Analytics",
-    description: "Privacy-friendly analytics for your website",
+    description: "Privacy-friendly analytics (best with Next.js)",
     icon: FaChartLine,
     category: "monitoring",
-    frameworks: ["next", "react", "vue", "svelte"],
+    frameworks: ["next", "nuxt", "react", "svelte"],
   },
 
   // Optimization
@@ -207,7 +259,8 @@ export const powerUps: PowerUp[] = [
     description: "Make React 70% faster with a compiler",
     icon: FaBolt,
     category: "optimization",
-    frameworks: ["react", "next"],
+    frameworks: ["react", "next", "remix", "astro"],
+    dependencies: ["react"],
   },
   {
     id: "partytown",
@@ -223,7 +276,7 @@ export const powerUps: PowerUp[] = [
     description: "Visualize size of webpack output files",
     icon: FaChartLine,
     category: "optimization",
-    frameworks: ["*"],
+    frameworks: ["react", "next", "vue", "nuxt", "angular"],
   },
 
   // Accessibility
@@ -241,7 +294,8 @@ export const powerUps: PowerUp[] = [
     description: "Library of React Hooks for accessible UI primitives",
     icon: FaAccessibleIcon,
     category: "accessibility",
-    frameworks: ["react", "next"],
+    frameworks: ["react", "next", "remix"],
+    dependencies: ["react"],
   },
 
   // SEO & Meta
@@ -252,14 +306,19 @@ export const powerUps: PowerUp[] = [
     icon: FaSearch,
     category: "optimization",
     frameworks: ["next"],
+    recommended: {
+      frameworks: ["next"],
+      reason: "De facto SEO solution for Next.js",
+    },
   },
   {
     id: "react-helmet",
     name: "React Helmet",
-    description: "Document head management for React",
+    description: "Document head management for React (use native solutions for Next.js/Remix)",
     icon: FaSearch,
     category: "optimization",
     frameworks: ["react"],
+    dependencies: ["react"],
   },
 
   // Internationalization
@@ -272,12 +331,38 @@ export const powerUps: PowerUp[] = [
     frameworks: ["next"],
   },
   {
-    id: "i18next",
-    name: "i18next",
-    description: "Internationalization framework for JavaScript",
+    id: "react-i18next",
+    name: "react-i18next",
+    description: "Most popular internationalization for React (2M+ weekly downloads)",
     icon: FaLanguage,
     category: "workflow",
-    frameworks: ["*"],
+    frameworks: ["react", "remix"],
+    dependencies: ["react"],
+  },
+  {
+    id: "vue-i18n",
+    name: "vue-i18n",
+    description: "Official internationalization plugin for Vue.js",
+    icon: FaLanguage,
+    category: "workflow",
+    frameworks: ["vue", "nuxt"],
+    dependencies: ["vue"],
+  },
+  {
+    id: "angular-localize",
+    name: "@angular/localize",
+    description: "Built-in internationalization support for Angular",
+    icon: FaLanguage,
+    category: "workflow",
+    frameworks: ["angular"],
+  },
+  {
+    id: "solid-i18n",
+    name: "@solid-primitives/i18n",
+    description: "Internationalization primitives for SolidJS",
+    icon: FaLanguage,
+    category: "workflow",
+    frameworks: ["solid"],
   },
 
   // Image Optimization
@@ -297,6 +382,63 @@ export const powerUps: PowerUp[] = [
     category: "optimization",
     frameworks: ["*"],
   },
+
+  // Routing
+  {
+    id: "tanstack-router",
+    name: "TanStack Router",
+    description: "Type-safe routing with search params validation",
+    icon: FaRoute,
+    category: "routing",
+    frameworks: ["react", "solid"],
+    dependencies: ["typescript"],
+    recommended: {
+      frameworks: ["react", "solid"],
+      reason: "Modern type-safe routing solution",
+    },
+  },
+  {
+    id: "react-router",
+    name: "React Router",
+    description: "Declarative routing for React applications",
+    icon: SiReactrouter,
+    category: "routing",
+    frameworks: ["react"],
+    dependencies: ["react"],
+  },
+  {
+    id: "vue-router",
+    name: "Vue Router",
+    description: "Official router for Vue.js applications",
+    icon: FaRoute,
+    category: "routing",
+    frameworks: ["vue"],
+    dependencies: ["vue"],
+    recommended: {
+      frameworks: ["vue"],
+      reason: "Official Vue.js routing solution",
+    },
+  },
+  {
+    id: "svelte-routing",
+    name: "Svelte Routing",
+    description: "Declarative routing for Svelte applications",
+    icon: FaRoute,
+    category: "routing",
+    frameworks: ["svelte"],
+  },
+  {
+    id: "solid-router",
+    name: "Solid Router",
+    description: "Official routing library for SolidJS",
+    icon: FaRoute,
+    category: "routing",
+    frameworks: ["solid"],
+    recommended: {
+      frameworks: ["solid"],
+      reason: "Official SolidJS routing solution",
+    },
+  },
 ];
 
 export const powerUpCategories = [
@@ -308,4 +450,5 @@ export const powerUpCategories = [
   { id: "accessibility", name: "Accessibility", icon: FaAccessibleIcon },
   { id: "optimization", name: "Optimization", icon: FaBolt },
   { id: "workflow", name: "Workflow", icon: FaGitAlt },
+  { id: "routing", name: "Routing", icon: FaRoute },
 ];

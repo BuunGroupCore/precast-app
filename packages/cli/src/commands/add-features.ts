@@ -2,7 +2,9 @@ import path from "node:path";
 
 import { select, multiselect, confirm } from "@clack/prompts";
 import { execa } from "execa";
-import { ensureDir, readFile, writeFile } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { ensureDir, readFile, writeFile } = fsExtra;
 
 import { UI_LIBRARY_COMPATIBILITY, checkCompatibility } from "../utils/dependency-checker.js";
 import { logger } from "../utils/logger.js";
@@ -15,11 +17,15 @@ export interface AddFeaturesOptions {
   yes?: boolean;
 }
 
+/**
+ * Add features to an existing Precast project
+ * @param projectDir - Project directory path
+ * @param options - Feature addition options
+ */
 export async function addFeaturesCommand(
   projectDir: string = process.cwd(),
   options: AddFeaturesOptions = {}
 ) {
-  // Detect existing project
   const projectConfig = await detectPrecastProject(projectDir);
 
   if (!projectConfig) {
@@ -32,7 +38,6 @@ export async function addFeaturesCommand(
 
   const updates: any = {};
 
-  // Handle UI library addition
   if (!options.ui && !options.yes) {
     const currentUI = projectConfig.uiLibrary;
 
@@ -48,7 +53,6 @@ export async function addFeaturesCommand(
     }
 
     if (!options.ui) {
-      // Get compatible UI libraries
       const compatibleLibraries = Object.entries(UI_LIBRARY_COMPATIBILITY)
         .filter(([lib]) => {
           const { compatible } = checkCompatibility(
@@ -77,7 +81,6 @@ export async function addFeaturesCommand(
   }
 
   if (options.ui && options.ui !== "none" && options.ui !== projectConfig.uiLibrary) {
-    // Check compatibility
     const { compatible, reason } = checkCompatibility(
       projectConfig.framework,
       options.ui,
@@ -92,11 +95,9 @@ export async function addFeaturesCommand(
     updates.uiLibrary = options.ui;
     logger.info(`Will add ${options.ui} UI library`);
 
-    // Install UI library dependencies
     await installUILibrary(projectDir, options.ui, projectConfig);
   }
 
-  // Handle AI assistance addition
   if (!options.ai && !options.yes) {
     const currentAI = projectConfig.aiAssistance || [];
 
@@ -125,11 +126,9 @@ export async function addFeaturesCommand(
     updates.aiAssistance = [...new Set(newAI)]; // Remove duplicates
     logger.info(`Will add AI context files for: ${options.ai.join(", ")}`);
 
-    // Generate AI context files
     await generateAIContextFiles(projectDir, options.ai, projectConfig);
   }
 
-  // Update configuration file
   if (Object.keys(updates).length > 0) {
     await updatePrecastConfig(projectDir, updates);
     logger.success("Project configuration updated successfully!");
@@ -138,6 +137,12 @@ export async function addFeaturesCommand(
   }
 }
 
+/**
+ * Install UI library dependencies and run setup
+ * @param projectDir - Project directory path
+ * @param library - UI library name
+ * @param config - Project configuration
+ */
 async function installUILibrary(projectDir: string, library: string, config: any) {
   const libConfig = UI_LIBRARY_COMPATIBILITY[library];
 
@@ -148,7 +153,6 @@ async function installUILibrary(projectDir: string, library: string, config: any
 
   logger.info(`Installing ${library} dependencies...`);
 
-  // Install required dependencies
   if (libConfig.requiredDeps && libConfig.requiredDeps.length > 0) {
     const pm = config.packageManager || "npm";
     const installCmd = pm === "npm" ? "install" : "add";
@@ -159,7 +163,6 @@ async function installUILibrary(projectDir: string, library: string, config: any
     });
   }
 
-  // Run setup command if provided
   if (libConfig.setupCommand) {
     logger.info(`Running ${library} setup...`);
     const [cmd, ...args] = libConfig.setupCommand.split(" ");
@@ -176,7 +179,6 @@ async function installUILibrary(projectDir: string, library: string, config: any
     }
   }
 
-  // Show post-install steps
   if (libConfig.postInstallSteps && libConfig.postInstallSteps.length > 0) {
     logger.info("\nPost-installation steps:");
     libConfig.postInstallSteps.forEach((step: string, index: number) => {
@@ -185,6 +187,12 @@ async function installUILibrary(projectDir: string, library: string, config: any
   }
 }
 
+/**
+ * Generate AI context files for the specified tools
+ * @param projectDir - Project directory path
+ * @param aiTools - List of AI tools to generate context for
+ * @param config - Project configuration
+ */
 async function generateAIContextFiles(projectDir: string, aiTools: string[], config: any) {
   for (const tool of aiTools) {
     logger.info(`Generating ${tool} context files...`);
@@ -194,7 +202,6 @@ async function generateAIContextFiles(projectDir: string, aiTools: string[], con
         const claudeDir = path.join(projectDir, ".claude");
         await ensureDir(claudeDir);
 
-        // Generate CLAUDE.md from template
         const templatePath = path.join(
           import.meta.dirname,
           "../templates/ai-context/CLAUDE.md.hbs"

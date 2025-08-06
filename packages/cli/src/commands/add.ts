@@ -2,12 +2,20 @@ import path from "path";
 
 import { text, select, confirm } from "@clack/prompts";
 import { consola } from "consola";
-import { ensureDir, writeFile, pathExists, readJSON } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { ensureDir, writeFile, pathExists, readJSON } = fsExtra;
 interface AddOptions {
   type?: string;
   name?: string;
   typescript?: boolean;
 }
+
+/**
+ * Add a new resource to the project (component, route, API endpoint, etc.)
+ * @param resource - Type of resource to add
+ * @param options - Options for resource generation
+ */
 export async function addCommand(resource: string | undefined, options: AddOptions) {
   const resourceType =
     resource ||
@@ -41,6 +49,11 @@ export async function addCommand(resource: string | undefined, options: AddOptio
       consola.error(`Unknown resource type: ${resourceType}`);
   }
 }
+
+/**
+ * Add a new component to the project
+ * @param options - Component generation options
+ */
 async function addComponent(options: AddOptions) {
   const name =
     options.name ||
@@ -60,19 +73,19 @@ async function addComponent(options: AddOptions) {
     message: "Include styles?",
     initialValue: true,
   });
-  if (typeof withStyles === "symbol") return; // User cancelled
+  if (typeof withStyles === "symbol") return;
 
   const withTests = await confirm({
     message: "Include test file?",
     initialValue: true,
   });
-  if (typeof withTests === "symbol") return; // User cancelled
+  if (typeof withTests === "symbol") return;
 
   const withStorybook = await confirm({
     message: "Include Storybook story?",
     initialValue: false,
   });
-  if (typeof withStorybook === "symbol") return; // User cancelled
+  if (typeof withStorybook === "symbol") return;
   switch (framework) {
     case "react":
     case "next":
@@ -104,6 +117,12 @@ async function addComponent(options: AddOptions) {
       consola.error(`Unsupported framework: ${framework}`);
   }
 }
+
+/**
+ * Generate a React component with optional features
+ * @param name - Component name
+ * @param options - Component generation options
+ */
 async function generateReactComponent(
   name: string,
   options: {
@@ -173,24 +192,61 @@ export const Default: Story = {
   consola.success(`Component ${name} created successfully!`);
   consola.info(`Location: ${componentDir}`);
 }
+
+/**
+ * Generate a Vue component (not yet implemented)
+ * @param _name - Component name
+ * @param _options - Component generation options
+ */
 async function generateVueComponent(_name: string, _options: any) {
   consola.info("Vue component generation coming soon!");
 }
+
+/**
+ * Generate a Svelte component (not yet implemented)
+ * @param _name - Component name
+ * @param _options - Component generation options
+ */
 async function generateSvelteComponent(_name: string, _options: any) {
   consola.info("Svelte component generation coming soon!");
 }
+
+/**
+ * Add a new route to the project (not yet implemented)
+ * @param _options - Route generation options
+ */
 async function addRoute(_options: AddOptions) {
   consola.info("Route generation coming soon!");
 }
+
+/**
+ * Add a new API endpoint (not yet implemented)
+ * @param _options - API endpoint generation options
+ */
 async function addApiEndpoint(_options: AddOptions) {
   consola.info("API endpoint generation coming soon!");
 }
+
+/**
+ * Add a new React hook (not yet implemented)
+ * @param _options - Hook generation options
+ */
 async function addHook(_options: AddOptions) {
   consola.info("Hook generation coming soon!");
 }
+
+/**
+ * Add a new utility function (not yet implemented)
+ * @param _options - Utility generation options
+ */
 async function addUtility(_options: AddOptions) {
   consola.info("Utility generation coming soon!");
 }
+
+/**
+ * Detect the framework used in the current project
+ * @returns Framework name
+ */
 async function detectFramework(): Promise<string> {
   const packageJsonPath = path.join(process.cwd(), "package.json");
   if (await pathExists(packageJsonPath)) {
@@ -202,8 +258,13 @@ async function detectFramework(): Promise<string> {
     if (deps.nuxt) return "nuxt";
     if (deps.svelte) return "svelte";
   }
-  return "react"; // default
+  return "react";
 }
+
+/**
+ * Detect if the project uses TypeScript
+ * @returns True if TypeScript is configured
+ */
 async function detectTypeScript(): Promise<boolean> {
   return await pathExists(path.join(process.cwd(), "tsconfig.json"));
 }

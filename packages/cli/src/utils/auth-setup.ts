@@ -2,7 +2,9 @@ import * as crypto from "crypto";
 import * as path from "path";
 
 import { consola } from "consola";
-import { writeFile, ensureDir, pathExists, readFile } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { writeFile, ensureDir, pathExists, readFile } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -68,6 +70,11 @@ const authProviders: Record<string, AuthProvider> = {
   },
 };
 
+/**
+ * Setup authentication for the project
+ * @param config - Project configuration
+ * @param authProviderId - ID of the authentication provider to setup
+ */
 export async function setupAuthentication(
   config: ProjectConfig,
   authProviderId: string

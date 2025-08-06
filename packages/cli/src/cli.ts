@@ -3,14 +3,21 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { Command } from "commander";
-import { readJSON } from "fs-extra";
+import fsExtra from "fs-extra";
 
 import { addFeaturesCommand } from "./commands/add-features.js";
 import { addCommand } from "./commands/add.js";
 import { initCommand } from "./commands/init.js";
+
+// eslint-disable-next-line import/no-named-as-default-member
+const { readJSON } = fsExtra;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const packageJson = await readJSON(path.join(__dirname, "..", "package.json"));
+
+/**
+ * Main CLI program definition
+ */
 const program = new Command();
 program
   .name("create-precast-app")

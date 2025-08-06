@@ -13,11 +13,19 @@ export interface CompatibilityRule {
   message: string;
   severity: "error" | "warning";
 }
+
+/**
+ * Validator for project configuration
+ */
 export class ConfigValidator {
   private rules: CompatibilityRule[] = [];
   constructor() {
     this.registerDefaultRules();
   }
+
+  /**
+   * Register default validation rules
+   */
   private registerDefaultRules() {
     this.addRule({
       name: "next-requires-react",
@@ -94,9 +102,20 @@ export class ConfigValidator {
       severity: "warning",
     });
   }
+
+  /**
+   * Add a validation rule
+   * @param rule - Rule to add
+   */
   addRule(rule: CompatibilityRule): void {
     this.rules.push(rule);
   }
+
+  /**
+   * Remove a validation rule by name
+   * @param ruleName - Name of rule to remove
+   * @returns True if rule was removed
+   */
   removeRule(ruleName: string): boolean {
     const index = this.rules.findIndex((r) => r.name === ruleName);
     if (index > -1) {
@@ -105,6 +124,12 @@ export class ConfigValidator {
     }
     return false;
   }
+
+  /**
+   * Validate a project configuration
+   * @param config - Configuration to validate
+   * @returns Validation result with errors and warnings
+   */
   validate(config: ProjectConfig): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -138,6 +163,11 @@ export class ConfigValidator {
       warnings,
     };
   }
+
+  /**
+   * Validate configuration against Zod schema
+   * @param config - Configuration to validate
+   */
   private validateSchema(config: ProjectConfig): void {
     const configSchema = z.object({
       name: z
@@ -157,6 +187,16 @@ export class ConfigValidator {
     });
     configSchema.parse(config);
   }
+
+  /**
+   * Check if two configuration values are compatible
+   * @param field1 - First field name
+   * @param value1 - First field value
+   * @param field2 - Second field name
+   * @param value2 - Second field value
+   * @param config - Partial configuration context
+   * @returns True if values are compatible
+   */
   isCompatible(
     field1: keyof ProjectConfig,
     value1: string,
@@ -172,6 +212,12 @@ export class ConfigValidator {
     const result = this.validate(testConfig);
     return result.valid;
   }
+
+  /**
+   * Get recommendations for incomplete configuration
+   * @param partialConfig - Partial configuration
+   * @returns Map of field names to recommended values
+   */
   getRecommendations(partialConfig: Partial<ProjectConfig>): Map<keyof ProjectConfig, string[]> {
     const recommendations = new Map<keyof ProjectConfig, string[]>();
     if (!partialConfig.framework) {
@@ -191,6 +237,12 @@ export class ConfigValidator {
     }
     return recommendations;
   }
+
+  /**
+   * Get backend recommendations for a framework
+   * @param framework - Framework name
+   * @returns List of recommended backends
+   */
   private getBackendRecommendations(framework: string): string[] {
     const recommendations: Record<string, string[]> = {
       next: ["next", "none"],
@@ -206,12 +258,24 @@ export class ConfigValidator {
     };
     return recommendations[framework] || ["express", "fastify", "hono", "none"];
   }
+
+  /**
+   * Get database recommendations for a backend
+   * @param backend - Backend name
+   * @returns List of recommended databases
+   */
   private getDatabaseRecommendations(backend: string): string[] {
     if (backend === "none") {
       return ["none"];
     }
     return ["postgres", "mysql", "mongodb", "sqlite", "none"];
   }
+
+  /**
+   * Get ORM recommendations for a database
+   * @param database - Database name
+   * @returns List of recommended ORMs
+   */
   private getORMRecommendations(database: string): string[] {
     const recommendations: Record<string, string[]> = {
       postgres: ["prisma", "drizzle", "none"],
@@ -223,7 +287,13 @@ export class ConfigValidator {
     return recommendations[database] || ["none"];
   }
 }
+
 let validator: ConfigValidator | null = null;
+
+/**
+ * Get the singleton config validator instance
+ * @returns Config validator instance
+ */
 export function getConfigValidator(): ConfigValidator {
   if (!validator) {
     validator = new ConfigValidator();

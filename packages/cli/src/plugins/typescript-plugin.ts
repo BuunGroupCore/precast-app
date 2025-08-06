@@ -1,6 +1,10 @@
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createPlugin } from "../core/plugin-manager.js";
 import type { PluginContext } from "../core/plugin-manager.js";
+
+/**
+ * TypeScript plugin for adding TypeScript support to projects
+ */
 export const typescriptPlugin = createPlugin({
   name: "typescript",
   version: "1.0.0",

@@ -1,7 +1,9 @@
 import os from "os";
 import path from "path";
 
-import { mkdtemp, ensureDir, remove, writeFile, readFile, readJson, pathExists } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { mkdtemp, ensureDir, remove, writeFile, readFile, readJSON, pathExists } = fsExtra;
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 import { TemplateEngine } from "../template-engine.js";
@@ -87,7 +89,7 @@ describe("TemplateEngine", () => {
 
       await templateEngine.copyTemplateDirectory("project", destDir, { name: "test-app" } as any);
 
-      const packageJson = await readJson(path.join(destDir, "package.json"));
+      const packageJson = await readJSON(path.join(destDir, "package.json"));
       expect(packageJson.name).toBe("test-app");
 
       const indexJs = await readFile(path.join(destDir, "src", "index.js"), "utf-8");
@@ -131,7 +133,7 @@ describe("TemplateEngine", () => {
       expect(await pathExists(path.join(destDir, "config.json"))).toBe(true);
       expect(await pathExists(path.join(destDir, "nested", "config.json"))).toBe(true);
 
-      const config1 = await readJson(path.join(destDir, "config.json"));
+      const config1 = await readJSON(path.join(destDir, "config.json"));
       expect(config1.feature1).toBe(true);
       expect(config1.feature2).toBeUndefined();
     });

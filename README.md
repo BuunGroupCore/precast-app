@@ -2,7 +2,7 @@
 
 A modern monorepo featuring a cartoon-style website with clean code principles, reusable components, and a CLI tool.
 
-## 🎨 Features
+## Features
 
 - **Cartoon-Style Design**: Playful, engaging UI with smooth animations
 - **Clean Code Architecture**: Modern patterns with TypeScript and React
@@ -11,7 +11,7 @@ A modern monorepo featuring a cartoon-style website with clean code principles, 
 - **Reusable Components**: Atomic design system with customizable components
 - **Custom Hooks**: Powerful React hooks for animations and utilities
 
-## 📦 Packages
+## Packages
 
 - **`@precast/website`**: Main website application built with Vite and React
 - **`@precast/ui`**: Shared UI components library with atomic design
@@ -19,7 +19,7 @@ A modern monorepo featuring a cartoon-style website with clean code principles, 
 - **`@precast/utils`**: Shared utility functions
 - **`@precast/cli`**: Command-line tool for project scaffolding
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -53,7 +53,7 @@ bun build
 pnpm build
 ```
 
-## 🎨 Design System
+## Design System
 
 ### Colors
 
@@ -74,7 +74,7 @@ pnpm build
 - Smooth transitions and hover effects
 - Scroll-triggered animations
 
-## 🏗️ Architecture
+## Architecture
 
 ### Component Structure (Atomic Design)
 
@@ -91,7 +91,7 @@ pnpm build
 - `useResponsive`: Responsive breakpoint detection
 - `useScrollAnimation`: Intersection observer for scroll effects
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React 18, TypeScript, Vite
 - **Styling**: Tailwind CSS with custom design tokens
@@ -101,7 +101,7 @@ pnpm build
 - **Package Management**: Bun/pnpm workspaces
 - **Code Quality**: ESLint, Prettier
 
-## 📝 Scripts
+## Scripts
 
 - `dev`: Start development server
 - `build`: Build all packages
@@ -110,7 +110,7 @@ pnpm build
 - `test`: Run tests
 - `typecheck`: Check TypeScript types
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -118,6 +118,6 @@ pnpm build
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.

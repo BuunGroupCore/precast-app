@@ -1,7 +1,9 @@
 import path from "path";
 
 import { consola } from "consola";
-import { readdir, pathExists, readFile, writeFile } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { readdir, pathExists, readFile, writeFile } = fsExtra;
 
 interface DependencyUpdate {
   package: string;
@@ -10,7 +12,9 @@ interface DependencyUpdate {
   reason: string;
 }
 
-// Define secure versions for packages with known vulnerabilities
+/**
+ * Secure versions for packages with known vulnerabilities
+ */
 const SECURE_VERSIONS: Record<string, DependencyUpdate> = {
   esbuild: {
     package: "esbuild",
@@ -50,7 +54,12 @@ const SECURE_VERSIONS: Record<string, DependencyUpdate> = {
   },
 };
 
-// Framework-specific security overrides
+/**
+ * Get framework-specific security overrides
+ * @param framework - Framework name
+ * @param packageManager - Package manager being used
+ * @returns Security overrides object
+ */
 export function getSecurityOverrides(
   framework: string,
   packageManager?: string
@@ -59,7 +68,6 @@ export function getSecurityOverrides(
     esbuild: "^0.25.0",
   };
 
-  // For Bun, avoid nested overrides due to compatibility issues
   if (packageManager === "bun") {
     return baseOverrides;
   }
@@ -75,7 +83,6 @@ export function getSecurityOverrides(
     };
   }
 
-  // For Vite-based frameworks (React, Vue, Svelte, etc.)
   if (["react", "vue", "svelte", "solid", "vite", "vanilla", "remix"].includes(framework)) {
     return {
       ...baseOverrides,
@@ -85,10 +92,12 @@ export function getSecurityOverrides(
     };
   }
 
-  // For other frameworks, just override esbuild directly
   return baseOverrides;
 }
 
+/**
+ * Update template dependencies to secure versions
+ */
 export async function updateTemplateDependencies(): Promise<void> {
   consola.info("📦 Updating template dependencies to secure versions...");
 
@@ -104,7 +113,6 @@ export async function updateTemplateDependencies(): Promise<void> {
       let content = await readFile(packageJsonPath, "utf-8");
       let updated = false;
 
-      // Update dependency versions
       for (const [pkg, update] of Object.entries(SECURE_VERSIONS)) {
         const regex = new RegExp(`"${pkg}":\\s*"[^"]*"`, "g");
         if (content.match(regex)) {
@@ -114,14 +122,12 @@ export async function updateTemplateDependencies(): Promise<void> {
         }
       }
 
-      // Add framework-specific overrides section if needed
       const needsOverrides =
         framework === "angular" ||
         content.includes('"vite"') ||
         ["react", "vue", "svelte", "solid", "vite", "vanilla", "remix"].includes(framework);
 
       if (needsOverrides && !content.includes('"overrides"')) {
-        // Find the position to insert overrides (after devDependencies)
         const devDepsMatch = content.match(/("devDependencies":\s*{[^}]*})/);
         if (devDepsMatch) {
           const insertPos = devDepsMatch.index! + devDepsMatch[0].length;
@@ -145,6 +151,12 @@ export async function updateTemplateDependencies(): Promise<void> {
   consola.success("✅ All template dependencies updated to secure versions");
 }
 
+/**
+ * Add security overrides to a project's package.json
+ * @param projectPath - Path to the project directory
+ * @param framework - Framework name
+ * @param packageManager - Package manager being used
+ */
 export async function addSecurityOverridesToProject(
   projectPath: string,
   framework: string,
@@ -159,7 +171,6 @@ export async function addSecurityOverridesToProject(
   const content = await readFile(packageJsonPath, "utf-8");
   const packageJson = JSON.parse(content);
 
-  // Check if we need to add overrides (for frameworks that need them)
   const needsOverrides =
     framework === "angular" ||
     packageJson.devDependencies?.vite ||

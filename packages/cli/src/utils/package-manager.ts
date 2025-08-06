@@ -52,12 +52,12 @@ export const PACKAGE_MANAGERS: Record<PackageManager, PackageManagerConfig> = {
   },
 };
 
-export /**
+/**
  * Get the configuration for a specific package manager
  * @param packageManager - The package manager name
  * @returns The package manager configuration
  */
-function getPackageManagerConfig(packageManager: string): PackageManagerConfig {
+export function getPackageManagerConfig(packageManager: string): PackageManagerConfig {
   const pm = packageManager as PackageManager;
   const config = PACKAGE_MANAGERS[pm];
   if (!config) {
@@ -84,24 +84,24 @@ export async function detectPackageManager(): Promise<PackageManager> {
     await execa("bun", ["--version"], { stdio: "ignore" });
     return "bun";
   } catch {
-    // bun not available
+    // Not available
   }
 
   try {
     await execa("pnpm", ["--version"], { stdio: "ignore" });
     return "pnpm";
   } catch {
-    // pnpm not available
+    // Not available
   }
 
   try {
     await execa("yarn", ["--version"], { stdio: "ignore" });
     return "yarn";
   } catch {
-    // yarn not available
+    // Not available
   }
 
-  return "npm"; // fallback
+  return "npm";
 }
 
 export async function installDependencies(
@@ -126,7 +126,6 @@ export async function installDependencies(
     args.push("--exact");
   }
 
-  // Get package manager icon
   const pmIcons: Record<string, string> = {
     npm: "📦",
     yarn: "🧶",
@@ -147,7 +146,6 @@ export async function installDependencies(
         consola.warn("Node.js not found - some package postinstall scripts may fail with Bun");
         consola.info("Consider installing Node.js or switching to npm/yarn/pnpm");
 
-        // Try to fallback to npm if available
         try {
           await execa("npm", ["--version"], { stdio: "ignore" });
           consola.info("Falling back to npm for installation...");
@@ -246,7 +244,6 @@ export async function installAllDependencies(options: {
 }): Promise<void> {
   const pm = getPackageManagerConfig(options.packageManager);
 
-  // Get package manager icon
   const pmIcons: Record<string, string> = {
     npm: "📦",
     yarn: "🧶",
@@ -255,118 +252,7 @@ export async function installAllDependencies(options: {
   };
 
   // Check if this is a workspace and scan all package.json files for problematic packages
-  const shouldFallbackFromBun = false;
-
-  // NOTE: Automatic fallback is disabled since we now use --ignore-scripts with Bun
-  // This code is kept for reference but not executed
-  /*
-  if (pm.id === "bun") {
-    try {
-      const fs = await import("fs-extra");
-      const path = await import("path");
-
-      const problematicPackages = [
-        "prisma",
-        "@prisma/client",
-        "@prisma/engines",
-        "esbuild",
-        "@esbuild/",
-        "sharp",
-        "playwright",
-        "puppeteer",
-        "sqlite3",
-        "bcrypt",
-        "canvas",
-        "node-sass",
-        "tsx", // Often causes issues with Bun
-        "tsup", // Can have esbuild dependencies
-      ];
-
-      // Check root package.json
-      const rootPackageJsonPath = `${options.projectPath}/package.json`;
-      const packageJsonPaths = [rootPackageJsonPath];
-
-      // Check for workspace structure and add workspace package.json files
-      if (await fs.pathExists(rootPackageJsonPath)) {
-        const rootPackageJson = await fs.readJSON(rootPackageJsonPath);
-        if (rootPackageJson.workspaces) {
-          // This is a workspace - check all sub-packages
-          const appsDir = path.join(options.projectPath, "apps");
-          const packagesDir = path.join(options.projectPath, "packages");
-
-          // Check apps/* directories
-          if (await fs.pathExists(appsDir)) {
-            const appDirs = await fs.readdir(appsDir);
-            for (const appDir of appDirs) {
-              const appPackageJson = path.join(appsDir, appDir, "package.json");
-              if (await fs.pathExists(appPackageJson)) {
-                packageJsonPaths.push(appPackageJson);
-              }
-            }
-          }
-
-          // Check packages/* directories
-          if (await fs.pathExists(packagesDir)) {
-            const packageDirs = await fs.readdir(packagesDir);
-            for (const packageDir of packageDirs) {
-              const packagePackageJson = path.join(packagesDir, packageDir, "package.json");
-              if (await fs.pathExists(packagePackageJson)) {
-                packageJsonPaths.push(packagePackageJson);
-              }
-            }
-          }
-        }
-      }
-
-      // Scan all package.json files for problematic packages
-      for (const packageJsonPath of packageJsonPaths) {
-        if (await fs.pathExists(packageJsonPath)) {
-          const packageJson = await fs.readJSON(packageJsonPath);
-          const allDeps = {
-            ...packageJson.dependencies,
-            ...packageJson.devDependencies,
-          };
-
-          const foundProblematic = problematicPackages.some((pkg) =>
-            pkg.endsWith("/")
-              ? Object.keys(allDeps).some((dep) => dep.startsWith(pkg))
-              : allDeps[pkg]
-          );
-
-          if (foundProblematic) {
-            const problemPackages = problematicPackages.filter((pkg) =>
-              pkg.endsWith("/")
-                ? Object.keys(allDeps).some((dep) => dep.startsWith(pkg))
-                : allDeps[pkg]
-            );
-            consola.warn(
-              `🚨 Detected packages with known Bun postinstall issues: ${problemPackages.join(", ")}`
-            );
-            consola.info("💡 Automatically using npm for better compatibility");
-            consola.info("📝 Note: These packages require Node.js for postinstall scripts");
-            shouldFallbackFromBun = true;
-            break;
-          }
-        }
-      }
-    } catch (error) {
-      consola.debug("Error checking for problematic packages:", error);
-      // If we can't read package.json files, continue with normal flow
-    }
-  }
-  */
-
-  // If we detected problematic packages, use npm instead of bun immediately
-  let actualPackageManager = pm.id;
-  if (pm.id === "bun" && shouldFallbackFromBun) {
-    try {
-      await execa("npm", ["--version"], { stdio: "ignore" });
-      actualPackageManager = "npm";
-      consola.info("🔄 Using npm instead of bun to avoid postinstall script issues...");
-    } catch {
-      consola.warn("npm not available, will attempt bun but expect failures...");
-    }
-  }
+  const actualPackageManager = pm.id;
 
   const actualPm = getPackageManagerConfig(actualPackageManager);
   const actualPmIcon = pmIcons[actualPm.id] || "📦";

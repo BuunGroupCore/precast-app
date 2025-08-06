@@ -3,6 +3,9 @@ import { consola } from "consola";
 
 import { updateTemplateDependencies } from "../utils/update-dependencies.js";
 
+/**
+ * Main function to update template dependencies
+ */
 async function main() {
   consola.start("Updating template dependencies to secure versions...");
 

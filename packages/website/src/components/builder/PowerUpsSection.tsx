@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { FaChevronDown, FaChevronUp, FaTools } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaTools, FaGitAlt, FaDocker } from "react-icons/fa";
+import { SiTypescript } from "react-icons/si";
 
 import { powerUps, powerUpCategories } from "../../lib/powerups-config";
+import { Tooltip } from "../ui/Tooltip";
 
 import type { ExtendedProjectConfig } from "./types";
 
@@ -15,18 +17,106 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Filter power-ups by framework compatibility
-  const availablePowerUps = powerUps.filter((powerup) => {
-    if (!powerup.frameworks) return true;
-    if (powerup.frameworks.includes("*")) return true;
-    return powerup.frameworks.includes(config.framework);
+  // Check if a power-up's dependencies are satisfied and get missing requirements
+  const getPowerUpStatus = (powerup: (typeof powerUps)[0]) => {
+    const missingRequirements: string[] = [];
+
+    // Check framework compatibility
+    if (powerup.frameworks && !powerup.frameworks.includes("*")) {
+      if (!powerup.frameworks.includes(config.framework)) {
+        // Format framework names nicely
+        const requiredFrameworks = powerup.frameworks.map((f) => {
+          switch (f) {
+            case "react":
+              return "React";
+            case "vue":
+              return "Vue";
+            case "angular":
+              return "Angular";
+            case "next":
+              return "Next.js";
+            case "nuxt":
+              return "Nuxt";
+            case "svelte":
+              return "Svelte";
+            case "solid":
+              return "Solid";
+            case "remix":
+              return "Remix";
+            case "astro":
+              return "Astro";
+            case "vite":
+              return "Vite";
+            default:
+              return f;
+          }
+        });
+        missingRequirements.push(`${requiredFrameworks.join(" or ")} framework`);
+      }
+    }
+
+    // Check dependencies
+    if (powerup.dependencies) {
+      for (const dep of powerup.dependencies) {
+        // Check if dependency is satisfied based on current config
+        if (dep === "vite" && config.framework !== "vite") {
+          missingRequirements.push("Vite framework");
+        } else if (dep === "typescript" && !config.typescript) {
+          missingRequirements.push("TypeScript");
+        } else if (dep === "react" && !["react", "next", "remix"].includes(config.framework)) {
+          missingRequirements.push("React-based framework");
+        } else if (dep === "vue" && !["vue", "nuxt"].includes(config.framework)) {
+          missingRequirements.push("Vue-based framework");
+        }
+        // Add more dependency checks as needed
+      }
+    }
+
+    // Check if power-up is recommended for current stack
+    let isRecommended = false;
+    if (powerup.recommended) {
+      const rec = powerup.recommended;
+      isRecommended =
+        rec.frameworks?.includes(config.framework) ||
+        false ||
+        rec.backends?.includes(config.backend) ||
+        false ||
+        rec.databases?.includes(config.database) ||
+        false ||
+        rec.styling?.includes(config.styling) ||
+        false;
+    }
+
+    return {
+      isAvailable: missingRequirements.length === 0,
+      missingRequirements,
+      isRecommended,
+      recommendationReason: isRecommended ? powerup.recommended?.reason : undefined,
+    };
+  };
+
+  // Get all power-ups with availability status
+  const allPowerUpsWithStatus = powerUps.map((powerup) => {
+    const status = getPowerUpStatus(powerup);
+    return {
+      ...powerup,
+      ...status,
+    };
   });
 
-  // Filter by category
-  const filteredPowerUps = availablePowerUps.filter((powerup) => {
-    if (selectedCategory === "all") return true;
-    return powerup.category === selectedCategory;
-  });
+  // Filter available power-ups
+  const availablePowerUps = allPowerUpsWithStatus.filter((p) => p.isAvailable);
+
+  // Filter by category (show all power-ups including disabled ones when expanded)
+  const filteredPowerUps = isExpanded
+    ? allPowerUpsWithStatus.filter((powerup) => {
+        if (selectedCategory === "all") return true;
+        return powerup.category === selectedCategory;
+      })
+    : availablePowerUps;
+
+  // Get count of additional power-ups beyond the basic 3
+  const additionalPowerUpsCount = availablePowerUps.length;
 
   const togglePowerUp = (powerupId: string) => {
     const currentPowerups = config.powerups || [];
@@ -74,41 +164,84 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
       </p>
 
       {/* Basic Power-ups (always visible) */}
-      <div className="space-y-4 mb-4">
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={config.typescript}
-            onChange={(e) => setConfig({ ...config, typescript: e.target.checked })}
-            className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-          />
-          <div className="flex items-center gap-2">
-            <span className="font-comic font-bold">TypeScript</span>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <button
+          onClick={() => setConfig({ ...config, typescript: !config.typescript })}
+          className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 h-[80px] flex flex-col ${
+            config.typescript
+              ? "bg-comic-yellow text-comic-black"
+              : "bg-comic-white text-comic-black hover:bg-comic-gray/10"
+          }`}
+          style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
+          title="Add type safety and better developer experience"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <SiTypescript className="text-lg" />
+            <span className="font-display text-sm">TypeScript</span>
           </div>
-        </label>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={config.git}
-            onChange={(e) => setConfig({ ...config, git: e.target.checked })}
-            className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-          />
-          <div className="flex items-center gap-2">
-            <span className="font-comic font-bold">Git</span>
+          <p className="font-comic text-xs text-left line-clamp-2">
+            Add type safety and better developer experience
+          </p>
+        </button>
+
+        <button
+          onClick={() => setConfig({ ...config, git: !config.git })}
+          className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 h-[80px] flex flex-col ${
+            config.git
+              ? "bg-comic-yellow text-comic-black"
+              : "bg-comic-white text-comic-black hover:bg-comic-gray/10"
+          }`}
+          style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
+          title="Initialize version control with Git repository"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <FaGitAlt className="text-lg" />
+            <span className="font-display text-sm">Git</span>
           </div>
-        </label>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={config.docker}
-            onChange={(e) => setConfig({ ...config, docker: e.target.checked })}
-            className="w-6 h-6 rounded border-3 border-comic-black accent-comic-red"
-          />
-          <div className="flex items-center gap-2">
-            <span className="font-comic font-bold">Docker</span>
+          <p className="font-comic text-xs text-left line-clamp-2">
+            Initialize version control with Git repository
+          </p>
+        </button>
+
+        <button
+          onClick={() => setConfig({ ...config, docker: !config.docker })}
+          className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 h-[80px] flex flex-col ${
+            config.docker
+              ? "bg-comic-yellow text-comic-black"
+              : "bg-comic-white text-comic-black hover:bg-comic-gray/10"
+          }`}
+          style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
+          title="Add containerization support with Dockerfile"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <FaDocker className="text-lg" />
+            <span className="font-display text-sm">Docker</span>
           </div>
-        </label>
+          <p className="font-comic text-xs text-left line-clamp-2">
+            Add containerization support with Dockerfile
+          </p>
+        </button>
       </div>
+
+      {/* Expand/Collapse button */}
+      {additionalPowerUpsCount > 0 && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-comic-gray/10 hover:bg-comic-gray/20 rounded-lg transition-colors font-comic font-bold text-sm"
+        >
+          {isExpanded ? (
+            <>
+              <FaChevronUp className="text-sm" />
+              Show Less
+            </>
+          ) : (
+            <>
+              <FaChevronDown className="text-sm" />
+              Show {additionalPowerUpsCount} More Power-ups
+            </>
+          )}
+        </button>
+      )}
 
       {isExpanded && (
         <motion.div
@@ -119,7 +252,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
         >
           {/* Category Filter */}
           <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 justify-center">
               <button
                 onClick={() => setSelectedCategory("all")}
                 className={`px-3 py-1 rounded-full text-xs font-comic font-bold transition-colors ${
@@ -155,24 +288,54 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
             {filteredPowerUps.map((powerup) => {
               const Icon = powerup.icon;
               const isSelected = isPowerUpSelected(powerup.id);
+              const isAvailable = powerup.isAvailable;
+
               return (
-                <button
+                <Tooltip
                   key={powerup.id}
-                  onClick={() => togglePowerUp(powerup.id)}
-                  className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 ${
-                    isSelected
-                      ? "bg-comic-yellow text-comic-black"
-                      : "bg-comic-white text-comic-black hover:bg-comic-gray/10"
-                  }`}
-                  style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
-                  title={powerup.description}
+                  content={
+                    isAvailable
+                      ? powerup.isRecommended
+                        ? `⭐ Recommended: ${powerup.recommendationReason}`
+                        : powerup.description
+                      : `🔒 Requires: ${powerup.missingRequirements?.join(", ")}`
+                  }
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon className="text-lg" />
-                    <span className="font-display text-sm">{powerup.name}</span>
-                  </div>
-                  <p className="font-comic text-xs text-left line-clamp-2">{powerup.description}</p>
-                </button>
+                  <button
+                    onClick={() => isAvailable && togglePowerUp(powerup.id)}
+                    disabled={!isAvailable}
+                    className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform relative w-full h-full min-h-[80px] flex flex-col ${
+                      isAvailable ? "hover:scale-105" : "opacity-50 cursor-not-allowed"
+                    } ${
+                      isSelected
+                        ? "bg-comic-yellow text-comic-black"
+                        : isAvailable
+                          ? "bg-comic-white text-comic-black hover:bg-comic-gray/10"
+                          : "bg-comic-gray/20 text-comic-gray"
+                    }`}
+                    style={{
+                      boxShadow: isAvailable
+                        ? "2px 2px 0 var(--comic-black)"
+                        : "1px 1px 0 var(--comic-gray)",
+                    }}
+                  >
+                    {/* Recommended Badge */}
+                    {isAvailable && powerup.isRecommended && (
+                      <span className="absolute -top-2 -right-2 bg-comic-green text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                        RECOMMENDED
+                      </span>
+                    )}
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon className={`text-lg ${!isAvailable ? "opacity-50" : ""}`} />
+                      <span className="font-display text-sm">{powerup.name}</span>
+                    </div>
+                    <p className="font-comic text-xs text-left line-clamp-2">
+                      {isAvailable
+                        ? powerup.description
+                        : `Requires ${powerup.missingRequirements?.join(" and ")}`}
+                    </p>
+                  </button>
+                </Tooltip>
               );
             })}
           </div>

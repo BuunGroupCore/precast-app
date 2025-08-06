@@ -1,10 +1,13 @@
 import path from "path";
 
 import { consola } from "consola";
-import { pathExists, readJson, writeJson } from "fs-extra";
+import fsExtra from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import type { TemplateEngine } from "../core/template-engine.js";
+
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, readJSON, writeJSON } = fsExtra;
 
 export interface DeploymentConfig {
   id: string;
@@ -17,6 +20,9 @@ export interface DeploymentConfig {
   outputDir?: string;
 }
 
+/**
+ * Deployment platform configuration mappings
+ */
 export const DEPLOYMENT_CONFIGS: Record<string, DeploymentConfig> = {
   "cloudflare-pages": {
     id: "cloudflare-pages",
@@ -65,6 +71,12 @@ export const DEPLOYMENT_CONFIGS: Record<string, DeploymentConfig> = {
   },
 };
 
+/**
+ * Setup deployment configuration for the project
+ * @param config - Project configuration with deployment method
+ * @param projectPath - Path to the project directory
+ * @param templateEngine - Template engine instance
+ */
 export async function setupDeploymentConfig(
   config: ProjectConfig & { deploymentMethod?: string },
   projectPath: string,
@@ -83,7 +95,6 @@ export async function setupDeploymentConfig(
   consola.info(`Setting up ${deployConfig.name} deployment...`);
 
   try {
-    // Create deployment configuration files
     for (const configFile of deployConfig.configFiles) {
       const templatePath = `deployment/${config.deploymentMethod}/${configFile}.hbs`;
       const outputPath = path.join(projectPath, configFile);
@@ -98,12 +109,10 @@ export async function setupDeploymentConfig(
       }
     }
 
-    // Update package.json scripts if needed
     const packageJsonPath = path.join(projectPath, "package.json");
     if (await pathExists(packageJsonPath)) {
-      const packageJson = await readJson(packageJsonPath);
+      const packageJson = await readJSON(packageJsonPath);
 
-      // Add deployment-specific scripts
       if (!packageJson.scripts) packageJson.scripts = {};
 
       switch (config.deploymentMethod) {
@@ -125,12 +134,11 @@ export async function setupDeploymentConfig(
           break;
       }
 
-      await writeJson(packageJsonPath, packageJson, { spaces: 2 });
+      await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
     }
 
     consola.success(`${deployConfig.name} deployment configuration added!`);
 
-    // Show next steps
     const nextSteps = getDeploymentNextSteps(config.deploymentMethod);
     if (nextSteps.length > 0) {
       consola.box({
@@ -143,6 +151,11 @@ export async function setupDeploymentConfig(
   }
 }
 
+/**
+ * Get next steps for deployment setup
+ * @param deploymentMethod - Deployment method identifier
+ * @returns List of next steps
+ */
 function getDeploymentNextSteps(deploymentMethod: string): string[] {
   switch (deploymentMethod) {
     case "cloudflare-pages":

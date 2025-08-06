@@ -216,27 +216,21 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
           <h4 className="font-comic text-sm mb-2 text-comic-yellow text-center">POWER-UPS</h4>
           <div className="flex flex-wrap justify-center gap-3 max-h-20 overflow-y-auto pb-2">
             {config.typescript && (
-              <div
-                className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer"
-                title="TypeScript"
-              >
+              <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
                 <SiTypescript className="text-2xl text-white" />
+                <span className="text-xs font-comic text-center">TypeScript</span>
               </div>
             )}
             {config.git && (
-              <div
-                className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer"
-                title="Git"
-              >
+              <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
                 <FaGitAlt className="text-2xl text-white" />
+                <span className="text-xs font-comic text-center">Git</span>
               </div>
             )}
             {config.docker && (
-              <div
-                className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer"
-                title="Docker"
-              >
+              <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
                 <FaDocker className="text-2xl text-white" />
+                <span className="text-xs font-comic text-center">Docker</span>
               </div>
             )}
             {/* Additional Power-ups */}

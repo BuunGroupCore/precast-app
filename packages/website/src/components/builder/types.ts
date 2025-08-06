@@ -14,6 +14,7 @@ export interface ExtendedProjectConfig
   auth?: string;
   powerups?: string[];
   mcpServers?: string[];
+  apiClient?: string;
 }
 
 // AI Assistant options

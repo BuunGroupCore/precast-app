@@ -1,7 +1,13 @@
 import path from "node:path";
 
-import { readJSON } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { readJSON } = fsExtra;
 
+/**
+ * Get the version number from package.json
+ * @returns Package version string
+ */
 export async function getPackageVersion(): Promise<string> {
   try {
     const packageJsonPath = path.join(import.meta.dirname, "../../package.json");

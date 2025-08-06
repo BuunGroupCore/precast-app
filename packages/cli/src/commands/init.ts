@@ -3,7 +3,9 @@ import { fileURLToPath } from "url";
 
 import { intro, outro, spinner, confirm, cancel, log } from "@clack/prompts";
 import { execa } from "execa";
-import { pathExists, readdir, ensureDir, remove } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, readdir, ensureDir, remove } = fsExtra;
 import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
@@ -100,7 +102,6 @@ export async function initCommand(projectName: string | undefined, options: Init
 
       s.stop("Project structure created");
 
-      // Add security overrides to package.json
       const pm = options.packageManager || (await detectPackageManager());
       await addSecurityOverridesToProject(projectPath, config.framework, pm);
       if (config.git) {
@@ -114,14 +115,12 @@ export async function initCommand(projectName: string | undefined, options: Init
         if (!(await checkPackageManagerAvailable(pm))) {
           log.warning(`Package manager ${pm} not available, falling back to npm`);
         }
-        // Install all dependencies from package.json using enhanced function with fallbacks
         await installAllDependencies({
           packageManager: pm,
           projectPath: projectPath,
         });
         s.stop("Dependencies installed");
 
-        // Run security audit after dependencies are installed
         s.start("Running security audit");
         try {
           await runSecurityAudit({
@@ -137,7 +136,6 @@ export async function initCommand(projectName: string | undefined, options: Init
           );
         }
 
-        // Setup UI library AFTER dependencies are installed
         if (config.uiLibrary && config.framework !== "vanilla") {
           s.start(`Setting up ${config.uiLibrary}`);
           try {
@@ -192,7 +190,7 @@ async function initializeGit(projectPath: string) {
       });
       if (globalName) userName = globalName;
     } catch {
-      // Global name not set, using default
+      // Use default name
     }
     try {
       const { stdout: globalEmail } = await execa("git", ["config", "--global", "user.email"], {
@@ -200,7 +198,7 @@ async function initializeGit(projectPath: string) {
       });
       if (globalEmail) userEmail = globalEmail;
     } catch {
-      // Global email not set, using default
+      // Use default email
     }
     await execa("git", ["config", "user.name", userName], { cwd: projectPath, stdio: "pipe" });
     await execa("git", ["config", "user.email", userEmail], { cwd: projectPath, stdio: "pipe" });

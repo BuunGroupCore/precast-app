@@ -2,6 +2,7 @@ export * from "./types";
 export * from "./constants";
 export * from "./PublicIcon";
 export * from "./AIAssistanceSection";
+export * from "./ApiSection";
 export * from "./UILibrariesSection";
 export * from "./InstallOptionsSection";
 export * from "./DeploymentSection";

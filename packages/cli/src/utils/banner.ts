@@ -1,11 +1,17 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { pathExists, readFile, writeFile } from "fs-extra";
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, readFile, writeFile } = fsExtra;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * Get the default ASCII art banner for the CLI
+ * @returns Default banner string
+ */
 export function getDefaultBanner(): string {
   return `
 ████████████████████████████████████████████████████████████████████████████████
@@ -22,6 +28,10 @@ export function getDefaultBanner(): string {
   `;
 }
 
+/**
+ * Load a custom banner from file if available
+ * @returns Custom banner string or null if not found
+ */
 export async function loadCustomBanner(): Promise<string | null> {
   try {
     // Look for banner file in CLI root directory
@@ -45,6 +55,9 @@ export async function loadCustomBanner(): Promise<string | null> {
   }
 }
 
+/**
+ * Display the banner (custom or default) to the console
+ */
 export async function displayBanner(): Promise<void> {
   const customBanner = await loadCustomBanner();
   const banner = customBanner || getDefaultBanner();
@@ -53,6 +66,9 @@ export async function displayBanner(): Promise<void> {
   console.log(banner);
 }
 
+/**
+ * Create a banner template file for customization
+ */
 export async function createBannerTemplate(): Promise<void> {
   const bannerPath = path.join(process.cwd(), "precast-banner.txt");
   const template = `

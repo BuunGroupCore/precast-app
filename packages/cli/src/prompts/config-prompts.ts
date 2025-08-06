@@ -14,6 +14,13 @@ import type { InitOptions } from "../commands/init.js";
 import { getAuthPromptOptions, isAuthProviderCompatible } from "../utils/auth-setup.js";
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
 import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
+
+/**
+ * Gather project configuration through interactive prompts
+ * @param projectName - Optional project name
+ * @param options - Initial configuration options
+ * @returns Complete project configuration
+ */
 export async function gatherProjectConfig(
   projectName: string | undefined,
   options: InitOptions
@@ -116,7 +123,6 @@ export async function gatherProjectConfig(
         initialValue: true,
       })) as boolean;
     } catch (error: any) {
-      // Handle EPERM or other stdin errors (common with bun create)
       if (error.code === "EPERM" || error.errno === -1) {
         consola.warn("Unable to read input. Using default value (git: true)");
         consola.info("You can disable git with --no-git flag");
@@ -181,7 +187,6 @@ export async function gatherProjectConfig(
     aiContext = selectedContext || [];
   }
 
-  // Add Cursor to AI context options if not in --yes mode
   if (!options.yes && !aiContext.includes("cursor")) {
     const addCursor = (await confirm({
       message: "Include Cursor AI rules (.cursorrules)?",
@@ -192,7 +197,6 @@ export async function gatherProjectConfig(
     }
   }
 
-  // Deployment method selection
   let deploymentMethod: string | undefined;
   if (!options.yes) {
     const deploymentOptions = Object.values(DEPLOYMENT_CONFIGS).map((config) => ({
@@ -214,12 +218,9 @@ export async function gatherProjectConfig(
     }
   }
 
-  // Authentication provider selection
   let authProvider: string | undefined;
 
-  // Use provided auth option if available
   if (options.auth && options.auth !== "none") {
-    // Validate the auth provider
     const authOptions = getAuthPromptOptions();
     const validAuth = authOptions.find((opt) => opt.value === options.auth);
     if (validAuth && isAuthProviderCompatible(options.auth, framework)) {
@@ -255,7 +256,6 @@ export async function gatherProjectConfig(
 
   const packageManager = options.packageManager || "npm";
 
-  // Auto-install dependencies option
   let autoInstall = false;
   if (!options.yes) {
     autoInstall = (await confirm({
@@ -281,7 +281,7 @@ export async function gatherProjectConfig(
     deploymentMethod,
     authProvider,
     autoInstall,
-    projectPath: "", // Will be set later
+    projectPath: "",
     language: typescript ? "typescript" : "javascript",
   };
 }

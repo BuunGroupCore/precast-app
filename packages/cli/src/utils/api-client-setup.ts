@@ -540,6 +540,11 @@ export async function setupApiClient(config: ProjectConfig, projectPath: string)
     return;
   }
 
+  if (!config.backend || config.backend === "none") {
+    consola.info("Skipping API client setup - no backend specified");
+    return;
+  }
+
   const apiClient = getApiClientPackages(config.apiClient, config.framework);
   if (!apiClient) {
     consola.warn(`Unknown API client: ${config.apiClient}`);

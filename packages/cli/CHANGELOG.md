@@ -134,3 +134,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improvements, clean up (37896dbd)
 - improvements, clean up (37896dbd)
 - improvements, clean up (37896dbd)
+- add fix for linting with prettier (b36b56d9)
+- add fix for linting with prettier (b36b56d9)

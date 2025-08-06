@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import path from "path";
 
 import { consola } from "consola";
@@ -15,6 +16,26 @@ interface DockerConfig {
   includeRedis?: boolean;
   includeAdminTools?: boolean;
   customNetwork?: string;
+}
+
+/**
+ * Generate cryptographically secure random secrets
+ */
+function generateRandomSecret(length: number = 32): string {
+  return crypto.randomBytes(length).toString("base64url").slice(0, length);
+}
+
+function generateRandomPassword(length: number = 16): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(crypto.randomInt(0, chars.length));
+  }
+  return result;
+}
+
+function generateJWTSecret(length: number = 64): string {
+  return crypto.randomBytes(length).toString("hex");
 }
 
 /**
@@ -84,12 +105,40 @@ export async function setupDockerCompose(
 }
 
 /**
- * Process Handlebars template
+ * Process Handlebars template with random secret generation
  */
 function processTemplate(template: string, config: ProjectConfig): string {
-  return template
-    .replace(/\{\{name\}\}/g, config.name)
-    .replace(/\{\{projectName\}\}/g, config.name);
+  // Generate random secrets for security-sensitive templates
+  const secrets = {
+    postgresPassword: generateRandomPassword(24),
+    jwtSecret: generateJWTSecret(64),
+    dashboardPassword: generateRandomPassword(20),
+    secretKeyBase: generateRandomSecret(64),
+    vaultEncKey: generateRandomSecret(32),
+    logflarePublicToken: generateRandomSecret(32),
+    logflarePrivateToken: generateRandomSecret(32),
+  };
+
+  return (
+    template
+      .replace(/\{\{name\}\}/g, config.name)
+      .replace(/\{\{config\.name\}\}/g, config.name)
+      .replace(/\{\{projectName\}\}/g, config.name)
+      // Replace random secrets
+      .replace(/\{\{name\}\}-super-secret-postgres-password/g, secrets.postgresPassword)
+      .replace(
+        /\{\{name\}\}-super-secret-jwt-token-with-at-least-32-characters/g,
+        secrets.jwtSecret
+      )
+      .replace(/\{\{name\}\}-admin-password-change-this/g, secrets.dashboardPassword)
+      .replace(
+        /\{\{name\}\}-UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/g,
+        secrets.secretKeyBase
+      )
+      .replace(/\{\{name\}\}-encryption-key-32-chars-minimum/g, secrets.vaultEncKey)
+      .replace(/\{\{name\}\}-logflare-key-public-32-chars-min/g, secrets.logflarePublicToken)
+      .replace(/\{\{name\}\}-logflare-key-private-32-chars-min/g, secrets.logflarePrivateToken)
+  );
 }
 
 /**
@@ -161,36 +210,42 @@ async function createDockerEnvFile(
     "",
   ];
 
+  // Generate random passwords for security
+  const randomPassword = generateRandomPassword(20);
+  const mysqlUser = `${config.name}_user`;
+
   switch (database) {
     case "postgres":
       envContent.push(
-        `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/${config.name}`,
+        `DATABASE_URL=postgresql://postgres:${randomPassword}@localhost:5432/${config.name}`,
         `POSTGRES_USER=postgres`,
-        `POSTGRES_PASSWORD=postgres`,
+        `POSTGRES_PASSWORD=${randomPassword}`,
         `POSTGRES_DB=${config.name}`
       );
       break;
     case "mysql":
       envContent.push(
-        `DATABASE_URL=mysql://${config.name}_user:password@localhost:3306/${config.name}`,
+        `DATABASE_URL=mysql://${mysqlUser}:${randomPassword}@localhost:3306/${config.name}`,
         `MYSQL_HOST=localhost`,
         `MYSQL_PORT=3306`,
-        `MYSQL_USER=${config.name}_user`,
-        `MYSQL_PASSWORD=password`,
+        `MYSQL_USER=${mysqlUser}`,
+        `MYSQL_PASSWORD=${randomPassword}`,
         `MYSQL_DATABASE=${config.name}`
       );
       break;
-    case "mongodb":
+    case "mongodb": {
+      const mongoUser = `${config.name}_user`;
       envContent.push(
-        `DATABASE_URL=mongodb://${config.name}_user:password@localhost:27017/${config.name}`,
-        `MONGODB_URI=mongodb://${config.name}_user:password@localhost:27017/${config.name}`,
+        `DATABASE_URL=mongodb://${mongoUser}:${randomPassword}@localhost:27017/${config.name}`,
+        `MONGODB_URI=mongodb://${mongoUser}:${randomPassword}@localhost:27017/${config.name}`,
         `MONGO_HOST=localhost`,
         `MONGO_PORT=27017`,
-        `MONGO_USER=${config.name}_user`,
-        `MONGO_PASSWORD=password`,
+        `MONGO_USER=${mongoUser}`,
+        `MONGO_PASSWORD=${randomPassword}`,
         `MONGO_DATABASE=${config.name}`
       );
       break;
+    }
     case "supabase":
       envContent.push(
         `# Supabase Local Development URLs`,
@@ -199,8 +254,8 @@ async function createDockerEnvFile(
         `SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q`,
         ``,
         `# Direct Database Access`,
-        `DATABASE_URL=postgresql://postgres:${config.name}-super-secret-postgres-password@localhost:5432/postgres`,
-        `POSTGRES_PASSWORD=${config.name}-super-secret-postgres-password`
+        `DATABASE_URL=postgresql://postgres:${randomPassword}@localhost:5432/postgres`,
+        `POSTGRES_PASSWORD=${randomPassword}`
       );
       break;
   }

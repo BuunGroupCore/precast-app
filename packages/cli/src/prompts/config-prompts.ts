@@ -77,36 +77,42 @@ export async function gatherProjectConfig(
     database === "none"
       ? "none"
       : options.orm ||
-        ((await select({
-          message: "Choose your ORM:",
-          options: ormDefs
-            .filter((o) => !o.incompatible?.includes(database))
-            .map((o) => ({
-              value: o.id,
-              label: o.name,
-              hint: o.description,
-            })),
-        })) as string);
+        (options.yes
+          ? "none"
+          : ((await select({
+              message: "Choose your ORM:",
+              options: ormDefs
+                .filter((o) => !o.incompatible?.includes(database))
+                .map((o) => ({
+                  value: o.id,
+                  label: o.name,
+                  hint: o.description,
+                })),
+            })) as string));
   const styling =
     options.styling ||
-    ((await select({
-      message: "Choose your styling solution:",
-      options: stylingDefs.map((s) => ({
-        value: s.id,
-        label: s.name,
-        hint: s.description,
-      })),
-    })) as string);
+    (options.yes
+      ? "css"
+      : ((await select({
+          message: "Choose your styling solution:",
+          options: stylingDefs.map((s) => ({
+            value: s.id,
+            label: s.name,
+            hint: s.description,
+          })),
+        })) as string));
   const runtime =
     options.runtime ||
-    ((await select({
-      message: "Choose your runtime environment:",
-      options: runtimeDefs.map((r) => ({
-        value: r.id,
-        label: r.name,
-        hint: r.description,
-      })),
-    })) as string);
+    (options.yes
+      ? "node"
+      : ((await select({
+          message: "Choose your runtime environment:",
+          options: runtimeDefs.map((r) => ({
+            value: r.id,
+            label: r.name,
+            hint: r.description,
+          })),
+        })) as string));
   const typescript =
     options.typescript !== undefined
       ? options.typescript

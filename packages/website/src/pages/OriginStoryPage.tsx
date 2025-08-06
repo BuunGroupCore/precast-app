@@ -63,6 +63,18 @@ export function OriginStoryPage() {
           </div>
         </motion.div>
 
+        {/* Comic Separator */}
+        <div className="max-w-7xl mx-auto px-4 mb-16">
+          <div className="relative">
+            <div className="h-2 bg-comic-black rounded-full"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+              <div className="action-text text-2xl text-comic-red bg-comic-black px-4 py-1 rounded-full border-4 border-comic-red">
+                KAPOW!
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* The Problem */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}

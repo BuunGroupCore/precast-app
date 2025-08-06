@@ -23,66 +23,11 @@ export function ComponentsPage() {
       name: "Brutalist UI",
       description: "Bold, raw, and unapologetically powerful UI components",
       url: "https://brutalist.precast.dev",
-      github: "https://github.com/buun-group/brutalist-ui",
+      github: "https://github.com/BuunGroup-Packages/precast-brutalist-components",
+      logo: "https://brutalist.precast.dev/logo.png",
       color: "var(--comic-red)",
       status: "live",
       tags: ["React", "TypeScript", "Tailwind CSS"],
-    },
-    {
-      name: "Comic Components",
-      description: "Superhero-themed components with POW and BANG!",
-      url: "#",
-      color: "var(--comic-yellow)",
-      status: "coming-soon",
-      tags: ["React", "Framer Motion", "Comic Style"],
-    },
-    {
-      name: "Neon Glow Kit",
-      description: "Cyberpunk-inspired components that shine in the dark",
-      url: "#",
-      color: "var(--comic-purple)",
-      status: "coming-soon",
-      tags: ["Vue", "CSS Animations", "Dark Mode"],
-    },
-    {
-      name: "Retro Wave",
-      description: "80s synthwave aesthetic components for nostalgic builds",
-      url: "#",
-      color: "var(--comic-blue)",
-      status: "coming-soon",
-      tags: ["React", "Styled Components", "Retro"],
-    },
-    {
-      name: "Minimal Plus",
-      description: "Clean and simple components with a modern twist",
-      url: "#",
-      color: "var(--comic-gray)",
-      status: "coming-soon",
-      tags: ["React", "CSS Modules", "Minimal"],
-    },
-    {
-      name: "Glass Morphism",
-      description: "Translucent and blurred components for elegant UIs",
-      url: "#",
-      color: "var(--comic-blue)",
-      status: "coming-soon",
-      tags: ["React", "Glassmorphism", "Modern"],
-    },
-    {
-      name: "Terminal UI",
-      description: "Command-line inspired components for dev-focused apps",
-      url: "#",
-      color: "var(--comic-green)",
-      status: "coming-soon",
-      tags: ["React", "Monospace", "CLI Style"],
-    },
-    {
-      name: "Paper Stack",
-      description: "Material design inspired with paper-like aesthetics",
-      url: "#",
-      color: "var(--comic-orange)",
-      status: "coming-soon",
-      tags: ["React", "Material UI", "Shadows"],
     },
   ];
 
@@ -108,12 +53,24 @@ export function ComponentsPage() {
             </div>
           </motion.div>
         </div>
+
+        {/* Comic Separator */}
+        <div className="max-w-2xl mx-auto mb-16">
+          <div className="relative">
+            <div className="h-2 bg-comic-black rounded-full"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+              <div className="action-text text-2xl text-comic-green bg-comic-black px-4 py-1 rounded-full border-4 border-comic-green">
+                ARSENAL!
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Component Libraries Grid */}
       <section className="pb-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="flex justify-center">
             {componentLibraries.map((library, index) => (
               <motion.div
                 key={library.name}
@@ -123,7 +80,7 @@ export function ComponentsPage() {
                 className="relative"
               >
                 <div
-                  className="comic-panel p-6 h-full"
+                  className="comic-panel p-6 h-full max-w-md"
                   style={{
                     backgroundColor:
                       library.status === "coming-soon" ? "var(--comic-gray)" : "var(--comic-white)",
@@ -136,6 +93,18 @@ export function ComponentsPage() {
                       style={{ color: library.color }}
                     >
                       SOON!
+                    </div>
+                  )}
+
+                  {/* Logo */}
+                  {library.logo && (
+                    <div className="mb-6 text-center">
+                      <img
+                        src={library.logo}
+                        alt={`${library.name} logo`}
+                        className="mx-auto h-16 w-auto"
+                        loading="lazy"
+                      />
                     </div>
                   )}
 

@@ -81,7 +81,9 @@
       "Bash(./packages/cli/dist/cli.js --help)",
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:dev.to)",
-      "Bash(bunx tsc:*)"
+      "Bash(bunx tsc:*)",
+      "WebFetch(domain:docs.github.com)",
+      "WebFetch(domain:gist.github.com)"
     ],
     "deny": []
   }

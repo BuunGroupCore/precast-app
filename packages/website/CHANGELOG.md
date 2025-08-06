@@ -8,9 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+### Documentation
+
+- some improvements and clean up (94e0494a)
+
 ### Fixed
 
-- fix error (f4e19112)
+- fix er
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)
+- some improvements and clean up (94e0494a)ror (f4e19112)
 
 ### Documen
 - fix some import issues (5c6c2929)

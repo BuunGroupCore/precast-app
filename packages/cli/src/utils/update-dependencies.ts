@@ -69,7 +69,8 @@ export function getSecurityOverrides(
   };
 
   if (packageManager === "bun") {
-    return baseOverrides;
+    // Bun has built-in esbuild - don't install it separately to avoid postinstall script errors
+    return {};
   }
 
   if (framework === "angular") {

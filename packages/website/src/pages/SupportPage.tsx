@@ -56,19 +56,19 @@ export function SupportPage() {
   ];
 
   return (
-    <div className="min-h-screen pt-32 pb-20">
+    <div className="min-h-screen pt-20 pb-20">
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 mb-16">
+      <section className="max-w-7xl mx-auto px-4 mb-24">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-12">
+          <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-16">
             SUPPORT THE MISSION
           </h1>
 
-          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Comic Art */}
             <div className="flex justify-center order-2 md:order-1">
               <motion.div

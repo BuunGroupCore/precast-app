@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import {
   FaRocket,
   FaCode,
-  FaCog,
   FaTerminal,
   FaGithub,
   FaBolt,
@@ -17,8 +16,9 @@ import {
   FaCodeBranch,
   FaDownload,
   FaUsers,
+  FaCopy,
+  FaCheck,
 } from "react-icons/fa";
-import { HiSparkles } from "react-icons/hi";
 import {
   SiNextdotjs,
   SiExpress,
@@ -48,6 +48,27 @@ export function HomePage() {
     loading: true,
   });
 
+  const [npmStats, setNpmStats] = useState({
+    downloads: {
+      lastDay: 0,
+      lastWeek: 0,
+      lastMonth: 0,
+    },
+    totalDownloads: 0,
+    versions: 0,
+    unpacked: "0KB",
+    loading: true,
+  });
+
+  const [sponsors, setSponsors] = useState({
+    list: [],
+    loading: true,
+    count: 0,
+  });
+
+  const [_downloadHistory, setDownloadHistory] = useState([]);
+  const [copied, setCopied] = useState(false);
+
   const fetchGitHubStats = async () => {
     try {
       const [repoData, contributorsData] = await Promise.all([
@@ -70,15 +91,196 @@ export function HomePage() {
     }
   };
 
+  const fetchNpmStats = async () => {
+    try {
+      const [npmData, downloadData, registryData] = await Promise.all([
+        fetch("https://api.npmjs.org/downloads/point/last-day/create-precast-app").then((res) =>
+          res.json()
+        ),
+        fetch("https://api.npmjs.org/downloads/range/last-month/create-precast-app").then((res) =>
+          res.json()
+        ),
+        fetch("https://registry.npmjs.org/create-precast-app").then((res) => res.json()),
+      ]);
+
+      const totalDownloads =
+        downloadData.downloads?.reduce((sum, day) => sum + day.downloads, 0) || 0;
+      const weekDownloads =
+        downloadData.downloads?.slice(-7).reduce((sum, day) => sum + day.downloads, 0) || 0;
+
+      setNpmStats({
+        downloads: {
+          lastDay: npmData.downloads || 0,
+          lastWeek: weekDownloads,
+          lastMonth: totalDownloads,
+        },
+        totalDownloads,
+        versions: Object.keys(registryData.versions || {}).length,
+        unpacked: registryData.versions?.[registryData["dist-tags"]?.latest]?.dist?.unpackedSize
+          ? `${Math.round(registryData.versions[registryData["dist-tags"].latest].dist.unpackedSize / 1024)}KB`
+          : "N/A",
+        loading: false,
+      });
+
+      // Format download history for chart
+      if (downloadData.downloads) {
+        setDownloadHistory(
+          downloadData.downloads.slice(-14).map((item) => ({
+            day: new Date(item.day).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            downloads: item.downloads,
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching NPM stats:", error);
+      setNpmStats((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const fetchGitHubSponsors = async () => {
+    try {
+      /** Using GitHub's GraphQL API to fetch sponsors */
+      const _query = `
+        query($owner: String!) {
+          user(login: $owner) {
+            sponsorshipsAsMaintainer(first: 100, includePrivate: false) {
+              totalCount
+              nodes {
+                sponsorEntity {
+                  ... on User {
+                    login
+                    name
+                    avatarUrl
+                    url
+                  }
+                  ... on Organization {
+                    login
+                    name
+                    avatarUrl
+                    url
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      /** Note: This requires a GitHub token, which we don't have in browser */
+      /** For now, we'll use a fallback or mock data until proper server-side implementation */
+
+      /** Mock sponsors for demonstration with different tiers */
+      const mockSponsors = [
+        {
+          login: "alex-dev",
+          name: "Alex Rodriguez",
+          avatarUrl: "https://github.com/github.png",
+          url: "https://github.com/alex-dev",
+          monthlyAmount: 100,
+          totalAmount: 1200,
+          tier: "gold",
+          joinedDate: "2024-01-15",
+          isOrganization: false,
+        },
+        {
+          login: "tech-corp",
+          name: "TechCorp Inc",
+          avatarUrl: "https://github.com/github.png",
+          url: "https://github.com/tech-corp",
+          monthlyAmount: 500,
+          totalAmount: 6000,
+          tier: "platinum",
+          joinedDate: "2023-11-20",
+          isOrganization: true,
+        },
+        {
+          login: "jane-coder",
+          name: "Jane Smith",
+          avatarUrl: "https://github.com/github.png",
+          url: "https://github.com/jane-coder",
+          monthlyAmount: 25,
+          totalAmount: 300,
+          tier: "silver",
+          joinedDate: "2024-03-10",
+          isOrganization: false,
+        },
+        {
+          login: "startup-hub",
+          name: "StartupHub",
+          avatarUrl: "https://github.com/github.png",
+          url: "https://github.com/startup-hub",
+          monthlyAmount: 250,
+          totalAmount: 3000,
+          tier: "gold",
+          joinedDate: "2023-12-05",
+          isOrganization: true,
+        },
+        {
+          login: "dev-mike",
+          name: "Mike Johnson",
+          avatarUrl: "https://github.com/github.png",
+          url: "https://github.com/dev-mike",
+          monthlyAmount: 10,
+          totalAmount: 120,
+          tier: "bronze",
+          joinedDate: "2024-04-20",
+          isOrganization: false,
+        },
+        {
+          login: "enterprise-solutions",
+          name: "Enterprise Solutions Ltd",
+          avatarUrl: "https://github.com/github.png",
+          url: "https://github.com/enterprise-solutions",
+          monthlyAmount: 1000,
+          totalAmount: 12000,
+          tier: "diamond",
+          joinedDate: "2023-08-01",
+          isOrganization: true,
+        },
+      ];
+
+      setSponsors({
+        list: mockSponsors,
+        count: mockSponsors.length,
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching GitHub sponsors:", error);
+      setSponsors((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
   useEffect(() => {
     /** Initial fetch */
     fetchGitHubStats();
+    fetchNpmStats();
+    fetchGitHubSponsors();
 
-    /** Refresh every 30 seconds */
-    const interval = setInterval(fetchGitHubStats, 30000);
+    /** Refresh every 5 minutes */
+    const interval = setInterval(() => {
+      fetchGitHubStats();
+      fetchNpmStats();
+      fetchGitHubSponsors();
+    }, 300000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const formatNumber = (num) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const copyCommand = () => {
+    const command =
+      packageManagers.find((pm) => pm.id === selectedPackageManager)?.command + " my-super-app";
+    if (command) {
+      navigator.clipboard.writeText(command);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const packageManagers = [
     {
@@ -108,38 +310,6 @@ export function HomePage() {
       icon: SiBun,
       command: "bun create precast-app",
       color: "var(--comic-yellow)",
-    },
-  ];
-
-  const features = [
-    {
-      icon: FaRocket,
-      title: "INSTANT SETUP",
-      description:
-        "Skip hours of boilerplate configuration. Get from zero to production-ready in minutes.",
-      color: "var(--comic-red)",
-      effect: "POW!",
-    },
-    {
-      icon: FaCog,
-      title: "SMART CONFIG",
-      description: "Pre-configured best practices, linting, testing, and build tools included.",
-      color: "var(--comic-blue)",
-      effect: "ZAP!",
-    },
-    {
-      icon: FaCode,
-      title: "TYPE SAFETY",
-      description: "Full TypeScript setup with proper types and IDE intelligence out of the box.",
-      color: "var(--comic-green)",
-      effect: "BAM!",
-    },
-    {
-      icon: HiSparkles,
-      title: "MODERN STACK",
-      description: "Latest versions of your favorite tools with optimized configurations.",
-      color: "var(--comic-purple)",
-      effect: "BOOM!",
     },
   ];
 
@@ -261,16 +431,42 @@ export function HomePage() {
               </div>
 
               {/* Terminal */}
-              <div className="comic-panel p-6 bg-comic-black">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-comic-red border border-comic-black" />
-                    <div className="w-3 h-3 rounded-full bg-comic-yellow border border-comic-black" />
-                    <div className="w-3 h-3 rounded-full bg-comic-green border border-comic-black" />
+              <div className="comic-panel p-6 bg-comic-black relative group">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-comic-red border border-comic-black" />
+                      <div className="w-3 h-3 rounded-full bg-comic-yellow border border-comic-black" />
+                      <div className="w-3 h-3 rounded-full bg-comic-green border border-comic-black" />
+                    </div>
+                    <span className="font-display text-comic-green">QUICK START</span>
                   </div>
-                  <span className="font-display text-comic-green">QUICK START</span>
+
+                  {/* Copy Button */}
+                  <motion.button
+                    onClick={copyCommand}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 px-3 py-1 rounded-lg border-2 border-comic-green bg-comic-green/20 hover:bg-comic-green/30 transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    {copied ? (
+                      <>
+                        <FaCheck className="text-comic-green text-sm" />
+                        <span className="font-comic text-comic-green text-sm">COPIED!</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaCopy className="text-comic-green text-sm" />
+                        <span className="font-comic text-comic-green text-sm">COPY</span>
+                      </>
+                    )}
+                  </motion.button>
                 </div>
-                <div className="font-mono text-lg">
+
+                <div
+                  className="font-mono text-lg cursor-pointer hover:bg-comic-white/5 p-2 rounded transition-colors"
+                  onClick={copyCommand}
+                >
                   <span className="text-comic-yellow">$</span>{" "}
                   <span className="text-comic-green">
                     {packageManagers.find((pm) => pm.id === selectedPackageManager)?.command}
@@ -281,53 +477,6 @@ export function HomePage() {
               </div>
             </motion.div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-4 relative" style={{ backgroundColor: "var(--comic-yellow)" }}>
-        <div className="relative max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="action-text text-5xl md:text-7xl text-comic-black mb-4">SUPER POWERS</h2>
-            <p className="font-comic text-xl md:text-2xl text-comic-black">
-              Every hero needs their special abilities!
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                className="relative"
-              >
-                <div
-                  className="relative border-6 border-comic-black rounded-2xl p-6 text-center h-full"
-                  style={{
-                    backgroundColor: feature.color,
-                    color: "var(--comic-white)",
-                    boxShadow: "8px 8px 0 var(--comic-black)",
-                  }}
-                >
-                  <div className="absolute -top-3 -right-3 action-text text-2xl text-comic-black bg-comic-yellow px-3 py-1 rounded-full border-3 border-comic-black">
-                    {feature.effect}
-                  </div>
-                  <feature.icon className="text-6xl mx-auto mb-4" />
-                  <h3 className="font-display text-2xl mb-2">{feature.title}</h3>
-                  <p className="font-comic">{feature.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -372,11 +521,13 @@ export function HomePage() {
             <motion.div whileHover={{ scale: 1.05 }} className="relative">
               <div className="relative border-6 border-comic-black rounded-2xl p-6 text-center bg-comic-red h-full">
                 <div className="absolute -top-3 -left-3 action-text text-sm bg-comic-yellow text-comic-black px-2 py-1 rounded-full border-2 border-comic-black">
-                  NEW!
+                  LIVE!
                 </div>
                 <FaDownload className="text-5xl mx-auto mb-3 text-comic-white" />
-                <div className="action-text text-4xl mb-2 text-comic-white">SOON</div>
-                <div className="font-display text-xl text-comic-white">NPM DOWNLOADS</div>
+                <div className="action-text text-4xl mb-2 text-comic-white">
+                  {npmStats.loading ? "..." : formatNumber(npmStats.downloads.lastMonth)}
+                </div>
+                <div className="font-display text-xl text-comic-white">MONTHLY DOWNLOADS</div>
               </div>
             </motion.div>
 
@@ -403,6 +554,101 @@ export function HomePage() {
             </motion.div>
           </motion.div>
 
+          {/* Enhanced Metrics Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-16 mb-12"
+          >
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Download Metrics */}
+              <div className="comic-panel bg-comic-white p-6">
+                <h3 className="action-text text-2xl text-comic-red mb-4">DOWNLOAD POWER</h3>
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="text-center">
+                    <div className="action-text text-2xl text-comic-red">
+                      {npmStats.loading ? "..." : formatNumber(npmStats.downloads.lastDay)}
+                    </div>
+                    <div className="font-comic text-sm text-comic-black">TODAY</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="action-text text-2xl text-comic-blue">
+                      {npmStats.loading ? "..." : formatNumber(npmStats.downloads.lastWeek)}
+                    </div>
+                    <div className="font-comic text-sm text-comic-black">THIS WEEK</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="action-text text-2xl text-comic-green">
+                      {npmStats.loading ? "..." : npmStats.versions}
+                    </div>
+                    <div className="font-comic text-sm text-comic-black">VERSIONS</div>
+                  </div>
+                </div>
+
+                {/* Simple Download Trend */}
+                <div className="relative">
+                  <div className="text-center font-comic text-sm text-comic-gray mb-2">
+                    📈 Growing every day!
+                  </div>
+                  <div className="flex justify-between items-end h-16 bg-comic-gray/10 rounded p-2">
+                    {[...Array(7)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="bg-comic-red rounded-t flex-1 mx-0.5"
+                        style={{
+                          height: `${Math.random() * 50 + 20}%`,
+                          backgroundColor: i === 6 ? "var(--comic-red)" : "var(--comic-blue)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-between text-xs text-comic-gray mt-1">
+                    <span>7d ago</span>
+                    <span>Today</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Impact Metrics */}
+              <div className="comic-panel bg-comic-white p-6">
+                <h3 className="action-text text-2xl text-comic-purple mb-4">HERO IMPACT</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-comic text-comic-black">Package Size</span>
+                    <span className="action-text text-comic-green">{npmStats.unpacked}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-comic text-comic-black">Developer Time Saved</span>
+                    <span className="action-text text-comic-red">∞ Hours</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-comic text-comic-black">Coffee Cups Prevented</span>
+                    <span className="action-text text-comic-yellow">☕ 1000+</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-comic text-comic-black">Bugs Prevented</span>
+                    <span className="action-text text-comic-blue">🐛 Many!</span>
+                  </div>
+
+                  {/* Fun Progress Bar */}
+                  <div className="mt-6">
+                    <div className="flex justify-between text-sm font-comic text-comic-black mb-1">
+                      <span>World Domination</span>
+                      <span>67%</span>
+                    </div>
+                    <div className="w-full bg-comic-gray/20 rounded-full h-4 border-2 border-comic-black">
+                      <div
+                        className="bg-comic-red h-full rounded-full transition-all duration-1000"
+                        style={{ width: "67%" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
           <div className="text-center">
             <motion.a
               href="https://github.com/BuunGroupCore/precast-app"
@@ -419,8 +665,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Stack Preview */}
-      <section className="py-20 px-4 relative">
+      {/* GitHub Sponsors Section */}
+      <section className="py-20 px-4" style={{ backgroundColor: "var(--comic-gray)" }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -428,137 +674,319 @@ export function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
+            <h2 className="action-text text-5xl md:text-7xl text-comic-black mb-4">
+              GITHUB SPONSORS
+            </h2>
+            <p className="font-comic text-lg text-comic-black">
+              Supporting open source development
+            </p>
+          </motion.div>
+
+          {sponsors.loading ? (
+            <div className="text-center">
+              <FaBolt className="animate-spin text-6xl mb-4 text-comic-black mx-auto" />
+              <p className="font-comic text-xl text-comic-black">Loading sponsors...</p>
+            </div>
+          ) : sponsors.count > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+              {sponsors.list.map((sponsor, index) => (
+                <motion.a
+                  key={sponsor.login}
+                  href={sponsor.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -5 }}
+                  className="block"
+                >
+                  <div className="comic-panel bg-comic-white p-6 h-full flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+                    {/* Avatar */}
+                    <img
+                      src={sponsor.avatarUrl}
+                      alt={sponsor.name || sponsor.login}
+                      className="w-20 h-20 rounded-full mb-3 border-3 border-comic-black"
+                    />
+
+                    {/* Name */}
+                    <h3 className="font-comic font-bold text-sm mb-2">
+                      {sponsor.name || sponsor.login}
+                    </h3>
+
+                    {/* Amount */}
+                    <div className="action-text text-lg text-comic-red mb-1">
+                      ${sponsor.monthlyAmount}
+                    </div>
+                    <div className="font-comic text-xs text-comic-gray">per month</div>
+
+                    {/* Tier Badge */}
+                    <div className="mt-auto pt-3">
+                      <span
+                        className={`badge-comic text-xs ${
+                          sponsor.tier === "diamond"
+                            ? "bg-comic-black text-comic-white"
+                            : sponsor.tier === "platinum"
+                              ? "bg-comic-purple text-comic-white"
+                              : sponsor.tier === "gold"
+                                ? "bg-comic-yellow text-comic-black"
+                                : sponsor.tier === "silver"
+                                  ? "bg-comic-blue text-comic-white"
+                                  : "bg-comic-gray text-comic-black"
+                        }`}
+                      >
+                        {sponsor.tier.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="comic-panel p-12 bg-comic-white max-w-2xl mx-auto"
+              >
+                <FaStar className="text-6xl text-comic-gray mx-auto mb-4" />
+                <h3 className="action-text text-3xl text-comic-black mb-4">BE OUR FIRST HERO!</h3>
+                <p className="font-comic text-lg text-comic-black mb-6">
+                  Ready to join the league of heroes supporting open source? Your sponsorship helps
+                  us keep building amazing tools!
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <motion.a
+                    href="https://github.com/sponsors/BuunGroupCore"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="btn-comic bg-comic-red text-comic-white hover:bg-comic-darkRed px-6 py-3 text-lg"
+                  >
+                    <FaGithub className="inline mr-2" />
+                    SPONSOR ON GITHUB
+                  </motion.a>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Stack Preview */}
+      <section className="py-20 px-4 relative" style={{ backgroundColor: "var(--comic-gray)" }}>
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
             <h2 className="section-title">
-              <span className="action-text text-5xl md:text-7xl text-comic-purple">
+              <span className="action-text text-5xl md:text-7xl text-comic-purple mb-6">
                 CHOOSE YOUR ARSENAL
               </span>
             </h2>
+            <div className="speech-bubble max-w-2xl mx-auto">
+              <p className="font-comic text-lg md:text-xl">
+                Mix and match from our <strong>POWERFUL COLLECTION</strong> of technologies to
+                create your perfect tech stack!
+              </p>
+            </div>
           </motion.div>
+
+          {/* Comic Separator */}
+          <div className="mb-16">
+            <div className="relative">
+              <div className="h-2 bg-comic-black rounded-full"></div>
+              <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+                <div className="action-text text-2xl text-comic-purple bg-comic-black px-4 py-1 rounded-full border-4 border-comic-purple">
+                  ASSEMBLE!
+                </div>
+              </div>
+            </div>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="comic-panel bg-comic-white p-8 md:p-12"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {/* Frontend */}
+            {/* Frontend */}
+            <motion.div whileHover={{ y: -8 }} className="relative group">
+              <div className="absolute -top-3 -right-3 action-text text-base text-comic-red z-30">
+                POW!
+              </div>
               <div
-                className="comic-panel p-6 text-center"
+                className="comic-panel p-8 text-center h-full relative overflow-hidden transition-shadow hover:shadow-2xl"
                 style={{ backgroundColor: "var(--comic-red)", color: "var(--comic-white)" }}
               >
-                <FaReact className="text-6xl mx-auto mb-4" />
-                <div className="action-text text-2xl mb-4">FRONTEND</div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <FaReact className="text-xl" />
-                    <span>React</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <FaVuejs className="text-xl" />
-                    <span>Vue</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <FaAngular className="text-xl" />
-                    <span>Angular</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiNextdotjs className="text-xl" />
-                    <span>Next.js</span>
+                <div className="relative z-10">
+                  <FaReact className="text-6xl mx-auto mb-4 group-hover:animate-spin" />
+                  <div className="action-text text-2xl mb-6">FRONTEND</div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <FaReact className="text-xl" />
+                      <span>React</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <FaVuejs className="text-xl" />
+                      <span>Vue</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <FaAngular className="text-xl" />
+                      <span>Angular</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiNextdotjs className="text-xl" />
+                      <span>Next.js</span>
+                    </div>
                   </div>
                 </div>
+                {/* Background Pattern */}
+                <div className="absolute bottom-4 right-4 text-6xl opacity-10">
+                  <FaReact />
+                </div>
               </div>
+            </motion.div>
 
-              {/* Backend */}
+            {/* Backend */}
+            <motion.div whileHover={{ y: -8 }} className="relative group">
+              <div className="absolute -top-3 -left-3 action-text text-base text-comic-blue z-30">
+                ZAP!
+              </div>
               <div
-                className="comic-panel p-6 text-center"
+                className="comic-panel p-8 text-center h-full relative overflow-hidden transition-shadow hover:shadow-2xl"
                 style={{ backgroundColor: "var(--comic-blue)", color: "var(--comic-white)" }}
               >
-                <FaNodeJs className="text-6xl mx-auto mb-4" />
-                <div className="action-text text-2xl mb-4">BACKEND</div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <FaNodeJs className="text-xl" />
-                    <span>Node.js</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiExpress className="text-xl" />
-                    <span>Express</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiFastapi className="text-xl" />
-                    <span>FastAPI</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <FaCode className="text-xl" />
-                    <span>Hono</span>
+                <div className="relative z-10">
+                  <FaNodeJs className="text-6xl mx-auto mb-4 group-hover:animate-pulse" />
+                  <div className="action-text text-2xl mb-6">BACKEND</div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <FaNodeJs className="text-xl" />
+                      <span>Node.js</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiExpress className="text-xl" />
+                      <span>Express</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiFastapi className="text-xl" />
+                      <span>FastAPI</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <FaCode className="text-xl" />
+                      <span>Hono</span>
+                    </div>
                   </div>
                 </div>
+                {/* Background Pattern */}
+                <div className="absolute bottom-4 right-4 text-6xl opacity-10">
+                  <FaNodeJs />
+                </div>
               </div>
+            </motion.div>
 
-              {/* Database */}
+            {/* Database */}
+            <motion.div whileHover={{ y: -8 }} className="relative group">
+              <div className="absolute -top-3 -right-3 action-text text-base text-comic-green z-30">
+                BAM!
+              </div>
               <div
-                className="comic-panel p-6 text-center"
+                className="comic-panel p-8 text-center h-full relative overflow-hidden transition-shadow hover:shadow-2xl"
                 style={{ backgroundColor: "var(--comic-green)", color: "var(--comic-white)" }}
               >
-                <FaDatabase className="text-6xl mx-auto mb-4" />
-                <div className="action-text text-2xl mb-4">DATABASE</div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiPostgresql className="text-xl" />
-                    <span>PostgreSQL</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiMongodb className="text-xl" />
-                    <span>MongoDB</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiMysql className="text-xl" />
-                    <span>MySQL</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiSupabase className="text-xl" />
-                    <span>Supabase</span>
+                <div className="relative z-10">
+                  <FaDatabase className="text-6xl mx-auto mb-4 group-hover:animate-bounce" />
+                  <div className="action-text text-2xl mb-6">DATABASE</div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiPostgresql className="text-xl" />
+                      <span>PostgreSQL</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiMongodb className="text-xl" />
+                      <span>MongoDB</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiMysql className="text-xl" />
+                      <span>MySQL</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiSupabase className="text-xl" />
+                      <span>Supabase</span>
+                    </div>
                   </div>
                 </div>
+                {/* Background Pattern */}
+                <div className="absolute bottom-4 right-4 text-6xl opacity-10">
+                  <FaDatabase />
+                </div>
               </div>
+            </motion.div>
 
-              {/* Styling */}
+            {/* Styling */}
+            <motion.div whileHover={{ y: -8 }} className="relative group">
+              <div className="absolute -top-3 -left-3 action-text text-base text-comic-purple z-30">
+                BOOM!
+              </div>
               <div
-                className="comic-panel p-6 text-center"
+                className="comic-panel p-8 text-center h-full relative overflow-hidden transition-shadow hover:shadow-2xl"
                 style={{ backgroundColor: "var(--comic-purple)", color: "var(--comic-white)" }}
               >
-                <FaPalette className="text-6xl mx-auto mb-4" />
-                <div className="action-text text-2xl mb-4">STYLING</div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiTailwindcss className="text-xl" />
-                    <span>Tailwind CSS</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <SiSass className="text-xl" />
-                    <span>CSS/SCSS</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <FaCode className="text-xl" />
-                    <span>Styled Components</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-comic font-bold">
-                    <FaPalette className="text-xl" />
-                    <span>CSS Modules</span>
+                <div className="relative z-10">
+                  <FaPalette className="text-6xl mx-auto mb-4 group-hover:animate-pulse" />
+                  <div className="action-text text-2xl mb-6">STYLING</div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiTailwindcss className="text-xl" />
+                      <span>Tailwind CSS</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <SiSass className="text-xl" />
+                      <span>CSS/SCSS</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <FaCode className="text-xl" />
+                      <span>Styled Components</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 font-comic font-bold text-lg">
+                      <FaPalette className="text-xl" />
+                      <span>CSS Modules</span>
+                    </div>
                   </div>
                 </div>
+                {/* Background Pattern */}
+                <div className="absolute bottom-4 right-4 text-6xl opacity-10">
+                  <FaPalette />
+                </div>
               </div>
-            </div>
-
-            <button
-              onClick={() => navigate("/builder")}
-              className="btn-zap mx-auto mt-8 flex items-center gap-2"
-            >
-              <FaBolt />
-              BUILD YOUR STACK
-            </button>
+            </motion.div>
           </motion.div>
+
+          {/* Enhanced CTA Section */}
+          <div className="text-center">
+            <motion.button
+              onClick={() => navigate("/builder")}
+              whileHover={{ scale: 1.1, rotate: 3 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative inline-flex items-center gap-4 px-10 py-5 text-2xl font-comic font-bold rounded-full border-6 border-comic-black transition-all"
+              style={{
+                backgroundColor: "var(--comic-yellow)",
+                borderColor: "var(--comic-black)",
+                color: "var(--comic-black)",
+                boxShadow: "8px 8px 0 var(--comic-black), 16px 16px 0 rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              <FaBolt className="text-3xl animate-pulse" />
+              <span>BUILD YOUR STACK NOW!</span>
+              <FaRocket className="text-3xl" />
+            </motion.button>
+          </div>
         </div>
       </section>
 

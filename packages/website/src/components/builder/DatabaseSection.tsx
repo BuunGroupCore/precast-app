@@ -3,6 +3,7 @@ import React from "react";
 import { FaDatabase } from "react-icons/fa";
 
 import { databases, orms } from "../../lib/stack-config";
+import { Tooltip } from "../ui/Tooltip";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
@@ -29,15 +30,16 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
         </p>
         <div className="grid grid-cols-3 gap-3">
           {databases.map((db) => (
-            <button
-              key={db.id}
-              onClick={() => setConfig({ ...config, database: db.id })}
-              data-active={config.database === db.id}
-              className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
-            >
-              {db.icon && <db.icon className="text-2xl" />}
-              <span className="text-xs">{db.name}</span>
-            </button>
+            <Tooltip key={db.id} content={db.description || ""}>
+              <button
+                onClick={() => setConfig({ ...config, database: db.id })}
+                data-active={config.database === db.id}
+                className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
+              >
+                {db.icon && <db.icon className="text-2xl" />}
+                <span className="text-xs">{db.name}</span>
+              </button>
+            </Tooltip>
           ))}
         </div>
         {/* ORM Selection */}
@@ -50,7 +52,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                 <h4 className="font-comic text-sm text-comic-yellow px-2">ORM/ODM</h4>
                 <div className="flex-1 border-t-2 border-comic-white/30"></div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {orms
                   .filter((orm) => {
                     if (orm.id === "none") return true;
@@ -59,15 +61,16 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                     return true;
                   })
                   .map((orm) => (
-                    <button
-                      key={orm.id}
-                      onClick={() => setConfig({ ...config, orm: orm.id })}
-                      data-active={config.orm === orm.id}
-                      className="filter-btn-comic flex flex-col items-center justify-center gap-1 h-16 text-xs"
-                    >
-                      {orm.icon && <orm.icon className="text-xl" />}
-                      <span className="text-xs">{orm.name}</span>
-                    </button>
+                    <Tooltip key={orm.id} content={orm.description || ""}>
+                      <button
+                        onClick={() => setConfig({ ...config, orm: orm.id })}
+                        data-active={config.orm === orm.id}
+                        className="filter-btn-comic flex flex-col items-center justify-center gap-1 h-16 text-xs w-full"
+                      >
+                        {orm.icon && <orm.icon className="text-xl" />}
+                        <span className="text-xs">{orm.name}</span>
+                      </button>
+                    </Tooltip>
                   ))}
               </div>
             </div>

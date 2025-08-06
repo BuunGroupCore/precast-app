@@ -3,6 +3,7 @@ import React from "react";
 import { FaPaintBrush } from "react-icons/fa";
 
 import { stylings } from "../../lib/stack-config";
+import { Tooltip } from "../ui/Tooltip";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
@@ -29,15 +30,16 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
         </p>
         <div className="grid grid-cols-3 gap-3">
           {stylings.map((style) => (
-            <button
-              key={style.id}
-              onClick={() => setConfig({ ...config, styling: style.id })}
-              data-active={config.styling === style.id}
-              className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20"
-            >
-              {style.icon && <style.icon className="text-2xl" />}
-              <span className="text-xs">{style.name}</span>
-            </button>
+            <Tooltip key={style.id} content={style.description || ""}>
+              <button
+                onClick={() => setConfig({ ...config, styling: style.id })}
+                data-active={config.styling === style.id}
+                className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
+              >
+                {style.icon && <style.icon className="text-2xl" />}
+                <span className="text-xs">{style.name}</span>
+              </button>
+            </Tooltip>
           ))}
         </div>
       </CollapsibleSection>

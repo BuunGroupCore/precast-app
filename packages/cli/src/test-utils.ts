@@ -52,10 +52,18 @@ export function cleanupTestProjects(projectNames: string[]) {
 }
 
 /**
- * Check if a project exists and has a package.json
+ * Check if a project exists and has a package.json (supports monorepo structure)
  * @param name - Project directory name
  * @returns True if project exists
  */
 export function projectExists(name: string): boolean {
-  return existsSync(name) && existsSync(path.join(name, "package.json"));
+  if (!existsSync(name)) {
+    return false;
+  }
+
+  // Check for package.json in root or in apps/web (monorepo structure)
+  return (
+    existsSync(path.join(name, "package.json")) ||
+    existsSync(path.join(name, "apps", "web", "package.json"))
+  );
 }

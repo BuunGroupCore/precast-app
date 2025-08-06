@@ -9,8 +9,8 @@ import {
   SiPostgresql,
   SiSupabase,
   SiVercel,
-  SiAuth0,
   SiTrpc,
+  SiAuth0,
   SiReact,
   SiVuedotjs,
   SiRemix,
@@ -25,6 +25,8 @@ import {
   getStacksByCategory,
   type PreferredStack,
 } from "../../lib/preferred-stacks-config";
+import { AuthJSIcon } from "../icons/AuthJSIcon";
+import { BetterAuthIcon } from "../icons/BetterAuthIcon";
 import { TanStackIcon } from "../icons/TanStackIcon";
 
 import type { ExtendedProjectConfig } from "./types";
@@ -79,9 +81,10 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
       supabase: SiSupabase,
       firebase: SiFirebase,
       prisma: SiPrisma,
-      "next-auth": SiAuth0,
+      "auth.js": AuthJSIcon as any,
       "supabase-auth": SiSupabase,
-      "remix-auth": SiAuth0,
+      "better-auth": BetterAuthIcon as any,
+      auth0: SiAuth0,
       passport: SiPassport,
       trpc: SiTrpc,
       express: SiExpress,
@@ -265,18 +268,6 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
                               )}
                               <span>
                                 <strong>Auth:</strong> {stack.config.auth}
-                              </span>
-                            </div>
-                          )}
-                          {stack.config.apiCommunication && (
-                            <div className="flex items-center gap-2">
-                              {getTechIcon(stack.config.apiCommunication) && (
-                                <span className="text-base">
-                                  {React.createElement(getTechIcon(stack.config.apiCommunication)!)}
-                                </span>
-                              )}
-                              <span>
-                                <strong>API:</strong> {stack.config.apiCommunication}
                               </span>
                             </div>
                           )}

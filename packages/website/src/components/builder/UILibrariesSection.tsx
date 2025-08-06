@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaPaintBrush } from "react-icons/fa";
 
+import { Tooltip } from "../ui/Tooltip";
+
 import { CollapsibleSection } from "./CollapsibleSection";
 import { uiLibraries } from "./constants";
 import { PublicIcon } from "./PublicIcon";
@@ -13,11 +15,18 @@ interface UILibrariesSectionProps {
 }
 
 export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, setConfig }) => {
-  // Filter UI libraries based on selected framework
-  const getAvailableUILibraries = () => {
-    return uiLibraries.filter((lib) => {
-      if (lib.frameworks.includes("*")) return true;
-      return lib.frameworks.includes(config.framework);
+  // Check if UI library is compatible with selected framework
+  const isUILibraryCompatible = (lib: (typeof uiLibraries)[0]) => {
+    if (lib.frameworks.includes("*")) return true;
+    return lib.frameworks.includes(config.framework);
+  };
+
+  // Check if UI library requires certain styling
+  const isUILibraryStyleCompatible = (lib: (typeof uiLibraries)[0]) => {
+    if (!lib.requires) return true;
+    return lib.requires.every((req) => {
+      if (req === "tailwind") return config.styling === "tailwind";
+      return true;
     });
   };
 
@@ -35,23 +44,39 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
           Pre-built component libraries - speed up development with ready-made UI components
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {getAvailableUILibraries().map((lib) => (
-            <button
-              key={lib.id}
-              onClick={() => setConfig({ ...config, uiLibrary: lib.id })}
-              data-active={config.uiLibrary === lib.id}
-              className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
-              title={lib.description}
-            >
-              {lib.icon &&
-                (typeof lib.icon === "string" ? (
-                  <PublicIcon name={lib.icon} className={`text-2xl ${lib.color}`} />
-                ) : (
-                  <lib.icon className={`text-2xl ${lib.color}`} />
-                ))}
-              <span className="text-xs">{lib.name}</span>
-            </button>
-          ))}
+          {uiLibraries.map((lib) => {
+            const isCompatible = isUILibraryCompatible(lib);
+            const isStyleCompatible = isUILibraryStyleCompatible(lib);
+            const isFullyCompatible = isCompatible && isStyleCompatible;
+
+            let tooltipContent = lib.description || "";
+            if (!isCompatible) {
+              tooltipContent += ` (Requires: ${lib.frameworks.join(", ")})`;
+            } else if (!isStyleCompatible && lib.requires) {
+              tooltipContent += ` (Requires: ${lib.requires.join(", ")})`;
+            }
+
+            return (
+              <Tooltip key={lib.id} content={tooltipContent}>
+                <button
+                  onClick={() => isFullyCompatible && setConfig({ ...config, uiLibrary: lib.id })}
+                  data-active={config.uiLibrary === lib.id}
+                  disabled={!isFullyCompatible}
+                  className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full ${
+                    !isFullyCompatible ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {lib.icon &&
+                    (typeof lib.icon === "string" ? (
+                      <PublicIcon name={lib.icon} className={`text-2xl ${lib.color}`} />
+                    ) : (
+                      <lib.icon className={`text-2xl ${lib.color}`} />
+                    ))}
+                  <span className="text-xs">{lib.name}</span>
+                </button>
+              </Tooltip>
+            );
+          })}
         </div>
         {config.styling !== "tailwind" &&
           config.uiLibrary &&

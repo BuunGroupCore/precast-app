@@ -3,6 +3,7 @@ import React from "react";
 import { FaServer } from "react-icons/fa";
 
 import { backends } from "../../lib/stack-config";
+import { Tooltip } from "../ui/Tooltip";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
@@ -29,15 +30,16 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
         </p>
         <div className="grid grid-cols-3 gap-3">
           {backends.map((be) => (
-            <button
-              key={be.id}
-              onClick={() => setConfig({ ...config, backend: be.id })}
-              data-active={config.backend === be.id}
-              className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
-            >
-              {be.icon && <be.icon className="text-2xl" />}
-              <span className="text-xs">{be.name}</span>
-            </button>
+            <Tooltip key={be.id} content={be.description || ""}>
+              <button
+                onClick={() => setConfig({ ...config, backend: be.id })}
+                data-active={config.backend === be.id}
+                className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
+              >
+                {be.icon && <be.icon className="text-2xl" />}
+                <span className="text-xs">{be.name}</span>
+              </button>
+            </Tooltip>
           ))}
         </div>
       </CollapsibleSection>

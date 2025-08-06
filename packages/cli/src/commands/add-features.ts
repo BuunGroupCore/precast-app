@@ -99,7 +99,7 @@ export async function addFeaturesCommand(
   }
 
   if (!options.ai && !options.yes) {
-    const currentAI = projectConfig.aiAssistance || [];
+    const currentAI = projectConfig.aiAssistant ? [projectConfig.aiAssistant] : [];
 
     const aiOptions = [
       { value: "claude", label: "Claude (.claude/)" },
@@ -122,8 +122,9 @@ export async function addFeaturesCommand(
   }
 
   if (options.ai && options.ai.length > 0) {
-    const newAI = [...(projectConfig.aiAssistance || []), ...options.ai];
-    updates.aiAssistance = [...new Set(newAI)]; // Remove duplicates
+    const currentAiArray = projectConfig.aiAssistant ? [projectConfig.aiAssistant] : [];
+    const newAI = [...currentAiArray, ...options.ai];
+    updates.aiAssistant = newAI.length > 0 ? newAI[newAI.length - 1] : undefined; // Use latest selection
     logger.info(`Will add AI context files for: ${options.ai.join(", ")}`);
 
     await generateAIContextFiles(projectDir, options.ai, projectConfig);

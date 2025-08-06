@@ -1,5 +1,5 @@
 import { IconType } from "react-icons";
-import { BiSolidData, BiSolidCloud } from "react-icons/bi";
+import { BiSolidData } from "react-icons/bi";
 import { FaReact, FaVuejs, FaAngular, FaNodeJs, FaDocker, FaGitAlt } from "react-icons/fa";
 import {
   SiTypescript,
@@ -23,9 +23,7 @@ import {
   SiDrizzle,
   SiFastify,
   SiBun,
-  SiCloudflare,
   SiDeno,
-  SiVercel,
   SiAuth0,
 } from "react-icons/si";
 
@@ -412,30 +410,6 @@ export const runtimes: StackOption[] = [
     icon: SiDeno,
     color: "text-comic-black",
     description: "Secure runtime for JavaScript and TypeScript",
-    recommended: ["typescript"],
-  },
-  {
-    id: "cloudflare-workers",
-    name: "Cloudflare Workers",
-    icon: SiCloudflare,
-    color: "text-comic-orange",
-    description: "Serverless execution environment",
-    recommended: ["typescript"],
-  },
-  {
-    id: "vercel-edge",
-    name: "Vercel Edge Runtime",
-    icon: SiVercel,
-    color: "text-comic-black",
-    description: "Edge runtime for serverless functions",
-    recommended: ["typescript"],
-  },
-  {
-    id: "aws-lambda",
-    name: "AWS Lambda",
-    icon: BiSolidCloud,
-    color: "text-comic-orange",
-    description: "Serverless compute service",
     recommended: ["typescript"],
   },
 ];

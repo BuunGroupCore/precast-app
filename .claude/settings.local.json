@@ -80,7 +80,8 @@
       "Bash(packages/cli/dist/cli.js init test-mcp-flag --framework react --backend none --database postgres --orm prisma --styling tailwind --runtime node --ai claude --mcp-servers postgresql,github,git,filesystem --install --yes)",
       "Bash(./packages/cli/dist/cli.js --help)",
       "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:dev.to)"
+      "WebFetch(domain:dev.to)",
+      "Bash(bunx tsc:*)"
     ],
     "deny": []
   }

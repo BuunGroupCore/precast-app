@@ -23,6 +23,10 @@ interface LayoutProps {
   children: ReactNode;
 }
 
+/**
+ * Main layout component that provides the header, footer, and navigation structure.
+ * Wraps all pages with consistent navigation and theming.
+ */
 export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();

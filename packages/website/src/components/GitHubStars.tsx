@@ -9,6 +9,10 @@ interface GitHubRepoData {
   open_issues_count: number;
 }
 
+/**
+ * GitHub stars component that displays repository statistics from the GitHub API.
+ * Shows stars count with a tooltip displaying forks, watchers, and open issues.
+ */
 export function GitHubStars() {
   const [stars, setStars] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,12 +86,10 @@ export function GitHubStars() {
                 `,
               }}
             >
-              {/* Action text */}
               <div className="absolute -top-3 -left-3 action-text text-sm text-comic-red bg-comic-yellow px-2 py-1 rounded-full border-2 border-comic-black">
                 STATS!
               </div>
 
-              {/* Stats content */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FaHeart className="text-comic-red" />
@@ -114,7 +116,6 @@ export function GitHubStars() {
                 </div>
               </div>
 
-              {/* Comic effect dots */}
               <div className="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-comic-black opacity-10"></div>
               <div className="absolute top-1 left-1 w-1 h-1 rounded-full bg-comic-black opacity-10"></div>
             </div>

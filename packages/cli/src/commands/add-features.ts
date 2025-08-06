@@ -6,6 +6,7 @@ import fsExtra from "fs-extra";
 // eslint-disable-next-line import/no-named-as-default-member
 const { ensureDir, readFile, writeFile } = fsExtra;
 
+import { trackFeatureAdded } from "../utils/analytics.js";
 import { UI_LIBRARY_COMPATIBILITY, checkCompatibility } from "../utils/dependency-checker.js";
 import { logger } from "../utils/logger.js";
 import { detectPrecastProject, updatePrecastConfig } from "../utils/precast-config.js";
@@ -96,6 +97,11 @@ export async function addFeaturesCommand(
     logger.info(`Will add ${options.ui} UI library`);
 
     await installUILibrary(projectDir, options.ui, projectConfig);
+
+    await trackFeatureAdded("ui_library", {
+      ui_library: options.ui,
+      framework: projectConfig.framework,
+    });
   }
 
   if (!options.ai && !options.yes) {
@@ -128,6 +134,11 @@ export async function addFeaturesCommand(
     logger.info(`Will add AI context files for: ${options.ai.join(", ")}`);
 
     await generateAIContextFiles(projectDir, options.ai, projectConfig);
+
+    await trackFeatureAdded("ai_assistant", {
+      ai_assistants: options.ai.join(","),
+      framework: projectConfig.framework,
+    });
   }
 
   if (Object.keys(updates).length > 0) {

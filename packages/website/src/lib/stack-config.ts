@@ -653,7 +653,13 @@ export function getRecommendations(
   orm?: string[];
   styling?: string[];
 } {
-  const recommendations: Record<string, string[]> = {};
+  const recommendations: {
+    typescript?: boolean;
+    backend?: string[];
+    database?: string[];
+    orm?: string[];
+    styling?: string[];
+  } = {};
 
   const framework = frameworks.find((f) => f.id === config.framework);
   if (framework?.recommended) {

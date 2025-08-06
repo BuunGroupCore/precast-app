@@ -25,6 +25,10 @@ const DEFAULT_IMAGE = "https://precast.dev/og-image.png";
 const DEFAULT_URL = "https://precast.dev";
 const DEFAULT_AUTHOR = "Buun Group";
 
+/**
+ * SEO component for managing meta tags, Open Graph, Twitter Cards, and structured data.
+ * Updates document head with appropriate meta tags for search engines and social media.
+ */
 export function SEO({
   title = DEFAULT_TITLE,
   description = DEFAULT_DESCRIPTION,
@@ -59,13 +63,11 @@ export function SEO({
       element.setAttribute("content", content);
     };
 
-    /** Basic meta tags */
     updateMetaTag("description", description);
     updateMetaTag("keywords", keywords);
     updateMetaTag("author", author);
     updateMetaTag("robots", noindex ? "noindex, nofollow" : "index, follow");
 
-    /** Open Graph tags for social media sharing */
     updateMetaTag("og:title", title, true);
     updateMetaTag("og:description", description, true);
     updateMetaTag("og:image", image, true);
@@ -73,7 +75,6 @@ export function SEO({
     updateMetaTag("og:type", type, true);
     updateMetaTag("og:site_name", "Precast", true);
 
-    /** Twitter Card tags for Twitter sharing */
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", title);
     updateMetaTag("twitter:description", description);
@@ -81,7 +82,6 @@ export function SEO({
     updateMetaTag("twitter:site", "@buungroup");
     updateMetaTag("twitter:creator", "@buungroup");
 
-    /** Article specific tags */
     if (type === "article") {
       if (publishedTime) {
         updateMetaTag("article:published_time", publishedTime, true);
@@ -92,7 +92,6 @@ export function SEO({
       updateMetaTag("article:author", author, true);
     }
 
-    /** Canonical URL to prevent duplicate content issues */
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement("link");
@@ -101,7 +100,6 @@ export function SEO({
     }
     canonicalLink.setAttribute("href", canonical);
 
-    /** JSON-LD structured data for search engines */
     if (jsonLd) {
       const script = document.createElement("script");
       script.type = "application/ld+json";
@@ -109,7 +107,6 @@ export function SEO({
       script.setAttribute("data-seo-jsonld", "true");
       document.head.appendChild(script);
 
-      /** Cleanup function to remove the script */
       return () => {
         const oldScript = document.querySelector('script[data-seo-jsonld="true"]');
         if (oldScript) {
@@ -135,8 +132,8 @@ export function SEO({
 }
 
 /**
- * Pre-configured SEO components for common pages.
- * These components provide page-specific SEO settings.
+ * Pre-configured SEO component for the home page.
+ * Includes WebApplication schema structured data.
  */
 export function HomePageSEO() {
   const jsonLd = {
@@ -162,6 +159,10 @@ export function HomePageSEO() {
   return <SEO jsonLd={jsonLd} />;
 }
 
+/**
+ * Pre-configured SEO component for the builder page.
+ * Includes SoftwareApplication schema structured data.
+ */
 export function BuilderPageSEO() {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -182,6 +183,9 @@ export function BuilderPageSEO() {
   );
 }
 
+/**
+ * Pre-configured SEO component for the components page.
+ */
 export function ComponentsPageSEO() {
   return (
     <SEO
@@ -191,6 +195,10 @@ export function ComponentsPageSEO() {
   );
 }
 
+/**
+ * Pre-configured SEO component for the documentation page.
+ * Includes TechArticle schema structured data.
+ */
 export function DocsPageSEO() {
   const jsonLd = {
     "@context": "https://schema.org",

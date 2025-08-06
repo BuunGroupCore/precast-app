@@ -1,7 +1,3 @@
-/**
- * Get framework-specific file structure
- */
-
 import type { FileNode } from "../components/builder/types";
 
 interface FrameworkFiles {
@@ -9,6 +5,14 @@ interface FrameworkFiles {
   public?: FileNode[];
 }
 
+/**
+ * Returns framework-specific file structure for project scaffolding.
+ * Provides different file structures based on the selected framework and TypeScript preference.
+ *
+ * @param framework - The framework identifier (react, vue, angular, etc.)
+ * @param typescript - Whether to include TypeScript file extensions
+ * @returns Object containing src and public file structures
+ */
 export function getFrameworkFiles(framework: string, typescript: boolean): FrameworkFiles {
   switch (framework) {
     case "react":

@@ -599,7 +599,7 @@ model User {
           )}
         </div>
         {node.children && isExpanded && (
-          <div>{node.children.map((child) => renderNode(child, depth + 1))}</div>
+          <div>{node.children.map((child: FileNode) => renderNode(child, depth + 1))}</div>
         )}
       </motion.div>
     );

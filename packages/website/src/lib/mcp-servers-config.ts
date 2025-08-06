@@ -31,8 +31,11 @@ export interface MCPServer {
   repository?: string;
 }
 
+/**
+ * Available MCP (Model Context Protocol) servers for AI-assisted development.
+ * Each server provides specific functionality for interacting with various services.
+ */
 export const mcpServers: MCPServer[] = [
-  /** Essential MCP Servers */
   {
     id: "filesystem",
     name: "Filesystem",
@@ -53,7 +56,6 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
   },
 
-  /** Database Servers */
   {
     id: "postgres",
     name: "PostgreSQL",
@@ -112,7 +114,6 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/mongodb-js/mongodb-mcp-server",
   },
 
-  /** Development Tools */
   {
     id: "github",
     name: "GitHub",
@@ -152,7 +153,6 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
   },
 
-  /** Cloud Services */
   {
     id: "cloudflare",
     name: "Cloudflare",
@@ -208,7 +208,11 @@ export const mcpServers: MCPServer[] = [
 ];
 
 /**
- * Get MCP servers that should be included based on the project configuration
+ * Filters MCP servers based on project configuration.
+ * Returns servers that match the selected technologies or have 'any' trigger.
+ *
+ * @param config - Project configuration with framework, database, deployment options
+ * @returns Array of relevant MCP servers
  */
 export function getRelevantMCPServers(config: {
   framework?: string;
@@ -241,7 +245,11 @@ export function getRelevantMCPServers(config: {
 }
 
 /**
- * Generate Claude Code MCP configuration
+ * Generates MCP configuration object for Claude Code settings.
+ * Formats the servers into the expected configuration structure.
+ *
+ * @param servers - Array of MCP servers to include
+ * @returns Configuration object for mcpServers section
  */
 export function generateMCPConfig(servers: MCPServer[]): object {
   const mcpConfig = {

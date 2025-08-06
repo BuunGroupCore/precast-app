@@ -11,6 +11,10 @@ interface GenericComicDialogProps {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
+/**
+ * Generic comic-style dialog component for displaying custom content.
+ * Supports multiple sizes and includes backdrop, close button, and escape key handling.
+ */
 export function GenericComicDialog({
   isOpen,
   onClose,
@@ -24,7 +28,6 @@ export function GenericComicDialog({
     lg: "max-w-4xl",
     xl: "max-w-6xl",
   };
-  /** Close dialog on escape key press */
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -47,7 +50,6 @@ export function GenericComicDialog({
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={onClose}
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
@@ -55,7 +57,6 @@ export function GenericComicDialog({
             className="absolute inset-0 bg-comic-black"
           />
 
-          {/* Dialog */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -64,7 +65,6 @@ export function GenericComicDialog({
             className={`relative ${sizeClasses[size]} w-full comic-panel bg-comic-white p-6 max-h-[90vh] overflow-auto`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-comic-gray/20 transition-colors"
@@ -72,10 +72,8 @@ export function GenericComicDialog({
               <FaTimes className="text-xl" />
             </button>
 
-            {/* Title */}
             <h2 className="action-text text-3xl mb-4 text-comic-purple">{title}</h2>
 
-            {/* Content */}
             {children}
           </motion.div>
         </motion.div>

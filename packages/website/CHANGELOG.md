@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fix er
+- website improvements (c9187ea4)
+- website improvements (c9187ea4)
 - some improvements and clean up (94e0494a)
 - some improvements and clean up (94e0494a)
 - some improvements and clean up (94e0494a)

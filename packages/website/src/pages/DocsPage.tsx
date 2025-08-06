@@ -59,6 +59,10 @@ const docSections: DocSection[] = [
   },
 ];
 
+/**
+ * Documentation page with sidebar navigation and table of contents.
+ * Displays guides, CLI commands documentation, and FAQs.
+ */
 export function DocsPage() {
   const [activeSection, setActiveSection] = useState("getting-started");
   const [expandedSections, setExpandedSections] = useState<string[]>(["getting-started"]);
@@ -77,7 +81,7 @@ export function DocsPage() {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      /** Account for fixed header */
+      // Account for fixed header
       const yOffset = -160;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
@@ -88,7 +92,6 @@ export function DocsPage() {
   return (
     <>
       <DocsPageSEO />
-      {/* Mobile Navigation Toggle */}
       <div className="xl:hidden fixed top-36 left-4 z-40">
         <button
           onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
@@ -103,7 +106,6 @@ export function DocsPage() {
         </button>
       </div>
 
-      {/* Mobile TOC Toggle */}
       <div className="xl:hidden fixed top-36 right-4 z-40">
         <button
           onClick={() => setIsMobileTocOpen(!isMobileTocOpen)}
@@ -120,7 +122,6 @@ export function DocsPage() {
       </div>
 
       <div className="flex min-h-[calc(100vh-8rem)]">
-        {/* Left Sidebar */}
         <aside
           className={`w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0 xl:block ${isMobileNavOpen ? "fixed inset-0 z-30 bg-white" : "hidden"}`}
         >
@@ -188,7 +189,6 @@ export function DocsPage() {
           </div>
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 px-4 xl:px-8 py-6 overflow-y-auto">
           <motion.div
             key={activeSection}
@@ -196,7 +196,6 @@ export function DocsPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Content Header */}
             <div className="mb-8">
               <h1 className="action-text text-4xl md:text-5xl text-comic-red mb-4">
                 {activeSection.startsWith("cli-commands-")
@@ -210,7 +209,6 @@ export function DocsPage() {
               </div>
             </div>
 
-            {/* Comic Separator */}
             <div className="max-w-2xl mb-8">
               <div className="relative">
                 <div className="h-2 bg-comic-black rounded-full"></div>
@@ -222,7 +220,6 @@ export function DocsPage() {
               </div>
             </div>
 
-            {/* Dynamic Content Rendering */}
             <div className="space-y-8">
               {activeSection === "getting-started" && <GettingStartedSimple />}
               {activeSection === "cli-commands" && <CliCommandsDocs />}
@@ -242,7 +239,6 @@ export function DocsPage() {
           </motion.div>
         </main>
 
-        {/* Right Table of Contents */}
         <aside
           className={`w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0 xl:block ${isMobileTocOpen ? "fixed inset-0 z-30 bg-white" : "hidden"}`}
         >

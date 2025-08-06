@@ -15,6 +15,10 @@ interface SettingsDialogProps {
   onClose: () => void;
 }
 
+/**
+ * Settings dialog component for managing user preferences and default configurations.
+ * Allows users to customize their preferred tech stack and project defaults.
+ */
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [settings, setSettings] = useState<UserSettings>({
     preferredFramework: "react",
@@ -115,7 +119,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
   return (
     <GenericComicDialog isOpen={isOpen} onClose={onClose} title="SETTINGS" size="lg">
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-        {/* Preferred Stack Templates */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -140,7 +143,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
           </div>
         </motion.div>
 
-        {/* Custom Preferences */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,7 +151,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
         >
           <h3 className="font-display text-lg mb-3 text-comic-red">PREFERRED DEFAULTS</h3>
           <div className="grid grid-cols-2 gap-4">
-            {/* Framework */}
             <ComicSelect
               label="Framework"
               options={frameworks}
@@ -157,7 +158,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
               onChange={(value) => setSettings({ ...settings, preferredFramework: value })}
             />
 
-            {/* Backend */}
             <ComicSelect
               label="Backend"
               options={backends}
@@ -165,7 +165,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
               onChange={(value) => setSettings({ ...settings, preferredBackend: value })}
             />
 
-            {/* Database */}
             <ComicSelect
               label="Database"
               options={databases}
@@ -173,7 +172,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
               onChange={(value) => setSettings({ ...settings, preferredDatabase: value })}
             />
 
-            {/* Runtime */}
             <ComicSelect
               label="Runtime"
               options={runtimes}
@@ -181,7 +179,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
               onChange={(value) => setSettings({ ...settings, preferredRuntime: value })}
             />
 
-            {/* Styling */}
             <ComicSelect
               label="Styling"
               options={stylings}
@@ -189,7 +186,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
               onChange={(value) => setSettings({ ...settings, preferredStyling: value })}
             />
 
-            {/* Package Manager */}
             <ComicSelect
               label="Package Manager"
               options={packageManagers}
@@ -199,7 +195,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
           </div>
         </motion.div>
 
-        {/* Default Toggles */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -247,7 +242,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
           </div>
         </motion.div>
 
-        {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

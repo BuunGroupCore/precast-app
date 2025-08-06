@@ -10,6 +10,9 @@ interface NpmPackageData {
   time: {
     [version: string]: string;
   };
+  versions?: {
+    [version: string]: any;
+  };
 }
 
 interface NpmDownloadData {
@@ -19,6 +22,10 @@ interface NpmDownloadData {
   package: string;
 }
 
+/**
+ * NPM statistics component displaying package download stats and version information.
+ * Fetches data from NPM registry and shows weekly downloads with detailed tooltip.
+ */
 export function NpmStats() {
   const [loading, setLoading] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -26,7 +33,6 @@ export function NpmStats() {
   const [downloads, setDownloads] = useState<NpmDownloadData | null>(null);
 
   useEffect(() => {
-    /** Fetch package info from NPM registry */
     Promise.all([
       fetch("https://registry.npmjs.org/create-precast-app").then((res) => {
         if (!res.ok) throw new Error("Package not found");
@@ -35,12 +41,11 @@ export function NpmStats() {
       fetch("https://api.npmjs.org/downloads/point/last-week/create-precast-app")
         .then((res) => {
           if (!res.ok) {
-            /** If downloads API fails, return null */
             return null;
           }
           return res.json();
         })
-        .catch(() => null) /** Catch download API errors and return null */,
+        .catch(() => null),
     ])
       .then(([packageData, downloadData]) => {
         setNpmData(packageData);
@@ -134,15 +139,12 @@ export function NpmStats() {
                 `,
               }}
             >
-              {/* Action text */}
               <div className="absolute -top-3 -left-3 action-text text-sm text-comic-white bg-comic-red px-2 py-1 rounded-full border-2 border-comic-black">
                 NPM!
               </div>
 
-              {/* Package name */}
               <div className="font-display text-lg mb-3 text-comic-black">create-precast-app</div>
 
-              {/* Stats content */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FaTag className="text-comic-red" />
@@ -173,7 +175,6 @@ export function NpmStats() {
                 </div>
               </div>
 
-              {/* Comic effect */}
               <div className="absolute bottom-2 right-2">
                 <div className="action-text text-xs text-comic-red opacity-50">INSTALL NOW!</div>
               </div>

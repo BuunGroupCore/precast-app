@@ -6,6 +6,10 @@ interface ComicLoaderProps {
   variant?: "default" | "small" | "inline";
 }
 
+/**
+ * Comic-style loading component with animated effects.
+ * Supports different variants: default (full screen), small, and inline.
+ */
 export function ComicLoader({
   message = "Loading awesome stuff...",
   variant = "default",
@@ -45,7 +49,6 @@ export function ComicLoader({
         }}
         className={`comic-panel ${isSmall ? "p-6" : "p-12"} text-center relative overflow-hidden`}
       >
-        {/* Animated background rays */}
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -66,9 +69,7 @@ export function ComicLoader({
           </div>
         </motion.div>
 
-        {/* Main loading animation */}
         <div className="relative z-10">
-          {/* Comic burst effect */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.2, 1] }}
@@ -79,7 +80,6 @@ export function ComicLoader({
             }}
             className={`mx-auto mb-6 ${isSmall ? "w-16 h-16" : "w-24 h-24"} relative`}
           >
-            {/* Spinning bolt */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -90,7 +90,6 @@ export function ComicLoader({
               />
             </motion.div>
 
-            {/* Orbiting elements */}
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
@@ -115,7 +114,6 @@ export function ComicLoader({
             ))}
           </motion.div>
 
-          {/* Loading text */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -128,7 +126,6 @@ export function ComicLoader({
               {message.toUpperCase()}
             </h2>
 
-            {/* Animated dots */}
             <div className="flex justify-center gap-1">
               {[...Array(3)].map((_, i) => (
                 <motion.div
@@ -148,7 +145,6 @@ export function ComicLoader({
             </div>
           </motion.div>
 
-          {/* Comic action words */}
           <div className="relative">
             <motion.div
               animate={{
@@ -197,7 +193,6 @@ export function ComicLoader({
           </div>
         </div>
 
-        {/* Progress bar (optional) */}
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
@@ -224,7 +219,8 @@ export function ComicLoader({
 }
 
 /**
- * Full-screen loading overlay with optional message.
+ * Full-screen loading overlay component with optional message.
+ * Uses ComicLoader with backdrop blur effect.
  */
 export function LoadingOverlay({ message }: { message?: string }) {
   return (

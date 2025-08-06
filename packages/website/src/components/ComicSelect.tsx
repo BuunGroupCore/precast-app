@@ -17,6 +17,10 @@ interface ComicSelectProps {
   placeholder?: string;
 }
 
+/**
+ * Comic-style select dropdown component with animated transitions.
+ * Supports icons and custom colors for each option.
+ */
 export const ComicSelect: React.FC<ComicSelectProps> = ({
   options,
   value,

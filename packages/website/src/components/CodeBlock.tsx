@@ -8,6 +8,10 @@ interface CodeBlockProps {
   showLineNumbers?: boolean;
 }
 
+/**
+ * Code block component with syntax highlighting and copy functionality.
+ * Displays code in a terminal-style format with optional line numbers.
+ */
 export function CodeBlock({ code, showLineNumbers = false }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
@@ -42,7 +46,6 @@ export function CodeBlock({ code, showLineNumbers = false }: CodeBlockProps) {
         </pre>
       </div>
 
-      {/* Copy Button */}
       <motion.button
         onClick={copyToClipboard}
         className="absolute top-2 right-2 p-2 rounded-lg border-2 transition-all"
@@ -70,7 +73,6 @@ export function CodeBlock({ code, showLineNumbers = false }: CodeBlockProps) {
         )}
       </motion.button>
 
-      {/* Tooltip */}
       {copied && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -94,7 +96,6 @@ function formatLine(line: string): string {
     return `<span class="text-comic-gray">${line}</span>`;
   }
 
-  /** Highlight npm/yarn/pnpm/bun commands */
   const commandPattern = /^(npm|yarn|pnpm|bun|npx)\s+/;
   if (commandPattern.test(line.trim())) {
     return line.replace(commandPattern, '<span class="text-comic-blue">$&</span>');

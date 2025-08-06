@@ -12,6 +12,10 @@ interface ComicDialogProps {
   onConfirm?: () => void;
 }
 
+/**
+ * Comic-style dialog component for displaying messages, confirmations, and alerts.
+ * Features animated entrance/exit and comic book visual effects.
+ */
 export function ComicDialog({
   isOpen,
   onClose,
@@ -54,7 +58,6 @@ export function ComicDialog({
             onClick={(e) => e.stopPropagation()}
             className="comic-dialog"
           >
-            {/* Comic Effect */}
             <div className="absolute -top-8 -right-8 action-text text-5xl text-comic-yellow opacity-80">
               {effectText[type]}
             </div>

@@ -13,6 +13,10 @@ import {
   FaUsers,
 } from "react-icons/fa";
 
+/**
+ * Support page showcasing ways to contribute and support the project.
+ * Includes both free and paid options for supporting Precast development.
+ */
 export function SupportPage() {
   const freeSupport = [
     {

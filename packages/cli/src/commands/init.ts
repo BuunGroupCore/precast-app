@@ -8,6 +8,7 @@ import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
 import { gatherProjectConfig } from "../prompts/config-prompts.js";
+import { trackProjectCreation, displayTelemetryNotice } from "../utils/analytics.js";
 import { setupApiClient } from "../utils/api-client-setup.js";
 import { displayBanner } from "../utils/banner.js";
 import { displayConfigSummary } from "../utils/display-config.js";
@@ -81,6 +82,11 @@ export interface InitOptions {
 export async function initCommand(projectName: string | undefined, options: InitOptions) {
   await displayBanner();
   intro(pc.bgCyan(pc.black(" create-precast-app ")));
+
+  displayTelemetryNotice();
+
+  const startTime = Date.now();
+
   try {
     const config = await gatherProjectConfig(projectName, options);
     const validator = getConfigValidator();
@@ -192,6 +198,26 @@ export async function initCommand(projectName: string | undefined, options: Init
           log.warn(`API client setup failed. You can retry manually later.`);
         }
       }
+
+      await trackProjectCreation({
+        framework: config.framework,
+        backend: config.backend,
+        database: config.database,
+        orm: config.orm,
+        styling: config.styling,
+        uiLibrary: config.uiLibrary,
+        auth: config.authentication,
+        apiClient: config.apiClient,
+        aiAssistant: config.aiAssistant,
+        typescript: config.typescript,
+        docker: config.docker,
+        git: config.git,
+        powerups: config.powerups,
+        mcpServers: config.mcpServers,
+        duration: Date.now() - startTime,
+        success: true,
+      });
+
       outro(pc.green("✨ Project created successfully!"));
       log.message("");
       log.message("Next steps:");

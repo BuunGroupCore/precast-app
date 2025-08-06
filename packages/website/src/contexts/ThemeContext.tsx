@@ -9,6 +9,10 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+/**
+ * Theme provider component that manages comic theme state.
+ * Persists theme selection to localStorage and applies theme attributes to the document.
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<ComicTheme>(() => {
     const savedTheme = localStorage.getItem("comic-theme");
@@ -23,6 +27,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
+/**
+ * Hook to access the current theme and theme setter.
+ * Must be used within a ThemeProvider component.
+ *
+ * @returns Theme context with current theme and setTheme function
+ * @throws Error if used outside of ThemeProvider
+ */
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {

@@ -11,6 +11,10 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * Origin story page explaining the motivation behind creating Precast.
+ * Highlights common development problems and how Precast solves them.
+ */
 export function OriginStoryPage() {
   const navigate = useNavigate();
 

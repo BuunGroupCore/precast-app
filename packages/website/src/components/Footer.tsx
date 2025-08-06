@@ -16,6 +16,10 @@ import {
 import { SiNpm } from "react-icons/si";
 import { Link } from "react-router-dom";
 
+/**
+ * Footer component displaying project information, links, and resources.
+ * Features a comic book aesthetic with social links, quick navigation, and support information.
+ */
 export function Footer() {
   return (
     <footer
@@ -25,14 +29,12 @@ export function Footer() {
         backgroundColor: "var(--comic-black)",
       }}
     >
-      {/* Comic book effect dots */}
       <div className="absolute inset-0 opacity-5">
         <div className="halftone h-full" style={{ color: "var(--comic-yellow)" }} />
       </div>
 
       <div className="max-w-7xl mx-auto relative">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
-          {/* Brand Section */}
           <div className="space-y-4">
             <motion.div whileHover={{ scale: 1.05 }} className="inline-block">
               <img
@@ -98,7 +100,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
               <FaRocket className="text-comic-red" />
@@ -135,7 +136,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
           <div>
             <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
               <FaCode className="text-comic-green" />
@@ -187,7 +187,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact & Support */}
           <div>
             <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
               <FaEnvelope className="text-comic-purple" />
@@ -224,7 +223,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="border-t border-comic-yellow/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">

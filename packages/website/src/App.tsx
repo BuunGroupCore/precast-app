@@ -12,6 +12,10 @@ import { ShowcasePage } from "./pages/ShowcasePage";
 import { SubmitProjectPage } from "./pages/SubmitProjectPage";
 import { SupportPage } from "./pages/SupportPage";
 
+/**
+ * Main application component that sets up routing and providers.
+ * Wraps all pages with theme context and layout components.
+ */
 function App() {
   return (
     <ThemeProvider>

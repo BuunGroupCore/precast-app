@@ -22,15 +22,15 @@ export function processTemplate(template: string, context: TemplateContext): str
   let result = template;
 
   // Replace simple variables {{name}}, {{framework}}, etc.
-  result = result.replace(/\{\{([^#/].*?)\}\}/g, (match, key) => {
+  result = result.replace(/\{\{([^#/].*?)\}\}/g, (_match, key) => {
     const trimmedKey = key.trim();
-    return context[trimmedKey] !== undefined ? String(context[trimmedKey]) : match;
+    return context[trimmedKey] !== undefined ? String(context[trimmedKey]) : _match;
   });
 
   // Handle {{#if condition}} blocks
   result = result.replace(
     /\{\{#if\s+(.*?)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-    (match, condition, content) => {
+    (_match, condition, content) => {
       const trimmedCondition = condition.trim();
 
       // Handle simple boolean conditions
@@ -54,7 +54,7 @@ export function processTemplate(template: string, context: TemplateContext): str
   // Handle {{else if condition}} within if blocks
   result = result.replace(
     /\{\{#if\s+(.*?)\}\}([\s\S]*?)\{\{else if\s+(.*?)\}\}([\s\S]*?)\{\{else\}\}([\s\S]*?)\{\{\/if\}\}/g,
-    (match, cond1, content1, cond2, content2, elseContent) => {
+    (_match, cond1, content1, cond2, content2, elseContent) => {
       const condition1 = evaluateCondition(cond1.trim(), context);
       if (condition1) {
         return processTemplate(content1, context);
@@ -72,7 +72,7 @@ export function processTemplate(template: string, context: TemplateContext): str
   // Handle simple {{#if condition}}...{{else}}...{{/if}} blocks
   result = result.replace(
     /\{\{#if\s+(.*?)\}\}([\s\S]*?)\{\{else\}\}([\s\S]*?)\{\{\/if\}\}/g,
-    (match, condition, ifContent, elseContent) => {
+    (_match, condition, ifContent, elseContent) => {
       const trimmedCondition = condition.trim();
       if (evaluateCondition(trimmedCondition, context)) {
         return processTemplate(ifContent, context);
@@ -84,9 +84,9 @@ export function processTemplate(template: string, context: TemplateContext): str
   // Handle {{#ifAny}} blocks
   result = result.replace(
     /\{\{#ifAny\s+(.*?)\}\}([\s\S]*?)\{\{\/ifAny\}\}/g,
-    (match, conditions, content) => {
-      const conditionList = conditions.split(/\s+/).filter((c) => c);
-      const anyTrue = conditionList.some((cond) => evaluateCondition(cond, context));
+    (_match, conditions, content) => {
+      const conditionList = conditions.split(/\s+/).filter((c: string) => c);
+      const anyTrue = conditionList.some((cond: string) => evaluateCondition(cond, context));
       return anyTrue ? processTemplate(content, context) : "";
     }
   );
@@ -94,7 +94,7 @@ export function processTemplate(template: string, context: TemplateContext): str
   // Handle {{#unless}} blocks
   result = result.replace(
     /\{\{#unless\s+(.*?)\}\}([\s\S]*?)\{\{\/unless\}\}/g,
-    (match, condition, content) => {
+    (_match, condition, content) => {
       const trimmedCondition = condition.trim();
       if (!context[trimmedCondition]) {
         return processTemplate(content, context);

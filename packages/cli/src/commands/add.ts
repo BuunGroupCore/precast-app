@@ -3,6 +3,8 @@ import path from "path";
 import { text, select, confirm } from "@clack/prompts";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
+
+import { trackFeatureAdded } from "../utils/analytics.js";
 // eslint-disable-next-line import/no-named-as-default-member
 const { ensureDir, writeFile, pathExists, readJSON } = fsExtra;
 interface AddOptions {
@@ -189,6 +191,16 @@ export const Default: Story = {
     path.join(componentDir, `index.${options.typescript ? "ts" : "js"}`),
     `export { default } from './${name}';`
   );
+
+  await trackFeatureAdded("component", {
+    component_name: name,
+    framework: "react",
+    typescript: options.typescript,
+    with_styles: options.withStyles,
+    with_tests: options.withTests,
+    with_storybook: options.withStorybook,
+  });
+
   consola.success(`Component ${name} created successfully!`);
   consola.info(`Location: ${componentDir}`);
 }

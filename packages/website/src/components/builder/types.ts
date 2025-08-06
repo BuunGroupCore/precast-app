@@ -47,6 +47,19 @@ export interface UILibrary {
 }
 
 /**
+ * File node structure for folder visualization.
+ */
+export interface FileNode {
+  name: string;
+  type: "file" | "folder";
+  children?: FileNode[];
+  previewContent?: string;
+  path?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  description?: string;
+}
+
+/**
  * Configuration for package managers.
  */
 export interface PackageManager {

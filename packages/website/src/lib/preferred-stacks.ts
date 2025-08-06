@@ -29,6 +29,10 @@ export interface PreferredStack {
   };
 }
 
+/**
+ * Pre-configured technology stacks for quick project setup.
+ * Each stack represents a complete combination of framework, backend, database, and tooling.
+ */
 export const preferredStacks: PreferredStack[] = [
   {
     id: "mern",

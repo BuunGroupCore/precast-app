@@ -16,6 +16,10 @@ const themes: { id: ComicTheme; name: string; colors: string[] }[] = [
   { id: "manga", name: "MANGA", colors: ["#000000", "#FFFFFF", "#FF0000"] },
 ];
 
+/**
+ * Theme switcher component allowing users to select from various comic book-inspired themes.
+ * Displays a dropdown with theme previews using color swatches.
+ */
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);

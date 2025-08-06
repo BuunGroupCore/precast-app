@@ -63,7 +63,6 @@ export function ShowcasePage() {
 
   const fetchShowcaseProjects = async () => {
     try {
-      /** Fetch issues with 'showcase' label from GitHub API */
       const response = await fetch(
         "https://api.github.com/repos/BuunGroupCore/precast-app/issues?labels=showcase&state=open",
         {
@@ -82,20 +81,17 @@ export function ShowcasePage() {
       const parsedProjects: ShowcaseProject[] = issues.map((issue: GitHubIssue) => {
         const body = issue.body || "";
 
-        /** Enhanced parsing to handle multiple formats */
         const demoMatch = body.match(/(?:\*\*Demo URL:\*\*|Demo URL:)\s*(https?:\/\/[^\s\n]+)/i);
         const repoMatch = body.match(
           /(?:\*\*Repository:\*\*|Repository:)\s*(https?:\/\/[^\s\n]+)/i
         );
         const techMatch = body.match(/(?:\*\*Tech Stack:\*\*|Tech Stack:)\s*(.+)/i);
 
-        /** Try to extract description from structured format */
         let description = "";
         const descMatch = body.match(/(?:\*\*Description:\*\*|Description:)\s*(.+)/i);
         if (descMatch) {
           description = descMatch[1].trim();
         } else {
-          /** Fallback to first meaningful line */
           const lines = body
             .split("\n")
             .filter(
@@ -110,7 +106,7 @@ export function ShowcasePage() {
 
         const project = {
           id: issue.number,
-          title: issue.title.replace(/^\[Showcase\]\s*/i, "") /** Clean title */,
+          title: issue.title.replace(/^\[Showcase\]\s*/i, ""),
           description: description.trim(),
           demoUrl: demoMatch ? demoMatch[1].trim() : undefined,
           repoUrl: repoMatch ? repoMatch[1].trim() : undefined,
@@ -131,7 +127,6 @@ export function ShowcasePage() {
       setProjects(parsedProjects);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-      /** No fallback data - only show real projects */
       setProjects([]);
     } finally {
       setLoading(false);
@@ -145,12 +140,10 @@ export function ShowcasePage() {
       project.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  /** Pagination logic */
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
   const startIndex = (currentPage - 1) * projectsPerPage;
   const paginatedProjects = filteredProjects.slice(startIndex, startIndex + projectsPerPage);
 
-  /** Reset to page 1 when search changes */
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);

@@ -2,10 +2,13 @@ import { motion } from "framer-motion";
 import { FaHome, FaExclamationTriangle, FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
+/**
+ * 404 Not Found page with comic book themed animations.
+ * Provides friendly error messaging and navigation back to home.
+ */
 export function NotFoundPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-comic-yellow via-comic-orange to-comic-red flex items-center justify-center p-4">
-      {/* Comic book panel background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-32 h-32 border-4 border-black transform rotate-12"></div>
         <div className="absolute top-20 right-20 w-24 h-24 border-4 border-black transform -rotate-12"></div>
@@ -24,7 +27,6 @@ export function NotFoundPage() {
         }}
         className="comic-panel max-w-2xl mx-auto text-center relative z-10"
       >
-        {/* Comic explosion background */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -32,9 +34,7 @@ export function NotFoundPage() {
           className="absolute -inset-8 bg-gradient-to-r from-comic-yellow via-comic-orange to-comic-red rounded-full opacity-20 blur-xl"
         />
 
-        {/* Main content */}
         <div className="relative z-20 p-8">
-          {/* Animated 404 */}
           <motion.div
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -46,7 +46,6 @@ export function NotFoundPage() {
             </h1>
           </motion.div>
 
-          {/* Animated exclamation icon */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

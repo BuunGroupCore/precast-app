@@ -15,6 +15,10 @@ interface ComponentLibrary {
   tags: string[];
 }
 
+/**
+ * Components page showcasing available UI component libraries.
+ * Features brutalist UI and other component collections for rapid development.
+ */
 export function ComponentsPage() {
   const navigate = useNavigate();
 

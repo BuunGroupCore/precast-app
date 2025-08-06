@@ -41,7 +41,6 @@ import {
  * Contains detailed metadata about all available technologies.
  */
 export const serviceInfo = {
-  /** Frontend Frameworks */
   react: {
     name: "React",
     icon: FaReact,
@@ -123,7 +122,6 @@ export const serviceInfo = {
     popularity: "★★★★★",
   },
 
-  /** Backend Frameworks */
   node: {
     name: "Node.js",
     icon: FaNodeJs,
@@ -195,7 +193,6 @@ export const serviceInfo = {
     popularity: "★★★★☆",
   },
 
-  /** Databases */
   postgres: {
     name: "PostgreSQL",
     icon: SiPostgresql,
@@ -237,7 +234,6 @@ export const serviceInfo = {
     popularity: "★★★★☆",
   },
 
-  /** ORMs (Object-Relational Mapping) */
   prisma: {
     name: "Prisma",
     icon: SiPrisma,
@@ -269,7 +265,6 @@ export const serviceInfo = {
     popularity: "★★★☆☆",
   },
 
-  /** Styling Solutions */
   tailwind: {
     name: "Tailwind CSS",
     icon: SiTailwindcss,
@@ -321,7 +316,6 @@ export const serviceInfo = {
     popularity: "★★★★★",
   },
 
-  /** Development Tools */
   typescript: {
     name: "TypeScript",
     icon: SiTypescript,
@@ -361,6 +355,10 @@ interface ServiceTooltipProps {
   delay?: number;
 }
 
+/**
+ * Service tooltip component displaying detailed information about technologies.
+ * Shows on hover with customizable placement and delay.
+ */
 export function ServiceTooltip({
   serviceId,
   children,
@@ -451,10 +449,8 @@ export function ServiceTooltip({
               boxShadow: "4px 4px 0px var(--comic-black)",
             }}
           >
-            {/* Comic book arrow */}
             <div className={`absolute w-0 h-0 ${getArrowStyles()}`} />
 
-            {/* Service header */}
             <div className="flex items-center gap-3 mb-3 pb-3 border-b-2 border-comic-black border-dashed">
               <div className="flex-shrink-0">
                 <service.icon className={`text-2xl ${service.color}`} />
@@ -478,14 +474,12 @@ export function ServiceTooltip({
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-3 pb-3 border-b-2 border-comic-black border-dashed">
               <p className="text-xs text-comic-darkBlue font-comic leading-relaxed">
                 {service.description}
               </p>
             </div>
 
-            {/* Features */}
             <div className="mb-3 pb-3 border-b-2 border-comic-black border-dashed">
               <h4 className="font-comic font-bold text-xs uppercase text-comic-gray mb-2 flex items-center gap-1">
                 <FaBolt className="text-comic-orange" size={10} />
@@ -507,7 +501,6 @@ export function ServiceTooltip({
               </div>
             </div>
 
-            {/* Popularity */}
             <div className="flex items-center justify-between text-xs">
               <span className="font-comic font-bold text-comic-gray flex items-center gap-1">
                 <FaBolt className="text-comic-red" size={8} />
@@ -523,8 +516,8 @@ export function ServiceTooltip({
 }
 
 /**
- * HOC (Higher-Order Component) for easy wrapping of service buttons.
- * Adds tooltip functionality to any component.
+ * Higher-Order Component for wrapping service buttons with tooltip functionality.
+ * Automatically adds tooltip when serviceId prop is provided.
  */
 export function withServiceTooltip<T extends { serviceId?: string }>(
   Component: React.ComponentType<T>,

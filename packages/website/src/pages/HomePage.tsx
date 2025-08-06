@@ -37,6 +37,23 @@ import { useNavigate } from "react-router-dom";
 
 import { HomePageSEO } from "../components/SEO";
 
+interface Sponsor {
+  login: string;
+  name: string;
+  avatarUrl: string;
+  url: string;
+  monthlyAmount: number;
+  totalAmount: number;
+  tier: string;
+  joinedDate: string;
+  isOrganization: boolean;
+}
+
+interface DownloadHistoryItem {
+  day: string;
+  downloads: number;
+}
+
 export function HomePage() {
   const navigate = useNavigate();
   const [selectedPackageManager, setSelectedPackageManager] = useState("npx");
@@ -60,13 +77,17 @@ export function HomePage() {
     loading: true,
   });
 
-  const [sponsors, setSponsors] = useState({
+  const [sponsors, setSponsors] = useState<{
+    list: Sponsor[];
+    loading: boolean;
+    count: number;
+  }>({
     list: [],
     loading: true,
     count: 0,
   });
 
-  const [_downloadHistory, setDownloadHistory] = useState([]);
+  const [_downloadHistory, setDownloadHistory] = useState<DownloadHistoryItem[]>([]);
   const [copied, setCopied] = useState(false);
 
   const fetchGitHubStats = async () => {
@@ -104,9 +125,14 @@ export function HomePage() {
       ]);
 
       const totalDownloads =
-        downloadData.downloads?.reduce((sum, day) => sum + day.downloads, 0) || 0;
+        downloadData.downloads?.reduce(
+          (sum: number, day: { downloads: number }) => sum + day.downloads,
+          0
+        ) || 0;
       const weekDownloads =
-        downloadData.downloads?.slice(-7).reduce((sum, day) => sum + day.downloads, 0) || 0;
+        downloadData.downloads
+          ?.slice(-7)
+          .reduce((sum: number, day: { downloads: number }) => sum + day.downloads, 0) || 0;
 
       setNpmStats({
         downloads: {
@@ -122,10 +148,9 @@ export function HomePage() {
         loading: false,
       });
 
-      // Format download history for chart
       if (downloadData.downloads) {
         setDownloadHistory(
-          downloadData.downloads.slice(-14).map((item) => ({
+          downloadData.downloads.slice(-14).map((item: { day: string; downloads: number }) => ({
             day: new Date(item.day).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
             downloads: item.downloads,
           }))
@@ -139,37 +164,34 @@ export function HomePage() {
 
   const fetchGitHubSponsors = async () => {
     try {
-      /** Using GitHub's GraphQL API to fetch sponsors */
-      const _query = `
-        query($owner: String!) {
-          user(login: $owner) {
-            sponsorshipsAsMaintainer(first: 100, includePrivate: false) {
-              totalCount
-              nodes {
-                sponsorEntity {
-                  ... on User {
-                    login
-                    name
-                    avatarUrl
-                    url
-                  }
-                  ... on Organization {
-                    login
-                    name
-                    avatarUrl
-                    url
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
+      // GraphQL query for GitHub sponsors (requires token)
+      // const query = `
+      //   query($owner: String!) {
+      //     user(login: $owner) {
+      //       sponsorshipsAsMaintainer(first: 100, includePrivate: false) {
+      //         totalCount
+      //         nodes {
+      //           sponsorEntity {
+      //             ... on User {
+      //               login
+      //               name
+      //               avatarUrl
+      //               url
+      //             }
+      //             ... on Organization {
+      //               login
+      //               name
+      //               avatarUrl
+      //               url
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // `;
 
-      /** Note: This requires a GitHub token, which we don't have in browser */
-      /** For now, we'll use a fallback or mock data until proper server-side implementation */
-
-      /** Mock sponsors for demonstration with different tiers */
+      // Mock sponsors for demonstration with different tiers
       const mockSponsors = [
         {
           login: "alex-dev",
@@ -251,12 +273,11 @@ export function HomePage() {
   };
 
   useEffect(() => {
-    /** Initial fetch */
     fetchGitHubStats();
     fetchNpmStats();
     fetchGitHubSponsors();
 
-    /** Refresh every 5 minutes */
+    // Refresh every 5 minutes
     const interval = setInterval(() => {
       fetchGitHubStats();
       fetchNpmStats();
@@ -266,7 +287,10 @@ export function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  const formatNumber = (num) => {
+  /**
+   * Formats a number to a human-readable string with K/M suffixes
+   */
+  const formatNumber = (num: number): string => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();
@@ -316,7 +340,6 @@ export function HomePage() {
   return (
     <div className="overflow-hidden">
       <HomePageSEO />
-      {/* Hero Section */}
       <section className="relative">
         <div className="relative max-w-7xl mx-auto px-4 py-10 sm:py-20">
           <motion.div
@@ -325,19 +348,6 @@ export function HomePage() {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            {/* Logo with Comic Effect */}
-            <div className="relative inline-block mb-6 sm:mb-8">
-              <img
-                src="https://brutalist.precast.dev/logo.png"
-                alt="Precast Logo"
-                className="h-20 sm:h-32 mx-auto filter drop-shadow-lg"
-                style={{
-                  filter: "hue-rotate(340deg) saturate(2) brightness(1.2)",
-                }}
-              />
-            </div>
-
-            {/* Title */}
             <motion.h1
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -353,7 +363,6 @@ export function HomePage() {
               </span>
             </motion.h1>
 
-            {/* Subtitle in Speech Bubble */}
             <motion.div
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -368,7 +377,6 @@ export function HomePage() {
               </div>
             </motion.div>
 
-            {/* CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -395,14 +403,12 @@ export function HomePage() {
               </motion.button>
             </motion.div>
 
-            {/* Quick Start Terminal with Package Manager Tabs */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
               className="mt-16 max-w-4xl mx-auto"
             >
-              {/* Package Manager Tabs */}
               <div className="flex justify-center mb-4">
                 <div className="flex gap-2 p-2 bg-comic-white rounded-lg border-4 border-comic-black comic-shadow">
                   {packageManagers.map((pm) => (
@@ -430,7 +436,6 @@ export function HomePage() {
                 </div>
               </div>
 
-              {/* Terminal */}
               <div className="comic-panel p-6 bg-comic-black relative group">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -442,7 +447,6 @@ export function HomePage() {
                     <span className="font-display text-comic-green">QUICK START</span>
                   </div>
 
-                  {/* Copy Button */}
                   <motion.button
                     onClick={copyCommand}
                     whileHover={{ scale: 1.1 }}
@@ -480,7 +484,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* GitHub Stats Section */}
       <section className="py-20 px-4 relative" style={{ backgroundColor: "var(--comic-purple)" }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -775,7 +778,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Stack Preview */}
       <section className="py-20 px-4 relative" style={{ backgroundColor: "var(--comic-gray)" }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -990,7 +992,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section
         className="py-20 px-4 relative overflow-hidden"
         style={{ backgroundColor: "var(--comic-red)" }}

@@ -14,6 +14,10 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * Project submission page for the community showcase.
+ * Generates a pre-filled GitHub issue for project submissions.
+ */
 export function SubmitProjectPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -27,7 +31,10 @@ export function SubmitProjectPage() {
     additionalLabels: "",
   });
 
-  const generateGitHubUrl = () => {
+  /**
+   * Generates a GitHub issue URL with pre-filled project details
+   */
+  const generateGitHubUrl = (): string => {
     const labels = ["showcase"];
     if (formData.completed) labels.push("completed");
     if (formData.featured) labels.push("featured");

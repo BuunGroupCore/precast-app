@@ -93,7 +93,7 @@ interface CacheData {
   timestamp: number;
   githubStats?: GitHubStats;
   npmStats?: NpmStats;
-  commitActivity?: CommitData[];
+  commitHistory?: CommitData[];
   downloadHistory?: DownloadData[];
 }
 
@@ -131,9 +131,13 @@ const setCache = (data: Partial<CacheData>) => {
   }
 };
 
+/**
+ * Metrics page displaying comprehensive GitHub and npm statistics.
+ * Shows real-time data with charts and visualizations for project analytics.
+ */
 export function MetricsPage() {
-  const [githubStats, setGithubStats] = useState<GitHubStats | null>(null);
-  const [npmStats, setNpmStats] = useState<NpmStats | null>(null);
+  const [githubStats, setGithubStats] = useState<GitHubStats | undefined>(undefined);
+  const [npmStats, setNpmStats] = useState<NpmStats | undefined>(undefined);
   const [downloadHistory, setDownloadHistory] = useState<DownloadData[]>([]);
   const [commitHistory, setCommitHistory] = useState<CommitData[]>([]);
   const [loading, setLoading] = useState(true);

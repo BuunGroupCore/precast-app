@@ -14,6 +14,10 @@ export interface PreferredStack {
   tags: string[];
 }
 
+/**
+ * Pre-configured project templates with complete technology stacks.
+ * Each stack includes framework, styling, backend, database, and tooling configurations.
+ */
 export const preferredStacks: PreferredStack[] = [
   {
     id: "t3-stack",
@@ -270,11 +274,23 @@ export const preferredStacks: PreferredStack[] = [
   },
 ];
 
+/**
+ * Filters stacks by category.
+ *
+ * @param category - Stack category to filter by
+ * @returns Array of stacks matching the category, or all stacks if no category provided
+ */
 export const getStacksByCategory = (category?: string) => {
   if (!category) return preferredStacks;
   return preferredStacks.filter((stack) => stack.category === category);
 };
 
+/**
+ * Finds a stack by its ID.
+ *
+ * @param id - Stack identifier
+ * @returns Stack matching the ID, or undefined if not found
+ */
 export const getStackById = (id: string) => {
   return preferredStacks.find((stack) => stack.id === id);
 };

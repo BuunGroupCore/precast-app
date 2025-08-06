@@ -25,6 +25,7 @@ export interface AIAssistant {
   color: string;
   description: string;
   files?: string[];
+  beta?: boolean;
 }
 
 // UI Component Libraries with framework dependencies
@@ -36,6 +37,7 @@ export interface UILibrary {
   description: string;
   frameworks: string[];
   requires?: string[];
+  beta?: boolean;
 }
 
 // Package Manager option

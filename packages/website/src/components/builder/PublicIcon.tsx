@@ -14,5 +14,43 @@ export const PublicIcon: React.FC<PublicIconProps> = ({ name, className = "" }) 
     return `/icons/${iconName}.svg`;
   };
 
-  return <img src={getIconPath(name)} alt={name} className={`w-6 h-6 ${className}`} />;
+  // Extract text-size classes to convert to width/height
+  const sizeMatch = className.match(/text-(\w+)/);
+  let sizeClasses = "w-6 h-6"; // default size
+
+  if (sizeMatch) {
+    const size = sizeMatch[1];
+    switch (size) {
+      case "xs":
+        sizeClasses = "w-3 h-3";
+        break;
+      case "sm":
+        sizeClasses = "w-4 h-4";
+        break;
+      case "base":
+        sizeClasses = "w-4 h-4";
+        break;
+      case "lg":
+        sizeClasses = "w-5 h-5";
+        break;
+      case "xl":
+        sizeClasses = "w-6 h-6";
+        break;
+      case "2xl":
+        sizeClasses = "w-8 h-8";
+        break;
+      case "3xl":
+        sizeClasses = "w-10 h-10";
+        break;
+      default:
+        sizeClasses = "w-6 h-6";
+    }
+  }
+
+  // Remove text-* classes from className since they don't apply to img
+  const cleanedClassName = className.replace(/text-\w+/g, "").trim();
+
+  return (
+    <img src={getIconPath(name)} alt={name} className={`${sizeClasses} ${cleanedClassName}`} />
+  );
 };

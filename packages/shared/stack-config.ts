@@ -22,12 +22,14 @@ export interface ProjectConfig {
   packageManager: string;
   projectPath: string;
   language: string;
-  aiAssistance?: string[];
+  aiAssistant?: string;
   addons?: string[];
   deploymentMethod?: string;
   autoInstall?: boolean;
   runtime?: string;
   authProvider?: string;
+  apiClient?: string;
+  mcpServers?: string[];
 }
 
 // Stack definitions without React Icons (for CLI usage)

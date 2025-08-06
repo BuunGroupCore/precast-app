@@ -2,13 +2,14 @@ import { FaNpm, FaGithub } from "react-icons/fa";
 import {
   SiBun,
   SiPnpm,
-  SiDaisyui,
   SiShadcnui,
   SiChakraui,
   SiMui,
   SiAntdesign,
   SiMantine,
 } from "react-icons/si";
+
+import { DaisyUIIcon } from "../icons/DaisyUIIcon";
 
 import type { AIAssistant, UILibrary, PackageManager, DeploymentMethod } from "./types";
 
@@ -139,7 +140,7 @@ export const uiLibraries: UILibrary[] = [
   {
     id: "daisyui",
     name: "DaisyUI",
-    icon: SiDaisyui,
+    icon: DaisyUIIcon as any,
     color: "text-pink-500",
     description: "Beautiful Tailwind CSS components with semantic class names",
     frameworks: ["*"], // Available for all frameworks

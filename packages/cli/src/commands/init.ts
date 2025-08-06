@@ -4,12 +4,11 @@ import { fileURLToPath } from "url";
 import { intro, outro, spinner, confirm, cancel, log } from "@clack/prompts";
 import { execa } from "execa";
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
-const { pathExists, readdir, ensureDir, remove } = fsExtra;
 import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
 import { gatherProjectConfig } from "../prompts/config-prompts.js";
+import { setupApiClient } from "../utils/api-client-setup.js";
 import { displayBanner } from "../utils/banner.js";
 import { displayConfigSummary } from "../utils/display-config.js";
 import {
@@ -20,29 +19,62 @@ import {
 import { runSecurityAudit } from "../utils/security-audit.js";
 import { setupUILibrary } from "../utils/ui-library-setup.js";
 import { addSecurityOverridesToProject } from "../utils/update-dependencies.js";
+
+/** File system utilities */
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, readdir, ensureDir, remove } = fsExtra;
+
+/** Current file and directory paths */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+/**
+ * Configuration options for initializing a new project.
+ * These options can be provided via CLI flags or will be prompted interactively.
+ */
 export interface InitOptions {
+  /** Skip all prompts and use defaults */
   yes?: boolean;
+  /** Frontend framework to use */
   framework?: string;
+  /** Backend framework to use */
   backend?: string;
+  /** Database type to configure */
   database?: string;
+  /** ORM/query builder to use */
   orm?: string;
+  /** Styling solution to configure */
   styling?: string;
+  /** JavaScript runtime environment */
   runtime?: string;
+  /** UI component library to include */
   uiLibrary?: string;
+  /** Whether to use TypeScript */
   typescript?: boolean;
+  /** Whether to initialize git repository */
   git?: boolean;
+  /** Whether to include Docker configuration */
   docker?: boolean;
+  /** Whether to install dependencies after creation */
   install?: boolean;
+  /** Package manager to use for installation */
   packageManager?: "npm" | "yarn" | "pnpm" | "bun";
+  /** Authentication provider to configure */
   auth?: string;
+  /** API client library to include */
+  apiClient?: string;
+  /** AI assistant to configure */
+  ai?: string;
+  /** MCP servers to include with Claude AI */
+  mcpServers?: string[];
 }
 
 /**
- * Initialize a new project with the specified configuration
- * @param projectName - Name of the project to create
- * @param options - Configuration options for the project
+ * Initialize a new project with the specified configuration.
+ * This is the main entry point for the CLI's init command. It handles project creation,
+ * configuration gathering, template generation, and dependency installation.
+ *
+ * @param projectName - Name of the project to create (can be undefined for interactive prompt)
+ * @param options - Configuration options for the project (CLI flags or interactive prompts)
  */
 export async function initCommand(projectName: string | undefined, options: InitOptions) {
   await displayBanner();
@@ -145,6 +177,17 @@ export async function initCommand(projectName: string | undefined, options: Init
             s.stop(`Failed to setup ${config.uiLibrary}`);
             log.warn(`UI library setup failed. You can retry manually later.`);
           }
+        }
+      }
+
+      if (config.apiClient && config.apiClient !== "none") {
+        s.start(`Setting up ${config.apiClient} for API communication`);
+        try {
+          await setupApiClient(config, projectPath);
+          s.stop(`API client setup completed`);
+        } catch {
+          s.stop(`Failed to setup API client`);
+          log.warn(`API client setup failed. You can retry manually later.`);
         }
       }
       outro(pc.green("✨ Project created successfully!"));

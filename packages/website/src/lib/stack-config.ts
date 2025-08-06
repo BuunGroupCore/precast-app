@@ -1,14 +1,6 @@
 import { IconType } from "react-icons";
-import { BiSolidBoltCircle, BiSolidData, BiSolidCloud, BiSolidKey } from "react-icons/bi";
-import {
-  FaReact,
-  FaVuejs,
-  FaAngular,
-  FaNodeJs,
-  FaDocker,
-  FaGitAlt,
-  FaUserShield,
-} from "react-icons/fa";
+import { BiSolidData, BiSolidCloud } from "react-icons/bi";
+import { FaReact, FaVuejs, FaAngular, FaNodeJs, FaDocker, FaGitAlt } from "react-icons/fa";
 import {
   SiTypescript,
   SiJavascript,
@@ -37,12 +29,15 @@ import {
   SiAuth0,
 } from "react-icons/si";
 
+import { AuthJSIcon } from "../components/icons/AuthJSIcon";
 import { BetterAuthIcon } from "../components/icons/BetterAuthIcon";
 import { ClerkIcon } from "../components/icons/ClerkIcon";
+import { ConvexIcon } from "../components/icons/ConvexIcon";
 import { CssIcon } from "../components/icons/CssIcon";
-import { LuciaIcon } from "../components/icons/LuciaIcon";
+import { HonoIcon } from "../components/icons/HonoIcon";
 import { PassportIcon } from "../components/icons/PassportIcon";
 import { SassIcon } from "../components/icons/SassIcon";
+import { TanStackIcon } from "../components/icons/TanStackIcon";
 
 export interface StackOption {
   id: string;
@@ -53,6 +48,13 @@ export interface StackOption {
   dependencies?: string[];
   incompatible?: string[];
   recommended?: string[];
+  beta?: boolean;
+  recommendedFor?: {
+    frameworks?: string[];
+    backends?: string[];
+    databases?: string[];
+    reason?: string;
+  };
 }
 
 export interface StackCategory {
@@ -148,11 +150,36 @@ export const frameworks: StackOption[] = [
     recommended: ["typescript", "tailwind"],
   },
   {
+    id: "react-native",
+    name: "React Native",
+    icon: FaReact,
+    color: "text-comic-blue",
+    description: "Build native mobile apps using React",
+    dependencies: ["react"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "tanstack-start",
+    name: "TanStack Start",
+    icon: TanStackIcon as any,
+    color: "text-comic-orange",
+    description: "Full-stack React framework powered by TanStack Router",
+    dependencies: ["react"],
+    recommended: ["typescript", "tailwind"],
+  },
+  {
     id: "vanilla",
     name: "Vanilla",
     icon: SiJavascript,
     color: "text-comic-yellow",
     description: "Plain JavaScript, no framework",
+  },
+  {
+    id: "none",
+    name: "None",
+    icon: null,
+    color: "text-comic-gray",
+    description: "No frontend framework - backend only or custom setup",
   },
 ];
 
@@ -187,7 +214,7 @@ export const backends: StackOption[] = [
   {
     id: "hono",
     name: "Hono",
-    icon: BiSolidBoltCircle,
+    icon: HonoIcon as any,
     color: "text-comic-orange",
     description: "Ultrafast web framework for the Edges",
     dependencies: ["node"],
@@ -203,15 +230,6 @@ export const backends: StackOption[] = [
     recommended: ["typescript", "prisma"],
   },
   {
-    id: "elysia",
-    name: "Elysia",
-    icon: BiSolidBoltCircle,
-    color: "text-comic-blue",
-    description: "Fast and friendly Bun web framework",
-    dependencies: ["node"],
-    recommended: ["typescript"],
-  },
-  {
     id: "fastify",
     name: "Fastify",
     icon: SiFastify,
@@ -223,7 +241,7 @@ export const backends: StackOption[] = [
   {
     id: "convex",
     name: "Convex",
-    icon: BiSolidData,
+    icon: ConvexIcon as any,
     color: "text-comic-orange",
     description: "Backend-as-a-Service with real-time sync",
     recommended: ["typescript"],
@@ -427,11 +445,18 @@ export const authProviders: StackOption[] = [
   {
     id: "auth.js",
     name: "Auth.js",
-    icon: FaUserShield,
+    icon: AuthJSIcon as any,
     color: "text-comic-purple",
     description: "Complete open-source authentication solution (formerly NextAuth.js)",
     dependencies: ["react"],
     recommended: ["next", "database"],
+    beta: true,
+    recommendedFor: {
+      frameworks: ["next", "react"],
+      backends: ["express", "node"],
+      reason:
+        "Officially maintained by the Next.js team and works seamlessly with React-based frameworks",
+    },
   },
   {
     id: "better-auth",
@@ -440,6 +465,11 @@ export const authProviders: StackOption[] = [
     color: "text-comic-green",
     description: "Type-safe, framework-agnostic authentication library",
     recommended: ["typescript", "database"],
+    recommendedFor: {
+      frameworks: ["react", "next", "vue", "svelte", "remix"],
+      backends: ["node", "express", "hono", "fastify"],
+      reason: "Framework-agnostic with excellent TypeScript support",
+    },
   },
   {
     id: "passport",
@@ -449,6 +479,10 @@ export const authProviders: StackOption[] = [
     description: "Simple, unobtrusive authentication middleware for Node.js",
     dependencies: ["node"],
     recommended: ["express", "typescript"],
+    recommendedFor: {
+      backends: ["express", "node"],
+      reason: "The de facto standard for Node.js authentication middleware",
+    },
   },
   {
     id: "clerk",
@@ -458,6 +492,10 @@ export const authProviders: StackOption[] = [
     description: "Complete user management platform with built-in auth",
     dependencies: ["react"],
     recommended: ["next", "typescript"],
+    recommendedFor: {
+      frameworks: ["next", "react", "remix"],
+      reason: "Provides complete user management with excellent React integration",
+    },
   },
   {
     id: "auth0",
@@ -485,23 +523,14 @@ export const authProviders: StackOption[] = [
     dependencies: ["firebase"],
     recommended: ["typescript"],
   },
-  {
-    id: "lucia",
-    name: "Lucia",
-    icon: LuciaIcon as any,
-    color: "text-comic-yellow",
-    description: "Simple and flexible authentication library",
-    recommended: ["typescript", "database"],
-  },
-  {
-    id: "iron-session",
-    name: "Iron Session",
-    icon: BiSolidKey,
-    color: "text-comic-red",
-    description: "Stateless session utility using signed and encrypted cookies",
-    dependencies: ["node"],
-    recommended: ["next", "typescript"],
-  },
+  // {
+  //   id: "lucia",
+  //   name: "Lucia",
+  //   icon: LuciaIcon as any,
+  //   color: "text-comic-yellow",
+  //   description: "Simple and flexible authentication library",
+  //   recommended: ["typescript", "database"],
+  // },
   {
     id: "none",
     name: "None",

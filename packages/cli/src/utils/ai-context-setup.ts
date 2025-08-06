@@ -16,43 +16,45 @@ export async function setupAIContextFiles(
   projectPath: string,
   templateEngine: TemplateEngine
 ): Promise<void> {
-  if (!config.aiContext || config.aiContext.length === 0) {
+  if (!config.aiAssistant || config.aiAssistant === "none") {
     return;
   }
-  consola.info("🤖 Setting up AI context files...");
-  for (const context of config.aiContext) {
-    try {
-      switch (context) {
-        case "claude":
-          // Handled by setupClaudeIntegration
-          break;
-        case "copilot":
-          await templateEngine.processTemplate(
-            path.join(
-              templateEngine["templateRoot"],
-              "ai-context/.github/copilot-instructions.md.hbs"
-            ),
-            path.join(projectPath, ".github", "copilot-instructions.md"),
-            config
-          );
-          break;
-        case "gemini":
-          await templateEngine.processTemplate(
-            path.join(templateEngine["templateRoot"], "ai-context/GEMINI.md.hbs"),
-            path.join(projectPath, "GEMINI.md"),
-            config
-          );
-          break;
-        case "cursor":
-          await templateEngine.processTemplate(
-            path.join(templateEngine["templateRoot"], "ai-context/.cursorrules.hbs"),
-            path.join(projectPath, ".cursorrules"),
-            config
-          );
-          break;
-      }
-    } catch (error) {
-      consola.warn(`Failed to create ${context} context file:`, error);
+
+  consola.info(`🤖 Setting up ${config.aiAssistant} context files...`);
+
+  try {
+    switch (config.aiAssistant) {
+      case "claude":
+        // Handled by setupClaudeIntegration in generators/index.ts
+        break;
+      case "copilot":
+        await templateEngine.processTemplate(
+          path.join(
+            templateEngine["templateRoot"],
+            "ai-context/.github/copilot-instructions.md.hbs"
+          ),
+          path.join(projectPath, ".github", "copilot-instructions.md"),
+          config
+        );
+        break;
+      case "gemini":
+        await templateEngine.processTemplate(
+          path.join(templateEngine["templateRoot"], "ai-context/GEMINI.md.hbs"),
+          path.join(projectPath, "GEMINI.md"),
+          config
+        );
+        break;
+      case "cursor":
+        await templateEngine.processTemplate(
+          path.join(templateEngine["templateRoot"], "ai-context/.cursorrules.hbs"),
+          path.join(projectPath, ".cursorrules"),
+          config
+        );
+        break;
+      default:
+        consola.warn(`Unknown AI assistant: ${config.aiAssistant}`);
     }
+  } catch (error) {
+    consola.warn(`Failed to create ${config.aiAssistant} context file:`, error);
   }
 }

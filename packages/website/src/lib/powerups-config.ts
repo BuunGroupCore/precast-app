@@ -40,10 +40,12 @@ export interface PowerUp {
     | "accessibility"
     | "optimization"
     | "workflow"
-    | "api";
+    | "api"
+    | "routing";
   frameworks?: string[]; // Compatible frameworks, * for all
   dependencies?: string[]; // Required dependencies
   requiresBackend?: boolean; // Only show when backend is selected
+  beta?: boolean; // Is this power-up in beta?
   recommended?: {
     frameworks?: string[]; // Recommended for these frameworks
     backends?: string[]; // Recommended for these backends
@@ -363,6 +365,7 @@ export const powerUps: PowerUp[] = [
     icon: FaLanguage,
     category: "workflow",
     frameworks: ["solid"],
+    beta: true,
   },
 
   // Image Optimization
@@ -392,6 +395,7 @@ export const powerUps: PowerUp[] = [
     category: "routing",
     frameworks: ["react", "solid"],
     dependencies: ["typescript"],
+    beta: true,
     recommended: {
       frameworks: ["react", "solid"],
       reason: "Modern type-safe routing solution",

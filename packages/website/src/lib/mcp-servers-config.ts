@@ -1,36 +1,16 @@
 import { IconType } from "react-icons";
-import { FaGithub, FaCodeBranch, FaChartBar, FaFileCode } from "react-icons/fa";
-import {
-  SiMongodb,
-  SiPostgresql,
-  SiMysql,
-  SiSqlite,
-  SiSupabase,
-  SiFirebase,
-  SiNetlify,
-  SiVercel,
-  SiRedis,
-  SiNotion,
-  SiSlack,
-  SiDiscord,
-  SiAuth0,
-  SiDocker,
-} from "react-icons/si";
+import { FaGithub, FaFileCode, FaSearch } from "react-icons/fa";
+import { SiPostgresql, SiMongodb, SiSupabase } from "react-icons/si";
+
+import { CloudflareIcon } from "../components/icons/CloudflareIcon";
+import { MCPIcon } from "../components/icons/MCPIcon";
 
 export interface MCPServer {
   id: string;
   name: string;
   description: string;
-  icon: IconType;
-  category:
-    | "database"
-    | "deployment"
-    | "auth"
-    | "ai"
-    | "productivity"
-    | "monitoring"
-    | "storage"
-    | "communication";
+  icon: IconType | React.FC<{ className?: string }>;
+  category: "database" | "deployment" | "productivity" | "ai" | "storage";
   // Technologies that trigger this MCP server to be included
   triggers: {
     frameworks?: string[];
@@ -46,42 +26,41 @@ export interface MCPServer {
     args?: string[];
     env?: { [key: string]: string };
   };
-  // Optional documentation links
-  docs?: string;
   // Repository URL
   repository?: string;
 }
 
 export const mcpServers: MCPServer[] = [
-  // Database MCP Servers
+  // Essential MCP Servers
   {
-    id: "mongodb",
-    name: "MongoDB MCP Server",
-    description: "Connect and query MongoDB databases with natural language",
-    icon: SiMongodb,
-    category: "database",
+    id: "filesystem",
+    name: "Filesystem",
+    description: "Secure file operations with configurable access controls",
+    icon: FaFileCode,
+    category: "productivity",
     triggers: {
-      databases: ["mongodb"],
+      any: true, // Always useful for development
     },
     config: {
-      server_name: "mongodb",
+      server_name: "filesystem",
       command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-mongodb"],
+      args: ["-y", "@modelcontextprotocol/server-filesystem"],
       env: {
-        MONGODB_URI: "mongodb://localhost:27017",
+        ALLOWED_DIRECTORIES: "${ALLOWED_DIRECTORIES:-/path/to/your/project}",
       },
     },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/mongodb",
-    docs: "https://modelcontextprotocol.io/servers/mongodb",
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
   },
+
+  // Database Servers
   {
-    id: "postgresql",
-    name: "PostgreSQL MCP Server",
-    description: "Execute SQL queries and manage PostgreSQL databases",
+    id: "postgres",
+    name: "PostgreSQL",
+    description: "Connect and query PostgreSQL databases",
     icon: SiPostgresql,
     category: "database",
     triggers: {
-      databases: ["postgres"],
+      databases: ["postgres", "postgresql"],
     },
     config: {
       server_name: "postgresql",
@@ -92,51 +71,11 @@ export const mcpServers: MCPServer[] = [
       },
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres",
-    docs: "https://modelcontextprotocol.io/servers/postgres",
-  },
-  {
-    id: "mysql",
-    name: "MySQL MCP Server",
-    description: "Query and manage MySQL databases with AI assistance",
-    icon: SiMysql,
-    category: "database",
-    triggers: {
-      databases: ["mysql"],
-    },
-    config: {
-      server_name: "mysql",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-mysql"],
-      env: {
-        MYSQL_CONNECTION_STRING: "mysql://user:password@localhost:3306/database",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/mysql",
-  },
-  {
-    id: "sqlite",
-    name: "SQLite MCP Server",
-    description: "Work with SQLite databases through natural language queries",
-    icon: SiSqlite,
-    category: "database",
-    triggers: {
-      databases: ["sqlite"],
-    },
-    config: {
-      server_name: "sqlite",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-sqlite"],
-      env: {
-        SQLITE_DB_PATH: "./database.sqlite",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite",
-    docs: "https://modelcontextprotocol.io/servers/sqlite",
   },
   {
     id: "supabase",
-    name: "Supabase MCP Server",
-    description: "Manage Supabase projects, databases, and authentication",
+    name: "Supabase",
+    description: "Supabase database and edge functions management",
     icon: SiSupabase,
     category: "database",
     triggers: {
@@ -145,61 +84,40 @@ export const mcpServers: MCPServer[] = [
     config: {
       server_name: "supabase",
       command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-supabase"],
+      args: ["-y", "@supabase/mcp-server-supabase@latest"],
       env: {
-        SUPABASE_URL: "https://your-project.supabase.co",
-        SUPABASE_ANON_KEY: "your-anon-key",
+        SUPABASE_ACCESS_TOKEN: "${SUPABASE_ACCESS_TOKEN}",
       },
     },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/supabase",
+    repository: "https://github.com/supabase-community/supabase-mcp",
   },
   {
-    id: "firebase",
-    name: "Firebase MCP Server",
-    description: "Interact with Firebase services including Firestore and Auth",
-    icon: SiFirebase,
+    id: "mongodb",
+    name: "MongoDB",
+    description: "MongoDB database and Atlas management",
+    icon: SiMongodb,
     category: "database",
     triggers: {
-      databases: ["firebase"],
+      databases: ["mongodb", "mongo"],
     },
     config: {
-      server_name: "firebase",
+      server_name: "mongodb",
       command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-firebase"],
+      args: ["-y", "mongodb-mcp-server@latest"],
       env: {
-        FIREBASE_PROJECT_ID: "your-project-id",
-        GOOGLE_APPLICATION_CREDENTIALS: "./firebase-service-account.json",
+        MDB_MCP_CONNECTION_STRING: "${MDB_MCP_CONNECTION_STRING}",
       },
     },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/firebase",
-  },
-  {
-    id: "redis",
-    name: "Redis MCP Server",
-    description: "Manage Redis cache and data structures",
-    icon: SiRedis,
-    category: "database",
-    triggers: {
-      databases: ["redis"],
-    },
-    config: {
-      server_name: "redis",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-redis"],
-      env: {
-        REDIS_URL: "redis://localhost:6379",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/redis",
+    repository: "https://github.com/mongodb-js/mongodb-mcp-server",
   },
 
-  // Deployment and Cloud MCP Servers
+  // Development Tools
   {
     id: "github",
-    name: "GitHub MCP Server",
-    description: "Manage GitHub repositories, issues, and pull requests",
+    name: "GitHub",
+    description: "Official GitHub repository management and API access",
     icon: FaGithub,
-    category: "deployment",
+    category: "productivity",
     triggers: {
       any: true, // Always useful for development
     },
@@ -208,210 +126,84 @@ export const mcpServers: MCPServer[] = [
       command: "npx",
       args: ["-y", "@modelcontextprotocol/server-github"],
       env: {
-        GITHUB_PERSONAL_ACCESS_TOKEN: "your-github-token",
+        GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_PERSONAL_ACCESS_TOKEN}",
       },
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
-    docs: "https://modelcontextprotocol.io/servers/github",
   },
   {
-    id: "netlify",
-    name: "Netlify MCP Server",
-    description: "Deploy and manage sites on Netlify platform",
-    icon: SiNetlify,
+    id: "brave-search",
+    name: "Brave Search",
+    description: "Search the web using Brave Search API",
+    icon: FaSearch,
+    category: "productivity",
+    triggers: {
+      any: false,
+    },
+    config: {
+      server_name: "brave-search",
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-brave-search"],
+      env: {
+        BRAVE_API_KEY: "${BRAVE_API_KEY}",
+      },
+    },
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
+  },
+
+  // Cloud Services
+  {
+    id: "cloudflare",
+    name: "Cloudflare",
+    description: "Cloudflare Workers, DNS, and AI Gateway management",
+    icon: CloudflareIcon as any,
     category: "deployment",
     triggers: {
-      deployments: ["netlify"],
+      deployments: ["cloudflare"],
     },
     config: {
-      server_name: "netlify",
-      command: "npx",
-      args: ["-y", "@punkpeye/mcp-server-netlify"],
+      server_name: "cloudflare",
+      command: "git",
+      args: ["clone", "https://github.com/cloudflare/mcp-server-cloudflare.git"],
       env: {
-        NETLIFY_ACCESS_TOKEN: "your-netlify-token",
+        CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}",
       },
     },
-    repository: "https://github.com/punkpeye/mcp-server-netlify",
-  },
-  {
-    id: "vercel",
-    name: "Vercel MCP Server",
-    description: "Deploy and manage projects on Vercel platform",
-    icon: SiVercel,
-    category: "deployment",
-    triggers: {
-      deployments: ["vercel"],
-    },
-    config: {
-      server_name: "vercel",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-vercel"],
-      env: {
-        VERCEL_TOKEN: "your-vercel-token",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/vercel",
+    repository: "https://github.com/cloudflare/mcp-server-cloudflare",
   },
 
-  // Authentication MCP Servers
+  // AI Enhancement
   {
-    id: "auth0",
-    name: "Auth0 MCP Server",
-    description: "Manage Auth0 applications, users, and authentication flows",
-    icon: SiAuth0,
-    category: "auth",
+    id: "memory",
+    name: "Memory",
+    description: "Knowledge graph-based persistent memory system",
+    icon: MCPIcon as any,
+    category: "ai",
     triggers: {
-      auth: ["auth0"],
+      any: false, // Optional enhancement
     },
     config: {
-      server_name: "auth0",
+      server_name: "memory",
       command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-auth0"],
-      env: {
-        AUTH0_DOMAIN: "your-auth0-domain.auth0.com",
-        AUTH0_CLIENT_ID: "your-client-id",
-        AUTH0_CLIENT_SECRET: "your-client-secret",
-      },
+      args: ["-y", "@modelcontextprotocol/server-memory"],
     },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/auth0",
-  },
-
-  // Productivity and Communication MCP Servers
-  {
-    id: "notion",
-    name: "Notion MCP Server",
-    description: "Create and manage Notion pages, databases, and content",
-    icon: SiNotion,
-    category: "productivity",
-    triggers: {
-      any: false, // Only show when explicitly needed
-    },
-    config: {
-      server_name: "notion",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-notion"],
-      env: {
-        NOTION_API_KEY: "your-notion-integration-token",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/notion",
-    docs: "https://modelcontextprotocol.io/servers/notion",
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/memory",
   },
   {
-    id: "slack",
-    name: "Slack MCP Server",
-    description: "Send messages and interact with Slack workspaces",
-    icon: SiSlack,
-    category: "communication",
+    id: "sequential-thinking",
+    name: "Sequential Thinking",
+    description: "Dynamic problem-solving through thought sequences",
+    icon: MCPIcon as any,
+    category: "ai",
     triggers: {
-      any: false, // Only show when explicitly needed
+      any: false, // Optional AI enhancement
     },
     config: {
-      server_name: "slack",
+      server_name: "sequential-thinking",
       command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-slack"],
-      env: {
-        SLACK_BOT_TOKEN: "xoxb-your-bot-token",
-      },
+      args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
     },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/slack",
-  },
-  {
-    id: "discord",
-    name: "Discord MCP Server",
-    description: "Interact with Discord servers and channels",
-    icon: SiDiscord,
-    category: "communication",
-    triggers: {
-      any: false, // Only show when explicitly needed
-    },
-    config: {
-      server_name: "discord",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-discord"],
-      env: {
-        DISCORD_BOT_TOKEN: "your-discord-bot-token",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/discord",
-  },
-
-  // Development Tools - Always useful
-  {
-    id: "git",
-    name: "Git MCP Server",
-    description: "Execute Git commands and manage version control",
-    icon: FaCodeBranch,
-    category: "productivity",
-    triggers: {
-      any: true, // Git is used in most projects
-    },
-    config: {
-      server_name: "git",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-git"],
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/git",
-  },
-  {
-    id: "filesystem",
-    name: "Filesystem MCP Server",
-    description: "Read and write files in your project directory",
-    icon: FaFileCode,
-    category: "productivity",
-    triggers: {
-      any: true, // Always useful
-    },
-    config: {
-      server_name: "filesystem",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-filesystem"],
-      env: {
-        MCP_FILESYSTEM_ALLOWED_DIRECTORIES: "./src,./docs,./tests",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
-    docs: "https://modelcontextprotocol.io/servers/filesystem",
-  },
-
-  // Monitoring and Analytics
-  {
-    id: "google-analytics",
-    name: "Google Analytics MCP Server",
-    description: "Query Google Analytics data and generate reports",
-    icon: FaChartBar,
-    category: "monitoring",
-    triggers: {
-      any: false, // Only show when explicitly needed
-    },
-    config: {
-      server_name: "google-analytics",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-google-analytics"],
-      env: {
-        GOOGLE_ANALYTICS_PROPERTY_ID: "your-ga4-property-id",
-        GOOGLE_APPLICATION_CREDENTIALS: "./google-analytics-service-account.json",
-      },
-    },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/google-analytics",
-  },
-
-  // Real Community MCP Servers
-  {
-    id: "docker",
-    name: "Docker MCP Server",
-    description: "Manage Docker containers, images, and compose services",
-    icon: SiDocker,
-    category: "productivity",
-    triggers: {
-      any: false, // Only show when explicitly needed
-    },
-    config: {
-      server_name: "docker",
-      command: "npx",
-      args: ["-y", "docker-mcp"],
-    },
-    repository: "https://github.com/QuantGeekDev/docker-mcp",
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/sequential-thinking",
   },
 ];
 
@@ -443,20 +235,6 @@ export function getRelevantMCPServers(config: {
     // Check deployment triggers
     if (triggers.deployments && config.deploymentMethod && config.deploymentMethod !== "none") {
       if (triggers.deployments.includes(config.deploymentMethod)) {
-        return true;
-      }
-    }
-
-    // Check auth triggers
-    if (triggers.auth && config.auth && config.auth !== "none") {
-      if (triggers.auth.includes(config.auth)) {
-        return true;
-      }
-    }
-
-    // Check framework triggers
-    if (triggers.frameworks && config.framework) {
-      if (triggers.frameworks.includes(config.framework)) {
         return true;
       }
     }

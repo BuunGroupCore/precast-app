@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { FaBrain, FaChevronDown, FaChevronRight, FaFile } from "react-icons/fa";
 
+import { CollapsibleSection } from "./CollapsibleSection";
 import { aiAssistants } from "./constants";
 import { PublicIcon } from "./PublicIcon";
 import type { ExtendedProjectConfig } from "./types";
@@ -382,78 +383,78 @@ This is a modern {{framework}} application with the following architecture:
       initial={{ opacity: 0, x: -50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.6 }}
-      className="comic-card bg-comic-purple text-comic-white"
     >
-      <div className="flex items-center gap-3 mb-2">
-        <FaBrain className="text-3xl" />
-        <h3 className="font-display text-2xl">AI ASSISTANCE</h3>
-      </div>
-      <div className="border-t-3 border-comic-darkPurple mb-3"></div>
-      <p className="font-comic text-sm mb-4 text-comic-white/90">
-        Supercharge your development - integrate AI coding assistants for smarter, faster coding
-      </p>
-      <div className="grid grid-cols-2 gap-3">
-        {aiAssistants.map((ai) => (
-          <button
-            key={ai.id}
-            onClick={() => setConfig({ ...config, aiAssistant: ai.id })}
-            data-active={config.aiAssistant === ai.id}
-            className={`filter-btn-comic flex items-center justify-center gap-2 ${
-              config.aiAssistant === ai.id
-                ? "bg-comic-yellow text-comic-black"
-                : "bg-comic-white text-comic-black hover:bg-comic-yellow"
-            }`}
-            title={ai.description}
-          >
-            {ai.icon &&
-              (typeof ai.icon === "string" ? (
-                <PublicIcon name={ai.icon} className={ai.color} />
-              ) : (
-                <ai.icon className={ai.color} />
-              ))}
-            <span className="text-xs">{ai.name}</span>
-          </button>
-        ))}
-      </div>
-      {config.aiAssistant && config.aiAssistant !== "none" && (
-        <div className="mt-3 p-3 bg-comic-white/20 rounded-lg">
-          <p className="text-xs font-comic">
-            {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.description}
-          </p>
-          {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.files && (
-            <div className="mt-2">
-              <p className="text-xs font-bold mb-1">Creates:</p>
-              <div className="text-xs space-y-1">
-                {aiAssistants
-                  .find((ai) => ai.id === config.aiAssistant)
-                  ?.files?.map((file, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <button
-                        onClick={() => toggleFile(file)}
-                        className="flex items-center gap-2 w-full text-left p-2 bg-comic-white/10 hover:bg-comic-white/20 rounded border border-comic-white/20 transition-colors"
-                      >
-                        <FaFile className="text-comic-yellow" />
-                        <span className="font-mono flex-1">{file}</span>
-                        {expandedFiles[file] ? (
-                          <FaChevronDown className="text-xs" />
-                        ) : (
-                          <FaChevronRight className="text-xs" />
-                        )}
-                      </button>
-                      {expandedFiles[file] && (
-                        <div className="ml-6 p-3 bg-comic-black/30 rounded border border-comic-white/10">
-                          <pre className="text-xs font-mono text-comic-white whitespace-pre-wrap overflow-x-auto">
-                            {getFileContent(file, config.aiAssistant!)}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
+      <CollapsibleSection
+        icon={<FaBrain className="text-3xl" />}
+        title={<h3 className="font-display text-2xl">AI ASSISTANCE</h3>}
+        className="bg-comic-purple text-comic-white"
+      >
+        <p className="font-comic text-sm mb-4 text-comic-white/90">
+          Supercharge your development - integrate AI coding assistants for smarter, faster coding
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {aiAssistants.map((ai) => (
+            <button
+              key={ai.id}
+              onClick={() => setConfig({ ...config, aiAssistant: ai.id })}
+              data-active={config.aiAssistant === ai.id}
+              className={`filter-btn-comic flex items-center justify-center gap-2 ${
+                config.aiAssistant === ai.id
+                  ? "bg-comic-yellow text-comic-black"
+                  : "bg-comic-white text-comic-black hover:bg-comic-yellow"
+              }`}
+              title={ai.description}
+            >
+              {ai.icon &&
+                (typeof ai.icon === "string" ? (
+                  <PublicIcon name={ai.icon} className={ai.color} />
+                ) : (
+                  <ai.icon className={ai.color} />
+                ))}
+              <span className="text-xs">{ai.name}</span>
+            </button>
+          ))}
         </div>
-      )}
+        {config.aiAssistant && config.aiAssistant !== "none" && (
+          <div className="mt-3 p-3 bg-comic-white/20 rounded-lg">
+            <p className="text-xs font-comic">
+              {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.description}
+            </p>
+            {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.files && (
+              <div className="mt-2">
+                <p className="text-xs font-bold mb-1">Creates:</p>
+                <div className="text-xs space-y-1">
+                  {aiAssistants
+                    .find((ai) => ai.id === config.aiAssistant)
+                    ?.files?.map((file, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <button
+                          onClick={() => toggleFile(file)}
+                          className="flex items-center gap-2 w-full text-left p-2 bg-comic-white/10 hover:bg-comic-white/20 rounded border border-comic-white/20 transition-colors"
+                        >
+                          <FaFile className="text-comic-yellow" />
+                          <span className="font-mono flex-1">{file}</span>
+                          {expandedFiles[file] ? (
+                            <FaChevronDown className="text-xs" />
+                          ) : (
+                            <FaChevronRight className="text-xs" />
+                          )}
+                        </button>
+                        {expandedFiles[file] && (
+                          <div className="ml-6 p-3 bg-comic-black/30 rounded border border-comic-white/10">
+                            <pre className="text-xs font-mono text-comic-white whitespace-pre-wrap overflow-x-auto">
+                              {getFileContent(file, config.aiAssistant!)}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </CollapsibleSection>
     </motion.div>
   );
 };

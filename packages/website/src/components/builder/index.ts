@@ -1,6 +1,7 @@
 export * from "./types";
 export * from "./constants";
 export * from "./PublicIcon";
+export * from "./CollapsibleSection";
 export * from "./AIAssistanceSection";
 export * from "./ApiSection";
 export * from "./UILibrariesSection";
@@ -12,6 +13,7 @@ export * from "./DatabaseSection";
 export * from "./StylingSection";
 export * from "./ProjectNameSection";
 export * from "./PresetTemplatesSection";
+export * from "./PreferredStacksDialog";
 export * from "./StackSummarySection";
 export * from "./RuntimeSection";
 export * from "./AuthSection";

@@ -65,16 +65,22 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);
 
-  await setupClaudeIntegration(config, projectPath);
+  // Only setup Claude/MCP integration if explicitly selected
+  if (config.aiAssistant === "claude") {
+    await setupClaudeIntegration(config, projectPath);
 
-  try {
-    const { setupMCPConfiguration } = await import("../utils/mcp-setup.js");
-    await setupMCPConfiguration(projectPath, config);
-  } catch (error) {
-    logger.warn(`Failed to setup MCP configuration: ${error}`);
+    try {
+      const { setupMCPConfiguration } = await import("../utils/mcp-setup.js");
+      await setupMCPConfiguration(projectPath, config);
+    } catch (error) {
+      logger.warn(`Failed to setup MCP configuration: ${error}`);
+    }
   }
 
-  await setupAIContextFiles(config, projectPath, templateEngine);
+  // Setup AI context files if any AI assistant is selected
+  if (config.aiAssistant && config.aiAssistant !== "none") {
+    await setupAIContextFiles(config, projectPath, templateEngine);
+  }
 
   if (config.authProvider) {
     await setupAuthentication(config, config.authProvider);

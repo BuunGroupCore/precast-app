@@ -73,7 +73,14 @@
       "Bash(bun:*)",
       "WebFetch(domain:storybook.js.org)",
       "WebFetch(domain:www.i18next.com)",
-      "WebFetch(domain:vite-pwa-org.netlify.app)"
+      "WebFetch(domain:vite-pwa-org.netlify.app)",
+      "Bash(packages/cli/dist/cli.js init test-api-client --framework react --backend express --database postgres --orm prisma --api-client tanstack-query --styling tailwind --runtime node --install --yes)",
+      "Bash(packages/cli/dist/cli.js init test-api-fixed --framework react --backend express --database postgres --orm prisma --api-client tanstack-query --styling tailwind --runtime node --yes)",
+      "Bash(./packages/cli/dist/cli.js init test-mcp-flag --framework react --backend none --database postgres --orm prisma --styling tailwind --runtime node --ai claude --mcp-servers postgresql,github,git,filesystem --install --yes)",
+      "Bash(packages/cli/dist/cli.js init test-mcp-flag --framework react --backend none --database postgres --orm prisma --styling tailwind --runtime node --ai claude --mcp-servers postgresql,github,git,filesystem --install --yes)",
+      "Bash(./packages/cli/dist/cli.js --help)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:dev.to)"
     ],
     "deny": []
   }

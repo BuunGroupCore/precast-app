@@ -65,6 +65,19 @@ const TECH_ICONS: Record<string, string> = {
   "auth.js": "🔐",
   "better-auth": "🔒",
 
+  // API Clients
+  "tanstack-query": "⚡",
+  swr: "🔄",
+  axios: "📡",
+  trpc: "🔗",
+  "apollo-client": "🚀",
+
+  // AI Assistants
+  claude: "🧠",
+  cursor: "📝",
+  copilot: "🤖",
+  gemini: "⭐",
+
   // General
   typescript: "📘",
   javascript: "📜",
@@ -159,6 +172,32 @@ export function displayConfigSummary(config: ProjectConfig): void {
       value: config.authProvider,
       color: pc.green,
       icon: getTechIcon(config.authProvider),
+    });
+  }
+
+  // Add API Client if present
+  if (config.apiClient && config.apiClient !== "none") {
+    const insertIndex = 6 + (config.uiLibrary ? 1 : 0) + (config.authProvider ? 1 : 0);
+    items.splice(insertIndex, 0, {
+      label: "API Client",
+      value: config.apiClient,
+      color: pc.blue,
+      icon: getTechIcon(config.apiClient),
+    });
+  }
+
+  // Add AI Assistant if present
+  if (config.aiAssistant && config.aiAssistant !== "none") {
+    const insertIndex =
+      6 +
+      (config.uiLibrary ? 1 : 0) +
+      (config.authProvider ? 1 : 0) +
+      (config.apiClient && config.apiClient !== "none" ? 1 : 0);
+    items.splice(insertIndex, 0, {
+      label: "AI Assistant",
+      value: config.aiAssistant,
+      color: pc.magenta,
+      icon: getTechIcon(config.aiAssistant),
     });
   }
 

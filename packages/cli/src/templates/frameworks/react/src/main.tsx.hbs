@@ -4,9 +4,25 @@ import App from './App{{#if typescript}}.tsx{{else}}.jsx{{/if}}'
 {{#if (eq styling "css")}}import './index.css'{{/if}}
 {{#if (eq styling "scss")}}import './index.scss'{{/if}}
 {{#if (eq styling "tailwind")}}import './index.css'{{/if}}
+{{#if (eq apiClient "tanstack-query")}}
+import { QueryProvider } from './providers/query-provider'
+{{/if}}
+{{#if (eq apiClient "swr")}}
+import { SWRProvider } from './providers/swr-provider'
+{{/if}}
 
 ReactDOM.createRoot(document.getElementById('root'){{#if typescript}}!{{/if}}).render(
   <React.StrictMode>
+    {{#if (eq apiClient "tanstack-query")}}
+    <QueryProvider>
+      <App />
+    </QueryProvider>
+    {{else if (eq apiClient "swr")}}
+    <SWRProvider>
+      <App />
+    </SWRProvider>
+    {{else}}
     <App />
+    {{/if}}
   </React.StrictMode>,
 )

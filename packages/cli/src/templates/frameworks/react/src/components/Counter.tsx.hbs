@@ -1,9 +1,17 @@
 {{#if typescript}}import { useState } from 'react'{{else}}import { useState } from 'react'{{/if}}
 
-{{#if typescript}}interface CounterProps {
+{{#if typescript}}/**
+ * Props for the Counter component
+ */
+interface CounterProps {
+  /** Initial count value (defaults to 0) */
   initialCount?: number
 }{{/if}}
 
+/**
+ * A simple counter component with increment and reset functionality.
+ * Demonstrates state management and event handling in React.
+ */
 export function Counter({{#if typescript}}{ initialCount = 0 }: CounterProps{{else}}{ initialCount = 0 }{{/if}}) {
   const [count, setCount] = useState(initialCount)
 

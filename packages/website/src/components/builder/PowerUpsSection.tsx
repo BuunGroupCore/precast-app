@@ -319,12 +319,19 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
                         : "1px 1px 0 var(--comic-gray)",
                     }}
                   >
-                    {/* Recommended Badge */}
-                    {isAvailable && powerup.isRecommended && (
-                      <span className="absolute -top-2 -right-2 bg-comic-green text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
-                        RECOMMENDED
-                      </span>
-                    )}
+                    {/* Badges */}
+                    <div className="absolute -top-2 -right-2 flex gap-2">
+                      {powerup.beta && (
+                        <span className="bg-comic-purple text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                          BETA
+                        </span>
+                      )}
+                      {isAvailable && powerup.isRecommended && (
+                        <span className="bg-comic-green text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                          RECOMMENDED
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 mb-1">
                       <Icon className={`text-lg ${!isAvailable ? "opacity-50" : ""}`} />
                       <span className="font-display text-sm">{powerup.name}</span>

@@ -15,6 +15,9 @@ import { getAuthPromptOptions, isAuthProviderCompatible } from "../utils/auth-se
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
 import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
 
+import { promptAIAssistant, isValidAIAssistant } from "./ai-assistant.js";
+import { promptApiClient } from "./api-client.js";
+
 /**
  * Gather project configuration through interactive prompts
  * @param projectName - Optional project name
@@ -254,6 +257,29 @@ export async function gatherProjectConfig(
     }
   }
 
+  // API Client selection
+  let apiClient: string | undefined;
+  if (options.apiClient) {
+    apiClient = options.apiClient;
+  } else if (!options.yes && backend !== "none") {
+    apiClient = await promptApiClient({ framework, backend });
+  }
+
+  // AI Assistant selection
+  let aiAssistant: string | undefined;
+  if (options.ai) {
+    if (isValidAIAssistant(options.ai)) {
+      aiAssistant = options.ai;
+    } else {
+      consola.warn(`Invalid AI assistant: ${options.ai}. Using 'none' instead.`);
+      aiAssistant = "none";
+    }
+  } else if (!options.yes) {
+    aiAssistant = await promptAIAssistant({ framework });
+  } else {
+    aiAssistant = "none";
+  }
+
   const packageManager = options.packageManager || "npm";
 
   let autoInstall = false;
@@ -277,11 +303,14 @@ export async function gatherProjectConfig(
     docker,
     uiLibrary,
     aiContext,
+    aiAssistant,
     packageManager,
     deploymentMethod,
     authProvider,
+    apiClient,
     autoInstall,
     projectPath: "",
     language: typescript ? "typescript" : "javascript",
+    mcpServers: options.mcpServers,
   };
 }

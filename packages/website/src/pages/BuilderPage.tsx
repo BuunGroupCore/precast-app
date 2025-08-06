@@ -15,6 +15,7 @@ import {
   InstallOptionsSection,
   MCPServersSection,
   PowerUpsSection,
+  PreferredStacksDialog,
   PresetTemplatesSection,
   ProjectNameSection,
   RuntimeSection,
@@ -53,6 +54,7 @@ export function BuilderPage() {
   const [packageManager, setPackageManager] = useState("bun");
   const [terminalCopied, setTerminalCopied] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showPreferredStacks, setShowPreferredStacks] = useState(false);
 
   // Default configuration
   const defaultConfig: ExtendedProjectConfig = {
@@ -78,6 +80,13 @@ export function BuilderPage() {
   const resetToDefaults = () => {
     setConfig(defaultConfig);
     setPackageManager("bun");
+  };
+
+  const handleSelectPreferredStack = (stackConfig: Partial<ExtendedProjectConfig>) => {
+    setConfig((prevConfig) => ({
+      ...prevConfig,
+      ...stackConfig,
+    }));
   };
 
   // Load saved projects and user settings on mount
@@ -198,6 +207,11 @@ export function BuilderPage() {
       parts.push(`--auth=${config.auth}`);
     }
 
+    // AI Assistant option
+    if (config.aiAssistant && config.aiAssistant !== "none") {
+      parts.push(`--ai=${config.aiAssistant}`);
+    }
+
     // Package manager
     if (config.packageManager && config.packageManager !== "bun") {
       parts.push(`--pm=${config.packageManager}`);
@@ -220,16 +234,24 @@ export function BuilderPage() {
       parts.push("--install");
     }
 
+    // MCP Servers (only if AI assistant is selected)
+    if (
+      config.aiAssistant &&
+      config.aiAssistant !== "none" &&
+      config.mcpServers &&
+      config.mcpServers.length > 0
+    ) {
+      parts.push(`--mcp-servers=${config.mcpServers.join(",")}`);
+    }
+
     // Add --yes flag to skip all prompts
     parts.push("--yes");
 
     // These options are not supported by the CLI yet, so we'll comment them out
     // TODO: Add these to the CLI
     // --ui (uiLibrary)
-    // --ai (aiAssistant)
     // --deploy (deploymentMethod)
     // --powerups
-    // --mcp-servers
 
     return parts.join(" ");
   };
@@ -314,18 +336,30 @@ export function BuilderPage() {
               {/* Project Name */}
               <ProjectNameSection config={config} setConfig={setConfig} />
 
-              {/* Reset Button */}
+              {/* Action Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
+                className="grid grid-cols-2 gap-3"
               >
+                {/* Preferred Stacks Button */}
+                <button
+                  onClick={() => setShowPreferredStacks(true)}
+                  className="py-3 bg-comic-blue text-comic-white font-display text-sm rounded-lg border-3 border-comic-black hover:bg-comic-darkBlue transition-colors flex items-center justify-center gap-2"
+                  title="Choose from pre-configured popular stacks"
+                >
+                  <FaHistory className="text-lg" />
+                  PREFERRED STACKS
+                </button>
+
+                {/* Reset Button */}
                 <button
                   onClick={resetToDefaults}
-                  className="w-full py-3 bg-comic-orange text-comic-white font-display text-lg rounded-lg border-3 border-comic-black hover:bg-comic-red transition-colors flex items-center justify-center gap-2"
+                  className="py-3 bg-comic-orange text-comic-white font-display text-sm rounded-lg border-3 border-comic-black hover:bg-comic-red transition-colors flex items-center justify-center gap-2"
                   title="Reset all options to default values"
                 >
-                  <FaMagic className="text-xl" />
+                  <FaMagic className="text-lg" />
                   RESET TO DEFAULTS
                 </button>
               </motion.div>
@@ -547,6 +581,13 @@ export function BuilderPage() {
           )}
         </div>
       </GenericComicDialog>
+
+      {/* Preferred Stacks Dialog */}
+      <PreferredStacksDialog
+        isOpen={showPreferredStacks}
+        onClose={() => setShowPreferredStacks(false)}
+        onSelectStack={handleSelectPreferredStack}
+      />
     </div>
   );
 }

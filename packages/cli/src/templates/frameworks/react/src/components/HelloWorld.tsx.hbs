@@ -1,7 +1,15 @@
-{{#if typescript}}interface HelloWorldProps {
+{{#if typescript}}/**
+ * Props for the HelloWorld component
+ */
+interface HelloWorldProps {
+  /** Message to display */
   msg: string
 }{{/if}}
 
+/**
+ * A simple HelloWorld component that displays a customizable message.
+ * Used to demonstrate component props and conditional styling.
+ */
 export function HelloWorld({{#if typescript}}{ msg }: HelloWorldProps{{else}}{ msg }{{/if}}) {
   return (
     {{#if (eq styling "tailwind")}}

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { BiPackage } from "react-icons/bi";
 
+import { CollapsibleSection } from "./CollapsibleSection";
 import { packageManagers } from "./constants";
 import type { ExtendedProjectConfig } from "./types";
 
@@ -19,62 +20,62 @@ export const InstallOptionsSection: React.FC<InstallOptionsSectionProps> = ({
       initial={{ opacity: 0, x: -50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.75 }}
-      className="comic-card bg-comic-green text-comic-white"
     >
-      <div className="flex items-center gap-3 mb-2">
-        <BiPackage className="text-3xl" />
-        <h3 className="font-display text-2xl">INSTALL OPTIONS</h3>
-      </div>
-      <div className="border-t-3 border-comic-darkGreen mb-3"></div>
-      <p className="font-comic text-sm mb-4 text-comic-white/90">
-        Configure package management - choose your package manager and auto-install settings
-      </p>
+      <CollapsibleSection
+        icon={<BiPackage className="text-3xl" />}
+        title={<h3 className="font-display text-2xl">INSTALL OPTIONS</h3>}
+        className="bg-comic-green text-comic-white"
+      >
+        <p className="font-comic text-sm mb-4 text-comic-white/90">
+          Configure package management - choose your package manager and auto-install settings
+        </p>
 
-      {/* Auto Install Toggle */}
-      <div className="mb-4">
-        <label className="flex items-center gap-3 cursor-pointer">
-          <div className="relative">
-            <input
-              type="checkbox"
-              checked={config.autoInstall}
-              onChange={(e) => setConfig({ ...config, autoInstall: e.target.checked })}
-              className="sr-only"
-            />
-            <div
-              className={`w-14 h-8 rounded-full border-3 border-comic-black transition-colors ${
-                config.autoInstall ? "bg-comic-yellow" : "bg-comic-white"
-              }`}
-            >
-              <div
-                className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-comic-black transition-transform ${
-                  config.autoInstall ? "translate-x-6" : "translate-x-0"
-                }`}
+        {/* Auto Install Toggle */}
+        <div className="mb-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={config.autoInstall}
+                onChange={(e) => setConfig({ ...config, autoInstall: e.target.checked })}
+                className="sr-only"
               />
+              <div
+                className={`w-14 h-8 rounded-full border-3 border-comic-black transition-colors ${
+                  config.autoInstall ? "bg-comic-yellow" : "bg-comic-white"
+                }`}
+              >
+                <div
+                  className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-comic-black transition-transform ${
+                    config.autoInstall ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </div>
             </div>
-          </div>
-          <span className="font-comic font-bold">Auto-install dependencies</span>
-        </label>
-      </div>
+            <span className="font-comic font-bold">Auto-install dependencies</span>
+          </label>
+        </div>
 
-      {/* Package Manager Selection */}
-      <div className="grid grid-cols-3 gap-3">
-        {packageManagers.map((pm) => (
-          <button
-            key={pm.id}
-            onClick={() => setConfig({ ...config, packageManager: pm.id })}
-            data-active={config.packageManager === pm.id}
-            className={`filter-btn-comic flex flex-col items-center justify-center gap-1 py-3 ${
-              config.packageManager === pm.id
-                ? "bg-comic-yellow text-comic-black"
-                : "bg-comic-white text-comic-black hover:bg-comic-yellow"
-            }`}
-            title={pm.description}
-          >
-            <pm.icon className={`text-2xl ${pm.color}`} />
-            <span className="text-xs font-bold">{pm.name}</span>
-          </button>
-        ))}
-      </div>
+        {/* Package Manager Selection */}
+        <div className="grid grid-cols-3 gap-3">
+          {packageManagers.map((pm) => (
+            <button
+              key={pm.id}
+              onClick={() => setConfig({ ...config, packageManager: pm.id })}
+              data-active={config.packageManager === pm.id}
+              className={`filter-btn-comic flex flex-col items-center justify-center gap-1 py-3 ${
+                config.packageManager === pm.id
+                  ? "bg-comic-yellow text-comic-black"
+                  : "bg-comic-white text-comic-black hover:bg-comic-yellow"
+              }`}
+              title={pm.description}
+            >
+              <pm.icon className={`text-2xl ${pm.color}`} />
+              <span className="text-xs font-bold">{pm.name}</span>
+            </button>
+          ))}
+        </div>
+      </CollapsibleSection>
     </motion.div>
   );
 };

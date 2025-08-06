@@ -22,11 +22,12 @@ export interface PrecastConfig {
   orm?: string;
   styling?: string;
   uiLibrary?: string;
+  apiClient?: string;
+  aiAssistant?: string;
   typescript: boolean;
   git: boolean;
   docker?: boolean;
   packageManager: string;
-  aiAssistance?: string[];
   addons?: string[];
 }
 
@@ -45,11 +46,12 @@ export async function writePrecastConfig(projectConfig: ProjectConfig) {
     orm: projectConfig.orm,
     styling: projectConfig.styling,
     uiLibrary: projectConfig.uiLibrary,
+    apiClient: projectConfig.apiClient,
+    aiAssistant: projectConfig.aiAssistant,
     typescript: projectConfig.typescript,
     git: projectConfig.git,
     docker: projectConfig.docker,
     packageManager: projectConfig.packageManager,
-    aiAssistance: projectConfig.aiAssistance,
     addons: projectConfig.addons,
   };
 
@@ -113,7 +115,7 @@ export async function readPrecastConfig(projectDir: string): Promise<PrecastConf
  */
 export async function updatePrecastConfig(
   projectDir: string,
-  updates: Partial<Pick<PrecastConfig, "uiLibrary" | "aiAssistance" | "addons">>
+  updates: Partial<Pick<PrecastConfig, "uiLibrary" | "aiAssistant" | "addons">>
 ) {
   try {
     const configPath = path.join(projectDir, PRECAST_CONFIG_FILE);
@@ -165,12 +167,13 @@ export async function detectPrecastProject(projectDir: string): Promise<ProjectC
     orm: config.orm || "none",
     styling: config.styling || "css",
     uiLibrary: config.uiLibrary,
+    apiClient: config.apiClient,
+    aiAssistant: config.aiAssistant,
     typescript: config.typescript,
     git: config.git,
     docker: config.docker ?? false,
     packageManager: config.packageManager,
     projectPath: projectDir,
-    aiAssistance: config.aiAssistance,
     addons: config.addons,
   };
 }

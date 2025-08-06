@@ -1,0 +1,39 @@
+import posthog from 'posthog-js';
+
+export default {
+  install(app, options = {}) {
+    const posthogInstance = posthog.init(
+      import.meta.env.VITE_POSTHOG_KEY,
+      {
+        api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
+        person_profiles: 'identified_only',
+        capture_pageview: false, // We'll capture manually with router
+        ...options
+      }
+    );
+
+    // Make PostHog available globally in Vue components
+    app.config.globalProperties.$posthog = posthogInstance;
+    app.provide('posthog', posthogInstance);
+  }
+};
+
+// Usage in main.js:
+// import { createApp } from 'vue';
+// import { createRouter, createWebHistory } from 'vue-router';
+// import posthogPlugin from './posthog';
+// import App from './App.vue';
+//
+// const router = createRouter({
+//   history: createWebHistory(),
+//   routes: [...],
+// });
+//
+// router.afterEach((to) => {
+//   posthog.capture('$pageview', { $current_url: to.fullPath });
+// });
+//
+// const app = createApp(App);
+// app.use(posthogPlugin);
+// app.use(router);
+// app.mount('#app');

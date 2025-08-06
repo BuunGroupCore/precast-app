@@ -12,6 +12,10 @@ interface MCPServersSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * MCP (Model Context Protocol) servers selection with automatic relevance detection.
+ * Auto-selects relevant servers based on stack configuration while respecting manual deselections.
+ */
 export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, setConfig }) => {
   const relevantServers = getRelevantMCPServers({
     framework: config.framework,
@@ -21,15 +25,11 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
     backend: config.backend,
   });
 
-  // Track which servers were manually deselected to avoid re-adding them
   const manuallyDeselectedRef = useRef<Set<string>>(new Set());
-
-  // Auto-select relevant servers based on stack selection (but respect manual deselections)
   useEffect(() => {
     const currentServers = config.mcpServers || [];
     const relevantServerIds = relevantServers.map((server) => server.id);
 
-    // Add any relevant servers that aren't already selected AND weren't manually deselected
     const serversToAdd = relevantServerIds.filter(
       (id) => !currentServers.includes(id) && !manuallyDeselectedRef.current.has(id)
     );
@@ -57,7 +57,7 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
     const isRecommended = relevantServers.some((rs) => rs.id === serverId);
 
     if (isSelected) {
-      // If deselecting a recommended server, mark it as manually deselected
+      /** If deselecting a recommended server, mark it as manually deselected */
       if (isRecommended) {
         manuallyDeselectedRef.current.add(serverId);
       }
@@ -66,7 +66,7 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
         mcpServers: currentServers.filter((id) => id !== serverId),
       });
     } else {
-      // If selecting a server, remove it from manually deselected list
+      /** If selecting a server, remove it from manually deselected list */
       manuallyDeselectedRef.current.delete(serverId);
       setConfig({
         ...config,
@@ -75,7 +75,6 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
     }
   };
 
-  // Get all available servers (relevant + all optional ones)
   const availableServers = [
     ...relevantServers,
     ...mcpServers.filter((server) => !relevantServers.some((rs) => rs.id === server.id)),

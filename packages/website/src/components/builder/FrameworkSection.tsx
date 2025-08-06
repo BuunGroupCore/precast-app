@@ -30,7 +30,10 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {frameworks.map((framework) => (
-            <ServiceTooltip service={framework.id} key={framework.id}>
+            <ServiceTooltip
+              serviceId={framework.id as keyof typeof import("../ServiceTooltip").serviceInfo}
+              key={framework.id}
+            >
               <button
                 onClick={() => setConfig({ ...config, framework: framework.id })}
                 data-active={config.framework === framework.id}

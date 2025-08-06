@@ -1,0 +1,31 @@
+/** @type { import('@storybook/{{#if framework}}{{#ifEquals framework "react"}}react-vite{{/ifEquals}}{{#ifEquals framework "next"}}nextjs{{/ifEquals}}{{#ifEquals framework "vue"}}vue3-vite{{/ifEquals}}{{#ifEquals framework "angular"}}angular{{/ifEquals}}{{#ifEquals framework "svelte"}}svelte-vite{{/ifEquals}}{{#ifEquals framework "solid"}}html-vite{{/ifEquals}}{{else}}react-vite{{/if}}').StorybookConfig } */
+const config = {
+  stories: [
+    '../src/**/*.mdx',
+    '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'
+  ],
+  addons: [
+    '@storybook/addon-essentials',
+    '@storybook/addon-onboarding',
+    '@storybook/addon-interactions',
+    '@storybook/addon-links',
+{{#ifEquals framework "next"}}
+    '@storybook/addon-styling-webpack',
+{{/ifEquals}}
+  ],
+  framework: {
+    name: '@storybook/{{#if framework}}{{#ifEquals framework "react"}}react-vite{{/ifEquals}}{{#ifEquals framework "next"}}nextjs{{/ifEquals}}{{#ifEquals framework "vue"}}vue3-vite{{/ifEquals}}{{#ifEquals framework "angular"}}angular{{/ifEquals}}{{#ifEquals framework "svelte"}}svelte-vite{{/ifEquals}}{{#ifEquals framework "solid"}}html-vite{{/ifEquals}}{{else}}react-vite{{/if}}',
+    options: {
+{{#ifEquals framework "next"}}
+      builder: {
+        useSWC: true,
+      },
+{{/ifEquals}}
+    },
+  },
+{{#ifEquals framework "next"}}
+  staticDirs: ['../public'],
+{{/ifEquals}}
+};
+
+export default config;

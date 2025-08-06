@@ -24,7 +24,7 @@ export function GenericComicDialog({
     lg: "max-w-4xl",
     xl: "max-w-6xl",
   };
-  // Close on escape key
+  /** Close dialog on escape key press */
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {

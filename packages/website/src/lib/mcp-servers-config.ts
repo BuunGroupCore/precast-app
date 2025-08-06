@@ -11,27 +11,28 @@ export interface MCPServer {
   description: string;
   icon: IconType | React.FC<{ className?: string }>;
   category: "database" | "deployment" | "productivity" | "ai" | "storage";
-  // Technologies that trigger this MCP server to be included
+  /** Technologies that trigger this MCP server to be included */
   triggers: {
     frameworks?: string[];
     databases?: string[];
     deployments?: string[];
     auth?: string[];
-    any?: boolean; // Always include regardless of selection
+    /** Always include regardless of selection */
+    any?: boolean;
   };
-  // MCP server configuration
+  /** MCP server configuration */
   config: {
     server_name: string;
     command: string;
     args?: string[];
     env?: { [key: string]: string };
   };
-  // Repository URL
+  /** Repository URL */
   repository?: string;
 }
 
 export const mcpServers: MCPServer[] = [
-  // Essential MCP Servers
+  /** Essential MCP Servers */
   {
     id: "filesystem",
     name: "Filesystem",
@@ -52,7 +53,7 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
   },
 
-  // Database Servers
+  /** Database Servers */
   {
     id: "postgres",
     name: "PostgreSQL",
@@ -111,7 +112,7 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/mongodb-js/mongodb-mcp-server",
   },
 
-  // Development Tools
+  /** Development Tools */
   {
     id: "github",
     name: "GitHub",
@@ -151,12 +152,12 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
   },
 
-  // Cloud Services
+  /** Cloud Services */
   {
     id: "cloudflare",
     name: "Cloudflare",
     description: "Cloudflare Workers, DNS, and AI Gateway management",
-    icon: CloudflareIcon as any,
+    icon: CloudflareIcon,
     category: "deployment",
     triggers: {
       deployments: ["cloudflare"],
@@ -172,12 +173,11 @@ export const mcpServers: MCPServer[] = [
     repository: "https://github.com/cloudflare/mcp-server-cloudflare",
   },
 
-  // AI Enhancement
   {
     id: "memory",
     name: "Memory",
     description: "Knowledge graph-based persistent memory system",
-    icon: MCPIcon as any,
+    icon: MCPIcon,
     category: "ai",
     triggers: {
       any: false, // Optional enhancement
@@ -193,7 +193,7 @@ export const mcpServers: MCPServer[] = [
     id: "sequential-thinking",
     name: "Sequential Thinking",
     description: "Dynamic problem-solving through thought sequences",
-    icon: MCPIcon as any,
+    icon: MCPIcon,
     category: "ai",
     triggers: {
       any: false, // Optional AI enhancement
@@ -220,19 +220,16 @@ export function getRelevantMCPServers(config: {
   return mcpServers.filter((server) => {
     const { triggers } = server;
 
-    // Always include servers with any: true
     if (triggers.any) {
       return true;
     }
 
-    // Check database triggers
     if (triggers.databases && config.database && config.database !== "none") {
       if (triggers.databases.includes(config.database)) {
         return true;
       }
     }
 
-    // Check deployment triggers
     if (triggers.deployments && config.deploymentMethod && config.deploymentMethod !== "none") {
       if (triggers.deployments.includes(config.deploymentMethod)) {
         return true;

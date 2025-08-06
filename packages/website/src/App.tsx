@@ -1,15 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
+
+import { Layout } from "./components/Layout";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { BuilderPage } from "./pages/BuilderPage";
 import { ComponentsPage } from "./pages/ComponentsPage";
 import { DocsPage } from "./pages/DocsPage";
+import { HomePage } from "./pages/HomePage";
+import { MetricsPage } from "./pages/MetricsPage";
 import { OriginStoryPage } from "./pages/OriginStoryPage";
 import { ShowcasePage } from "./pages/ShowcasePage";
 import { SubmitProjectPage } from "./pages/SubmitProjectPage";
 import { SupportPage } from "./pages/SupportPage";
-import { MetricsPage } from "./pages/MetricsPage";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import { Layout } from "./components/Layout";
 
 function App() {
   return (

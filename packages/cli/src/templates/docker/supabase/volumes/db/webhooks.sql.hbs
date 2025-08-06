@@ -1,0 +1,21 @@
+-- Webhooks schema setup
+CREATE SCHEMA IF NOT EXISTS _webhooks;
+ALTER SCHEMA _webhooks OWNER TO postgres;
+
+-- Create webhook configuration table
+CREATE TABLE IF NOT EXISTS _webhooks.webhook_config (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    events TEXT[] NOT NULL,
+    headers JSONB DEFAULT '{}',
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Grant permissions
+GRANT ALL ON SCHEMA _webhooks TO supabase_admin;
+GRANT ALL ON TABLE _webhooks.webhook_config TO supabase_admin;
+GRANT USAGE, SELECT ON SEQUENCE _webhooks.webhook_config_id_seq TO supabase_admin;
+
+COMMENT ON SCHEMA _webhooks IS 'Webhook configuration for {{name}}';

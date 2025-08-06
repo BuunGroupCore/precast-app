@@ -19,3 +19,4 @@ export * from "./RuntimeSection";
 export * from "./AuthSection";
 export * from "./PowerUpsSection";
 export * from "./MCPServersSection";
+export * from "./FolderStructureDialog";

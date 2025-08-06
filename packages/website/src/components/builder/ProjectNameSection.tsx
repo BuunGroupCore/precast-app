@@ -10,7 +10,7 @@ interface ProjectNameSectionProps {
 }
 
 export const ProjectNameSection: React.FC<ProjectNameSectionProps> = ({ config, setConfig }) => {
-  // Name generation arrays
+  /** Name generation arrays for random project names */
   const heroAdjectives = [
     "awesome",
     "blazing",

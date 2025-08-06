@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { HomePageSEO } from "../components/SEO";
+import { useState, useEffect } from "react";
 import {
   FaRocket,
   FaCode,
@@ -8,10 +7,6 @@ import {
   FaTerminal,
   FaGithub,
   FaBolt,
-  FaTwitter,
-  FaLinkedin,
-  FaDiscord,
-  FaExternalLinkAlt,
   FaReact,
   FaVuejs,
   FaAngular,
@@ -38,7 +33,9 @@ import {
   SiYarn,
   SiBun,
 } from "react-icons/si";
-import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { HomePageSEO } from "../components/SEO";
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -74,10 +71,10 @@ export function HomePage() {
   };
 
   useEffect(() => {
-    // Initial fetch
+    /** Initial fetch */
     fetchGitHubStats();
 
-    // Refresh every 30 seconds
+    /** Refresh every 30 seconds */
     const interval = setInterval(fetchGitHubStats, 30000);
 
     return () => clearInterval(interval);

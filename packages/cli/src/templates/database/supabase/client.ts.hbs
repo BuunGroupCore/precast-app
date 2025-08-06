@@ -1,0 +1,59 @@
+import { createClient } from '@supabase/supabase-js'
+
+/**
+ * Supabase client configuration
+ */
+const supabaseUrl = process.env.SUPABASE_URL || ''
+const supabaseKey = process.env.SUPABASE_ANON_KEY || ''
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.')
+}
+
+/**
+ * Supabase client instance
+ * @description Pre-configured Supabase client with authentication and real-time capabilities
+ */
+export const supabase = createClient(supabaseUrl, supabaseKey)
+
+{{#if typescript}}
+/**
+ * Type definitions for your database tables
+ * @description Update these types to match your Supabase schema
+ */
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string
+          email: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+  }
+}
+{{/if}}

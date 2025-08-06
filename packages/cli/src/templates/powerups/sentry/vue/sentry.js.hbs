@@ -1,0 +1,39 @@
+import * as Sentry from "@sentry/vue";
+import { createApp } from "vue";
+import { createRouter } from "vue-router";
+
+export function initSentry(app, router) {
+  Sentry.init({
+    app,
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    integrations: [
+      Sentry.browserTracingIntegration({ router }),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+      }),
+    ],
+    tracesSampleRate: import.meta.env.MODE === "production" ? 0.1 : 1.0,
+    replaysSessionSampleRate: import.meta.env.MODE === "production" ? 0.1 : 0,
+    replaysOnErrorSampleRate: 1.0,
+    release: import.meta.env.VITE_APP_VERSION,
+  });
+}
+
+// Usage in main.js:
+// import { createApp } from "vue";
+// import { createRouter, createWebHistory } from "vue-router";
+// import { initSentry } from "./sentry";
+// import App from "./App.vue";
+//
+// const app = createApp(App);
+// const router = createRouter({
+//   history: createWebHistory(),
+//   routes: [...],
+// });
+//
+// initSentry(app, router);
+//
+// app.use(router);
+// app.mount("#app");

@@ -1,0 +1,22 @@
+{{#if typescript}}import { defineConfig } from 'cypress';{{else}}const { defineConfig } = require('cypress');{{/if}}
+
+{{#if typescript}}export default{{else}}module.exports ={{/if}} defineConfig({
+  e2e: {
+    baseUrl: 'http://localhost:3000',
+    supportFile: 'cypress/support/e2e.{{#if typescript}}ts{{else}}js{{/if}}',
+    specPattern: 'cypress/e2e/**/*.cy.{{#if typescript}}ts{{else}}js{{/if}}',
+    videosFolder: 'cypress/videos',
+    screenshotsFolder: 'cypress/screenshots',
+    viewportWidth: 1280,
+    viewportHeight: 720,
+    video: false,
+    screenshotOnRunFailure: true,
+  },
+  component: {
+    devServer: {
+      framework: '{{framework}}',
+      bundler: 'vite',
+    },
+    specPattern: 'src/**/*.cy.{{#if typescript}}tsx{{else}}jsx{{/if}}',
+  },
+});

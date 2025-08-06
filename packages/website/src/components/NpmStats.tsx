@@ -1,16 +1,32 @@
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaDownload, FaTag, FaClock, FaChartLine } from "react-icons/fa";
 import { SiNpm } from "react-icons/si";
-import { motion, AnimatePresence } from "framer-motion";
+
+interface NpmPackageData {
+  "dist-tags": {
+    latest: string;
+  };
+  time: {
+    [version: string]: string;
+  };
+}
+
+interface NpmDownloadData {
+  downloads: number;
+  start: string;
+  end: string;
+  package: string;
+}
 
 export function NpmStats() {
   const [loading, setLoading] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [npmData, setNpmData] = useState<any>(null);
-  const [downloads, setDownloads] = useState<any>(null);
+  const [npmData, setNpmData] = useState<NpmPackageData | null>(null);
+  const [downloads, setDownloads] = useState<NpmDownloadData | null>(null);
 
   useEffect(() => {
-    // Fetch package info
+    /** Fetch package info from NPM registry */
     Promise.all([
       fetch("https://registry.npmjs.org/create-precast-app").then((res) => {
         if (!res.ok) throw new Error("Package not found");
@@ -19,12 +35,12 @@ export function NpmStats() {
       fetch("https://api.npmjs.org/downloads/point/last-week/create-precast-app")
         .then((res) => {
           if (!res.ok) {
-            // If downloads API fails, return null
+            /** If downloads API fails, return null */
             return null;
           }
           return res.json();
         })
-        .catch(() => null), // Catch download API errors and return null
+        .catch(() => null) /** Catch download API errors and return null */,
     ])
       .then(([packageData, downloadData]) => {
         setNpmData(packageData);

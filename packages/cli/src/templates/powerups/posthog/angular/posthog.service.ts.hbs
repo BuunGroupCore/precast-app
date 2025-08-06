@@ -1,0 +1,63 @@
+import { Injectable } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import posthog from 'posthog-js';
+import { filter } from 'rxjs/operators';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PosthogService {
+  constructor(private router: Router) {
+    // Initialize PostHog
+    posthog.init(
+      process.env['NG_APP_POSTHOG_KEY'] || 'YOUR_POSTHOG_KEY',
+      {
+        api_host: process.env['NG_APP_POSTHOG_HOST'] || 'https://app.posthog.com',
+        person_profiles: 'identified_only',
+        capture_pageview: false, // We'll capture manually
+      }
+    );
+
+    // Capture page views on route change
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.capturePageView(event.urlAfterRedirects);
+    });
+  }
+
+  capturePageView(url?: string) {
+    posthog.capture('$pageview', {
+      $current_url: url || window.location.href
+    });
+  }
+
+  captureEvent(event: string, properties?: any) {
+    posthog.capture(event, properties);
+  }
+
+  identify(userId: string, properties?: any) {
+    posthog.identify(userId, properties);
+  }
+
+  reset() {
+    posthog.reset();
+  }
+
+  setPersonProperties(properties: any) {
+    posthog.setPersonProperties(properties);
+  }
+}
+
+// Usage in app.component.ts:
+// import { Component, OnInit } from '@angular/core';
+// import { PosthogService } from './posthog.service';
+//
+// @Component({...})
+// export class AppComponent implements OnInit {
+//   constructor(private posthog: PosthogService) {}
+//
+//   ngOnInit() {
+//     // PostHog is automatically initialized and tracking page views
+//   }
+// }

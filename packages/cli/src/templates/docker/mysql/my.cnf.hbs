@@ -1,0 +1,23 @@
+[mysqld]
+# Character set
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+
+# Performance tuning
+max_connections=200
+innodb_buffer_pool_size=256M
+innodb_log_file_size=64M
+innodb_flush_log_at_trx_commit=2
+innodb_flush_method=O_DIRECT
+
+# Slow query log
+slow_query_log=1
+slow_query_log_file=/var/log/mysql/slow.log
+long_query_time=2
+
+# General log (disable in production)
+general_log=0
+general_log_file=/var/log/mysql/general.log
+
+[client]
+default-character-set=utf8mb4

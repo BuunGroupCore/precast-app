@@ -1,0 +1,36 @@
+import { defineConfig } from 'vitest/config';
+{{#ifEquals framework "react"}}
+import react from '@vitejs/plugin-react';
+{{/ifEquals}}
+{{#ifEquals framework "vue"}}
+import vue from '@vitejs/plugin-vue';
+{{/ifEquals}}
+{{#ifEquals framework "svelte"}}
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+{{/ifEquals}}
+
+export default defineConfig({
+{{#if framework}}
+{{#ifEquals framework "react"}}
+  plugins: [react()],
+{{/ifEquals}}
+{{#ifEquals framework "vue"}}
+  plugins: [vue()],
+{{/ifEquals}}
+{{#ifEquals framework "svelte"}}
+  plugins: [svelte()],
+{{/ifEquals}}
+{{/if}}
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.{{#if typescript}}ts{{else}}js{{/if}}'],
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+      ],
+    },
+  },
+});

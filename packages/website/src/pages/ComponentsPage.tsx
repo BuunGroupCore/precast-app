@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { ComponentsPageSEO } from "../components/SEO";
 import { FaExternalLinkAlt, FaGithub, FaTerminal } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
+import { ComponentsPageSEO } from "../components/SEO";
 
 interface ComponentLibrary {
   name: string;

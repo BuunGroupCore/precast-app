@@ -1,25 +1,15 @@
-import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
 import {
   FaReact,
   FaVuejs,
   FaAngular,
   FaNodeJs,
-  FaPython,
-  FaDatabase,
   FaDocker,
   FaGitAlt,
   FaJs,
   FaCss3,
-  FaHtml5,
-  FaPhp,
-  FaJava,
   FaBolt,
-  FaRocket,
-  FaCog,
-  FaServer,
-  FaCode,
-  FaGem,
 } from "react-icons/fa";
 import {
   SiTypescript,
@@ -46,9 +36,12 @@ import {
   SiSass,
 } from "react-icons/si";
 
-// Service information database
-const serviceInfo = {
-  // Frontend Frameworks
+/**
+ * Service information database.
+ * Contains detailed metadata about all available technologies.
+ */
+export const serviceInfo = {
+  /** Frontend Frameworks */
   react: {
     name: "React",
     icon: FaReact,
@@ -130,7 +123,7 @@ const serviceInfo = {
     popularity: "★★★★★",
   },
 
-  // Backend Frameworks
+  /** Backend Frameworks */
   node: {
     name: "Node.js",
     icon: FaNodeJs,
@@ -202,7 +195,7 @@ const serviceInfo = {
     popularity: "★★★★☆",
   },
 
-  // Databases
+  /** Databases */
   postgres: {
     name: "PostgreSQL",
     icon: SiPostgresql,
@@ -244,7 +237,7 @@ const serviceInfo = {
     popularity: "★★★★☆",
   },
 
-  // ORMs
+  /** ORMs (Object-Relational Mapping) */
   prisma: {
     name: "Prisma",
     icon: SiPrisma,
@@ -276,7 +269,7 @@ const serviceInfo = {
     popularity: "★★★☆☆",
   },
 
-  // Styling
+  /** Styling Solutions */
   tailwind: {
     name: "Tailwind CSS",
     icon: SiTailwindcss,
@@ -328,7 +321,7 @@ const serviceInfo = {
     popularity: "★★★★★",
   },
 
-  // Tools
+  /** Development Tools */
   typescript: {
     name: "TypeScript",
     icon: SiTypescript,
@@ -529,13 +522,16 @@ export function ServiceTooltip({
   );
 }
 
-// HOC for easy wrapping of service buttons
+/**
+ * HOC (Higher-Order Component) for easy wrapping of service buttons.
+ * Adds tooltip functionality to any component.
+ */
 export function withServiceTooltip<T extends { serviceId?: string }>(
   Component: React.ComponentType<T>,
   defaultPlacement: "top" | "bottom" | "left" | "right" = "top"
 ) {
   return function WrappedComponent(props: T) {
-    const { serviceId, ...otherProps } = props;
+    const { serviceId } = props;
 
     if (!serviceId || !(serviceId in serviceInfo)) {
       return <Component {...(props as T)} />;

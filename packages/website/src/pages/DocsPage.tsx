@@ -77,7 +77,8 @@ export function DocsPage() {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const yOffset = -160; // Account for fixed header
+      /** Account for fixed header */
+      const yOffset = -160;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
       setActiveTocItem(sectionId);

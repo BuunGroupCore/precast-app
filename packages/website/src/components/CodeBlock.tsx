@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { FaCopy, FaCheck } from "react-icons/fa";
 
 interface CodeBlockProps {
@@ -8,7 +8,7 @@ interface CodeBlockProps {
   showLineNumbers?: boolean;
 }
 
-export function CodeBlock({ code, language = "bash", showLineNumbers = false }: CodeBlockProps) {
+export function CodeBlock({ code, showLineNumbers = false }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
@@ -86,17 +86,15 @@ export function CodeBlock({ code, language = "bash", showLineNumbers = false }: 
 }
 
 function formatLine(line: string): string {
-  // Format $ commands
   if (line.trim().startsWith("$")) {
     return line.replace(/^\s*(\$)/, '<span class="text-comic-yellow">$</span>');
   }
 
-  // Format comments
   if (line.trim().startsWith("#")) {
     return `<span class="text-comic-gray">${line}</span>`;
   }
 
-  // Highlight npm/yarn/pnpm/bun commands
+  /** Highlight npm/yarn/pnpm/bun commands */
   const commandPattern = /^(npm|yarn|pnpm|bun|npx)\s+/;
   if (commandPattern.test(line.trim())) {
     return line.replace(commandPattern, '<span class="text-comic-blue">$&</span>');

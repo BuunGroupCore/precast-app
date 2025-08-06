@@ -12,10 +12,11 @@ interface AuthSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * Authentication providers selection with dependency validation.
+ */
 export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) => {
-  // Filter auth providers based on framework and backend dependencies
   const availableAuthProviders = authProviders.filter((auth) => {
-    // Check framework dependencies
     if (
       auth.dependencies?.includes("react") &&
       !["react", "next", "remix"].includes(config.framework)

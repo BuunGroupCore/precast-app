@@ -1,0 +1,10 @@
+-- Create the _supabase database for internal analytics
+CREATE DATABASE _supabase;
+
+\c _supabase;
+
+-- Create analytics schema
+CREATE SCHEMA IF NOT EXISTS _analytics;
+
+-- Grant permissions
+GRANT ALL ON SCHEMA _analytics TO supabase_admin;

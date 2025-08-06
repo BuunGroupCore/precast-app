@@ -1,0 +1,38 @@
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+
+/**
+ * User entity
+ * @description Represents a user in the database
+ */
+@Entity('users')
+export class User {
+  /**
+   * Primary key - auto-generated UUID
+   */
+  @PrimaryGeneratedColumn('uuid')
+  id{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * User email address - must be unique
+   */
+  @Column({ type: 'varchar', length: 255, unique: true })
+  email{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * User display name - optional
+   */
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  name{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Record creation timestamp
+   */
+  @CreateDateColumn()
+  createdAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * Record last update timestamp
+   */
+  @UpdateDateColumn()
+  updatedAt{{#unless typescript}}!{{/unless}}: Date
+}

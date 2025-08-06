@@ -1,0 +1,22 @@
+-- Logs schema setup for Logflare analytics
+\c _supabase;
+
+SET search_path TO _analytics;
+
+-- Create logs table for analytics
+CREATE TABLE IF NOT EXISTS logs (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    level TEXT,
+    message TEXT,
+    metadata JSONB,
+    project_id TEXT DEFAULT '{{name}}'
+);
+
+-- Create index for performance
+CREATE INDEX IF NOT EXISTS logs_timestamp_idx ON logs(timestamp);
+CREATE INDEX IF NOT EXISTS logs_project_idx ON logs(project_id);
+
+-- Grant permissions
+GRANT ALL ON TABLE logs TO supabase_admin;
+GRANT USAGE, SELECT ON SEQUENCE logs_id_seq TO supabase_admin;

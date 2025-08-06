@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useState, createElement } from "react";
+import React, { useState } from "react";
 import { FaTimes, FaRocket, FaCheck } from "react-icons/fa";
 import {
   SiNextdotjs,
@@ -53,6 +53,10 @@ const categoryColors = {
   rapid: "bg-comic-yellow",
 };
 
+/**
+ * Modal dialog for selecting pre-configured technology stacks.
+ * Displays categorized stack templates with technology previews and descriptions.
+ */
 export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
   isOpen,
   onClose,
@@ -65,7 +69,6 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
   const filteredStacks =
     selectedCategory === "all" ? preferredStacks : getStacksByCategory(selectedCategory);
 
-  // Helper function to get technology icons
   const getTechIcon = (tech: string) => {
     const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
       next: SiNextdotjs,
@@ -81,9 +84,9 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
       supabase: SiSupabase,
       firebase: SiFirebase,
       prisma: SiPrisma,
-      "auth.js": AuthJSIcon as any,
+      "auth.js": AuthJSIcon,
       "supabase-auth": SiSupabase,
-      "better-auth": BetterAuthIcon as any,
+      "better-auth": BetterAuthIcon,
       auth0: SiAuth0,
       passport: SiPassport,
       trpc: SiTrpc,
@@ -228,32 +231,47 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
                       <div className="border-t-2 border-comic-gray pt-4">
                         <div className="grid grid-cols-2 gap-2 text-xs font-comic">
                           <div className="flex items-center gap-2">
-                            {getTechIcon(stack.config.framework) && (
-                              <span className="text-base">
-                                {createElement(getTechIcon(stack.config.framework)!)}
-                              </span>
-                            )}
+                            {(() => {
+                              const Icon = stack.config.framework
+                                ? getTechIcon(stack.config.framework)
+                                : null;
+                              return Icon ? (
+                                <span className="text-base">
+                                  <Icon />
+                                </span>
+                              ) : null;
+                            })()}
                             <span>
                               <strong>Framework:</strong> {stack.config.framework}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {getTechIcon(stack.config.styling) && (
-                              <span className="text-base">
-                                {React.createElement(getTechIcon(stack.config.styling)!)}
-                              </span>
-                            )}
+                            {(() => {
+                              const Icon = stack.config.styling
+                                ? getTechIcon(stack.config.styling)
+                                : null;
+                              return Icon ? (
+                                <span className="text-base">
+                                  <Icon />
+                                </span>
+                              ) : null;
+                            })()}
                             <span>
                               <strong>Styling:</strong> {stack.config.styling}
                             </span>
                           </div>
                           {stack.config.database !== "none" && (
                             <div className="flex items-center gap-2">
-                              {getTechIcon(stack.config.database) && (
-                                <span className="text-base">
-                                  {React.createElement(getTechIcon(stack.config.database)!)}
-                                </span>
-                              )}
+                              {(() => {
+                                const Icon = stack.config.database
+                                  ? getTechIcon(stack.config.database)
+                                  : null;
+                                return Icon ? (
+                                  <span className="text-base">
+                                    <Icon />
+                                  </span>
+                                ) : null;
+                              })()}
                               <span>
                                 <strong>Database:</strong> {stack.config.database}
                               </span>
@@ -261,22 +279,30 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
                           )}
                           {stack.config.auth !== "none" && (
                             <div className="flex items-center gap-2">
-                              {getTechIcon(stack.config.auth) && (
-                                <span className="text-base">
-                                  {React.createElement(getTechIcon(stack.config.auth)!)}
-                                </span>
-                              )}
+                              {(() => {
+                                const Icon = stack.config.auth
+                                  ? getTechIcon(stack.config.auth)
+                                  : null;
+                                return Icon ? (
+                                  <span className="text-base">
+                                    <Icon />
+                                  </span>
+                                ) : null;
+                              })()}
                               <span>
                                 <strong>Auth:</strong> {stack.config.auth}
                               </span>
                             </div>
                           )}
                           <div className="flex items-center gap-2">
-                            {stack.config.typescript && getTechIcon("typescript") && (
-                              <span className="text-base">
-                                {React.createElement(getTechIcon("typescript")!)}
-                              </span>
-                            )}
+                            {(() => {
+                              const Icon = getTechIcon("typescript");
+                              return stack.config.typescript && Icon ? (
+                                <span className="text-base">
+                                  <Icon />
+                                </span>
+                              ) : null;
+                            })()}
                             <span>
                               <strong>TypeScript:</strong> {stack.config.typescript ? "Yes" : "No"}
                             </span>

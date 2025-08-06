@@ -1,8 +1,21 @@
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
 import {
-  LineChart,
-  Line,
+  FaGithub,
+  FaHeart,
+  FaCodeBranch,
+  FaUsers,
+  FaEye,
+  FaDownload,
+  FaClock,
+  FaCode,
+  FaCalendar,
+  FaFire,
+  FaTrophy,
+  FaRocket,
+} from "react-icons/fa";
+import { SiNpm } from "react-icons/si";
+import {
   AreaChart,
   Area,
   BarChart,
@@ -16,24 +29,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import {
-  FaGithub,
-  FaHeart,
-  FaCodeBranch,
-  FaUsers,
-  FaExclamationCircle,
-  FaEye,
-  FaDownload,
-  FaTag,
-  FaClock,
-  FaChartLine,
-  FaCode,
-  FaCalendar,
-  FaFire,
-  FaTrophy,
-  FaRocket,
-} from "react-icons/fa";
-import { SiNpm } from "react-icons/si";
 
 interface GitHubStats {
   stars: number;
@@ -84,9 +79,28 @@ const CHART_COLORS = {
   yellow: "#FFD600",
 };
 
-// Cache for API data
+interface CommitWeek {
+  week: number;
+  total: number;
+}
+
+interface NpmRangeDownload {
+  day: string;
+  downloads: number;
+}
+
+interface CacheData {
+  timestamp: number;
+  githubStats?: GitHubStats;
+  npmStats?: NpmStats;
+  commitActivity?: CommitData[];
+  downloadHistory?: DownloadData[];
+}
+
+/** Cache configuration for API data */
 const CACHE_KEY = "precast-metrics-cache";
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+/** Cache duration in milliseconds (5 minutes) */
+const CACHE_DURATION = 5 * 60 * 1000;
 
 const getCache = () => {
   try {
@@ -103,7 +117,7 @@ const getCache = () => {
   return null;
 };
 
-const setCache = (data: any) => {
+const setCache = (data: Partial<CacheData>) => {
   try {
     localStorage.setItem(
       CACHE_KEY,
@@ -135,7 +149,6 @@ export function MetricsPage() {
         await Promise.all([
           fetch("https://api.github.com/repos/BuunGroupCore/precast-app", { headers })
             .then((res) => {
-              console.log("Repo response:", res.status);
               return res.ok ? res.json() : null;
             })
             .catch((err) => {
@@ -187,7 +200,6 @@ export function MetricsPage() {
         });
       } else {
         console.error("Failed to fetch repository data");
-        // Set some default values to show UI
         setGithubStats({
           stars: 0,
           forks: 0,
@@ -205,9 +217,9 @@ export function MetricsPage() {
         });
       }
 
-      // Process commit activity data
+      /** Process commit activity data */
       if (Array.isArray(commitActivity) && commitActivity.length > 0) {
-        const formattedCommits = commitActivity.slice(-12).map((week: any) => {
+        const formattedCommits = commitActivity.slice(-12).map((week: CommitWeek) => {
           const date = new Date(week.week * 1000);
           return {
             week: `${date.getMonth() + 1}/${date.getDate()}`,
@@ -258,7 +270,7 @@ export function MetricsPage() {
         fileCount: versionData?.dist?.fileCount || 0,
       });
 
-      // Fetch download history for the last 30 days
+      /** Fetch download history for the last 30 days */
       try {
         const endDate = new Date();
         const startDate = new Date();
@@ -269,7 +281,7 @@ export function MetricsPage() {
         ).then((res) => (res.ok ? res.json() : null));
 
         if (rangeData && rangeData.downloads) {
-          const formattedData = rangeData.downloads.map((item: any) => ({
+          const formattedData = rangeData.downloads.map((item: NpmRangeDownload) => ({
             day: new Date(item.day).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
             downloads: item.downloads,
           }));
@@ -277,7 +289,7 @@ export function MetricsPage() {
         }
       } catch (error) {
         console.error("Error fetching download history:", error);
-        // Generate sample data if API fails
+        /** Generate sample data if API fails */
         const sampleData = Array.from({ length: 30 }, (_, i) => {
           const date = new Date();
           date.setDate(date.getDate() - (29 - i));
@@ -293,8 +305,8 @@ export function MetricsPage() {
     }
   };
 
-  const fetchAllData = async (forceRefresh = false) => {
-    // Check cache first
+  const fetchAllData = useCallback(async (forceRefresh = false) => {
+    /** Check cache first */
     if (!forceRefresh) {
       const cached = getCache();
       if (cached) {
@@ -304,32 +316,29 @@ export function MetricsPage() {
         if (cached.commitHistory) setCommitHistory(cached.commitHistory);
         setRefreshTime(new Date(cached.timestamp));
         setLoading(false);
-        console.log("Using cached data");
         return;
       }
     }
 
-    console.log("Fetching fresh data...");
     setLoading(true);
 
     try {
       await Promise.all([fetchGitHubData(), fetchNpmData()]);
-      console.log("Data fetched successfully");
     } catch (error) {
       console.error("Error fetching data:", error);
     }
 
     setRefreshTime(new Date());
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchAllData();
-    const interval = setInterval(() => fetchAllData(true), 30000); // Force refresh every 30 seconds
+    /** Force refresh every 30 seconds */
+    const interval = setInterval(() => fetchAllData(true), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchAllData]);
 
-  // Save to cache when data changes
   useEffect(() => {
     if (githubStats || npmStats || downloadHistory.length > 0 || commitHistory.length > 0) {
       setCache({
@@ -372,8 +381,23 @@ export function MetricsPage() {
     return `${Math.floor(diffDays / 365)} years`;
   };
 
-  // Custom tooltip for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  /**
+   * Custom tooltip component for charts.
+   * Displays formatted data when hovering over chart elements.
+   */
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: Array<{
+      value: number;
+      name: string;
+      color: string;
+    }>;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="comic-panel p-3 bg-comic-white">
@@ -387,7 +411,7 @@ export function MetricsPage() {
     return null;
   };
 
-  // Pie chart data for issues
+  /** Pie chart data for GitHub issues breakdown */
   const issueData = githubStats
     ? [
         { name: "Open", value: githubStats.openIssues, color: CHART_COLORS.primary },
@@ -663,7 +687,9 @@ export function MetricsPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) =>
+                        `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                      }
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"

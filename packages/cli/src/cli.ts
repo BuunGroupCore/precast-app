@@ -59,6 +59,10 @@ program
     "--mcp-servers <servers...>",
     "MCP servers to include when using Claude AI (filesystem, memory, github-official, github-api, gitlab, postgresql, supabase, mongodb, cloudflare, aws-mcp, azure-mcp, etc.)"
   )
+  .option(
+    "--powerups <powerups>",
+    "Comma-separated list of powerups (sentry, posthog, storybook, prettier, eslint, husky, vitest, playwright)"
+  )
   .action(async (projectName, options) => {
     await initCommand(projectName, {
       yes: options.yes,
@@ -78,6 +82,7 @@ program
       apiClient: options.apiClient,
       ai: options.ai,
       mcpServers: options.mcpServers,
+      powerups: options.powerups ? options.powerups.split(",") : undefined,
     });
   });
 program

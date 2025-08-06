@@ -13,7 +13,7 @@ interface SEOProps {
   modifiedTime?: string;
   canonicalUrl?: string;
   noindex?: boolean;
-  jsonLd?: Record<string, any>;
+  jsonLd?: Record<string, unknown>;
 }
 
 const DEFAULT_TITLE = "Precast - The Superhero CLI Builder for Modern Web Projects";
@@ -44,10 +44,8 @@ export function SEO({
   const canonical = canonicalUrl || currentUrl;
 
   useEffect(() => {
-    // Update document title
     document.title = title;
 
-    // Update meta tags
     const updateMetaTag = (property: string, content: string, isProperty = false) => {
       const attributeName = isProperty ? "property" : "name";
       let element = document.querySelector(`meta[${attributeName}="${property}"]`);
@@ -61,13 +59,13 @@ export function SEO({
       element.setAttribute("content", content);
     };
 
-    // Basic meta tags
+    /** Basic meta tags */
     updateMetaTag("description", description);
     updateMetaTag("keywords", keywords);
     updateMetaTag("author", author);
     updateMetaTag("robots", noindex ? "noindex, nofollow" : "index, follow");
 
-    // Open Graph tags
+    /** Open Graph tags for social media sharing */
     updateMetaTag("og:title", title, true);
     updateMetaTag("og:description", description, true);
     updateMetaTag("og:image", image, true);
@@ -75,7 +73,7 @@ export function SEO({
     updateMetaTag("og:type", type, true);
     updateMetaTag("og:site_name", "Precast", true);
 
-    // Twitter Card tags
+    /** Twitter Card tags for Twitter sharing */
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", title);
     updateMetaTag("twitter:description", description);
@@ -83,7 +81,7 @@ export function SEO({
     updateMetaTag("twitter:site", "@buungroup");
     updateMetaTag("twitter:creator", "@buungroup");
 
-    // Article specific tags
+    /** Article specific tags */
     if (type === "article") {
       if (publishedTime) {
         updateMetaTag("article:published_time", publishedTime, true);
@@ -94,7 +92,7 @@ export function SEO({
       updateMetaTag("article:author", author, true);
     }
 
-    // Canonical URL
+    /** Canonical URL to prevent duplicate content issues */
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement("link");
@@ -103,7 +101,7 @@ export function SEO({
     }
     canonicalLink.setAttribute("href", canonical);
 
-    // JSON-LD structured data
+    /** JSON-LD structured data for search engines */
     if (jsonLd) {
       const script = document.createElement("script");
       script.type = "application/ld+json";
@@ -111,7 +109,7 @@ export function SEO({
       script.setAttribute("data-seo-jsonld", "true");
       document.head.appendChild(script);
 
-      // Cleanup function to remove the script
+      /** Cleanup function to remove the script */
       return () => {
         const oldScript = document.querySelector('script[data-seo-jsonld="true"]');
         if (oldScript) {
@@ -136,7 +134,10 @@ export function SEO({
   return null;
 }
 
-// Pre-configured SEO components for common pages
+/**
+ * Pre-configured SEO components for common pages.
+ * These components provide page-specific SEO settings.
+ */
 export function HomePageSEO() {
   const jsonLd = {
     "@context": "https://schema.org",

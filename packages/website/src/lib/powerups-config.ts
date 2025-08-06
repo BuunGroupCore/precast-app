@@ -26,6 +26,10 @@ import {
   SiReactrouter,
 } from "react-icons/si";
 
+/**
+ * Configuration for additional development tools and extensions.
+ * Includes dependencies, framework compatibility, and categorization.
+ */
 export interface PowerUp {
   id: string;
   name: string;
@@ -42,21 +46,34 @@ export interface PowerUp {
     | "workflow"
     | "api"
     | "routing";
-  frameworks?: string[]; // Compatible frameworks, * for all
-  dependencies?: string[]; // Required dependencies
-  requiresBackend?: boolean; // Only show when backend is selected
-  beta?: boolean; // Is this power-up in beta?
+  /** Compatible frameworks, * for all */
+  frameworks?: string[];
+  /** Required dependencies */
+  dependencies?: string[];
+  /** Only show when backend is selected */
+  requiresBackend?: boolean;
+  /** Is this power-up in beta? */
+  beta?: boolean;
+  /** Recommendation configuration */
   recommended?: {
-    frameworks?: string[]; // Recommended for these frameworks
-    backends?: string[]; // Recommended for these backends
-    databases?: string[]; // Recommended for these databases
-    styling?: string[]; // Recommended for these styling solutions
-    reason?: string; // Why it's recommended
+    /** Recommended for these frameworks */
+    frameworks?: string[];
+    /** Recommended for these backends */
+    backends?: string[];
+    /** Recommended for these databases */
+    databases?: string[];
+    /** Recommended for these styling solutions */
+    styling?: string[];
+    /** Why it's recommended */
+    reason?: string;
   };
 }
 
+/**
+ * Available power-ups (extensions) for enhancing project capabilities.
+ * Organized by category with dependency validation and framework compatibility.
+ */
 export const powerUps: PowerUp[] = [
-  // Documentation
   {
     id: "fumadocs",
     name: "Fumadocs",
@@ -91,7 +108,7 @@ export const powerUps: PowerUp[] = [
     },
   },
 
-  // Build Tools
+  /** Build Tools */
   {
     id: "turborepo",
     name: "Turborepo",
@@ -127,7 +144,7 @@ export const powerUps: PowerUp[] = [
     },
   },
 
-  // Git Workflow
+  /** Git Workflow */
   {
     id: "husky",
     name: "Husky",
@@ -153,7 +170,7 @@ export const powerUps: PowerUp[] = [
     frameworks: ["*"],
   },
 
-  // Linting & Formatting
+  /** Linting & Formatting */
   {
     id: "biome",
     name: "Biome",
@@ -183,7 +200,7 @@ export const powerUps: PowerUp[] = [
     frameworks: ["*"],
   },
 
-  // Testing
+  /** Testing */
   {
     id: "vitest",
     name: "Vitest",
@@ -217,7 +234,7 @@ export const powerUps: PowerUp[] = [
     frameworks: ["*"],
   },
 
-  // Monitoring & Analytics
+  /** Monitoring & Analytics */
   {
     id: "sentry",
     name: "Sentry",
@@ -254,7 +271,7 @@ export const powerUps: PowerUp[] = [
     frameworks: ["next", "nuxt", "react", "svelte"],
   },
 
-  // Optimization
+  /** Optimization */
   {
     id: "million",
     name: "Million.js",
@@ -281,7 +298,7 @@ export const powerUps: PowerUp[] = [
     frameworks: ["react", "next", "vue", "nuxt", "angular"],
   },
 
-  // Accessibility
+  /** Accessibility */
   {
     id: "axe-core",
     name: "Axe DevTools",
@@ -300,7 +317,7 @@ export const powerUps: PowerUp[] = [
     dependencies: ["react"],
   },
 
-  // SEO & Meta
+  /** SEO & Meta */
   {
     id: "next-seo",
     name: "Next SEO",
@@ -323,7 +340,7 @@ export const powerUps: PowerUp[] = [
     dependencies: ["react"],
   },
 
-  // Internationalization
+  /** Internationalization */
   {
     id: "next-intl",
     name: "Next-intl",
@@ -368,7 +385,7 @@ export const powerUps: PowerUp[] = [
     beta: true,
   },
 
-  // Image Optimization
+  /** Image Optimization */
   {
     id: "sharp",
     name: "Sharp",
@@ -386,7 +403,7 @@ export const powerUps: PowerUp[] = [
     frameworks: ["*"],
   },
 
-  // Routing
+  /** Routing */
   {
     id: "tanstack-router",
     name: "TanStack Router",

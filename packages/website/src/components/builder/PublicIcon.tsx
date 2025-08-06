@@ -5,8 +5,11 @@ interface PublicIconProps {
   className?: string;
 }
 
+/**
+ * Renders an icon from the public/icons directory with proper sizing and styling.
+ * Automatically handles different file extensions and converts text-* classes to width/height.
+ */
 export const PublicIcon: React.FC<PublicIconProps> = ({ name, className = "" }) => {
-  // Handle special cases for different file extensions
   const getIconPath = (iconName: string) => {
     if (iconName === "precast") {
       return `/icons/${iconName}.png`;
@@ -14,9 +17,8 @@ export const PublicIcon: React.FC<PublicIconProps> = ({ name, className = "" }) 
     return `/icons/${iconName}.svg`;
   };
 
-  // Extract text-size classes to convert to width/height
   const sizeMatch = className.match(/text-(\w+)/);
-  let sizeClasses = "w-6 h-6"; // default size
+  let sizeClasses = "w-6 h-6";
 
   if (sizeMatch) {
     const size = sizeMatch[1];
@@ -47,7 +49,6 @@ export const PublicIcon: React.FC<PublicIconProps> = ({ name, className = "" }) 
     }
   }
 
-  // Remove text-* classes from className since they don't apply to img
   const cleanedClassName = className.replace(/text-\w+/g, "").trim();
 
   return (

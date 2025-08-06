@@ -1,0 +1,41 @@
+{{#ifEquals framework "react"}}
+import React from 'react';
+{{/ifEquals}}
+{{#ifEquals framework "next"}}
+import '../src/app/globals.css'; // Adjust path as needed
+{{/ifEquals}}
+{{#ifEquals framework "vue"}}
+import { setup } from '@storybook/vue3';
+{{/ifEquals}}
+
+/** @type { import('@storybook/{{#if framework}}{{#ifEquals framework "react"}}react{{/ifEquals}}{{#ifEquals framework "next"}}react{{/ifEquals}}{{#ifEquals framework "vue"}}vue3{{/ifEquals}}{{#ifEquals framework "angular"}}angular{{/ifEquals}}{{#ifEquals framework "svelte"}}svelte{{/ifEquals}}{{#ifEquals framework "solid"}}html{{/ifEquals}}{{else}}react{{/if}}').Preview } */
+const preview = {
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/i,
+      },
+    },
+    actions: { argTypesRegex: "^on[A-Z].*" },
+{{#ifEquals framework "next"}}
+    nextjs: {
+      appDirectory: true,
+    },
+{{/ifEquals}}
+  },
+{{#ifEquals framework "vue"}}
+  setup: (app) => {
+    // Add any global Vue plugins, components, or directives here
+    // app.use(router);
+    // app.component('MyComponent', MyComponent);
+  },
+{{/ifEquals}}
+{{#ifEquals framework "angular"}}
+  decorators: [
+    // Add global decorators here
+  ],
+{{/ifEquals}}
+};
+
+export default preview;

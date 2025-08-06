@@ -1,0 +1,56 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Homepage', () => {
+  test('has title', async ({ page }) => {
+    await page.goto('/');
+
+    // Expect a title "to contain" a substring.
+    await expect(page).toHaveTitle(/{{#if framework}}{{#ifEquals framework "next"}}Next.js{{/ifEquals}}{{#ifEquals framework "react"}}React App{{/ifEquals}}{{#ifEquals framework "vue"}}Vue{{/ifEquals}}{{#ifEquals framework "angular"}}Angular{{/ifEquals}}{{#ifEquals framework "svelte"}}Svelte{{/ifEquals}}{{#ifEquals framework "solid"}}Solid{{/ifEquals}}{{#ifEquals framework "remix"}}Remix{{/ifEquals}}{{#ifEquals framework "astro"}}Astro{{/ifEquals}}{{#ifEquals framework "nuxt"}}Nuxt{{/ifEquals}}{{else}}App{{/if}}/);
+  });
+
+  test('get started link', async ({ page }) => {
+    await page.goto('/');
+
+    // Click the get started link.
+    const getStarted = page.getByRole('link', { name: /get started/i });
+    
+    // Check if the link exists (it might not in all frameworks)
+    if (await getStarted.count() > 0) {
+      await getStarted.click();
+      
+      // Expects page to have a heading with the name of Installation.
+      await expect(page.getByRole('heading', { name: /installation/i })).toBeVisible();
+    }
+  });
+});
+
+test.describe('Navigation', () => {
+  test('main navigation works', async ({ page }) => {
+    await page.goto('/');
+    
+    // Test that the page loads without errors
+    await expect(page).not.toHaveTitle(/404/);
+    
+    // Add more navigation tests specific to your app
+  });
+});
+
+test.describe('Accessibility', () => {
+  test('should not have any automatically detectable accessibility issues', async ({ page }) => {
+    await page.goto('/');
+    
+    // Basic accessibility checks
+    // For more comprehensive testing, consider @axe-core/playwright
+    
+    // Check for alt text on images
+    const images = await page.locator('img').all();
+    for (const img of images) {
+      const alt = await img.getAttribute('alt');
+      expect(alt).toBeTruthy();
+    }
+    
+    // Check for proper heading hierarchy
+    const h1Count = await page.locator('h1').count();
+    expect(h1Count).toBeGreaterThan(0);
+  });
+});

@@ -17,7 +17,6 @@ interface SettingsDialogProps {
 
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [settings, setSettings] = useState<UserSettings>({
-    // Default values
     preferredFramework: "react",
     preferredBackend: "node",
     preferredDatabase: "postgres",
@@ -37,7 +36,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
   });
   const [saved, setSaved] = useState(false);
 
-  // Load settings on component mount
   useEffect(() => {
     loadSettings();
   }, []);
@@ -62,7 +60,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
         createdAt: settings.createdAt || now,
       };
 
-      // Check if settings exist, update or create
       const existingSettings = await db.userSettings.orderBy("updatedAt").last();
       if (existingSettings) {
         await db.userSettings.put({ ...settingsToSave, id: existingSettings.id });

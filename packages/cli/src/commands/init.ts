@@ -66,6 +66,8 @@ export interface InitOptions {
   ai?: string;
   /** MCP servers to include with Claude AI */
   mcpServers?: string[];
+  /** Powerups to include (monitoring, testing, linting tools) */
+  powerups?: string[];
 }
 
 /**

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   FaGithub,
   FaTwitter,
@@ -14,7 +14,7 @@ import {
   FaHeart,
 } from "react-icons/fa";
 import { SiNpm } from "react-icons/si";
-import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export function Footer() {
   return (

@@ -1,0 +1,69 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Production
+build
+dist
+out
+.next
+.nuxt
+.output
+public
+
+# Testing
+coverage
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Config files
+*.config.js
+*.config.ts
+vite.config.ts
+next.config.js
+nuxt.config.ts
+tailwind.config.js
+postcss.config.js
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+*.log
+
+# Generated files
+*.min.js
+*.bundle.js
+*-lock.json
+*.lock
+
+# Storybook
+.storybook/main.js
+.storybook/preview.js
+storybook-static
+
+# Framework specific
+{{#ifEquals framework "next"}}
+.next
+next-env.d.ts
+{{/ifEquals}}
+{{#ifEquals framework "nuxt"}}
+.nuxt
+.output
+{{/ifEquals}}
+{{#ifEquals framework "angular"}}
+.angular
+{{/ifEquals}}
+{{#ifEquals framework "svelte"}}
+.svelte-kit
+{{/ifEquals}}

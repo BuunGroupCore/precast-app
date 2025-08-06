@@ -1,0 +1,40 @@
+import posthog from 'posthog-js';
+
+// Initialize PostHog only in the browser
+if (typeof window !== 'undefined') {
+  posthog.init(
+    import.meta.env.PUBLIC_POSTHOG_KEY,
+    {
+      api_host: import.meta.env.PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
+      person_profiles: 'identified_only',
+      capture_pageview: true, // Auto-capture page views for Astro
+    }
+  );
+}
+
+export { posthog };
+
+// Usage in an Astro component:
+// ---
+// // Component Script (runs on server)
+// ---
+// <script>
+//   import { posthog } from '../lib/posthog';
+//   
+//   // This runs on the client
+//   document.getElementById('track-button')?.addEventListener('click', () => {
+//     posthog.capture('button_clicked', {
+//       button_name: 'signup'
+//     });
+//   });
+// </script>
+
+// Or create a PostHog component:
+// <!-- components/PostHogPageView.astro -->
+// <script>
+//   import { posthog } from '../lib/posthog';
+//   
+//   if (typeof window !== 'undefined') {
+//     posthog.capture('$pageview');
+//   }
+// </script>

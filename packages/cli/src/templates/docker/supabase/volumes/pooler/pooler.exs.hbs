@@ -1,0 +1,36 @@
+# Pooler configuration for {{name}}
+# This configuration is evaluated by Supavisor at startup
+
+alias Supavisor.Api.Tenant
+
+# Create tenant for the project
+{:ok, _tenant} = Tenant.create_tenant(%{
+  "external_id" => "${POOLER_TENANT_ID}",
+  "default_pool_size" => "${POOLER_DEFAULT_POOL_SIZE}",
+  "max_client_conn" => "${POOLER_MAX_CLIENT_CONN}",
+  "default_parameter" => "",
+  "require_user" => false,
+  "auth_query" => "SELECT rolname FROM pg_authid WHERE rolname=$1;",
+  "users" => [
+    %{
+      "db_user" => "postgres",
+      "db_password" => "${POSTGRES_PASSWORD}",
+      "pool_size" => 25,
+      "mode_type" => "transaction",
+      "is_manager" => true,
+      "max_client_conn" => 25
+    },
+    %{
+      "db_user" => "authenticator", 
+      "db_password" => "${POSTGRES_PASSWORD}",
+      "pool_size" => 25,
+      "mode_type" => "transaction",
+      "is_manager" => false,
+      "max_client_conn" => 25
+    }
+  ],
+  "db_host" => "${POSTGRES_HOST}",
+  "db_port" => "${POSTGRES_PORT}",
+  "db_database" => "${POSTGRES_DB}",
+  "ip_version" => "auto"
+})

@@ -30,6 +30,7 @@ export interface ProjectConfig {
   authProvider?: string;
   apiClient?: string;
   mcpServers?: string[];
+  powerups?: string[];
 }
 
 // Stack definitions without React Icons (for CLI usage)
@@ -102,6 +103,25 @@ export const frameworkDefs: StackOption[] = [
     id: "vanilla",
     name: "Vanilla",
     description: "Plain JavaScript, no framework",
+  },
+  {
+    id: "react-native",
+    name: "React Native",
+    description: "Build native mobile apps using React",
+    dependencies: ["react"],
+    recommended: ["typescript"],
+  },
+  {
+    id: "tanstack-start",
+    name: "TanStack Start",
+    description: "Full-stack React framework powered by TanStack Router",
+    dependencies: ["react"],
+    recommended: ["typescript", "tailwind"],
+  },
+  {
+    id: "none",
+    name: "None",
+    description: "No frontend framework - backend only or custom setup",
   },
 ];
 
@@ -220,6 +240,13 @@ export const ormDefs: StackOption[] = [
     incompatible: ["supabase", "firebase", "none"],
   },
   {
+    id: "mongoose",
+    name: "Mongoose",
+    description: "Elegant MongoDB object modeling for Node.js",
+    dependencies: ["node"],
+    incompatible: ["postgres", "mysql", "supabase", "firebase", "none"],
+  },
+  {
     id: "none",
     name: "None",
     description: "No ORM",
@@ -267,24 +294,6 @@ export const runtimeDefs: StackOption[] = [
     id: "deno",
     name: "Deno",
     description: "Secure runtime for JavaScript and TypeScript",
-    recommended: ["typescript"],
-  },
-  {
-    id: "cloudflare-workers",
-    name: "Cloudflare Workers",
-    description: "Serverless execution environment",
-    recommended: ["typescript"],
-  },
-  {
-    id: "vercel-edge",
-    name: "Vercel Edge Runtime",
-    description: "Edge runtime for serverless functions",
-    recommended: ["typescript"],
-  },
-  {
-    id: "aws-lambda",
-    name: "AWS Lambda",
-    description: "Serverless compute service",
     recommended: ["typescript"],
   },
 ];

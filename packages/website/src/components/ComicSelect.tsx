@@ -43,10 +43,8 @@ export const ComicSelect: React.FC<ComicSelectProps> = ({
     if (!option.icon) return null;
 
     if (typeof option.icon === "string") {
-      // Handle string icons (from public/icons)
       return <img src={`/icons/${option.icon}.svg`} alt={option.name} className="w-5 h-5" />;
     } else {
-      // Handle React Icons
       const Icon = option.icon as IconType;
       return <Icon className={`text-lg ${option.color || ""}`} />;
     }

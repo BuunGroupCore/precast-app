@@ -1,0 +1,34 @@
+import posthog from 'posthog-js';
+
+// Initialize PostHog
+if (typeof window !== 'undefined') {
+  posthog.init(process.env.REACT_APP_POSTHOG_KEY, {
+    api_host: process.env.REACT_APP_POSTHOG_HOST || 'https://app.posthog.com',
+    person_profiles: 'identified_only',
+    capture_pageview: false, // Disable automatic pageview capture, we'll do it manually
+    capture_pageleave: true,
+    // Privacy settings
+    property_blacklist: ['$ip'], // Don't capture IP
+    // Debug mode in development
+    loaded: (posthog) => {
+      if (process.env.NODE_ENV === 'development') posthog.debug();
+    },
+  });
+}
+
+export { posthog };
+
+// Example usage with React Router:
+// import { useEffect } from 'react';
+// import { useLocation } from 'react-router-dom';
+// import { posthog } from './posthog';
+//
+// function App() {
+//   const location = useLocation();
+//
+//   useEffect(() => {
+//     posthog.capture('$pageview');
+//   }, [location]);
+//
+//   return <div>Your app</div>;
+// }

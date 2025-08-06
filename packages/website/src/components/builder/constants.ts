@@ -13,7 +13,9 @@ import { DaisyUIIcon } from "../icons/DaisyUIIcon";
 
 import type { AIAssistant, UILibrary, PackageManager, DeploymentMethod } from "./types";
 
-// AI Assistant options
+/**
+ * Available AI assistant integrations with their configurations and file templates.
+ */
 export const aiAssistants: AIAssistant[] = [
   {
     id: "none",
@@ -56,7 +58,9 @@ export const aiAssistants: AIAssistant[] = [
   },
 ];
 
-// Package manager options
+/**
+ * Supported package managers for dependency installation.
+ */
 export const packageManagers: PackageManager[] = [
   {
     id: "npm",
@@ -81,7 +85,9 @@ export const packageManagers: PackageManager[] = [
   },
 ];
 
-// Deployment method options
+/**
+ * Available deployment platforms and hosting services.
+ */
 export const deploymentMethods: DeploymentMethod[] = [
   {
     id: "none",
@@ -127,7 +133,9 @@ export const deploymentMethods: DeploymentMethod[] = [
   },
 ];
 
-// UI Component Libraries with framework dependencies
+/**
+ * UI component libraries with their framework compatibility and requirements.
+ */
 export const uiLibraries: UILibrary[] = [
   {
     id: "none",
@@ -140,7 +148,7 @@ export const uiLibraries: UILibrary[] = [
   {
     id: "daisyui",
     name: "DaisyUI",
-    icon: DaisyUIIcon as any,
+    icon: DaisyUIIcon,
     color: "text-pink-500",
     description: "Beautiful Tailwind CSS components with semantic class names",
     frameworks: ["*"], // Available for all frameworks

@@ -28,6 +28,10 @@ import { BuilderPageSEO } from "../components/SEO";
 import { db, type SavedProject } from "../lib/db";
 import { backends, databases, frameworks, orms, stylings } from "../lib/stack-config";
 
+/**
+ * Interactive project builder page for creating full-stack applications.
+ * Provides a visual interface for selecting frameworks, databases, styling, and more.
+ */
 export function BuilderPage() {
   const [config, setConfig] = useState<ExtendedProjectConfig>({
     name: "my-awesome-project",
@@ -56,7 +60,6 @@ export function BuilderPage() {
   const [saved, setSaved] = useState(false);
   const [showPreferredStacks, setShowPreferredStacks] = useState(false);
 
-  // Default configuration
   const defaultConfig: ExtendedProjectConfig = {
     name: "my-awesome-project",
     framework: "react",
@@ -89,7 +92,6 @@ export function BuilderPage() {
     }));
   };
 
-  // Load saved projects and user settings on mount
   useEffect(() => {
     loadSavedProjects();
     loadUserSettings();
@@ -99,7 +101,7 @@ export function BuilderPage() {
     try {
       const userSettings = await db.userSettings.orderBy("updatedAt").last();
       if (userSettings) {
-        // Apply user settings as new defaults
+        /** Apply user settings as new defaults */
         const newDefaults: ExtendedProjectConfig = {
           name: "my-awesome-project",
           framework: userSettings.preferredFramework || "react",
@@ -134,11 +136,9 @@ export function BuilderPage() {
   };
 
   const saveProject = async () => {
-    // Check if project with same name already exists
     const existingProject = savedProjects.find((p) => p.name === config.name);
 
     if (existingProject) {
-      // Update existing project
       const updatedProject: SavedProject = {
         ...config,
         id: existingProject.id,
@@ -147,7 +147,6 @@ export function BuilderPage() {
       };
       await db.savedProjects.put(updatedProject);
     } else {
-      // Create new project
       const project: SavedProject = {
         ...config,
         createdAt: new Date(),
@@ -194,7 +193,7 @@ export function BuilderPage() {
     const parts = [prefix];
     parts.push(config.name);
 
-    // Required options
+    /** Required options */
     parts.push(`--framework=${config.framework}`);
     parts.push(`--backend=${config.backend || "none"}`);
     parts.push(`--database=${config.database || "none"}`);
@@ -202,22 +201,21 @@ export function BuilderPage() {
     parts.push(`--styling=${config.styling}`);
     parts.push(`--runtime=${config.runtime || "node"}`);
 
-    // Auth option (CLI supports this)
+    /** Auth option (CLI supports this) */
     if (config.auth && config.auth !== "none") {
       parts.push(`--auth=${config.auth}`);
     }
 
-    // AI Assistant option
     if (config.aiAssistant && config.aiAssistant !== "none") {
       parts.push(`--ai=${config.aiAssistant}`);
     }
 
-    // Package manager
+    /** Package manager */
     if (config.packageManager && config.packageManager !== "bun") {
       parts.push(`--pm=${config.packageManager}`);
     }
 
-    // Boolean flags
+    /** Boolean flags */
     if (!config.typescript) {
       parts.push("--no-typescript");
     }
@@ -234,7 +232,7 @@ export function BuilderPage() {
       parts.push("--install");
     }
 
-    // MCP Servers (only if AI assistant is selected)
+    /** MCP Servers (only if AI assistant is selected) */
     if (
       config.aiAssistant &&
       config.aiAssistant !== "none" &&
@@ -244,14 +242,17 @@ export function BuilderPage() {
       parts.push(`--mcp-servers=${config.mcpServers.join(",")}`);
     }
 
-    // Add --yes flag to skip all prompts
+    /** Powerups */
+    if (config.powerups && config.powerups.length > 0) {
+      parts.push(`--powerups=${config.powerups.join(",")}`);
+    }
+
     parts.push("--yes");
 
-    // These options are not supported by the CLI yet, so we'll comment them out
-    // TODO: Add these to the CLI
-    // --ui (uiLibrary)
-    // --deploy (deploymentMethod)
-    // --powerups
+    /** These options are not supported by the CLI yet, so we'll comment them out
+     * --ui (uiLibrary)
+     * --deploy (deploymentMethod)
+     */
 
     return parts.join(" ");
   };

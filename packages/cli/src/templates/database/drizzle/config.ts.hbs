@@ -1,0 +1,24 @@
+{{#if typescript}}import type { Config } from 'drizzle-kit'{{/if}}
+
+/**
+ * Drizzle configuration
+ * @description Configuration for Drizzle Kit migrations and schema management
+ */
+{{#if typescript}}export default {{/if}}{
+  schema: './src/db/schema.{{#if typescript}}ts{{else}}js{{/if}}',
+  out: './src/db/migrations',
+  {{#if (eq database "postgres")}}
+  driver: 'pg',
+  {{else if (eq database "mysql")}}
+  driver: 'mysql2',
+  {{/if}}
+  dbCredentials: {
+    {{#if (eq database "postgres")}}
+    connectionString: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
+    {{else if (eq database "mysql")}}
+    connectionString: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
+    {{/if}}
+  },
+  verbose: true,
+  strict: true,
+}{{#if typescript}} satisfies Config{{/if}}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [{{#ifEquals framework "next"}}".next/**", "!.next/cache/**"{{else ifEquals framework "vite"}}"dist/**"{{else ifEquals framework "nuxt"}}.nuxt/**", ".output/**"{{else}}"dist/**", "build/**"{{/ifEquals}}]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"]
+    },
+    "type-check": {
+      "dependsOn": ["^type-check"]
+    }
+  }
+}

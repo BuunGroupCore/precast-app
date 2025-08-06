@@ -1,0 +1,55 @@
+name: {{name}}
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: {{name}}-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: {{name}}
+    ports:
+      - "27017:27017"
+    volumes:
+      - {{name}}_mongodb_data:/data/db
+      - {{name}}_mongodb_config:/data/configdb
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    command: mongod --auth
+
+  # Optional: Mongo Express for database management
+  mongo-express:
+    image: mongo-express:latest
+    container_name: {{name}}-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+
+volumes:
+  {{name}}_mongodb_data:
+    driver: local
+  {{name}}_mongodb_config:
+    driver: local
+
+networks:
+  {{name}}_network:
+    driver: bridge

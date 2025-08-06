@@ -1,0 +1,24 @@
+import { createI18n } from 'vue-i18n';
+
+// Import locale messages
+import en from './locales/en.json';
+import es from './locales/es.json';
+import fr from './locales/fr.json';
+
+const messages = {
+  en,
+  es,
+  fr
+};
+
+const i18n = createI18n({
+  legacy: false, // Use Composition API
+  locale: 'en', // Default locale
+  fallbackLocale: 'en',
+  messages,
+  globalInjection: true,
+  missingWarn: {{#ifEquals nodeEnv "development"}}true{{else}}false{{/ifEquals}},
+  fallbackWarn: {{#ifEquals nodeEnv "development"}}true{{else}}false{{/ifEquals}}
+});
+
+export default i18n;

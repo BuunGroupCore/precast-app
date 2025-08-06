@@ -1,0 +1,17 @@
+import posthog from 'posthog-js';
+
+// Initialize PostHog
+posthog.init(import.meta.env.VITE_POSTHOG_KEY || '', {
+  api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
+  loaded: (posthog) => {
+    if (import.meta.env.DEV) {
+      // Disable in development if needed
+      // posthog.opt_out_capturing();
+    }
+  },
+  autocapture: true,
+  capture_pageview: true,
+  capture_pageleave: true,
+});
+
+export default posthog;

@@ -1,0 +1,48 @@
+module.exports = {
+  extends: [
+{{#if framework}}
+{{#ifEquals framework "react"}}
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+{{/ifEquals}}
+{{#ifEquals framework "next"}}
+    'next/core-web-vitals',
+{{/ifEquals}}
+{{#ifEquals framework "vue"}}
+    'plugin:vue/vue3-essential',
+    'eslint:recommended',
+{{/ifEquals}}
+{{#ifEquals framework "angular"}}
+    '@angular-eslint/recommended',
+{{/ifEquals}}
+{{#ifEquals framework "svelte"}}
+    'plugin:svelte/recommended',
+{{/ifEquals}}
+{{else}}
+    'eslint:recommended',
+{{/if}}
+    'prettier'
+  ],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': 'error',
+  },
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+{{#if typescript}}
+    parser: '@typescript-eslint/parser',
+{{/if}}
+  },
+{{#if typescript}}
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      extends: [
+        'plugin:@typescript-eslint/recommended',
+      ],
+    },
+  ],
+{{/if}}
+};

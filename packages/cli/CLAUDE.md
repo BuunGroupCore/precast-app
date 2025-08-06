@@ -1,126 +1,205 @@
-# create-precast-app CLI - Claude Code Context
+# Precast CLI - Context for Claude
 
-This is the Precast CLI tool for scaffolding modern full-stack web applications with optimal Claude Code integration.
+## Overview
 
-## Project Overview
+The Precast CLI (`create-precast-app`) is a TypeScript-based command-line tool that scaffolds modern full-stack web applications. It works in tandem with the Precast website's visual builder to provide both CLI and web-based project configuration experiences.
 
-The CLI is a TypeScript application built with Node.js that generates project templates for various frameworks. It includes built-in support for Claude Code, creating `.claude` folders with proper configuration for each generated project.
+## Architecture
 
-## Technology Stack
+### Core Components
 
-- **Language**: TypeScript
-- **Runtime**: Node.js
-- **CLI Framework**: Commander.js
-- **UI**: @clack/prompts
-- **Build Tool**: tsup
-- **Package Manager**: Bun (with npm fallback)
+1. **CLI Entry Point** (`src/cli.ts`)
+   - Main command orchestration using Commander.js
+   - Supports `init`, `add`, and feature commands
+   - Default command creates new projects
 
-## Project Structure
+2. **Commands** (`src/commands/`)
+   - `init.ts` - Primary project creation command
+   - `add.ts` - Add features to existing projects
+   - `add-features.ts` - Batch feature additions
 
-```
-packages/cli/
-├── src/
-│   ├── cli.ts              # Main CLI entry point
-│   ├── commands/           # CLI commands (init, add, etc.)
-│   ├── generators/         # Framework-specific generators
-│   ├── templates/          # Handlebars templates
-│   ├── utils/              # Utility functions
-│   │   ├── claude-setup.ts # Claude Code integration
-│   │   ├── banner.ts       # ASCII banner system
-│   │   └── ...
-│   └── core/               # Core functionality
-├── dist/                   # Built CLI files
-└── CLAUDE.md              # This file
-```
+3. **Generators** (`src/generators/`)
+   - Framework-specific template generators
+   - Each framework has its own generator (react, vue, angular, next, etc.)
+   - `base-generator.ts` - Shared generator logic
+   - Templates use Handlebars for dynamic content
+
+4. **Templates** (`src/templates/`)
+   - Handlebars templates organized by feature type
+   - Framework-specific templates in `frameworks/`
+   - Shared templates for auth, database, styling, etc.
+
+5. **Utilities** (`src/utils/`)
+   - `claude-setup.ts` - Generates Claude Code integration
+   - `package-manager.ts` - Smart package manager detection/fallback
+   - `database-setup.ts` - Database configuration
+   - `auth-setup.ts` - Authentication provider setup
+   - `ui-library-setup.ts` - UI component library integration
+   - `mcp-setup.ts` - MCP server configuration for Claude
+
+## Integration with Website Builder
+
+### How They Work Together
+
+1. **Website Builder** (`packages/website/src/pages/BuilderPage.tsx`)
+   - Visual interface for configuring project options
+   - Generates CLI commands based on user selections
+   - Provides preset templates and recommended stacks
+   - Saves user preferences to IndexedDB
+
+2. **Command Generation**
+   - Website builder creates complete CLI commands with all flags
+   - Users can copy commands directly from the web interface
+   - Example: `bunx create-precast-app@latest my-app --framework react --backend express --database postgres --orm prisma --styling tailwind --auth better-auth --install`
+
+3. **Shared Configuration** (`packages/shared/stack-config.ts`)
+   - Defines available frameworks, databases, ORMs, styling options
+   - Ensures consistency between CLI and website
+   - Single source of truth for supported technologies
 
 ## Key Features
 
-1. **Claude Code Integration**: Every generated project includes a `.claude` folder with project-specific settings.json
-2. **Smart Package Manager Fallback**: Detects problematic packages (like esbuild) with Bun and automatically falls back to npm
-3. **Custom Banner Support**: ASCII art banners for branding
-4. **Framework Support**: React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Remix, Astro, Vite, Vanilla
-5. **Full-Stack Configuration**: Database, ORM, authentication, styling, UI libraries
+### Claude Code Integration
+Every generated project includes:
+- `.claude/settings.json` with appropriate tool permissions
+- Project-specific `CLAUDE.md` documentation
+- MCP server configurations when selected
+- AI context files for better code understanding
+
+### Smart Package Manager Handling
+- Detects user's preferred package manager
+- Automatically falls back from Bun to npm for problematic packages
+- Handles esbuild, Prisma, and native module issues gracefully
+
+### Template System
+- Handlebars templates with conditional logic
+- Framework-specific file generation
+- Dynamic dependency management
+- Post-processing for TypeScript/JavaScript variants
+
+## Project Flow
+
+1. **User Interaction**
+   - Either: Use website builder to configure visually
+   - Or: Run CLI directly with flags or interactive prompts
+
+2. **Configuration Gathering**
+   - Validate user inputs
+   - Apply defaults for missing options
+   - Check compatibility between selections
+
+3. **Project Generation**
+   - Create project directory
+   - Copy and process templates
+   - Setup framework-specific files
+   - Configure selected features (auth, database, UI libs)
+
+4. **Post-Generation**
+   - Initialize git repository (optional)
+   - Install dependencies (optional)
+   - Setup Claude Code integration
+   - Display next steps to user
 
 ## Development Commands
 
 ```bash
-# Install dependencies
-bun install
-
 # Build the CLI
 bun run build
 
 # Test locally
 ./dist/cli.js init test-project
 
-# Run tests
-bun test
+# Run with specific options
+./dist/cli.js init my-app --framework next --database postgres --orm prisma
 
-# Lint and format
-bun run lint
-bun run format
+# Add features to existing project
+./dist/cli.js add auth --provider better-auth
+
+# Update template dependencies
+bun run update:templates
 ```
+
+## Configuration Options
+
+### Frameworks
+- React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Remix, Astro, Vite, Vanilla
+
+### Backends
+- Node.js, Express, Fastify, Nest.js, Hono, None
+
+### Databases
+- PostgreSQL, MySQL, SQLite, MongoDB, None
+
+### ORMs
+- Prisma, Drizzle, TypeORM, Mongoose, None
+
+### Styling
+- Tailwind CSS, CSS, SCSS, CSS Modules, Styled Components, Emotion
+
+### UI Libraries
+- shadcn/ui, DaisyUI, Material UI, Chakra UI, Ant Design, Mantine
+
+### Authentication
+- Better Auth, NextAuth, Clerk, Supabase Auth, Auth0, Firebase Auth
+
+### AI Assistance
+- Claude (with MCP servers), GitHub Copilot, None
 
 ## Important Implementation Details
 
-### Claude Setup (src/utils/claude-setup.ts)
-- Generates project-specific `.claude/settings.json` with appropriate permissions
-- Creates comprehensive CLAUDE.md files for each project
-- Adds `.claude/settings.local.json` to .gitignore automatically
+### Error Handling
+- Comprehensive validation before project creation
+- Clear error messages with suggested fixes
+- Rollback on failure to prevent partial installations
 
-### Package Manager Handling (src/utils/package-manager.ts)
-- Detects problematic packages for Bun (esbuild, prisma, native modules)
-- Automatically falls back to npm when issues are detected
-- Provides clear user feedback during the fallback process
+### Performance
+- Parallel dependency installation where possible
+- Template caching for faster generation
+- Minimal runtime dependencies
 
-### Template System
-- Uses Handlebars templates in `src/templates/`
-- Conditional file generation based on project configuration
-- Separate .ts.hbs and .js.hbs files (no conditional filenames)
+### Security
+- Automatic security audit after installation
+- Dependency vulnerability checks
+- Safe default configurations
 
-## Common Tasks
+## Testing
 
-### Adding a New Framework
-1. Create generator in `src/generators/[framework]-template.ts`
-2. Add templates in `src/templates/frameworks/[framework]/`
-3. Update framework definitions in `shared/stack-config.ts`
-4. Add framework-specific Claude permissions in `claude-setup.ts`
+The CLI includes comprehensive tests for:
+- Template generation
+- Package manager detection
+- Configuration validation
+- Feature additions
 
-### Updating Claude Integration
-- Modify `src/utils/claude-setup.ts` for settings.json generation
-- Update CLAUDE.md generation logic for project-specific content
-- Add new permissions as needed for different frameworks/tools
+Run tests with: `bun test`
 
-### Adding New CLI Commands
-1. Create command file in `src/commands/`
-2. Register in `src/cli.ts`
-3. Add any necessary utilities in `src/utils/`
+## Deployment
 
-## Testing Guidelines
+Published to npm as `create-precast-app`:
+```bash
+# Publish new version
+bun run publish:patch  # or minor/major
 
-- Always test with multiple package managers (npm, yarn, pnpm, bun)
-- Verify Claude integration creates proper .claude folder
-- Test fallback behavior with problematic packages
-- Ensure all frameworks generate correctly
+# Test package contents
+bun run pack:test
+```
 
-## Important Notes
+## Common Issues & Solutions
 
-- The CLI must be robust and handle all edge cases
-- Package manager fallbacks are critical for reliability
-- Claude integration should be automatic for all projects
-- Always validate user input and provide clear error messages
-- Maintain backward compatibility with existing projects
+1. **Bun Installation Failures**
+   - CLI automatically detects and falls back to npm
+   - User sees clear feedback about the fallback
 
-## Performance Considerations
+2. **Template Generation Errors**
+   - Validates all paths before writing
+   - Provides detailed error messages
 
-- Minimize template processing time
-- Use parallel operations where possible
-- Cache package manager detection results
-- Keep CLI bundle size reasonable
+3. **Dependency Conflicts**
+   - Uses specific version ranges
+   - Regular dependency updates via scripts
 
-## Security
+## Future Enhancements
 
-- Never include sensitive data in templates
-- Validate all user inputs
-- Use proper file permissions
-- Keep dependencies updated
+- Plugin system for custom generators
+- Remote template fetching
+- Project migration tools
+- Enhanced AI integration features

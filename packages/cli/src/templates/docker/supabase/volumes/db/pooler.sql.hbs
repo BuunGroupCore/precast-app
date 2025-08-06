@@ -1,0 +1,26 @@
+-- Pooler schema setup
+\c _supabase;
+
+-- Create schema for pooler metadata
+CREATE SCHEMA IF NOT EXISTS _pooler;
+ALTER SCHEMA _pooler OWNER TO supabase_admin;
+
+-- Create pooler configuration tracking
+CREATE TABLE IF NOT EXISTS _pooler.config (
+    id SERIAL PRIMARY KEY,
+    tenant_id TEXT UNIQUE NOT NULL,
+    default_pool_size INT DEFAULT 20,
+    max_client_conn INT DEFAULT 100,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert default config for this project
+INSERT INTO _pooler.config (tenant_id, default_pool_size, max_client_conn)
+VALUES ('{{name}}-tenant', 20, 100)
+ON CONFLICT (tenant_id) DO NOTHING;
+
+-- Grant permissions
+GRANT ALL ON SCHEMA _pooler TO supabase_admin;
+GRANT ALL ON TABLE _pooler.config TO supabase_admin;
+GRANT USAGE, SELECT ON SEQUENCE _pooler.config_id_seq TO supabase_admin;

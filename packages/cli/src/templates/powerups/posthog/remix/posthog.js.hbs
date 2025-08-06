@@ -1,0 +1,55 @@
+import posthog from 'posthog-js';
+
+// Initialize PostHog on the client side only
+if (typeof window !== 'undefined') {
+  posthog.init(
+    window.ENV?.POSTHOG_KEY || '',
+    {
+      api_host: window.ENV?.POSTHOG_HOST || 'https://app.posthog.com',
+      person_profiles: 'identified_only',
+      capture_pageview: false, // We'll capture manually
+    }
+  );
+}
+
+export { posthog };
+
+// Usage in root.tsx:
+// import { useLocation } from '@remix-run/react';
+// import { useEffect } from 'react';
+// import { posthog } from '~/posthog';
+//
+// export default function App() {
+//   const location = useLocation();
+//
+//   useEffect(() => {
+//     if (typeof window !== 'undefined') {
+//       posthog.capture('$pageview', {
+//         $current_url: location.pathname + location.search
+//       });
+//     }
+//   }, [location]);
+//
+//   return (
+//     <html>
+//       <head>
+//         <Meta />
+//         <Links />
+//       </head>
+//       <body>
+//         <Outlet />
+//         <ScrollRestoration />
+//         <Scripts />
+//         <script
+//           dangerouslySetInnerHTML={{
+//             __html: `window.ENV = ${JSON.stringify({
+//               POSTHOG_KEY: process.env.POSTHOG_KEY,
+//               POSTHOG_HOST: process.env.POSTHOG_HOST,
+//             })}`,
+//           }}
+//         />
+//         <LiveReload />
+//       </body>
+//     </html>
+//   );
+// }

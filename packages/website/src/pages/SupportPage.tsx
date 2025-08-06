@@ -283,7 +283,7 @@ export function SupportPage() {
               <p className="font-comic text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed">
                 Your donation helps us maintain Precast, add new features, and keep it
                 <span className="text-comic-yellow font-bold"> FREE AND OPEN SOURCE</span> for
-                everyone! Whether it's $1 or $100, every contribution makes a difference.
+                everyone! Whether it&apos;s $1 or $100, every contribution makes a difference.
               </p>
 
               <p className="font-comic text-base md:text-lg mb-8 opacity-90">

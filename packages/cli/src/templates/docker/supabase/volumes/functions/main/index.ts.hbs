@@ -1,0 +1,39 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+
+Deno.serve(async (req: Request) => {
+  const url = new URL(req.url);
+  const { pathname } = url;
+
+  // Health check endpoint
+  if (pathname === '/health') {
+    return new Response(
+      JSON.stringify({ 
+        message: "{{name}} Edge Functions are healthy!",
+        timestamp: new Date().toISOString()
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Connection': 'keep-alive'
+        }
+      }
+    );
+  }
+
+  // Default response
+  return new Response(
+    JSON.stringify({ 
+      message: "Welcome to {{name}} Edge Functions!",
+      paths: {
+        health: "/health",
+        docs: "https://supabase.com/docs/guides/functions"
+      }
+    }),
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'Connection': 'keep-alive'
+      }
+    }
+  );
+});

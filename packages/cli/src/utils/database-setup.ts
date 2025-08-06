@@ -1,0 +1,519 @@
+/* eslint-disable import/order */
+import path from "path";
+import { consola } from "consola";
+import fsExtra from "fs-extra";
+import type { ProjectConfig } from "../../../shared/stack-config.js";
+import { createTemplateEngine, type TemplateEngine } from "../core/template-engine.js";
+import { getTemplateRoot } from "./template-path.js";
+import { installDependencies } from "./package-manager.js";
+
+// eslint-disable-next-line import/no-named-as-default-member
+const { ensureDir, readFile, writeFile } = fsExtra;
+
+/**
+ * Setup database-specific files and configurations
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+export async function setupDatabase(config: ProjectConfig, projectPath: string): Promise<void> {
+  if (config.database === "none" || !config.orm || config.orm === "none") {
+    return;
+  }
+
+  consola.info(`🗄️ Setting up ${config.database} database with ${config.orm}...`);
+
+  const templateRoot = getTemplateRoot();
+  const templateEngine = createTemplateEngine(templateRoot);
+
+  // Determine the correct path for database files
+  let targetPath = projectPath;
+  if (config.backend && config.backend !== "none") {
+    // Monorepo structure - database setup goes in apps/api
+    targetPath = path.join(projectPath, "apps", "api");
+  }
+
+  // Handle database-specific setup first
+  await setupDatabaseSpecificFiles(config, targetPath, templateEngine);
+
+  // Then handle ORM setup
+  switch (config.orm) {
+    case "mongoose":
+      await setupMongoose(config, targetPath, templateEngine);
+      break;
+    case "prisma":
+      await setupPrisma(config, targetPath, templateEngine);
+      break;
+    case "drizzle":
+      await setupDrizzle(config, targetPath, templateEngine);
+      break;
+    case "typeorm":
+      await setupTypeORM(config, targetPath, templateEngine);
+      break;
+    default:
+      consola.warn(`Unknown ORM: ${config.orm}`);
+  }
+
+  consola.success(`✅ Database setup completed for ${config.database} with ${config.orm}!`);
+}
+
+/**
+ * Setup Mongoose for MongoDB
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupMongoose(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  consola.info("Setting up Mongoose configuration...");
+
+  // Create directories
+  const directories = ["src/database", "src/database/models", "src/database/scripts"];
+
+  for (const dir of directories) {
+    await ensureDir(path.join(projectPath, dir));
+  }
+
+  // Copy database connection file
+  const templateRoot = getTemplateRoot();
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/mongoose/connection.ts.hbs"),
+    path.join(projectPath, "src/database", config.typescript ? "connection.ts" : "connection.js"),
+    config
+  );
+
+  // Copy User model example
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/mongoose/models/User.ts.hbs"),
+    path.join(projectPath, "src/database/models", config.typescript ? "User.ts" : "User.js"),
+    config
+  );
+
+  // Copy seed script
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/mongoose/scripts/seed.js.hbs"),
+    path.join(projectPath, "src/database/scripts", "seed.js"),
+    config
+  );
+
+  // Create .env.example with MongoDB URI
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("MONGODB_URI")) {
+    envContent += `\n# MongoDB Configuration\nMONGODB_URI=mongodb://localhost:27017/${config.name}\n`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+
+  consola.success("✅ Mongoose setup completed!");
+}
+
+/**
+ * Setup database-specific configuration files
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupDatabaseSpecificFiles(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  switch (config.database) {
+    case "postgres":
+      await setupPostgreSQL(config, projectPath);
+      break;
+    case "mysql":
+      await setupMySQL(config, projectPath);
+      break;
+    case "mongodb":
+      await setupMongoDB(config, projectPath);
+      break;
+    case "supabase":
+      await setupSupabase(config, projectPath, templateEngine);
+      break;
+    case "firebase":
+      await setupFirebase(config, projectPath, templateEngine);
+      break;
+    default:
+    // No specific database setup needed
+  }
+}
+
+/**
+ * Setup PostgreSQL configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+async function setupPostgreSQL(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("Setting up PostgreSQL configuration...");
+
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("DATABASE_URL")) {
+    const dbUrl = `postgresql://postgres:password@localhost:5432/${config.name.replace(/-/g, "_")}`;
+    envContent += `\n# PostgreSQL Configuration\nDATABASE_URL=${dbUrl}\n`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+}
+
+/**
+ * Setup MySQL configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+async function setupMySQL(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("Setting up MySQL configuration...");
+
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("DATABASE_URL")) {
+    const dbUrl = `mysql://root:password@localhost:3306/${config.name.replace(/-/g, "_")}`;
+    envContent += `\n# MySQL Configuration\nDATABASE_URL=${dbUrl}\n`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+}
+
+/**
+ * Setup MongoDB configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+async function setupMongoDB(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("Setting up MongoDB configuration...");
+
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("MONGODB_URI")) {
+    envContent += `\n# MongoDB Configuration\nMONGODB_URI=mongodb://localhost:27017/${config.name}\n`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+}
+
+/**
+ * Setup Supabase configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupSupabase(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  consola.info("Setting up Supabase configuration...");
+
+  // Install Supabase dependencies
+  await installDependencies(["@supabase/supabase-js"], {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  if (config.typescript) {
+    await installDependencies(["@types/node"], {
+      packageManager: config.packageManager,
+      projectPath,
+      dev: true,
+    });
+  }
+
+  // Create Supabase client configuration
+  await ensureDir(path.join(projectPath, "src", "lib"));
+
+  const templateRoot = getTemplateRoot();
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/supabase/client.ts.hbs"),
+    path.join(projectPath, "src/lib", config.typescript ? "supabase.ts" : "supabase.js"),
+    config
+  );
+
+  // Setup environment variables
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("SUPABASE_URL")) {
+    envContent += `\n# Supabase Configuration\nSUPABASE_URL=your-supabase-project-url\nSUPABASE_ANON_KEY=your-supabase-anon-key\n`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+}
+
+/**
+ * Setup Firebase configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupFirebase(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  consola.info("Setting up Firebase configuration...");
+
+  // Install Firebase dependencies
+  await installDependencies(["firebase"], {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  // Create Firebase configuration
+  await ensureDir(path.join(projectPath, "src", "lib"));
+
+  const templateRoot = getTemplateRoot();
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/firebase/config.ts.hbs"),
+    path.join(projectPath, "src/lib", config.typescript ? "firebase.ts" : "firebase.js"),
+    config
+  );
+
+  // Setup environment variables
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("FIREBASE_API_KEY")) {
+    envContent += `\n# Firebase Configuration\nFIREBASE_API_KEY=your-firebase-api-key\nFIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com\nFIREBASE_PROJECT_ID=your-project-id\nFIREBASE_STORAGE_BUCKET=your-project.appspot.com\nFIREBASE_MESSAGING_SENDER_ID=123456789\nFIREBASE_APP_ID=1:123456789:web:abcdef123456\n`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+}
+
+/**
+ * Setup Prisma ORM
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupPrisma(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  consola.info("Setting up Prisma ORM...");
+
+  // Install Prisma dependencies
+  await installDependencies(["@prisma/client"], {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  await installDependencies(["prisma"], {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: true,
+  });
+
+  // Create Prisma schema
+  await ensureDir(path.join(projectPath, "prisma"));
+
+  const templateRoot = getTemplateRoot();
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/prisma/schema.prisma.hbs"),
+    path.join(projectPath, "prisma/schema.prisma"),
+    { ...config, databaseProvider: getDatabaseProvider(config.database) }
+  );
+
+  // Create Prisma client
+  await ensureDir(path.join(projectPath, "src", "lib"));
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/prisma/client.ts.hbs"),
+    path.join(projectPath, "src/lib", config.typescript ? "prisma.ts" : "prisma.js"),
+    config
+  );
+
+  consola.info("Run 'npx prisma migrate dev' to create your first migration");
+}
+
+/**
+ * Setup Drizzle ORM
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupDrizzle(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  consola.info("Setting up Drizzle ORM...");
+
+  // Install Drizzle dependencies based on database
+  const drizzlePackages = ["drizzle-orm"];
+  const devPackages = ["drizzle-kit"];
+
+  switch (config.database) {
+    case "postgres":
+      drizzlePackages.push("pg");
+      if (config.typescript) {
+        devPackages.push("@types/pg");
+      }
+      break;
+    case "mysql":
+      drizzlePackages.push("mysql2");
+      break;
+    default:
+      break;
+  }
+
+  await installDependencies(drizzlePackages, {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  await installDependencies(devPackages, {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: true,
+  });
+
+  // Create Drizzle configuration
+  await ensureDir(path.join(projectPath, "src", "db"));
+
+  const templateRoot = getTemplateRoot();
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/drizzle/config.ts.hbs"),
+    path.join(projectPath, "drizzle.config.ts"),
+    { ...config, databaseProvider: getDatabaseProvider(config.database) }
+  );
+
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/drizzle/connection.ts.hbs"),
+    path.join(projectPath, "src/db", config.typescript ? "connection.ts" : "connection.js"),
+    { ...config, databaseProvider: getDatabaseProvider(config.database) }
+  );
+
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/drizzle/schema.ts.hbs"),
+    path.join(projectPath, "src/db", config.typescript ? "schema.ts" : "schema.js"),
+    config
+  );
+
+  consola.info("Run 'npx drizzle-kit push' to sync your schema with the database");
+}
+
+/**
+ * Setup TypeORM
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupTypeORM(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  consola.info("Setting up TypeORM...");
+
+  // Install TypeORM dependencies
+  const typeormPackages = ["typeorm", "reflect-metadata"];
+  const devPackages: string[] = [];
+
+  switch (config.database) {
+    case "postgres":
+      typeormPackages.push("pg");
+      if (config.typescript) {
+        devPackages.push("@types/pg");
+      }
+      break;
+    case "mysql":
+      typeormPackages.push("mysql2");
+      break;
+    default:
+      break;
+  }
+
+  await installDependencies(typeormPackages, {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  if (devPackages.length > 0) {
+    await installDependencies(devPackages, {
+      packageManager: config.packageManager,
+      projectPath,
+      dev: true,
+    });
+  }
+
+  // Create TypeORM configuration
+  await ensureDir(path.join(projectPath, "src", "entity"));
+  await ensureDir(path.join(projectPath, "src", "migration"));
+
+  const templateRoot = getTemplateRoot();
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/typeorm/data-source.ts.hbs"),
+    path.join(projectPath, "src", config.typescript ? "data-source.ts" : "data-source.js"),
+    { ...config, databaseProvider: getDatabaseProvider(config.database) }
+  );
+
+  await templateEngine.processTemplate(
+    path.join(templateRoot, "database/typeorm/entity/User.ts.hbs"),
+    path.join(projectPath, "src/entity", config.typescript ? "User.ts" : "User.js"),
+    config
+  );
+
+  consola.info("Run 'npm run typeorm migration:generate' to create migrations");
+}
+
+/**
+ * Get the database provider name for ORM configurations
+ * @param database - Database type
+ * @returns Provider name
+ */
+function getDatabaseProvider(database: string): string {
+  switch (database) {
+    case "postgres":
+    case "supabase":
+      return "postgresql";
+    case "mysql":
+      return "mysql";
+    case "mongodb":
+      return "mongodb";
+    default:
+      return "postgresql";
+  }
+}

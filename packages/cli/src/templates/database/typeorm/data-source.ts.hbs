@@ -1,0 +1,69 @@
+import 'reflect-metadata'
+import { DataSource } from 'typeorm'
+import { User } from './entity/User{{#if typescript}}.js{{/if}}'
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required')
+}
+
+/**
+ * TypeORM Data Source configuration
+ * @description Main configuration for TypeORM database connection
+ */
+export const AppDataSource = new DataSource({
+  {{#if (eq database "postgres")}}
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  {{else if (eq database "mysql")}}
+  type: 'mysql',
+  url: process.env.DATABASE_URL,
+  {{/if}}
+  synchronize: process.env.NODE_ENV === 'development',
+  logging: process.env.NODE_ENV === 'development',
+  entities: [User],
+  migrations: ['src/migration/**/*.{{#if typescript}}ts{{else}}js{{/if}}'],
+  subscribers: ['src/subscriber/**/*.{{#if typescript}}ts{{else}}js{{/if}}'],
+  {{#if (eq database "postgres")}}
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  {{/if}}
+})
+
+/**
+ * Initialize database connection
+ * @description Establishes connection to the database
+ */
+export async function initializeDatabase(): Promise<void> {
+  try {
+    await AppDataSource.initialize()
+    console.log('✅ Database connection established successfully')
+  } catch (error) {
+    console.error('❌ Error during database initialization:', error)
+    process.exit(1)
+  }
+}
+
+/**
+ * Close database connection
+ * @description Gracefully closes the database connection
+ */
+export async function closeDatabase(): Promise<void> {
+  try {
+    await AppDataSource.destroy()
+    console.log('✅ Database connection closed')
+  } catch (error) {
+    console.error('❌ Error closing database connection:', error)
+  }
+}
+
+/**
+ * Graceful shutdown handler
+ */
+process.on('SIGINT', async () => {
+  await closeDatabase()
+  process.exit(0)
+})
+
+process.on('SIGTERM', async () => {
+  await closeDatabase()
+  process.exit(0)
+})

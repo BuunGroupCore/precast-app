@@ -68,19 +68,19 @@ const apiOptions: ApiOption[] = [
 export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Initialize with "none" if not set
+  /** Initialize with "none" if not set */
   useEffect(() => {
     if (!config.apiClient && config.backend && config.backend !== "none") {
       setConfig((prev) => ({ ...prev, apiClient: "none" }));
     }
   }, [config.apiClient, config.backend, setConfig]);
 
-  // Only show if backend is selected and not "none"
+  /** Only show if backend is selected and not "none" */
   if (!config.backend || config.backend === "none") {
     return null;
   }
 
-  // Filter compatible API options
+  /** Filter compatible API options */
   const compatibleOptions = apiOptions.filter((option) => {
     const backendMatch =
       option.compatibleBackends.includes("*") || option.compatibleBackends.includes(config.backend);

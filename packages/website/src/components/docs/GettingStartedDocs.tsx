@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { CodeBlock } from "../CodeBlock";
 
 export function GettingStartedDocs() {
@@ -8,8 +7,8 @@ export function GettingStartedDocs() {
         <h2 className="font-display text-2xl text-comic-blue mb-4">Overview</h2>
         <p className="font-comic mb-4">
           PRECAST is a powerful CLI tool that helps you scaffold modern web applications with your
-          preferred technology stack. It's designed to save you time and ensure best practices from
-          the start.
+          preferred technology stack. It&apos;s designed to save you time and ensure best practices
+          from the start.
         </p>
         <div className="bg-comic-yellow/20 p-4 rounded-lg border-2 border-comic-black">
           <p className="font-comic font-bold">Key Features:</p>

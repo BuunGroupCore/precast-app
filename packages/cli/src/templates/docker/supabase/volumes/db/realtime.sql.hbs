@@ -1,0 +1,11 @@
+-- Realtime extension setup
+CREATE SCHEMA IF NOT EXISTS _realtime;
+ALTER SCHEMA _realtime OWNER TO postgres;
+
+-- Create realtime functions and triggers
+-- This sets up basic realtime functionality
+-- Full implementation would require the official Supabase realtime extension
+
+-- Enable realtime for public schema by default
+-- Users can customize this as needed
+COMMENT ON SCHEMA _realtime IS 'Supabase realtime schema for {{name}}';

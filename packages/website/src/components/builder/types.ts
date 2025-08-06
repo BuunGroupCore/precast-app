@@ -2,7 +2,9 @@ import { IconType } from "react-icons";
 
 import { type SavedProject } from "../../lib/db";
 
-// Extended config type to include AI and UI libraries
+/**
+ * Extended project configuration including all builder options and integrations.
+ */
 export interface ExtendedProjectConfig
   extends Omit<SavedProject, "id" | "createdAt" | "updatedAt"> {
   aiAssistant?: string;
@@ -17,7 +19,9 @@ export interface ExtendedProjectConfig
   apiClient?: string;
 }
 
-// AI Assistant options
+/**
+ * Configuration for AI assistant integrations.
+ */
 export interface AIAssistant {
   id: string;
   name: string;
@@ -28,7 +32,9 @@ export interface AIAssistant {
   beta?: boolean;
 }
 
-// UI Component Libraries with framework dependencies
+/**
+ * Configuration for UI component libraries and their framework dependencies.
+ */
 export interface UILibrary {
   id: string;
   name: string;
@@ -40,7 +46,9 @@ export interface UILibrary {
   beta?: boolean;
 }
 
-// Package Manager option
+/**
+ * Configuration for package managers.
+ */
 export interface PackageManager {
   id: string;
   name: string;
@@ -49,7 +57,7 @@ export interface PackageManager {
   description: string;
 }
 
-// Deployment Method option
+/** Deployment Method option */
 export interface DeploymentMethod {
   id: string;
   name: string;

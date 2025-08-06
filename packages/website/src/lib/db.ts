@@ -1,5 +1,9 @@
-import Dexie, { Table } from "dexie";
+import { Dexie, Table } from "dexie";
 
+/**
+ * Saved project configuration stored in the local database.
+ * Contains complete stack selection and metadata for persistence.
+ */
 export interface SavedProject {
   id?: number;
   name: string;
@@ -15,9 +19,12 @@ export interface SavedProject {
   updatedAt: Date;
 }
 
+/**
+ * User preferences and default settings for the project builder.
+ * Stores preferred technology choices and configuration defaults.
+ */
 export interface UserSettings {
   id?: number;
-  // Preferred defaults
   preferredFramework?: string;
   preferredBackend?: string;
   preferredDatabase?: string;
@@ -28,16 +35,18 @@ export interface UserSettings {
   preferredUILibrary?: string;
   preferredPackageManager?: string;
   preferredDeployment?: string;
-  // Default toggles
   defaultTypescript?: boolean;
   defaultGit?: boolean;
   defaultDocker?: boolean;
   defaultAutoInstall?: boolean;
-  // Meta
   createdAt: Date;
   updatedAt: Date;
 }
 
+/**
+ * Local database for storing user projects and settings.
+ * Uses IndexedDB through Dexie for client-side persistence.
+ */
 export class PrecastDatabase extends Dexie {
   savedProjects!: Table<SavedProject>;
   userSettings!: Table<UserSettings>;

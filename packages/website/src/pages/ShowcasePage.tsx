@@ -1,9 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   FaGithub,
-  FaExternalLinkAlt,
   FaStar,
   FaEye,
   FaCode,
@@ -15,6 +13,24 @@ import {
   FaChevronRight,
   FaPlus,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
+interface GitHubLabel {
+  name: string;
+}
+
+interface GitHubUser {
+  login: string;
+}
+
+interface GitHubIssue {
+  number: number;
+  title: string;
+  body: string;
+  user: GitHubUser;
+  created_at: string;
+  labels: GitHubLabel[];
+}
 
 interface ShowcaseProject {
   id: number;
@@ -28,6 +44,10 @@ interface ShowcaseProject {
   labels: string[];
 }
 
+/**
+ * Community showcase page displaying user-submitted projects built with the stack builder.
+ * Fetches projects from GitHub issues and provides search and pagination functionality.
+ */
 export function ShowcasePage() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<ShowcaseProject[]>([]);
@@ -43,7 +63,7 @@ export function ShowcasePage() {
 
   const fetchShowcaseProjects = async () => {
     try {
-      // GitHub API to fetch issues with 'showcase' label
+      /** Fetch issues with 'showcase' label from GitHub API */
       const response = await fetch(
         "https://api.github.com/repos/BuunGroupCore/precast-app/issues?labels=showcase&state=open",
         {
@@ -59,25 +79,23 @@ export function ShowcasePage() {
 
       const issues = await response.json();
 
-      // Parse GitHub issues into showcase projects
-      const parsedProjects: ShowcaseProject[] = issues.map((issue: any) => {
-        // Parse issue body for project details (supporting both form and template formats)
+      const parsedProjects: ShowcaseProject[] = issues.map((issue: GitHubIssue) => {
         const body = issue.body || "";
 
-        // Enhanced parsing to handle multiple formats
+        /** Enhanced parsing to handle multiple formats */
         const demoMatch = body.match(/(?:\*\*Demo URL:\*\*|Demo URL:)\s*(https?:\/\/[^\s\n]+)/i);
         const repoMatch = body.match(
           /(?:\*\*Repository:\*\*|Repository:)\s*(https?:\/\/[^\s\n]+)/i
         );
         const techMatch = body.match(/(?:\*\*Tech Stack:\*\*|Tech Stack:)\s*(.+)/i);
 
-        // Try to extract description from structured format
+        /** Try to extract description from structured format */
         let description = "";
         const descMatch = body.match(/(?:\*\*Description:\*\*|Description:)\s*(.+)/i);
         if (descMatch) {
           description = descMatch[1].trim();
         } else {
-          // Fallback to first meaningful line
+          /** Fallback to first meaningful line */
           const lines = body
             .split("\n")
             .filter(
@@ -92,7 +110,7 @@ export function ShowcasePage() {
 
         const project = {
           id: issue.number,
-          title: issue.title.replace(/^\[Showcase\]\s*/i, ""), // Clean title
+          title: issue.title.replace(/^\[Showcase\]\s*/i, "") /** Clean title */,
           description: description.trim(),
           demoUrl: demoMatch ? demoMatch[1].trim() : undefined,
           repoUrl: repoMatch ? repoMatch[1].trim() : undefined,
@@ -104,15 +122,8 @@ export function ShowcasePage() {
             : [],
           author: issue.user.login,
           createdAt: issue.created_at,
-          labels: issue.labels.map((label: any) => label.name),
+          labels: issue.labels.map((label: GitHubLabel) => label.name),
         };
-
-        // Debug logging
-        console.log(`Project ${project.title}:`, {
-          demoUrl: project.demoUrl,
-          repoUrl: project.repoUrl,
-          hasDemo: !!project.demoUrl,
-        });
 
         return project;
       });
@@ -120,14 +131,13 @@ export function ShowcasePage() {
       setProjects(parsedProjects);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-      // No fallback data - only show real projects
+      /** No fallback data - only show real projects */
       setProjects([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter projects based on search term
   const filteredProjects = projects.filter(
     (project) =>
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -135,12 +145,12 @@ export function ShowcasePage() {
       project.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
+  /** Pagination logic */
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
   const startIndex = (currentPage - 1) * projectsPerPage;
   const paginatedProjects = filteredProjects.slice(startIndex, startIndex + projectsPerPage);
 
-  // Reset to page 1 when search changes
+  /** Reset to page 1 when search changes */
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -288,7 +298,7 @@ export function ShowcasePage() {
           {error && (
             <div className="comic-panel p-6 bg-comic-red text-comic-white mb-8 max-w-2xl mx-auto">
               <p className="font-comic">
-                <strong>Oops!</strong> Couldn't fetch live projects from GitHub. Showing some
+                <strong>Oops!</strong> Couldn&apos;t fetch live projects from GitHub. Showing some
                 example projects instead. {error}
               </p>
             </div>

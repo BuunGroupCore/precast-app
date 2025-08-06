@@ -1,6 +1,5 @@
-import React from "react";
 import { motion } from "framer-motion";
-import { FaBolt, FaRocket, FaCog } from "react-icons/fa";
+import { FaBolt, FaCog } from "react-icons/fa";
 
 interface ComicLoaderProps {
   message?: string;
@@ -224,7 +223,9 @@ export function ComicLoader({
   );
 }
 
-// Loading overlay component
+/**
+ * Full-screen loading overlay with optional message.
+ */
 export function LoadingOverlay({ message }: { message?: string }) {
   return (
     <motion.div

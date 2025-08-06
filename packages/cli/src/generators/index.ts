@@ -9,11 +9,14 @@ import { getTemplateRoot } from "../utils/template-path.js";
 import { generateAngularTemplate } from "./angular-template.js";
 import { generateAstroTemplate } from "./astro-template.js";
 import { generateNextTemplate } from "./next-template.js";
+import { generateNoneTemplate } from "./none-template.js";
 import { generateNuxtTemplate } from "./nuxt-template.js";
+import { generateReactNativeTemplate } from "./react-native-template.js";
 import { generateReactTemplate } from "./react-template.js";
 import { generateRemixTemplate } from "./remix-template.js";
 import { generateSolidTemplate } from "./solid-template.js";
 import { generateSvelteTemplate } from "./svelte-template.js";
+import { generateTanStackStartTemplate } from "./tanstack-start-template.js";
 import { generateVanillaTemplate } from "./vanilla-template.js";
 import { generateViteTemplate } from "./vite-template.js";
 import { generateVueTemplate } from "./vue-template.js";
@@ -58,6 +61,15 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     case "vanilla":
       await generateVanillaTemplate(config, projectPath);
       break;
+    case "react-native":
+      await generateReactNativeTemplate(config, projectPath);
+      break;
+    case "tanstack-start":
+      await generateTanStackStartTemplate(config, projectPath);
+      break;
+    case "none":
+      await generateNoneTemplate(config, projectPath);
+      break;
     default:
       throw new Error(`Unknown framework: ${config.framework}`);
   }
@@ -82,7 +94,42 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     await setupAIContextFiles(config, projectPath, templateEngine);
   }
 
+  // Setup database-specific files and configurations
+  if (config.orm && config.orm !== "none") {
+    try {
+      const { setupDatabase } = await import("../utils/database-setup.js");
+      await setupDatabase(config, projectPath);
+    } catch (error) {
+      logger.warn(`Failed to setup database configuration: ${error}`);
+    }
+  }
+
   if (config.authProvider) {
     await setupAuthentication(config, config.authProvider);
+  }
+
+  // Setup powerups (monitoring, testing, linting tools)
+  if (config.powerups && config.powerups.length > 0) {
+    try {
+      const { setupPowerUps } = await import("../utils/powerups-setup.js");
+      await setupPowerUps(projectPath, config.framework, config.powerups, config.typescript);
+    } catch (error) {
+      logger.warn(`Failed to setup powerups: ${error}`);
+    }
+  }
+
+  // Setup Docker configuration if requested
+  if (config.docker && config.database && config.database !== "none") {
+    logger.info(`🐳 Setting up Docker compose for ${config.database}...`);
+    try {
+      const { setupDockerCompose } = await import("../utils/docker-setup.js");
+      await setupDockerCompose(config, projectPath);
+      logger.success("✅ Docker setup completed!");
+    } catch (error) {
+      logger.warn(`Failed to setup Docker configuration: ${error}`);
+      console.error("Docker setup error:", error);
+    }
+  } else {
+    logger.debug(`Docker setup skipped - docker: ${config.docker}, database: ${config.database}`);
   }
 }

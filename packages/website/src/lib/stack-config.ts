@@ -61,7 +61,10 @@ export interface StackCategory {
   options: StackOption[];
 }
 
-// Framework definitions with dependencies
+/**
+ * Framework definitions with dependencies.
+ * Each framework can declare required dependencies and recommended technologies.
+ */
 export const frameworks: StackOption[] = [
   {
     id: "react",
@@ -159,7 +162,7 @@ export const frameworks: StackOption[] = [
   {
     id: "tanstack-start",
     name: "TanStack Start",
-    icon: TanStackIcon as any,
+    icon: TanStackIcon,
     color: "text-comic-orange",
     description: "Full-stack React framework powered by TanStack Router",
     dependencies: ["react"],
@@ -181,7 +184,10 @@ export const frameworks: StackOption[] = [
   },
 ];
 
-// Backend definitions with dependencies
+/**
+ * Backend framework definitions with dependencies.
+ * Includes Node.js frameworks, serverless options, and BaaS solutions.
+ */
 export const backends: StackOption[] = [
   {
     id: "node",
@@ -212,7 +218,7 @@ export const backends: StackOption[] = [
   {
     id: "hono",
     name: "Hono",
-    icon: HonoIcon as any,
+    icon: HonoIcon,
     color: "text-comic-orange",
     description: "Ultrafast web framework for the Edges",
     dependencies: ["node"],
@@ -239,7 +245,7 @@ export const backends: StackOption[] = [
   {
     id: "convex",
     name: "Convex",
-    icon: ConvexIcon as any,
+    icon: ConvexIcon,
     color: "text-comic-orange",
     description: "Backend-as-a-Service with real-time sync",
     recommended: ["typescript"],
@@ -253,7 +259,10 @@ export const backends: StackOption[] = [
   },
 ];
 
-// Database definitions with dependencies
+/**
+ * Database system definitions with dependencies.
+ * Includes SQL, NoSQL, and cloud database services.
+ */
 export const databases: StackOption[] = [
   {
     id: "postgres",
@@ -306,7 +315,10 @@ export const databases: StackOption[] = [
   },
 ];
 
-// ORM definitions with dependencies
+/**
+ * ORM (Object-Relational Mapping) definitions with dependencies.
+ * Provides database abstraction layers for different technologies.
+ */
 export const orms: StackOption[] = [
   {
     id: "prisma",
@@ -353,7 +365,10 @@ export const orms: StackOption[] = [
   },
 ];
 
-// Styling definitions
+/**
+ * Styling solution definitions.
+ * Includes CSS frameworks, preprocessors, and CSS-in-JS libraries.
+ */
 export const stylings: StackOption[] = [
   {
     id: "tailwind",
@@ -365,14 +380,14 @@ export const stylings: StackOption[] = [
   {
     id: "css",
     name: "CSS",
-    icon: CssIcon as any,
+    icon: CssIcon,
     color: "text-comic-blue",
     description: "Plain CSS",
   },
   {
     id: "scss",
     name: "SCSS",
-    icon: SassIcon as any,
+    icon: SassIcon,
     color: "text-comic-pink",
     description: "Sass CSS preprocessor",
   },
@@ -386,7 +401,10 @@ export const stylings: StackOption[] = [
   },
 ];
 
-// Runtime definitions
+/**
+ * JavaScript runtime environment definitions.
+ * Different execution environments for JavaScript/TypeScript code.
+ */
 export const runtimes: StackOption[] = [
   {
     id: "node",
@@ -414,12 +432,15 @@ export const runtimes: StackOption[] = [
   },
 ];
 
-// Authentication providers
+/**
+ * Authentication provider definitions.
+ * Complete authentication solutions with various integration options.
+ */
 export const authProviders: StackOption[] = [
   {
     id: "auth.js",
     name: "Auth.js",
-    icon: AuthJSIcon as any,
+    icon: AuthJSIcon,
     color: "text-comic-purple",
     description: "Complete open-source authentication solution (formerly NextAuth.js)",
     dependencies: ["react"],
@@ -435,7 +456,7 @@ export const authProviders: StackOption[] = [
   {
     id: "better-auth",
     name: "Better Auth",
-    icon: BetterAuthIcon as any,
+    icon: BetterAuthIcon,
     color: "text-comic-green",
     description: "Type-safe, framework-agnostic authentication library",
     recommended: ["typescript", "database"],
@@ -448,7 +469,7 @@ export const authProviders: StackOption[] = [
   {
     id: "passport",
     name: "Passport.js",
-    icon: PassportIcon as any,
+    icon: PassportIcon,
     color: "text-comic-blue",
     description: "Simple, unobtrusive authentication middleware for Node.js",
     dependencies: ["node"],
@@ -461,7 +482,7 @@ export const authProviders: StackOption[] = [
   {
     id: "clerk",
     name: "Clerk",
-    icon: ClerkIcon as any,
+    icon: ClerkIcon,
     color: "text-comic-purple",
     description: "Complete user management platform with built-in auth",
     dependencies: ["react"],
@@ -497,14 +518,16 @@ export const authProviders: StackOption[] = [
     dependencies: ["firebase"],
     recommended: ["typescript"],
   },
-  // {
-  //   id: "lucia",
-  //   name: "Lucia",
-  //   icon: LuciaIcon as any,
-  //   color: "text-comic-yellow",
-  //   description: "Simple and flexible authentication library",
-  //   recommended: ["typescript", "database"],
-  // },
+  /** Lucia auth provider - commented out for future implementation
+   * {
+   *   id: "lucia",
+   *   name: "Lucia",
+   *   icon: LuciaIcon,
+   *   color: "text-comic-yellow",
+   *   description: "Simple and flexible authentication library",
+   *   recommended: ["typescript", "database"],
+   * }
+   */
   {
     id: "none",
     name: "None",
@@ -514,7 +537,6 @@ export const authProviders: StackOption[] = [
   },
 ];
 
-// Additional options
 export const additionalOptions: StackOption[] = [
   {
     id: "typescript",
@@ -539,7 +561,11 @@ export const additionalOptions: StackOption[] = [
   },
 ];
 
-// Validation function to check if a configuration is valid
+/**
+ * Validates a project configuration for compatibility and dependencies.
+ * @param config The project configuration to validate
+ * @returns Object containing validation status and any error messages
+ */
 export function validateConfiguration(config: {
   framework: string;
   backend: string;
@@ -552,7 +578,6 @@ export function validateConfiguration(config: {
 }): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
-  // Check framework dependencies
   const framework = frameworks.find((f) => f.id === config.framework);
   if (framework?.dependencies) {
     for (const dep of framework.dependencies) {
@@ -562,13 +587,11 @@ export function validateConfiguration(config: {
     }
   }
 
-  // Check backend dependencies and incompatibilities
   const backend = backends.find((b) => b.id === config.backend);
   if (backend?.dependencies) {
     for (const dep of backend.dependencies) {
       if (dep === "node" && config.backend !== "node") {
-        // Express, Hono require Node.js
-        config.backend = "node"; // Auto-fix
+        config.backend = "node";
       }
     }
   }
@@ -576,13 +599,11 @@ export function validateConfiguration(config: {
     errors.push(`${backend.name} is incompatible with TypeScript`);
   }
 
-  // Check database dependencies and incompatibilities
   const database = databases.find((d) => d.id === config.database);
   if (database?.incompatible?.includes(config.orm) && config.orm !== "none") {
     errors.push(`${database.name} is incompatible with ${config.orm}`);
   }
 
-  // Check ORM dependencies and incompatibilities
   const orm = orms.find((o) => o.id === config.orm);
   if (orm?.dependencies) {
     for (const dep of orm.dependencies) {
@@ -598,7 +619,6 @@ export function validateConfiguration(config: {
     errors.push(`${orm.name} is incompatible with ${config.database}`);
   }
 
-  // Check styling dependencies
   const styling = stylings.find((s) => s.id === config.styling);
   if (
     styling?.dependencies?.includes("react") &&
@@ -613,7 +633,11 @@ export function validateConfiguration(config: {
   };
 }
 
-// Get recommendations based on current selection
+/**
+ * Generates technology recommendations based on current stack selections.
+ * @param config Partial project configuration
+ * @returns Object containing recommended technologies for each category
+ */
 export function getRecommendations(
   config: Partial<{
     framework: string;
@@ -629,9 +653,8 @@ export function getRecommendations(
   orm?: string[];
   styling?: string[];
 } {
-  const recommendations: any = {};
+  const recommendations: Record<string, string[]> = {};
 
-  // Get framework recommendations
   const framework = frameworks.find((f) => f.id === config.framework);
   if (framework?.recommended) {
     if (framework.recommended.includes("typescript")) {
@@ -640,13 +663,11 @@ export function getRecommendations(
     recommendations.styling = framework.recommended.filter((r) => stylings.some((s) => s.id === r));
   }
 
-  // Get backend recommendations
   const backend = backends.find((b) => b.id === config.backend);
   if (backend?.recommended) {
     recommendations.database = backend.recommended.filter((r) => databases.some((d) => d.id === r));
   }
 
-  // Get database recommendations
   const database = databases.find((d) => d.id === config.database);
   if (database?.recommended) {
     recommendations.orm = database.recommended.filter((r) => orms.some((o) => o.id === r));

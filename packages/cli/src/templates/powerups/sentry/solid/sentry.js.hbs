@@ -1,0 +1,47 @@
+import * as Sentry from "@sentry/browser";
+import { isServer } from 'solid-js/web';
+
+// Initialize Sentry only on client side
+if (!isServer) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+      }),
+    ],
+    tracesSampleRate: import.meta.env.MODE === "production" ? 0.1 : 1.0,
+    replaysSessionSampleRate: import.meta.env.MODE === "production" ? 0.1 : 0,
+    replaysOnErrorSampleRate: 1.0,
+    release: import.meta.env.VITE_APP_VERSION,
+  });
+}
+
+export { Sentry };
+
+// Usage in index.jsx:
+// import './sentry';
+// import { render } from 'solid-js/web';
+// import App from './App';
+//
+// render(() => <App />, document.getElementById('root'));
+
+// Error Boundary component:
+// import { ErrorBoundary } from 'solid-js';
+// import * as Sentry from "@sentry/browser";
+//
+// function SentryErrorBoundary(props) {
+//   return (
+//     <ErrorBoundary
+//       fallback={(err) => {
+//         Sentry.captureException(err);
+//         return <div>Something went wrong!</div>;
+//       }}
+//     >
+//       {props.children}
+//     </ErrorBoundary>
+//   );
+// }

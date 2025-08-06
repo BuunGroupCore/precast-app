@@ -1,0 +1,74 @@
+// Initial MongoDB setup for {{name}}
+// This file runs automatically when the MongoDB container is first created
+
+// Switch to the application database
+db = db.getSiblingDB('{{name}}');
+
+// Create application user with read/write permissions
+db.createUser({
+  user: '{{name}}_user',
+  pwd: 'password',
+  roles: [
+    {
+      role: 'readWrite',
+      db: '{{name}}'
+    }
+  ]
+});
+
+// Create collections with validation
+db.createCollection('users', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['email'],
+      properties: {
+        email: {
+          bsonType: 'string',
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+          description: 'must be a valid email address and is required'
+        },
+        name: {
+          bsonType: 'string',
+          description: 'user full name'
+        },
+        passwordHash: {
+          bsonType: 'string',
+          description: 'hashed password'
+        },
+        createdAt: {
+          bsonType: 'date'
+        },
+        updatedAt: {
+          bsonType: 'date'
+        }
+      }
+    }
+  }
+});
+
+// Create indexes for better performance
+db.users.createIndex({ email: 1 }, { unique: true });
+db.users.createIndex({ createdAt: -1 });
+
+// Create sessions collection for authentication
+db.createCollection('sessions');
+db.sessions.createIndex({ userId: 1 });
+db.sessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+// Create refresh tokens collection for JWT
+db.createCollection('refreshTokens');
+db.refreshTokens.createIndex({ token: 1 }, { unique: true });
+db.refreshTokens.createIndex({ userId: 1 });
+db.refreshTokens.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+// Insert a sample user (remove in production)
+db.users.insertOne({
+  email: 'admin@{{name}}.local',
+  name: 'Admin User',
+  passwordHash: 'change_this_hash',
+  createdAt: new Date(),
+  updatedAt: new Date()
+});
+
+print('MongoDB initialization completed for {{name}}');

@@ -14,14 +14,15 @@ interface UILibrariesSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * UI Libraries selection component with framework compatibility validation.
+ */
 export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, setConfig }) => {
-  // Check if UI library is compatible with selected framework
   const isUILibraryCompatible = (lib: (typeof uiLibraries)[0]) => {
     if (lib.frameworks.includes("*")) return true;
     return lib.frameworks.includes(config.framework);
   };
 
-  // Check if UI library requires certain styling
   const isUILibraryStyleCompatible = (lib: (typeof uiLibraries)[0]) => {
     if (!lib.requires) return true;
     return lib.requires.every((req) => {

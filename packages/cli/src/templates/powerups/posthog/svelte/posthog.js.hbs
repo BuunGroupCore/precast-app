@@ -1,0 +1,40 @@
+import posthog from 'posthog-js';
+import { browser } from '$app/environment';
+
+// Initialize PostHog only in the browser
+if (browser) {
+  posthog.init(
+    import.meta.env.VITE_POSTHOG_KEY,
+    {
+      api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
+      person_profiles: 'identified_only',
+      capture_pageview: false, // We'll capture manually
+    }
+  );
+}
+
+export { posthog };
+
+// Usage in +layout.svelte:
+// <script>
+//   import { page } from '$app/stores';
+//   import { posthog } from '$lib/posthog';
+//   import { browser } from '$app/environment';
+//
+//   $: if (browser && $page.url) {
+//     posthog.capture('$pageview', {
+//       $current_url: $page.url.href
+//     });
+//   }
+// </script>
+
+// Or in a component:
+// <script>
+//   import { posthog } from '$lib/posthog';
+//   
+//   function trackEvent() {
+//     posthog.capture('button_clicked', {
+//       button_name: 'signup'
+//     });
+//   }
+// </script>

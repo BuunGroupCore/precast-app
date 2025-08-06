@@ -13,18 +13,19 @@ interface PowerUpsSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * Power-ups selection component with dependency validation and categorization.
+ * Shows available extensions and tools based on current stack configuration.
+ */
 export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setConfig }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Check if a power-up's dependencies are satisfied and get missing requirements
   const getPowerUpStatus = (powerup: (typeof powerUps)[0]) => {
     const missingRequirements: string[] = [];
 
-    // Check framework compatibility
     if (powerup.frameworks && !powerup.frameworks.includes("*")) {
       if (!powerup.frameworks.includes(config.framework)) {
-        // Format framework names nicely
         const requiredFrameworks = powerup.frameworks.map((f) => {
           switch (f) {
             case "react":
@@ -55,10 +56,8 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
       }
     }
 
-    // Check dependencies
     if (powerup.dependencies) {
       for (const dep of powerup.dependencies) {
-        // Check if dependency is satisfied based on current config
         if (dep === "vite" && config.framework !== "vite") {
           missingRequirements.push("Vite framework");
         } else if (dep === "typescript" && !config.typescript) {
@@ -68,11 +67,9 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
         } else if (dep === "vue" && !["vue", "nuxt"].includes(config.framework)) {
           missingRequirements.push("Vue-based framework");
         }
-        // Add more dependency checks as needed
       }
     }
 
-    // Check if power-up is recommended for current stack
     let isRecommended = false;
     if (powerup.recommended) {
       const rec = powerup.recommended;
@@ -95,7 +92,6 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
     };
   };
 
-  // Get all power-ups with availability status
   const allPowerUpsWithStatus = powerUps.map((powerup) => {
     const status = getPowerUpStatus(powerup);
     return {
@@ -104,10 +100,8 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
     };
   });
 
-  // Filter available power-ups
   const availablePowerUps = allPowerUpsWithStatus.filter((p) => p.isAvailable);
 
-  // Filter by category (show all power-ups including disabled ones when expanded)
   const filteredPowerUps = isExpanded
     ? allPowerUpsWithStatus.filter((powerup) => {
         if (selectedCategory === "all") return true;
@@ -115,7 +109,6 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
       })
     : availablePowerUps;
 
-  // Get count of additional power-ups beyond the basic 3
   const additionalPowerUpsCount = availablePowerUps.length;
 
   const togglePowerUp = (powerupId: string) => {

@@ -1,12 +1,19 @@
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaGithub, FaHeart, FaCodeBranch, FaExclamationCircle, FaEye } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+
+interface GitHubRepoData {
+  stargazers_count: number;
+  forks_count: number;
+  watchers_count: number;
+  open_issues_count: number;
+}
 
 export function GitHubStars() {
   const [stars, setStars] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [repoData, setRepoData] = useState<any>(null);
+  const [repoData, setRepoData] = useState<GitHubRepoData | null>(null);
 
   useEffect(() => {
     fetch("https://api.github.com/repos/BuunGroupCore/precast-app")

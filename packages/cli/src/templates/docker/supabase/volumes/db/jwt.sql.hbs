@@ -1,0 +1,3 @@
+-- Set JWT secret and expiry
+ALTER DATABASE postgres SET "app.settings.jwt_secret" TO '${JWT_SECRET}';
+ALTER DATABASE postgres SET "app.settings.jwt_exp" TO '${JWT_EXP}';

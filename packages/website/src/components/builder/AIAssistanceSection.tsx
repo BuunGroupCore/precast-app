@@ -23,10 +23,10 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
   };
 
   const processTemplate = (template: string, config: ExtendedProjectConfig) => {
-    // Simple Handlebars-like template processing
+    /** Simple Handlebars-like template processing */
     let processed = template;
 
-    // Replace basic variables
+    /** Replace basic variables */
     processed = processed.replace(/\{\{name\}\}/g, config.name);
     processed = processed.replace(/\{\{projectName\}\}/g, config.name);
     processed = processed.replace(/\{\{framework\}\}/g, config.framework);
@@ -42,35 +42,36 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
     processed = processed.replace(/\{\{orm\}\}/g, config.orm);
     processed = processed.replace(/\{\{typescript\}\}/g, config.typescript ? "true" : "false");
 
-    // Process conditionals
-    // {{#if variable}}content{{/if}}
+    /** Process conditionals
+     * {{#if variable}}content{{/if}}
+     */
     processed = processed.replace(
       /\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-      (match, variable, content) => {
+      (_match, variable, content) => {
         const value = getConfigValue(variable, config);
         return value && value !== "none" && value !== "false" ? content : "";
       }
     );
 
-    // {{#if (eq variable "value")}}content{{/if}}
+    /** {{#if (eq variable "value")}}content{{/if}} */
     processed = processed.replace(
       /\{\{#if\s+\(eq\s+(\w+)\s+"([^"]+)"\)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-      (match, variable, compareValue, content) => {
+      (_match, variable, compareValue, content) => {
         const value = getConfigValue(variable, config);
         return value === compareValue ? content : "";
       }
     );
 
-    // {{#if (ne variable "value")}}content{{/if}}
+    /** {{#if (ne variable "value")}}content{{/if}} */
     processed = processed.replace(
       /\{\{#if\s+\(ne\s+(\w+)\s+'([^']+)'\)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-      (match, variable, compareValue, content) => {
+      (_match, variable, compareValue, content) => {
         const value = getConfigValue(variable, config);
         return value !== compareValue ? content : "";
       }
     );
 
-    // Clean up remaining Handlebars syntax
+    /** Clean up remaining Handlebars syntax */
     processed = processed.replace(/\{\{[^}]*\}\}/g, "");
 
     return processed.trim();
@@ -105,7 +106,7 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
   };
 
   const getFileContent = (fileName: string, aiId: string) => {
-    // Real CLI templates
+    /** Real CLI templates */
     const templates: { [key: string]: { [key: string]: string } } = {
       claude: {
         "CLAUDE.md": `# {{name}} - AI Assistant Context

@@ -135,13 +135,15 @@ export async function gatherProjectConfig(
       }
     }
   }
-  const docker = options.yes
-    ? false
-    : (options.docker ??
-      ((await confirm({
-        message: "Include Docker configuration?",
-        initialValue: false,
-      })) as boolean));
+  const docker =
+    options.docker !== undefined
+      ? options.docker
+      : options.yes
+        ? false
+        : ((await confirm({
+            message: "Include Docker configuration?",
+            initialValue: false,
+          })) as boolean);
   let uiLibrary: string | undefined = options.uiLibrary;
 
   if (styling === "tailwind" && !options.yes && !options.uiLibrary) {
@@ -312,5 +314,6 @@ export async function gatherProjectConfig(
     projectPath: "",
     language: typescript ? "typescript" : "javascript",
     mcpServers: options.mcpServers,
+    powerups: options.powerups,
   };
 }

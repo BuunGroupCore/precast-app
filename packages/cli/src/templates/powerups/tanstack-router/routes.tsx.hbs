@@ -1,0 +1,64 @@
+import { createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
+{{#if typescript}}
+import { z } from 'zod';
+{{/if}}
+
+// Import components
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import About from './pages/About';
+import NotFound from './pages/NotFound';
+
+// Create root route
+const rootRoute = createRootRoute({
+  component: Layout,
+});
+
+// Create child routes
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Home,
+});
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/about',
+  component: About,
+});
+
+{{#if typescript}}
+// Example route with search params validation
+const searchRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/search',
+  validateSearch: z.object({
+    q: z.string().optional(),
+    page: z.number().optional(),
+  }),
+  component: function Search({ useSearch }) {
+    const { q, page } = useSearch();
+    return <div>Search: {q}, Page: {page}</div>;
+  },
+});
+{{/if}}
+
+// Create the route tree
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  aboutRoute,
+  {{#if typescript}}searchRoute,{{/if}}
+]);
+
+// Create the router
+export const router = createRouter({
+  routeTree,
+  defaultNotFoundComponent: NotFound,
+});
+
+// Register router for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
+  }
+}

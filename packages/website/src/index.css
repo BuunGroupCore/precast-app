@@ -724,6 +724,33 @@ header nav button:hover::after {
   animation: spin 1s linear infinite;
 }
 
+/* Action Burst */
+.action-burst {
+  @apply relative;
+  clip-path: polygon(
+    30% 0%,
+    70% 0%,
+    100% 30%,
+    100% 70%,
+    70% 100%,
+    30% 100%,
+    0% 70%,
+    0% 30%
+  );
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
 /* Comic Dropdown Styling */
 .comic-select {
   @apply relative w-full p-3 pr-10 font-comic font-bold text-sm 

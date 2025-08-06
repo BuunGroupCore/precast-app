@@ -1,0 +1,55 @@
+{{#if typescript}}import { connectToDatabase, disconnectFromDatabase } from '../connection.js';
+import User from '../models/User.js';{{else}}const { connectToDatabase, disconnectFromDatabase } = require('../connection');
+const User = require('../models/User');{{/if}}
+
+/**
+ * Sample data for seeding the database
+ */
+const sampleUsers = [
+  {
+    name: 'John Doe',
+    email: 'john@example.com',
+  },
+  {
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+  },
+  {
+    name: 'Bob Johnson',
+    email: 'bob@example.com',
+  },
+];
+
+/**
+ * Seed the database with sample data
+ */
+async function seedDatabase() {
+  try {
+    console.log('🌱 Starting database seed...');
+    
+    // Connect to database
+    await connectToDatabase();
+    
+    // Clear existing users
+    await User.deleteMany({});
+    console.log('🗑️  Cleared existing users');
+    
+    // Insert sample users
+    const createdUsers = await User.insertMany(sampleUsers);
+    console.log(`✅ Created ${createdUsers.length} users`);
+    
+    console.log('🎉 Database seeded successfully!');
+  } catch (error) {
+    console.error('❌ Error seeding database:', error);
+    process.exit(1);
+  } finally {
+    await disconnectFromDatabase();
+  }
+}
+
+// Run the seed function
+if (require.main === module) {
+  seedDatabase();
+}
+
+{{#if typescript}}export default seedDatabase;{{else}}module.exports = seedDatabase;{{/if}}

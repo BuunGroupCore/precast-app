@@ -1,0 +1,116 @@
+-- Set up realtime
+ALTER ROLE postgres SET search_path TO "\$user", public, extensions;
+
+-- Create auth schema and user
+CREATE SCHEMA IF NOT EXISTS auth AUTHORIZATION postgres;
+
+-- Create realtime schema and user
+CREATE SCHEMA IF NOT EXISTS realtime AUTHORIZATION postgres;
+
+-- Create storage schema
+CREATE SCHEMA IF NOT EXISTS storage AUTHORIZATION postgres;
+
+-- Create supabase_admin user
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'supabase_admin'
+  ) THEN
+    CREATE ROLE supabase_admin LOGIN CREATEROLE CREATEDB REPLICATION BYPASSRLS;
+  END IF;
+END
+$do$;
+
+-- Create authenticator role
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'authenticator'
+  ) THEN
+    CREATE ROLE authenticator NOINHERIT LOGIN PASSWORD '${POSTGRES_PASSWORD}';
+  END IF;
+END
+$do$;
+
+-- Create anon role
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'anon'
+  ) THEN
+    CREATE ROLE anon NOINHERIT;
+  END IF;
+END
+$do$;
+
+-- Create authenticated role
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'authenticated'
+  ) THEN
+    CREATE ROLE authenticated NOINHERIT;
+  END IF;
+END
+$do$;
+
+-- Create service_role
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'service_role'
+  ) THEN
+    CREATE ROLE service_role NOINHERIT;
+  END IF;
+END
+$do$;
+
+-- Create auth admin
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'supabase_auth_admin'
+  ) THEN
+    CREATE ROLE supabase_auth_admin NOINHERIT CREATEROLE LOGIN PASSWORD '${POSTGRES_PASSWORD}';
+  END IF;
+END
+$do$;
+
+-- Create storage admin
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'supabase_storage_admin'
+  ) THEN
+    CREATE ROLE supabase_storage_admin NOINHERIT CREATEROLE LOGIN PASSWORD '${POSTGRES_PASSWORD}';
+  END IF;
+END
+$do$;
+
+-- Grant permissions
+GRANT ALL PRIVILEGES ON SCHEMA auth TO supabase_auth_admin;
+GRANT ALL PRIVILEGES ON SCHEMA storage TO supabase_storage_admin;
+
+-- Allow authenticator to switch to anon and authenticated roles
+GRANT anon, authenticated, service_role TO authenticator;
+
+-- Allow supabase_admin to switch to auth admin role
+GRANT supabase_auth_admin TO supabase_admin;
+GRANT supabase_storage_admin TO supabase_admin;
+
+-- Set up auth schema permissions
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_auth_admin IN SCHEMA auth GRANT ALL ON TABLES TO postgres, dashboard_user;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_auth_admin IN SCHEMA auth GRANT ALL ON FUNCTIONS TO postgres, dashboard_user;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_auth_admin IN SCHEMA auth GRANT ALL ON SEQUENCES TO postgres, dashboard_user;
+
+-- Set up storage schema permissions
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_storage_admin IN SCHEMA storage GRANT ALL ON TABLES TO postgres, dashboard_user;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_storage_admin IN SCHEMA storage GRANT ALL ON FUNCTIONS TO postgres, dashboard_user;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_storage_admin IN SCHEMA storage GRANT ALL ON SEQUENCES TO postgres, dashboard_user;

@@ -1,0 +1,42 @@
+import posthog from 'posthog-js';
+import { isServer } from 'solid-js/web';
+
+// Initialize PostHog only on client side
+if (!isServer) {
+  posthog.init(
+    import.meta.env.VITE_POSTHOG_KEY,
+    {
+      api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
+      person_profiles: 'identified_only',
+      capture_pageview: false, // We'll capture manually with router
+    }
+  );
+}
+
+export { posthog };
+
+// Usage with Solid Router:
+// import { useLocation } from '@solidjs/router';
+// import { createEffect } from 'solid-js';
+// import { posthog } from './posthog';
+//
+// function App() {
+//   const location = useLocation();
+//
+//   createEffect(() => {
+//     posthog.capture('$pageview', {
+//       $current_url: location.pathname
+//     });
+//   });
+//
+//   return <div>Your app</div>;
+// }
+
+// Helper hook for using PostHog in components
+export function usePostHog() {
+  return {
+    capture: (event, properties) => posthog.capture(event, properties),
+    identify: (userId, properties) => posthog.identify(userId, properties),
+    reset: () => posthog.reset(),
+  };
+}

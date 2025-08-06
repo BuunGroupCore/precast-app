@@ -1,0 +1,62 @@
+import { ErrorHandler, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import * as Sentry from "@sentry/angular";
+
+@Injectable()
+export class SentryErrorHandler implements ErrorHandler {
+  constructor() {}
+
+  handleError(error: Error): void {
+    Sentry.captureException(error);
+    console.error('Error captured by Sentry:', error);
+  }
+}
+
+export function initSentry() {
+  Sentry.init({
+    dsn: process.env['NG_APP_SENTRY_DSN'],
+    environment: process.env['NODE_ENV'] || 'development',
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+      }),
+    ],
+    tracesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.1 : 1.0,
+    replaysSessionSampleRate: process.env['NODE_ENV'] === 'production' ? 0.1 : 0,
+    replaysOnErrorSampleRate: 1.0,
+  });
+}
+
+// Usage in main.ts:
+// import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+// import { initSentry } from './app/sentry.service';
+// import { AppModule } from './app/app.module';
+//
+// initSentry();
+//
+// platformBrowserDynamic()
+//   .bootstrapModule(AppModule)
+//   .catch(err => console.error(err));
+
+// In app.module.ts:
+// import { ErrorHandler } from '@angular/core';
+// import { SentryErrorHandler } from './sentry.service';
+// import * as Sentry from "@sentry/angular";
+//
+// @NgModule({
+//   providers: [
+//     {
+//       provide: ErrorHandler,
+//       useClass: SentryErrorHandler,
+//     },
+//     {
+//       provide: Sentry.TraceService,
+//       deps: [Router],
+//     },
+//   ],
+// })
+// export class AppModule {
+//   constructor(trace: Sentry.TraceService) {}
+// }

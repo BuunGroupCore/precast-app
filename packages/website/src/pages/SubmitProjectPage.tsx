@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
   FaRocket,
@@ -10,10 +9,10 @@ import {
   FaUsers,
   FaStar,
   FaEye,
-  FaLink,
   FaTag,
   FaPaperPlane,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export function SubmitProjectPage() {
   const navigate = useNavigate();
@@ -458,7 +457,7 @@ export function SubmitProjectPage() {
 
             <p className="font-comic text-xl mb-8 max-w-3xl mx-auto">
               Your project could be the next inspiration for thousands of developers.
-              <strong className="text-comic-yellow"> Show the world what you've built!</strong>
+              <strong className="text-comic-yellow"> Show the world what you&apos;ve built!</strong>
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">

@@ -1,0 +1,53 @@
+name: {{name}}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: {{name}}-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: {{name}}
+    ports:
+      - "5432:5432"
+    volumes:
+      - {{name}}_postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+
+  # Optional: pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: {{name}}-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@{{name}}.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    volumes:
+      - {{name}}_pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  {{name}}_postgres_data:
+    driver: local
+  {{name}}_pgadmin_data:
+    driver: local
+
+networks:
+  {{name}}_network:
+    driver: bridge

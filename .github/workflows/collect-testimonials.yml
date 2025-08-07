@@ -70,7 +70,7 @@ jobs:
                 name: '',
                 role: '',
                 company: '',
-                avatar: '',
+                avatarSeed: '',
                 content: '',
                 rating: 5,
                 date: new Date().toISOString().split('T')[0],
@@ -112,11 +112,11 @@ jobs:
                     testimonialData.company = sameLine;
                     currentSection = '';
                   }
-                } else if (line.includes('**GitHub Username:**')) {
-                  currentSection = 'github';
+                } else if (line.includes('**Avatar Seed:**')) {
+                  currentSection = 'avatarSeed';
                   const sameLine = line.split(':**')[1]?.trim();
                   if (sameLine) {
-                    testimonialData.avatar = `https://github.com/${sameLine.replace('@', '')}.png`;
+                    testimonialData.avatarSeed = sameLine;
                     currentSection = '';
                   }
                 } else if (line.includes('**Project Type:**')) {
@@ -147,9 +147,8 @@ jobs:
                       testimonialData.company = line.trim();
                       currentSection = '';
                       break;
-                    case 'github':
-                      const username = line.trim().replace('@', '');
-                      testimonialData.avatar = `https://github.com/${username}.png`;
+                    case 'avatarSeed':
+                      testimonialData.avatarSeed = line.trim();
                       currentSection = '';
                       break;
                     case 'projectType':
@@ -179,6 +178,11 @@ jobs:
               
               // Clean up content
               testimonialData.content = testimonialData.content.trim();
+              
+              // Generate avatarSeed if not provided (use name + company as fallback)
+              if (!testimonialData.avatarSeed) {
+                testimonialData.avatarSeed = `${testimonialData.name}-${testimonialData.company}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
+              }
               
               // Add to testimonials array
               testimonials.push(testimonialData);

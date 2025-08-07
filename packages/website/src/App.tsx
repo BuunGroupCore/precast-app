@@ -30,6 +30,9 @@ const ShowcasePage = lazy(() =>
 const SubmitProjectPage = lazy(() =>
   import("@/pages/submit-project").then((module) => ({ default: module.SubmitProjectPage }))
 );
+const SubmitTestimonialPage = lazy(() =>
+  import("@/pages/submit-testimonial").then((module) => ({ default: module.SubmitTestimonialPage }))
+);
 const SupportPage = lazy(() =>
   import("@/pages/support").then((module) => ({ default: module.SupportPage }))
 );
@@ -102,6 +105,14 @@ function App() {
               element={
                 <Suspense fallback={<div className="min-h-screen"></div>}>
                   <SubmitProjectPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/submit-testimonial"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <SubmitTestimonialPage />
                 </Suspense>
               }
             />

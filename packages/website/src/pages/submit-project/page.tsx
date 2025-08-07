@@ -93,9 +93,9 @@ export function SubmitProjectPage() {
   ];
 
   return (
-    <div className="min-h-screen pt-40 pb-20">
+    <div className="min-h-screen pt-20 pb-20">
       {/* Back Button */}
-      <div className="max-w-7xl mx-auto px-4 mb-8">
+      <div className="max-w-7xl mx-auto px-4 mb-6">
         <button
           onClick={() => navigate("/showcase")}
           className="btn-comic bg-comic-white text-comic-black hover:bg-comic-yellow flex items-center gap-2"
@@ -112,7 +112,7 @@ export function SubmitProjectPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-8">
+          <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-12">
             SUBMIT YOUR PROJECT
           </h1>
           <div className="speech-bubble max-w-4xl mx-auto mb-12">
@@ -298,17 +298,15 @@ export function SubmitProjectPage() {
 
               {/* Submit Button */}
               <div className="text-center mt-8">
-                <motion.a
+                <a
                   href={generateGitHubUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                   className="btn-pow inline-flex items-center gap-3 text-2xl px-12 py-6"
                 >
                   <FaPaperPlane className="text-2xl" />
                   CREATE GITHUB ISSUE
-                </motion.a>
+                </a>
                 <p className="font-comic text-sm text-comic-black/70 mt-3">
                   This will open GitHub with your project details pre-filled
                 </p>
@@ -480,27 +478,23 @@ export function SubmitProjectPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <motion.a
+              <a
                 href={generateGitHubUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 className="btn-comic bg-comic-red text-comic-white hover:bg-comic-darkRed inline-flex items-center gap-3 text-xl px-8 py-4"
               >
                 <FaRocket />
                 SUBMIT NOW
-              </motion.a>
+              </a>
 
-              <motion.button
+              <button
                 onClick={() => navigate("/showcase")}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 className="btn-comic bg-comic-white text-comic-black hover:bg-comic-yellow inline-flex items-center gap-3 text-xl px-8 py-4"
               >
                 <FaEye />
                 VIEW SHOWCASE
-              </motion.button>
+              </button>
             </div>
           </div>
         </motion.div>

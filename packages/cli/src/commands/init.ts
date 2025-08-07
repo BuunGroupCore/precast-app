@@ -186,16 +186,16 @@ export async function initCommand(projectName: string | undefined, options: Init
             log.warn(`UI library setup failed. You can retry manually later.`);
           }
         }
-      }
 
-      if (config.apiClient && config.apiClient !== "none") {
-        s.start(`Setting up ${config.apiClient} for API communication`);
-        try {
-          await setupApiClient(config, projectPath);
-          s.stop(`API client setup completed`);
-        } catch {
-          s.stop(`Failed to setup API client`);
-          log.warn(`API client setup failed. You can retry manually later.`);
+        if (config.apiClient && config.apiClient !== "none") {
+          s.start(`Setting up ${config.apiClient} for API communication`);
+          try {
+            await setupApiClient(config, projectPath);
+            s.stop(`API client setup completed`);
+          } catch {
+            s.stop(`Failed to setup API client`);
+            log.warn(`API client setup failed. You can retry manually later.`);
+          }
         }
       }
 

@@ -1,0 +1,1 @@
+export { SubmitTestimonialPage } from "./page";

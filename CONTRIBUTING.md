@@ -108,6 +108,7 @@ precast-app/
 - **IDE**: VS Code with recommended extensions
 - **Terminal**: Modern terminal with Unicode support
 - **Browser**: Chrome/Firefox/Safari (latest versions)
+- **AI Assistant**: Claude, GitHub Copilot, or Gemini (see AI context files for setup)
 
 ### VS Code Extensions
 
@@ -486,8 +487,9 @@ bun test:e2e
 
 1. **Check existing issues** - See if your idea/bug is already reported
 2. **Read documentation** - Familiarize yourself with the codebase
-3. **Join discussions** - Participate in GitHub Discussions
-4. **Follow code style** - Use provided linting and formatting tools
+3. **Review AI context files** - Read CLAUDE.md, GEMINI.md, or .github/copilot-instructions.md for comprehensive project context
+4. **Join discussions** - Participate in GitHub Discussions
+5. **Follow code style** - Use provided linting and formatting tools
 
 ### Making Changes
 
@@ -577,6 +579,7 @@ Our CI pipeline runs:
 - **GitHub Discussions** - Questions and ideas
 - **Documentation** - Check docs first
 - **Code Comments** - Look for inline documentation
+- **AI Context Files** - Reference the AI assistant context files for comprehensive project understanding
 
 ### Response Times
 
@@ -661,6 +664,23 @@ graph TD
 - [CLI Architecture](packages/cli/src/docs/ARCHITECTURE.md)
 - [Website Documentation](packages/website/README.md)
 - [Telemetry Documentation](packages/cli/docs/TELEMETRY.md)
+
+### AI Assistant Context Files
+
+To ensure consistent development practices across different AI assistants, we maintain comprehensive context files:
+
+- **[CLAUDE.md](CLAUDE.md)** - Context for Claude AI assistant
+- **[GEMINI.md](GEMINI.md)** - Context for Google Gemini
+- **[.github/copilot-instructions.md](.github/copilot-instructions.md)** - GitHub Copilot instructions
+
+These files provide:
+- Complete project structure and architecture overview
+- Development guidelines and coding standards
+- Common patterns and best practices
+- Testing strategies and debugging tips
+- Quick reference for common tasks
+
+Whether you're using Claude, Gemini, GitHub Copilot, or any other AI assistant, these files ensure consistent understanding of the project's conventions and patterns.
 
 ### Learning Resources
 

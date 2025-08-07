@@ -31,6 +31,7 @@ async function fetchFrameworkData() {
   console.log("🔍 Fetching framework data...");
 
   try {
+    // First, try with custom dimensions
     const [response] = await analyticsDataClient.runReport({
       property: `properties/${GA_PROPERTY_ID}`,
       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
@@ -53,8 +54,31 @@ async function fetchFrameworkData() {
 
     return response.rows || [];
   } catch (error) {
-    console.error("❌ Error fetching framework data:", error.message);
-    return [];
+    console.warn(
+      "⚠️ Custom dimensions not available yet, falling back to basic event data:",
+      error.message
+    );
+
+    // Fallback: just get basic event counts
+    try {
+      const [response] = await analyticsDataClient.runReport({
+        property: `properties/${GA_PROPERTY_ID}`,
+        dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+        dimensions: [{ name: "eventName" }],
+        metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
+        dimensionFilter: {
+          filter: {
+            fieldName: "eventName",
+            stringFilter: { value: "project_created" },
+          },
+        },
+      });
+
+      return response.rows || [];
+    } catch (fallbackError) {
+      console.error("❌ Error fetching basic framework data:", fallbackError.message);
+      return [];
+    }
   }
 }
 
@@ -69,9 +93,7 @@ async function fetchFeatureData() {
       property: `properties/${GA_PROPERTY_ID}`,
       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
       dimensions: [
-        { name: "customEvent:feature_type" },
-        { name: "customEvent:ui_library" },
-        { name: "customEvent:ai_assistant" },
+        { name: "eventName" }, // Use standard dimension instead of custom ones that might not exist yet
       ],
       metrics: [{ name: "eventCount" }, { name: "totalUsers" }],
       dimensionFilter: {
@@ -84,7 +106,10 @@ async function fetchFeatureData() {
 
     return response.rows || [];
   } catch (error) {
-    console.error("❌ Error fetching feature data:", error.message);
+    console.warn(
+      "⚠️ Feature data not available (likely no feature_added events yet):",
+      error.message
+    );
     return [];
   }
 }

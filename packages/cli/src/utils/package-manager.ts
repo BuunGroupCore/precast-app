@@ -354,7 +354,7 @@ export async function formatGeneratedCode(projectPath: string): Promise<void> {
     });
 
     consola.success("✨ Code formatted successfully");
-  } catch (error) {
+  } catch {
     // Try a simpler approach with just npx
     try {
       consola.info("Trying alternative formatting approach...");

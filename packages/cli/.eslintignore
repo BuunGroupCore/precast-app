@@ -1,0 +1,28 @@
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Template files - these are not part of the CLI source code
+src/templates/**/*.js
+src/templates/**/*.jsx
+src/templates/**/*.mjs
+src/templates/**/*.cjs
+
+# Test files that might be generated
+generated-tests/
+coverage/
+*.test.js
+
+# Config files that might be in templates
+**/.eslintrc.js
+**/.prettierrc.js
+**/babel.config.js
+**/metro.config.js
+
+# Temporary files
+*.tmp
+*.log

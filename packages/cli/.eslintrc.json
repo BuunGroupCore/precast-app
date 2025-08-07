@@ -9,5 +9,15 @@
   "rules": {
     "no-console": "off",
     "@typescript-eslint/no-explicit-any": "off"
-  }
+  },
+  "ignorePatterns": [
+    "dist/**",
+    "build/**",
+    "node_modules/**",
+    "src/templates/**",
+    "*.config.js",
+    "*.config.cjs",
+    "*.config.mjs",
+    "generated-tests/**"
+  ]
 }

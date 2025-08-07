@@ -51,8 +51,9 @@ jobs:
       - name: Build Website
         run: pnpm --filter website build
         env:
-          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
-          POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
 
       - name: Run Tests
         run: pnpm --filter website test
@@ -85,7 +86,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   deploy:
-    name: Deploy to Production
+    name: Deploy to Cloudflare Pages
     needs: release
     runs-on: ubuntu-latest
     if: success()
@@ -109,17 +110,19 @@ jobs:
       - name: Build for Production
         run: pnpm --filter website build
         env:
-          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
-          POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
 
-      - name: Deploy to Vercel/Netlify
-        run: |
-          echo "🚀 Deploying to production..."
-          # Add your deployment commands here
-          # Example: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: precast-website
+          directory: packages/website/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: '3'
 
       - name: Update PostHog with deployment
         run: |
@@ -129,9 +132,9 @@ jobs:
               "api_key": "${{ secrets.POSTHOG_API_KEY }}",
               "event": "website_deployed",
               "properties": {
-                "version": "${{ steps.changesets.outputs.publishedPackages[0].version }}",
                 "environment": "production",
-                "commit": "${{ github.sha }}"
+                "commit": "${{ github.sha }}",
+                "deployment_platform": "cloudflare_pages"
               },
               "distinct_id": "github-actions"
             }'

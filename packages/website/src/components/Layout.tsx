@@ -1,17 +1,9 @@
 import { Header } from "@precast/ui";
 import { ReactNode, useState } from "react";
-import {
-  FaHome,
-  FaTerminal,
-  FaBook,
-  FaStar,
-  FaCube,
-  FaHeart,
-  FaFolderOpen,
-  FaChartLine,
-  FaCog,
-} from "react-icons/fa";
+import { FaCog } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
+
+import { mainNavigation } from "../config/navigation";
 
 import { Footer } from "./Footer";
 import { GitHubStars } from "./GitHubStars";
@@ -32,62 +24,19 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [showSettings, setShowSettings] = useState(false);
 
-  const navItems = [
-    {
-      href: "/",
-      label: "HOME",
-      icon: FaHome,
-      color: "var(--comic-red)",
-      effect: "POW!",
-      onClick: () => navigate("/"),
-    },
-    {
-      href: "/builder",
-      label: "BUILDER",
-      icon: FaTerminal,
-      color: "var(--comic-blue)",
-      effect: "ZAP!",
-      onClick: () => navigate("/builder"),
-    },
-    {
-      label: "RESOURCES",
-      icon: FaFolderOpen,
-      color: "var(--comic-green)",
-      effect: "BOOM!",
-      dropdown: {
-        items: [
-          {
-            label: "SHOWCASE",
-            icon: FaStar,
-            onClick: () => navigate("/showcase"),
-          },
-          {
-            label: "COMPONENTS",
-            icon: FaCube,
-            onClick: () => navigate("/components"),
-          },
-          {
-            label: "METRICS",
-            icon: FaChartLine,
-            onClick: () => navigate("/metrics"),
-          },
-          {
-            label: "SUPPORT",
-            icon: FaHeart,
-            onClick: () => navigate("/support"),
-          },
-        ],
-      },
-    },
-    {
-      href: "/docs",
-      label: "DOCS",
-      icon: FaBook,
-      color: "var(--comic-purple)",
-      effect: "WHOOSH!",
-      onClick: () => navigate("/docs"),
-    },
-  ];
+  // Transform navigation config to include onClick handlers
+  const navItems = mainNavigation.map((item) => ({
+    ...item,
+    onClick: () => navigate(item.href),
+    dropdown: item.dropdown
+      ? {
+          items: item.dropdown.items.map((dropdownItem) => ({
+            ...dropdownItem,
+            onClick: () => navigate(dropdownItem.href),
+          })),
+        }
+      : undefined,
+  }));
 
   const isDocsPage = location.pathname.startsWith("/docs");
 

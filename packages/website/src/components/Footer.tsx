@@ -1,20 +1,9 @@
 import { motion } from "framer-motion";
-import {
-  FaGithub,
-  FaTwitter,
-  FaLinkedin,
-  FaDiscord,
-  FaExternalLinkAlt,
-  FaBook,
-  FaRocket,
-  FaCode,
-  FaCube,
-  FaTerminal,
-  FaEnvelope,
-  FaHeart,
-} from "react-icons/fa";
-import { SiNpm } from "react-icons/si";
+import { FaExternalLinkAlt, FaHeart, FaRocket, FaCode, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
+
+import { EXTERNAL_LINKS, APP_TAGLINE } from "../config/constants";
+import { footerNavigation, socialLinks } from "../config/navigation";
 
 /**
  * Footer component displaying project information, links, and resources.
@@ -43,184 +32,80 @@ export function Footer() {
                 className="h-12 filter brightness-0 invert"
               />
             </motion.div>
-            <p className="font-comic text-comic-white text-sm">
-              The superhero CLI builder for modern web projects.
-            </p>
+            <p className="font-comic text-comic-white text-sm">{APP_TAGLINE}</p>
             <div className="flex gap-3">
-              <motion.a
-                href="https://github.com/BuunGroupCore/precast-app"
-                whileHover={{ scale: 1.2, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                className="text-comic-white hover:text-comic-yellow transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaGithub size={20} />
-              </motion.a>
-              <motion.a
-                href="https://www.npmjs.com/package/create-precast-app"
-                whileHover={{ scale: 1.2, rotate: -5 }}
-                whileTap={{ scale: 0.9 }}
-                className="text-comic-white hover:text-comic-red transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <SiNpm size={20} />
-              </motion.a>
-              <motion.a
-                href="https://x.com/buungroup"
-                whileHover={{ scale: 1.2, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                className="text-comic-white hover:text-comic-yellow transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaTwitter size={20} />
-              </motion.a>
-              <motion.a
-                href="https://www.linkedin.com/company/buun-group"
-                whileHover={{ scale: 1.2, rotate: -5 }}
-                whileTap={{ scale: 0.9 }}
-                className="text-comic-white hover:text-comic-yellow transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaLinkedin size={20} />
-              </motion.a>
-              <motion.a
-                href="https://discord.gg/4Wen9Pg3rG"
-                whileHover={{ scale: 1.2, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                className="text-comic-white hover:text-comic-yellow transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaDiscord size={20} />
-              </motion.a>
+              {socialLinks.map((social, index) => {
+                const Icon = social.icon;
+                return (
+                  <motion.a
+                    key={social.name}
+                    href={social.href}
+                    whileHover={{ scale: 1.2, rotate: index % 2 === 0 ? 5 : -5 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="text-comic-white hover:text-comic-yellow transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={social.name}
+                  >
+                    <Icon size={20} />
+                  </motion.a>
+                );
+              })}
             </div>
           </div>
 
-          <div>
-            <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
-              <FaRocket className="text-comic-red" />
-              QUICK ACCESS
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/builder"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2 group"
-                >
-                  <FaTerminal className="text-comic-blue group-hover:text-comic-yellow" />
-                  <span>Builder</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/components"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2 group"
-                >
-                  <FaCube className="text-comic-green group-hover:text-comic-yellow" />
-                  <span>Components</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/docs"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2 group"
-                >
-                  <FaBook className="text-comic-purple group-hover:text-comic-yellow" />
-                  <span>Documentation</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {footerNavigation.map((section, index) => {
+            const iconColors = ["text-comic-red", "text-comic-green", "text-comic-purple"];
+            const icons = [FaRocket, FaCode, FaEnvelope];
+            const Icon = icons[index % icons.length];
 
-          <div>
-            <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
-              <FaCode className="text-comic-green" />
-              RESOURCES
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <a
-                  href="/docs/getting-started"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
-                >
-                  <span className="text-comic-red">→</span>
-                  Getting Started
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="text-comic-blue">→</span>
-                  GitHub
-                  <FaExternalLinkAlt size={10} />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/docs/api"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
-                >
-                  <span className="text-comic-green">→</span>
-                  API Reference
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://brutalist.precast.dev"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="text-comic-purple">→</span>
-                  UI Library
-                  <FaExternalLinkAlt size={10} />
-                </a>
-              </li>
-            </ul>
-          </div>
+            return (
+              <div key={section.title}>
+                <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
+                  <Icon className={iconColors[index % iconColors.length]} />
+                  {section.title}
+                </h4>
+                <ul className="space-y-3">
+                  {section.links.map((link, linkIndex) => {
+                    const arrowColors = ["red", "blue", "green", "purple"];
+                    const arrowColor = arrowColors[linkIndex % arrowColors.length];
 
-          <div>
-            <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
-              <FaEnvelope className="text-comic-purple" />
-              SUPPORT
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <a
-                  href="mailto:support@precast.dev"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                >
-                  support@precast.dev
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://discord.com"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Join Discord Community
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/docs/faq"
-                  className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
-                >
-                  FAQ
-                </a>
-              </li>
-            </ul>
-          </div>
+                    return (
+                      <li key={link.href}>
+                        {link.external ? (
+                          <a
+                            href={link.href}
+                            className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <span className={`text-comic-${arrowColor}`}>→</span>
+                            {link.label}
+                            <FaExternalLinkAlt size={10} />
+                          </a>
+                        ) : link.href.startsWith("mailto:") ? (
+                          <a
+                            href={link.href}
+                            className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
+                          >
+                            {link.label}
+                          </a>
+                        ) : (
+                          <Link
+                            to={link.href}
+                            className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
+                          >
+                            <span className={`text-comic-${arrowColor}`}>→</span>
+                            {link.label}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
         </div>
 
         <div className="border-t border-comic-yellow/20 pt-8">
@@ -230,7 +115,7 @@ export function Footer() {
                 Built with <FaHeart className="text-comic-red animate-pulse" /> by
               </span>
               <motion.a
-                href="https://buungroup.com"
+                href={EXTERNAL_LINKS.BUUN_GROUP}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 group"

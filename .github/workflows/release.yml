@@ -9,6 +9,13 @@ on:
       - ".changeset/**"
       - "package.json"
       - "pnpm-lock.yaml"
+  workflow_dispatch:
+    inputs:
+      deploy_only:
+        description: 'Deploy to Cloudflare Pages only (skip release)'
+        required: false
+        default: false
+        type: boolean
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -16,6 +23,7 @@ jobs:
   release:
     name: Release & Deploy
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.deploy_only)
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -90,9 +98,8 @@ jobs:
 
   deploy:
     name: Deploy to Cloudflare Pages
-    # needs: release
     runs-on: ubuntu-latest
-    # if: success()
+    if: always() && (github.event_name == 'workflow_dispatch' || github.event_name == 'push')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

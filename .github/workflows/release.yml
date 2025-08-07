@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "packages/website/**"
-      - ".changeset/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
   workflow_dispatch:
     inputs:
       deploy_only:
@@ -25,7 +20,7 @@ permissions:
 
 jobs:
   release:
-    name: Release & Deploy
+    name: Create Release PR
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.deploy_only)
     steps:

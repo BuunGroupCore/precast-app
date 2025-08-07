@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import path from "path";
-import { fileURLToPath } from "url";
 
-import { writeFile, ensureDir } from "fs-extra";
+import fsExtra from "fs-extra";
+const { writeFile, ensureDir } = fsExtra;
 
 import {
   frameworkDefs,
@@ -12,9 +12,6 @@ import {
   stylingDefs,
   runtimeDefs,
 } from "../shared/stack-config.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export interface SmartTestCombination {
   framework: string;

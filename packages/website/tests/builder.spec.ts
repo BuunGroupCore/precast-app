@@ -32,9 +32,7 @@ test.describe("Builder Page", () => {
     expect(command).toContain("--framework=vue");
   });
 
-  test("should show ORM section only when database is selected", async ({
-    page,
-  }) => {
+  test("should show ORM section only when database is selected", async ({ page }) => {
     // ORM should be visible by default
     await expect(page.locator("text=ORM MAGIC")).toBeVisible();
 
@@ -114,9 +112,7 @@ test.describe("Builder Page", () => {
     // Verify configuration is restored
     const projectName = await page.inputValue('input[type="text"]');
     expect(projectName).toBe("test-save-project");
-    await expect(
-      page.locator('button[data-active="true"]:has-text("Angular")'),
-    ).toBeVisible();
+    await expect(page.locator('button[data-active="true"]:has-text("Angular")')).toBeVisible();
   });
 
   test("should show stack summary with correct counts", async ({ page }) => {
@@ -134,9 +130,7 @@ test.describe("Builder Page", () => {
     const newPowerCount = await page
       .locator('.action-text:near(:text("POWERS ACTIVATED"))')
       .textContent();
-    expect(parseInt(newPowerCount || "0")).toBeLessThan(
-      parseInt(powerCount || "0"),
-    );
+    expect(parseInt(newPowerCount || "0")).toBeLessThan(parseInt(powerCount || "0"));
   });
 });
 

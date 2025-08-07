@@ -86,7 +86,7 @@ export function TechStackSection() {
   ];
 
   return (
-    <section className="py-20 px-4 relative" style={{ backgroundColor: "var(--comic-gray)" }}>
+    <section className="py-20 px-4 relative" style={{ backgroundColor: "var(--comic-blue)" }}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -94,15 +94,19 @@ export function TechStackSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="section-title">
-            <span className="action-text text-5xl md:text-7xl text-comic-purple mb-6">
-              CHOOSE YOUR ARSENAL
-            </span>
+          <h2 className="action-text text-5xl md:text-7xl text-comic-yellow mb-6">
+            CHOOSE YOUR ARSENAL
           </h2>
-          <div className="speech-bubble max-w-2xl mx-auto">
-            <p className="font-comic text-lg md:text-xl">
-              Mix and match from our <strong>POWERFUL COLLECTION</strong> of technologies to create
-              your perfect tech stack!
+          <div
+            className="relative border-4 border-comic-black rounded-2xl p-6 max-w-2xl mx-auto"
+            style={{
+              backgroundColor: "var(--comic-white)",
+              boxShadow: "4px 4px 0 var(--comic-black)",
+            }}
+          >
+            <p className="font-comic text-lg md:text-xl text-comic-black">
+              Mix and match from our <strong className="text-comic-red">POWERFUL COLLECTION</strong>{" "}
+              of technologies to create your perfect tech stack!
             </p>
           </div>
         </motion.div>
@@ -111,7 +115,7 @@ export function TechStackSection() {
           <div className="relative">
             <div className="h-2 bg-comic-black rounded-full"></div>
             <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
-              <div className="action-text text-2xl text-comic-purple bg-comic-black px-4 py-1 rounded-full border-4 border-comic-purple">
+              <div className="action-text text-2xl text-comic-white bg-comic-red px-4 py-1 rounded-full border-4 border-comic-yellow">
                 ASSEMBLE!
               </div>
             </div>

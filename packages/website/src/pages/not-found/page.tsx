@@ -1,183 +1,200 @@
-import { motion } from "framer-motion";
-import { FaHome, FaExclamationTriangle, FaRocket } from "react-icons/fa";
+import { FaHome, FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 /**
- * 404 Not Found page with comic book themed animations.
- * Provides friendly error messaging and navigation back to home.
+ * Comic book style 404 page with a complete superhero story
+ * Features vertical comic strip layout with all panels visible
  */
 export function NotFoundPage() {
+  const comicPanels = [
+    {
+      title: "THE MISSING PAGE MYSTERY",
+      subtitle: "Chapter 1: The Discovery",
+      text: "Our hero PRECAST discovers that a mysterious page has vanished from the digital realm...",
+      image: "/art/6.png",
+      soundEffect: "GASP!",
+      position: "left",
+    },
+    {
+      title: "THE SEARCH BEGINS",
+      subtitle: "Chapter 2: Into the Code",
+      text: "Armed with powerful CLI tools, PRECAST dives deep into the codebase to track down the missing 404 page...",
+      image: "/art/7.png",
+      soundEffect: "ZOOM!",
+      position: "right",
+    },
+    {
+      title: "THE DIGITAL DIMENSION",
+      subtitle: "Chapter 3: Lost in Cyberspace",
+      text: "The page seems to have been trapped in a parallel dimension where broken links roam free!",
+      image: "/art/10.png",
+      soundEffect: "WHOOSH!",
+      position: "left",
+    },
+    {
+      title: "THE FINAL CONFRONTATION",
+      subtitle: "Chapter 4: Hero's Return",
+      text: "But don't worry! PRECAST has the power to generate new pages and restore order to the web!",
+      image: "/art/1.png",
+      soundEffect: "POW!",
+      position: "right",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-comic-yellow via-comic-orange to-comic-red flex items-center justify-center p-4">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-32 h-32 border-4 border-black transform rotate-12"></div>
-        <div className="absolute top-20 right-20 w-24 h-24 border-4 border-black transform -rotate-12"></div>
-        <div className="absolute bottom-20 left-20 w-28 h-28 border-4 border-black transform rotate-45"></div>
-        <div className="absolute bottom-10 right-10 w-36 h-36 border-4 border-black transform -rotate-6"></div>
-      </div>
-
-      <motion.div
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{
-          type: "spring",
-          stiffness: 260,
-          damping: 20,
-          duration: 0.8,
+    <div className="min-h-screen bg-transparent relative overflow-hidden">
+      {/* Comic book halftone pattern background */}
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage: `radial-gradient(circle, #000 1px, transparent 1px)`,
+          backgroundSize: "20px 20px",
         }}
-        className="comic-panel max-w-2xl mx-auto text-center relative z-10"
-      >
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="absolute -inset-8 bg-gradient-to-r from-comic-yellow via-comic-orange to-comic-red rounded-full opacity-20 blur-xl"
-        />
+      />
 
-        <div className="relative z-20 p-8">
-          <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="mb-6"
-          >
-            <h1 className="text-8xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-comic-red to-comic-darkRed transform -rotate-2 drop-shadow-lg">
+      {/* Main container */}
+      <div className="max-w-6xl mx-auto p-4">
+        {/* Header with 404 */}
+        <div className="text-center py-12 mb-8">
+          <div className="relative inline-block">
+            <h1 className="text-8xl md:text-9xl font-black text-comic-red transform -rotate-3 drop-shadow-lg">
               404
             </h1>
-          </motion.div>
+            <div className="absolute -top-4 -right-4 bg-comic-red text-comic-white text-sm font-bold px-3 py-2 rounded-full transform rotate-12">
+              ERROR!
+            </div>
+          </div>
+          <h2 className="font-comic text-3xl text-comic-darkBlue font-bold mt-4">
+            PAGE NOT FOUND ADVENTURE
+          </h2>
+          <p className="font-comic text-xl text-comic-gray italic mt-2">
+            A Comic Book Story in 4 Chapters
+          </p>
+        </div>
 
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{
-              delay: 0.7,
-              type: "spring",
-              stiffness: 500,
-              damping: 10,
-            }}
-            className="mb-6"
-          >
-            <motion.div
-              animate={{
-                rotate: [0, -5, 5, -5, 0],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
+        {/* Comic panels - vertical layout */}
+        <div className="space-y-16">
+          {comicPanels.map((panel, index) => (
+            <div
+              key={index}
+              className="border-8 border-comic-black rounded-lg bg-comic-white shadow-2xl p-8"
             >
-              <FaExclamationTriangle className="text-6xl text-comic-red mx-auto drop-shadow-lg" />
-            </motion.div>
-          </motion.div>
+              {/* Panel header */}
+              <div className="text-center mb-8 pb-4 border-b-4 border-comic-black">
+                <h3 className="font-comic text-2xl text-comic-red font-bold">{panel.title}</h3>
+                <p className="font-comic text-lg text-comic-gray italic">{panel.subtitle}</p>
+              </div>
 
-          {/* Speech bubble */}
-          <motion.div
-            initial={{ scale: 0, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.5 }}
-            className="speech-bubble mb-8 p-6 bg-white border-4 border-black relative"
-          >
-            <div className="absolute -bottom-4 left-8 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-black"></div>
-            <div className="absolute -bottom-3 left-8 w-0 h-0 border-l-7 border-r-7 border-t-7 border-l-transparent border-r-transparent border-t-white"></div>
-
-            <h2 className="text-3xl font-bold text-comic-darkBlue mb-2 font-display">
-              OOPS! PAGE NOT FOUND!
-            </h2>
-            <p className="text-lg text-gray-700 leading-relaxed">
-              Looks like this page got zapped into another dimension! Don&apos;t worry, our comic
-              book hero is on the case!
-            </p>
-          </motion.div>
-
-          {/* Action buttons */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 1.1, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to="/">
-              <motion.button
-                whileHover={{
-                  scale: 1.05,
-                  rotate: [-1, 1, -1, 0],
-                  transition: { duration: 0.3 },
-                }}
-                whileTap={{ scale: 0.95 }}
-                className="comic-btn-primary inline-flex items-center gap-3 px-8 py-4 text-lg font-bold"
+              {/* Panel content */}
+              <div
+                className={`grid md:grid-cols-2 gap-12 items-center ${
+                  panel.position === "right" ? "md:flex-row-reverse" : ""
+                }`}
               >
+                {/* Text content */}
+                <div className={`space-y-6 ${panel.position === "right" ? "md:order-2" : ""}`}>
+                  {/* Sound effect - clean design */}
+                  <div className="mb-8">
+                    <div className="inline-block bg-comic-yellow border-4 border-comic-black px-6 py-3 transform -rotate-2 shadow-lg">
+                      <span className="font-black text-3xl text-comic-red">
+                        {panel.soundEffect}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Story text in speech bubble */}
+                  <div className="relative border-4 border-comic-black rounded-3xl p-6 shadow-lg bg-opacity-90 bg-comic-white">
+                    <div className="absolute -bottom-4 left-8 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-comic-black"></div>
+                    <div className="absolute -bottom-3 left-8 w-0 h-0 border-l-6 border-r-6 border-t-6 border-l-transparent border-r-transparent border-t-white"></div>
+
+                    <p className="font-comic text-xl leading-relaxed text-comic-darkBlue">
+                      {panel.text}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Hero image */}
+                <div className={`${panel.position === "right" ? "md:order-1" : ""}`}>
+                  <div className="relative">
+                    {/* Comic panel border */}
+                    <div className="border-4 border-comic-black bg-comic-white p-4 transform rotate-1 shadow-2xl">
+                      <img
+                        src={panel.image}
+                        alt={panel.title}
+                        className="w-full h-80 object-cover rounded-lg"
+                      />
+
+                      {/* Panel frame decoration */}
+                      <div className="absolute -top-2 -left-2 w-4 h-4 bg-comic-red rounded-full border-2 border-comic-black"></div>
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-comic-blue rounded-full border-2 border-comic-black"></div>
+                      <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-comic-green rounded-full border-2 border-comic-black"></div>
+                      <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-comic-yellow rounded-full border-2 border-comic-black"></div>
+                    </div>
+
+                    {/* Comic action lines */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                      <div className="absolute top-4 right-4 w-20 h-1 bg-comic-black transform rotate-12 opacity-60"></div>
+                      <div className="absolute top-8 right-2 w-16 h-1 bg-comic-black transform rotate-12 opacity-40"></div>
+                      <div className="absolute top-12 right-6 w-12 h-1 bg-comic-black transform rotate-12 opacity-30"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chapter separator */}
+              {index < comicPanels.length - 1 && (
+                <div className="mt-12 text-center">
+                  <div className="inline-block bg-comic-black text-comic-white px-6 py-2 rounded-full font-comic font-bold transform rotate-1">
+                    TO BE CONTINUED...
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Footer with action buttons */}
+        <div className="mt-16 p-8 border-8 border-comic-black rounded-lg bg-gradient-to-r from-comic-blue to-comic-purple shadow-2xl">
+          <div className="text-center mb-6">
+            <h3 className="font-comic text-3xl text-comic-white font-bold mb-2">
+              THE END... OR IS IT?
+            </h3>
+            <p className="font-comic text-comic-white text-xl">
+              Ready to create your own superhero project?
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/">
+              <button className="bg-comic-yellow hover:bg-comic-orange text-comic-black border-4 border-comic-black font-comic font-bold px-8 py-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 text-lg">
                 <FaHome className="text-xl" />
-                BACK TO HOME
-              </motion.button>
+                HOME BASE
+              </button>
             </Link>
 
             <Link to="/builder">
-              <motion.button
-                whileHover={{
-                  scale: 1.05,
-                  rotate: [1, -1, 1, 0],
-                  transition: { duration: 0.3 },
-                }}
-                whileTap={{ scale: 0.95 }}
-                className="comic-btn-secondary inline-flex items-center gap-3 px-8 py-4 text-lg font-bold"
-              >
+              <button className="bg-comic-red hover:bg-comic-darkRed text-comic-white border-4 border-comic-black font-comic font-bold px-8 py-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3 text-lg">
                 <FaRocket className="text-xl" />
-                BUILD PROJECT
-              </motion.button>
+                BUILD POWER
+              </button>
             </Link>
-          </motion.div>
-
-          {/* Floating comic elements */}
-          <motion.div
-            animate={{
-              y: [-10, 10, -10],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute -top-6 -left-6 text-2xl font-black text-comic-red transform -rotate-12"
-          >
-            POW!
-          </motion.div>
-
-          <motion.div
-            animate={{
-              y: [10, -10, 10],
-              rotate: [0, -5, 5, 0],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1,
-            }}
-            className="absolute -top-4 -right-8 text-xl font-black text-comic-blue transform rotate-12"
-          >
-            ZAP!
-          </motion.div>
-
-          <motion.div
-            animate={{
-              y: [-5, 15, -5],
-              x: [-5, 5, -5],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.5,
-            }}
-            className="absolute -bottom-8 left-4 text-lg font-black text-comic-orange transform -rotate-6"
-          >
-            BOOM!
-          </motion.div>
+          </div>
         </div>
-      </motion.div>
+
+        {/* Comic book style decorative elements */}
+        <div className="absolute top-20 left-8 text-comic-red font-black text-2xl transform -rotate-12 opacity-10">
+          WHAM!
+        </div>
+        <div className="absolute top-1/4 right-12 text-comic-blue font-black text-xl transform rotate-12 opacity-10">
+          KAPOW!
+        </div>
+        <div className="absolute bottom-1/4 left-12 text-comic-green font-black text-lg transform -rotate-6 opacity-10">
+          BOOM!
+        </div>
+        <div className="absolute bottom-32 right-8 text-comic-orange font-black text-xl transform rotate-8 opacity-10">
+          ZAP!
+        </div>
+      </div>
     </div>
   );
 }

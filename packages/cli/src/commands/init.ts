@@ -206,7 +206,7 @@ export async function initCommand(projectName: string | undefined, options: Init
         orm: config.orm,
         styling: config.styling,
         uiLibrary: config.uiLibrary,
-        auth: config.authentication,
+        auth: config.authProvider,
         apiClient: config.apiClient,
         aiAssistant: config.aiAssistant,
         typescript: config.typescript,

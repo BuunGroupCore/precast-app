@@ -7,6 +7,7 @@ The Precast CLI collects anonymous usage data to help improve the tool and under
 ## What We Collect
 
 ### Project Creation (`project_created` event)
+
 - Framework choice (React, Vue, Angular, etc.)
 - Backend selection (Express, Fastify, Hono, etc.)
 - Database type (PostgreSQL, MySQL, MongoDB, etc.)
@@ -25,6 +26,7 @@ The Precast CLI collects anonymous usage data to help improve the tool and under
 - Success status (true/false)
 
 ### Feature Addition (`feature_added` event)
+
 - Feature type (component, ui_library, ai_assistant, etc.)
 - Feature-specific details (component name, library name, etc.)
 - Framework context
@@ -32,6 +34,7 @@ The Precast CLI collects anonymous usage data to help improve the tool and under
 - Additional options (styles, tests, Storybook, etc.)
 
 ### System Information (Anonymous)
+
 - CLI version
 - Node.js version
 - Operating system platform (darwin, linux, win32)
@@ -50,9 +53,11 @@ The Precast CLI collects anonymous usage data to help improve the tool and under
 ## Privacy Features
 
 ### Anonymous Session IDs
+
 Each CLI session generates a random UUID that persists across commands but contains no identifying information.
 
 ### Opt-Out
+
 You can disable telemetry at any time by setting an environment variable:
 
 ```bash
@@ -60,17 +65,22 @@ export PRECAST_TELEMETRY_DISABLED=1
 ```
 
 Or in your shell configuration file (`~/.bashrc`, `~/.zshrc`, etc.):
+
 ```bash
 echo 'export PRECAST_TELEMETRY_DISABLED=1' >> ~/.bashrc
 ```
 
 ### Automatic Disabling
+
 Telemetry is automatically disabled in:
+
 - CI environments (when `CI=true` or `CONTINUOUS_INTEGRATION=true`)
 - When explicitly opted out via environment variable
 
 ### Data Transparency
+
 All telemetry code is open source and can be reviewed at:
+
 - `/packages/cli/src/utils/analytics.ts`
 
 ## How It Works
@@ -84,6 +94,7 @@ All telemetry code is open source and can be reviewed at:
 ## Google Analytics 4 Setup
 
 The CLI uses Google Analytics 4 Measurement Protocol with:
+
 - **Measurement ID**: `G-4S73687P86`
 - **Endpoint**: `https://www.google-analytics.com/mp/collect`
 - **Protocol**: HTTPS only
@@ -92,7 +103,9 @@ The CLI uses Google Analytics 4 Measurement Protocol with:
 ## Viewing Analytics Data
 
 ### For Users
+
 Telemetry data helps us understand:
+
 - Most popular framework combinations
 - Common configuration patterns
 - Feature adoption rates
@@ -100,9 +113,11 @@ Telemetry data helps us understand:
 - Performance metrics
 
 ### For Maintainers
+
 Access analytics at: https://analytics.google.com
 
 Key reports:
+
 - **Realtime**: See events as they happen
 - **Engagement > Events**: View all tracked events
 - **Custom Dimensions**: Framework, database, and feature usage
@@ -110,6 +125,7 @@ Key reports:
 ## Implementation Details
 
 ### Event Structure
+
 ```javascript
 {
   client_id: "anonymous-uuid",
@@ -129,22 +145,26 @@ Key reports:
 ```
 
 ### Rate Limiting
+
 - GA4 has built-in rate limiting (20 events/second per client)
 - No additional rate limiting implemented in CLI
 
 ### Data Retention
+
 - Standard GA4 data retention policies apply
 - Data is aggregated and anonymized by Google
 
 ## Compliance
 
 ### GDPR
+
 - No personal data collected
 - Easy opt-out mechanism
 - Transparent about data collection
 - Data minimization principle followed
 
 ### Privacy by Design
+
 - Anonymous by default
 - No tracking without consent (opt-out available)
 - Minimal data collection
@@ -170,5 +190,6 @@ A: Since data is anonymous and not linked to any identity, individual deletion i
 ## Contact
 
 For questions or concerns about telemetry:
+
 - Open an issue: https://github.com/BuunGroupCore/precast-app/issues
 - Email: privacy@precast.dev (if available)

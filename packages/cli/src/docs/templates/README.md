@@ -406,6 +406,7 @@ await templateEngine.processConditionalTemplates(
    ```
 
 3. **Implement generator**:
+
    ```typescript
    export async function generateMyFrameworkTemplate(config: ProjectConfig, projectPath: string) {
      const templateEngine = createTemplateEngine(getTemplateRoot());

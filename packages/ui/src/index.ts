@@ -1,7 +1,7 @@
 // Atoms - Brutalist UI Only
 export * from "./components/atoms/ComicButton";
 
-// Molecules - Brutalist UI Only  
+// Molecules - Brutalist UI Only
 export * from "./components/molecules/ComicPanel";
 
 // Organisms - Brutalist UI Only

@@ -8,10 +8,16 @@ import {
   FaHeart,
   FaChartLine,
   FaGithub,
-  FaTwitter,
   FaLinkedin,
   FaDiscord,
+  FaRocket,
+  FaCode,
+  FaQuestionCircle,
+  FaEnvelope,
+  FaBroadcastTower,
+  FaGlobe,
 } from "react-icons/fa";
+import { RiTwitterXFill } from "react-icons/ri";
 import { SiNpm } from "react-icons/si";
 
 export interface NavItem {
@@ -95,6 +101,7 @@ export interface FooterSection {
     label: string;
     href: string;
     external?: boolean;
+    icon?: IconType;
   }>;
 }
 
@@ -106,26 +113,30 @@ export const footerNavigation: FooterSection[] = [
   {
     title: "QUICK ACCESS",
     links: [
-      { label: "Builder", href: "/builder" },
-      { label: "Components", href: "/components" },
-      { label: "Documentation", href: "/docs" },
+      { label: "Builder", href: "/builder", icon: FaRocket },
+      { label: "Components", href: "/components", icon: FaCube },
+      { label: "Docs", href: "/docs", icon: FaBook },
     ],
   },
   {
     title: "RESOURCES",
     links: [
-      { label: "Getting Started", href: "/docs/getting-started" },
-      { label: "GitHub", href: "https://github.com/BuunGroupCore/precast-app", external: true },
-      { label: "API Reference", href: "/docs/api" },
-      { label: "UI Library", href: "https://brutalist.precast.dev", external: true },
+      { label: "Getting Started", href: "/docs/getting-started", icon: FaCode },
+      { label: "Showcase", href: "/showcase", icon: FaStar },
+      { label: "UI Library", href: "https://brutalist.precast.dev", external: true, icon: FaGlobe },
     ],
   },
   {
     title: "SUPPORT",
     links: [
-      { label: "Contact", href: "mailto:support@precast.dev" },
-      { label: "Discord Community", href: "https://discord.gg/4Wen9Pg3rG", external: true },
-      { label: "FAQ", href: "/docs/faq" },
+      { label: "Contact", href: "mailto:support@precast.dev", icon: FaEnvelope },
+      {
+        label: "Discord Community",
+        href: "https://discord.gg/4Wen9Pg3rG",
+        external: true,
+        icon: FaBroadcastTower,
+      },
+      { label: "FAQ", href: "/docs/faq", icon: FaQuestionCircle },
     ],
   },
 ];
@@ -148,12 +159,12 @@ export const socialLinks: SocialLink[] = [
   {
     name: "NPM",
     href: "https://www.npmjs.com/package/create-precast-app",
-    icon: SiNpm as any as IconType, // SiNpm has slightly different type
+    icon: SiNpm as IconType, // SiNpm has slightly different type
   },
   {
     name: "Twitter",
     href: "https://x.com/buungroup",
-    icon: FaTwitter,
+    icon: RiTwitterXFill as IconType,
   },
   {
     name: "LinkedIn",

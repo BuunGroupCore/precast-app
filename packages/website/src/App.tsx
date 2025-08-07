@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { RouteTracker } from "@/components/RouteTracker";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ComicLoader } from "@/features/common";
 import { Layout } from "@/features/layout";
 
 // Lazy load all pages for better performance
@@ -49,20 +48,81 @@ function App() {
       <Router>
         <RouteTracker />
         <Layout>
-          <Suspense fallback={<ComicLoader />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/builder" element={<BuilderPage />} />
-              <Route path="/components" element={<ComponentsPage />} />
-              <Route path="/docs" element={<DocsPage />} />
-              <Route path="/origin-story" element={<OriginStoryPage />} />
-              <Route path="/showcase" element={<ShowcasePage />} />
-              <Route path="/submit-project" element={<SubmitProjectPage />} />
-              <Route path="/support" element={<SupportPage />} />
-              <Route path="/metrics" element={<MetricsPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Suspense>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <HomePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/builder"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <BuilderPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/components"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <ComponentsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/docs"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <DocsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/origin-story"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <OriginStoryPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/showcase"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <ShowcasePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/submit-project"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <SubmitProjectPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/support"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <SupportPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/metrics"
+              element={
+                <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <MetricsPage />
+                </Suspense>
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
         </Layout>
       </Router>
     </ThemeProvider>

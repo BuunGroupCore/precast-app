@@ -1,16 +1,20 @@
-import { HTMLAttributes, forwardRef } from "react";
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
+import { HTMLAttributes, forwardRef } from "react";
 
-export interface ComicPanelProps extends HTMLAttributes<HTMLDivElement> {
+export interface ComicPanelProps
+  extends Omit<
+    HTMLAttributes<HTMLDivElement>,
+    "onDrag" | "onDragEnd" | "onDragStart" | "onDragOver"
+  > {
   variant?: "default" | "action" | "dramatic";
   animated?: boolean;
 }
 
 export const ComicPanel = forwardRef<HTMLDivElement, ComicPanelProps>(
   (
-    { className, variant = "default", animated = true, children, ...props },
-    ref,
+    { className, variant = "default", animated = true, children, style, onClick, ...props },
+    ref
   ) => {
     const variantClasses = {
       default: "bg-white",
@@ -18,25 +22,30 @@ export const ComicPanel = forwardRef<HTMLDivElement, ComicPanelProps>(
       dramatic: "bg-comic-black text-white",
     };
 
-    const Component = animated ? motion.div : "div";
+    const panelClassName = clsx("comic-panel p-4 md:p-6", variantClasses[variant], className);
+
+    if (!animated) {
+      return (
+        <div className={panelClassName} ref={ref} style={style} onClick={onClick} {...props}>
+          {children}
+        </div>
+      );
+    }
 
     return (
-      <Component
-        className={clsx(
-          "comic-panel p-4 md:p-6",
-          variantClasses[variant],
-          className,
-        )}
+      <motion.div
+        className={panelClassName}
         ref={ref}
-        initial={animated ? { scale: 0.9, opacity: 0 } : undefined}
-        animate={animated ? { scale: 1, opacity: 1 } : undefined}
+        style={style}
+        onClick={onClick}
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", duration: 0.5 }}
-        {...props}
       >
         {children}
-      </Component>
+      </motion.div>
     );
-  },
+  }
 );
 
 ComicPanel.displayName = "ComicPanel";

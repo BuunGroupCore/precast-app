@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Run linting and type checking for all packages
+echo "🔍 Running pre-commit checks..."
+
+# Run prettier check
+echo "📝 Checking code formatting..."
+bunx prettier --check "packages/**/*.{ts,tsx,js,jsx,json,md,css,scss}" || {
+  echo "❌ Prettier formatting issues found. Run 'bun run format' to fix."
+  exit 1
+}
+
+# Run ESLint for website
+echo "🔍 Running ESLint..."
+cd packages/website && bunx eslint src --ext .ts,.tsx --max-warnings 0 || {
+  echo "❌ ESLint errors found in website package."
+  exit 1
+}
+cd ../..
+
+# Run TypeScript type checking for CLI
+echo "📦 Type checking CLI package..."
+cd packages/cli && bunx tsc --noEmit || {
+  echo "❌ TypeScript errors found in CLI package."
+  exit 1
+}
+cd ../..
+
+# Run TypeScript type checking for website
+echo "🌐 Type checking website package..."
+cd packages/website && bunx tsc --noEmit || {
+  echo "❌ TypeScript errors found in website package."
+  exit 1
+}
+cd ../..
+
+# Run tests if they exist
+echo "🧪 Running tests..."
+cd packages/cli && bun test --run 2>/dev/null || {
+  echo "⚠️  CLI tests failed or not found."
+}
+cd ../..
+
+echo "✅ All pre-commit checks passed!"

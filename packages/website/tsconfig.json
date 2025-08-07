@@ -19,9 +19,5 @@
     }
   },
   "include": ["src/**/*", "scripts/**/*"],
-  "references": [
-    { "path": "../ui" },
-    { "path": "../hooks" },
-    { "path": "../utils" }
-  ]
+  "references": [{ "path": "../ui" }, { "path": "../hooks" }, { "path": "../utils" }]
 }

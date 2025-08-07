@@ -19,7 +19,19 @@
     },
     "framework": {
       "type": "string",
-      "enum": ["react", "vue", "angular", "next", "nuxt", "svelte", "solid", "remix", "astro", "vite", "vanilla"],
+      "enum": [
+        "react",
+        "vue",
+        "angular",
+        "next",
+        "nuxt",
+        "svelte",
+        "solid",
+        "remix",
+        "astro",
+        "vite",
+        "vanilla"
+      ],
       "description": "Frontend framework used in the project"
     },
     "language": {
@@ -84,6 +96,14 @@
       "description": "Additional features or plugins installed"
     }
   },
-  "required": ["version", "createdAt", "framework", "language", "typescript", "git", "packageManager"],
+  "required": [
+    "version",
+    "createdAt",
+    "framework",
+    "language",
+    "typescript",
+    "git",
+    "packageManager"
+  ],
   "additionalProperties": false
 }

@@ -51,8 +51,7 @@ export function GitHubStars() {
         whileTap={{ scale: 0.95 }}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        onClick={(e) => {
-          e.preventDefault();
+        onClick={() => {
           trackOutboundLink("https://github.com/BuunGroupCore/precast-app", "github");
         }}
         className="flex items-center gap-2 bg-comic-white border-2 border-comic-black rounded-full px-3 py-1 hover:bg-comic-yellow transition-all relative z-10"

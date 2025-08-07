@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FaExternalLinkAlt, FaHeart, FaRocket, FaCode, FaEnvelope } from "react-icons/fa";
+import { FaExternalLinkAlt, FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 import { EXTERNAL_LINKS, APP_TAGLINE } from "@/config/constants";
@@ -55,20 +55,26 @@ export function Footer() {
           </div>
 
           {footerNavigation.map((section, index) => {
-            const iconColors = ["text-comic-red", "text-comic-green", "text-comic-purple"];
-            const icons = [FaRocket, FaCode, FaEnvelope];
-            const Icon = icons[index % icons.length];
+            const sectionIconColors = ["text-comic-red", "text-comic-green", "text-comic-purple"];
+            const SectionIcon = section.icon;
 
             return (
               <div key={section.title}>
                 <h4 className="font-display text-comic-yellow text-xl mb-4 flex items-center gap-2">
-                  <Icon className={iconColors[index % iconColors.length]} />
+                  {SectionIcon && (
+                    <SectionIcon className={sectionIconColors[index % sectionIconColors.length]} />
+                  )}
                   {section.title}
                 </h4>
                 <ul className="space-y-3">
                   {section.links.map((link, linkIndex) => {
-                    const arrowColors = ["red", "blue", "green", "purple"];
-                    const arrowColor = arrowColors[linkIndex % arrowColors.length];
+                    const iconColors = [
+                      "text-comic-red",
+                      "text-comic-blue",
+                      "text-comic-green",
+                      "text-comic-purple",
+                    ];
+                    const LinkIcon = link.icon;
 
                     return (
                       <li key={link.href}>
@@ -79,15 +85,26 @@ export function Footer() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <span className={`text-comic-${arrowColor}`}>→</span>
+                            {LinkIcon && (
+                              <LinkIcon
+                                className={iconColors[linkIndex % iconColors.length]}
+                                size={14}
+                              />
+                            )}
                             {link.label}
                             <FaExternalLinkAlt size={10} />
                           </a>
                         ) : link.href.startsWith("mailto:") ? (
                           <a
                             href={link.href}
-                            className="font-comic text-comic-white hover:text-comic-yellow transition-colors"
+                            className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
                           >
+                            {LinkIcon && (
+                              <LinkIcon
+                                className={iconColors[linkIndex % iconColors.length]}
+                                size={14}
+                              />
+                            )}
                             {link.label}
                           </a>
                         ) : (
@@ -95,7 +112,12 @@ export function Footer() {
                             to={link.href}
                             className="font-comic text-comic-white hover:text-comic-yellow transition-colors flex items-center gap-2"
                           >
-                            <span className={`text-comic-${arrowColor}`}>→</span>
+                            {LinkIcon && (
+                              <LinkIcon
+                                className={iconColors[linkIndex % iconColors.length]}
+                                size={14}
+                              />
+                            )}
                             {link.label}
                           </Link>
                         )}
@@ -125,10 +147,6 @@ export function Footer() {
                   src="https://buungroup.com/logo/logo.svg"
                   alt="Buun Group"
                   className="h-8 transition-all duration-300 group-hover:scale-110"
-                  style={{
-                    filter:
-                      "brightness(0) saturate(100%) invert(93%) sepia(88%) saturate(1594%) hue-rotate(358deg) brightness(106%) contrast(104%)",
-                  }}
                 />
                 <span className="font-display text-comic-yellow group-hover:text-comic-white transition-colors">
                   BUUN GROUP

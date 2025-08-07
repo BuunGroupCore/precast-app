@@ -11,10 +11,12 @@ This guide explains how to set up Google Analytics 4 telemetry for your CLI appl
 ## Step 1: Create a Google Analytics 4 Property
 
 ### 1.1 Access Google Analytics
+
 1. Go to [Google Analytics](https://analytics.google.com)
 2. Sign in with your Google account
 
 ### 1.2 Create a New Property
+
 1. Click **Admin** (gear icon in bottom left)
 2. Click **Create Property**
 3. Enter property details:
@@ -24,12 +26,14 @@ This guide explains how to set up Google Analytics 4 telemetry for your CLI appl
 4. Click **Next**
 
 ### 1.3 Configure Business Details
+
 1. Select your industry category
 2. Select business size
 3. Select how you intend to use Google Analytics
 4. Click **Create**
 
 ### 1.4 Set Up Data Stream
+
 1. Choose **Web** as platform (even though it's for CLI)
 2. Enter details:
    - **Website URL**: `https://your-cli-domain.com` (can be placeholder)
@@ -37,6 +41,7 @@ This guide explains how to set up Google Analytics 4 telemetry for your CLI appl
 3. Click **Create stream**
 
 ### 1.5 Get Your Measurement ID
+
 1. After creating the stream, you'll see your **Measurement ID**
 2. It looks like: `G-XXXXXXXXXX`
 3. Copy this ID - you'll need it for your code
@@ -167,7 +172,10 @@ async function sendToGA4(eventName: string, parameters: Record<string, any>): Pr
 /**
  * Track your custom events
  */
-export async function trackEvent(eventName: string, properties?: Record<string, any>): Promise<void> {
+export async function trackEvent(
+  eventName: string,
+  properties?: Record<string, any>
+): Promise<void> {
   await sendToGA4(eventName, properties || {});
 }
 ```
@@ -182,7 +190,7 @@ import { trackEvent } from "../utils/analytics.js";
 // In your command function
 export async function myCommand(options: Options) {
   // Your command logic
-  
+
   // Track the event
   await trackEvent("command_executed", {
     command: "myCommand",
@@ -228,6 +236,7 @@ API secrets add an extra layer of validation but are not required.
 ## Step 4: Configure GA4 for Better CLI Tracking
 
 ### 4.1 Disable Automatic Page Views
+
 Since you're tracking a CLI, not a website:
 
 1. Go to **Admin** → **Data Streams** → Your stream
@@ -268,10 +277,10 @@ async function sendTestEvent() {
         name: "test_event",
         params: {
           test_param: "hello",
-          engagement_time_msec: "100"
-        }
-      }
-    ]
+          engagement_time_msec: "100",
+        },
+      },
+    ],
   };
 
   const response = await fetch(GA_ENDPOINT, {
@@ -331,18 +340,21 @@ Document what you collect and why:
 # Telemetry Policy
 
 ## What We Collect
+
 - Command usage
 - Feature adoption
 - Error types (not content)
 - Anonymous system info
 
 ## What We DON'T Collect
+
 - Personal information
 - File contents
 - Environment variables
 - IP addresses
 
 ## Opt-Out
+
 Set environment variable: YOUR_CLI_TELEMETRY_DISABLED=1
 ```
 
@@ -413,6 +425,7 @@ Set environment variable: YOUR_CLI_TELEMETRY_DISABLED=1
 ## Example Implementation
 
 See the Precast CLI implementation:
+
 - Analytics module: `/packages/cli/src/utils/analytics.ts`
 - Integration: `/packages/cli/src/commands/init.ts`
 - Documentation: `/packages/cli/docs/TELEMETRY.md`

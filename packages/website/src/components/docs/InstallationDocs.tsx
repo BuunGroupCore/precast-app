@@ -23,9 +23,7 @@ export function InstallationDocs() {
       </section>
 
       <section id="global-installation" className="comic-panel p-6">
-        <h2 className="font-comic text-2xl text-comic-red mb-4">
-          Global Installation (Optional)
-        </h2>
+        <h2 className="font-comic text-2xl text-comic-red mb-4">Global Installation (Optional)</h2>
         <p className="font-comic mb-4">
           If you prefer to install PRECAST globally for repeated use:
         </p>

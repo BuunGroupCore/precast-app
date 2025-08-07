@@ -60,18 +60,22 @@ The Precast CLI (`create-precast-app`) is a TypeScript-based command-line tool t
 ## Key Features
 
 ### Claude Code Integration
+
 Every generated project includes:
+
 - `.claude/settings.json` with appropriate tool permissions
 - Project-specific `CLAUDE.md` documentation
 - MCP server configurations when selected
 - AI context files for better code understanding
 
 ### Smart Package Manager Handling
+
 - Detects user's preferred package manager
 - Automatically falls back from Bun to npm for problematic packages
 - Handles esbuild, Prisma, and native module issues gracefully
 
 ### Template System
+
 - Handlebars templates with conditional logic
 - Framework-specific file generation
 - Dynamic dependency management
@@ -122,42 +126,53 @@ bun run update:templates
 ## Configuration Options
 
 ### Frameworks
+
 - React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Remix, Astro, Vite, Vanilla
 
 ### Backends
+
 - Node.js, Express, Fastify, Nest.js, Hono, None
 
 ### Databases
+
 - PostgreSQL, MySQL, SQLite, MongoDB, None
 
 ### ORMs
+
 - Prisma, Drizzle, TypeORM, Mongoose, None
 
 ### Styling
+
 - Tailwind CSS, CSS, SCSS, CSS Modules, Styled Components, Emotion
 
 ### UI Libraries
+
 - shadcn/ui, DaisyUI, Material UI, Chakra UI, Ant Design, Mantine
 
 ### Authentication
+
 - Better Auth, NextAuth, Clerk, Supabase Auth, Auth0, Firebase Auth
 
 ### AI Assistance
+
 - Claude (with MCP servers), GitHub Copilot, None
 
 ## Important Implementation Details
 
 ### Error Handling
+
 - Comprehensive validation before project creation
 - Clear error messages with suggested fixes
 - Rollback on failure to prevent partial installations
 
 ### Performance
+
 - Parallel dependency installation where possible
 - Template caching for faster generation
 - Minimal runtime dependencies
 
 ### Security
+
 - Automatic security audit after installation
 - Dependency vulnerability checks
 - Safe default configurations
@@ -165,6 +180,7 @@ bun run update:templates
 ## Testing
 
 The CLI includes comprehensive tests for:
+
 - Template generation
 - Package manager detection
 - Configuration validation
@@ -175,6 +191,7 @@ Run tests with: `bun test`
 ## Deployment
 
 Published to npm as `create-precast-app`:
+
 ```bash
 # Publish new version
 bun run publish:patch  # or minor/major

@@ -12,7 +12,7 @@ interface UseScrollAnimationOptions {
 }
 
 export function useScrollAnimation(
-  options: UseScrollAnimationOptions = {},
+  options: UseScrollAnimationOptions = {}
 ): [React.RefObject<HTMLElement>, IntersectionState] {
   const { threshold = 0.1, rootMargin = "0px", triggerOnce = true } = options;
 
@@ -42,7 +42,7 @@ export function useScrollAnimation(
       {
         threshold,
         rootMargin,
-      },
+      }
     );
 
     observer.observe(element);

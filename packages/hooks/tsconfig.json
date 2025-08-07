@@ -9,7 +9,5 @@
     "declarationMap": true
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../utils" }
-  ]
+  "references": [{ "path": "../utils" }]
 }

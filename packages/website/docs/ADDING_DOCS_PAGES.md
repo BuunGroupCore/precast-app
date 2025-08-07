@@ -5,6 +5,7 @@ This guide explains how to add new documentation pages to the Precast website.
 ## Overview
 
 The documentation system uses a modular component-based approach with the following structure:
+
 - **DocsPage.tsx**: Main documentation page with sidebar navigation and table of contents
 - **Documentation Components**: Individual components for each documentation section
 - **Dynamic Routing**: Content is rendered based on the active section
@@ -23,24 +24,16 @@ export function YourNewDocs() {
   return (
     <div className="space-y-8">
       <section id="section-1" className="comic-panel p-6">
-        <h2 className="font-display text-2xl text-comic-blue mb-4">
-          Section Title
-        </h2>
-        <p className="font-comic mb-4">
-          Your documentation content here...
-        </p>
-        
+        <h2 className="font-display text-2xl text-comic-blue mb-4">Section Title</h2>
+        <p className="font-comic mb-4">Your documentation content here...</p>
+
         {/* Use CodeBlock for code examples */}
         <CodeBlock code="$ your-command-here" />
       </section>
 
       <section id="section-2" className="comic-panel p-6">
-        <h2 className="font-display text-2xl text-comic-green mb-4">
-          Another Section
-        </h2>
-        <p className="font-comic">
-          More content...
-        </p>
+        <h2 className="font-display text-2xl text-comic-green mb-4">Another Section</h2>
+        <p className="font-comic">More content...</p>
       </section>
     </div>
   );
@@ -75,7 +68,9 @@ In `/packages/website/src/pages/DocsPage.tsx`:
 import { YourNewDocs } from "../components/docs/YourNewDocs";
 
 // Add rendering condition in the content area
-{activeSection === "your-new-section" && <YourNewDocs />}
+{
+  activeSection === "your-new-section" && <YourNewDocs />;
+}
 ```
 
 ### 4. Add Table of Contents
@@ -83,30 +78,32 @@ import { YourNewDocs } from "../components/docs/YourNewDocs";
 Update the table of contents section in DocsPage.tsx:
 
 ```tsx
-{activeSection === "your-new-section" && (
-  <>
-    <button
-      onClick={() => scrollToSection("section-1")}
-      className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-        activeTocItem === "section-1"
-          ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-          : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
-      }`}
-    >
-      Section 1
-    </button>
-    <button
-      onClick={() => scrollToSection("section-2")}
-      className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-        activeTocItem === "section-2"
-          ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-          : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
-      }`}
-    >
-      Section 2
-    </button>
-  </>
-)}
+{
+  activeSection === "your-new-section" && (
+    <>
+      <button
+        onClick={() => scrollToSection("section-1")}
+        className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+          activeTocItem === "section-1"
+            ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
+            : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+        }`}
+      >
+        Section 1
+      </button>
+      <button
+        onClick={() => scrollToSection("section-2")}
+        className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+          activeTocItem === "section-2"
+            ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
+            : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+        }`}
+      >
+        Section 2
+      </button>
+    </>
+  );
+}
 ```
 
 ### 5. Update Sitemap (Optional)
@@ -133,15 +130,15 @@ The `CodeBlock` component provides copy-to-clipboard functionality:
 <CodeBlock code="$ npm install" />
 
 // Multi-line code
-<CodeBlock 
+<CodeBlock
   code={`$ cd my-project
 $ npm install
-$ npm run dev`} 
+$ npm run dev`}
 />
 
 // With line numbers
-<CodeBlock 
-  code="const hello = 'world';" 
+<CodeBlock
+  code="const hello = 'world';"
   language="javascript"
   showLineNumbers={true}
 />
@@ -194,7 +191,7 @@ export function ApiDocs() {
         <p className="font-comic mb-4">
           The Precast API allows you to programmatically create and manage projects.
         </p>
-        <CodeBlock 
+        <CodeBlock
           code={`import { createProject } from '@precast/api';
 
 const project = await createProject({

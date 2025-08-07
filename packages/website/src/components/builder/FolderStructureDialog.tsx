@@ -318,7 +318,7 @@ model User {
     const structure: FileNode = {
       name: config.name,
       type: "folder",
-      icon: <FaFolderOpen className="text-comic-yellow" />,
+      icon: FaFolderOpen,
       children: [],
     };
 
@@ -443,7 +443,7 @@ model User {
           icon: getFileIcon("package.json"),
           previewContent: getFilePreview({ name: "package.json", type: "file" }),
         },
-        { name: "turbo.json", type: "file", icon: <FaCog className="text-gray-600" /> },
+        { name: "turbo.json", type: "file", icon: FaCog },
         config.docker && {
           name: "docker-compose.yml",
           type: "file",
@@ -456,7 +456,7 @@ model User {
         {
           name: "src",
           type: "folder",
-          icon: <FaFolder className="text-comic-green" />,
+          icon: FaFolder,
           children: frameworkFiles.src.map((file) => ({
             ...file,
             icon: file.type === "file" ? getFileIcon(file.name) : undefined,
@@ -501,7 +501,7 @@ model User {
         config.aiAssistant === "claude" && {
           name: ".claude",
           type: "folder",
-          icon: <FaFolder className="text-purple-600" />,
+          icon: FaFolder,
           children: [
             { name: "settings.json", type: "file" },
             { name: "CLAUDE.md", type: "file" },
@@ -587,8 +587,17 @@ model User {
             <span className="text-xs">{isExpanded ? <FaChevronDown /> : <FaChevronRight />}</span>
           )}
           <span className="text-lg">
-            {node.icon ||
-              (node.type === "folder" ? isExpanded ? <FaFolderOpen /> : <FaFolder /> : <FaFile />)}
+            {node.icon ? (
+              <node.icon className={node.type === "folder" ? "text-comic-yellow" : ""} />
+            ) : node.type === "folder" ? (
+              isExpanded ? (
+                <FaFolderOpen className="text-comic-yellow" />
+              ) : (
+                <FaFolder className="text-comic-yellow" />
+              )
+            ) : (
+              <FaFile />
+            )}
           </span>
           <span className={`${node.type === "folder" ? "font-bold" : ""}`}>{node.name}</span>
           {node.description && (

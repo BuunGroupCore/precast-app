@@ -11,7 +11,11 @@ interface NpmPackageData {
     [version: string]: string;
   };
   versions?: {
-    [version: string]: any;
+    [version: string]: {
+      dist?: {
+        unpackedSize?: number;
+      };
+    };
   };
 }
 

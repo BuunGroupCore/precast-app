@@ -26,7 +26,7 @@ const comicButtonVariants = cva(
       variant: "action",
       size: "md",
     },
-  },
+  }
 );
 
 export interface ComicButtonProps
@@ -44,7 +44,7 @@ export const ComicButton = forwardRef<HTMLButtonElement, ComicButtonProps>(
         {children}
       </button>
     );
-  },
+  }
 );
 
 ComicButton.displayName = "ComicButton";

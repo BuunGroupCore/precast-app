@@ -48,18 +48,16 @@ export function Header({
         >
           <div
             className="relative border-4 rounded-lg px-3 sm:px-6 py-2 sm:py-3 flex items-center justify-between bg-white"
-            style={{
-              borderColor: "var(--comic-black)",
-              backgroundColor: "var(--comic-white)",
-              boxShadow: "2px 2px 0 var(--comic-black), 4px 4px 0 rgba(0, 0, 0, 0.5)",
-              "--tw-shadow": "2px 2px 0 var(--comic-black), 4px 4px 0 rgba(0, 0, 0, 0.5)"
-            }}
+            style={
+              {
+                borderColor: "var(--comic-black)",
+                backgroundColor: "var(--comic-white)",
+                boxShadow: "2px 2px 0 var(--comic-black), 4px 4px 0 rgba(0, 0, 0, 0.5)",
+              } as React.CSSProperties
+            }
           >
             {/* Logo */}
-            <div
-              className="flex items-center gap-3 cursor-pointer group"
-              onClick={onLogoClick}
-            >
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={onLogoClick}>
               {logoSrc && (
                 <img
                   src={logoSrc}
@@ -85,7 +83,7 @@ export function Header({
                 const isActive = currentPath === item.href;
                 const Icon = item.icon;
                 const hasDropdown = item.dropdown && item.dropdown.items.length > 0;
-                
+
                 return (
                   <div key={item.label} className="relative">
                     {hasDropdown ? (
@@ -105,9 +103,7 @@ export function Header({
                               ? item.color || "var(--comic-red)"
                               : "var(--comic-white)",
                             borderColor: "var(--comic-black)",
-                            color: isActive
-                              ? "var(--comic-white)"
-                              : "var(--comic-black)",
+                            color: isActive ? "var(--comic-white)" : "var(--comic-black)",
                             boxShadow: isActive
                               ? "3px 3px 0 var(--comic-black)"
                               : "2px 2px 0 var(--comic-black)",
@@ -115,7 +111,9 @@ export function Header({
                         >
                           {Icon && <Icon className="text-lg" />}
                           <span>{item.label}</span>
-                          <FaChevronDown className={`text-xs transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`} />
+                          <FaChevronDown
+                            className={`text-xs transition-transform ${openDropdown === item.label ? "rotate-180" : ""}`}
+                          />
                         </div>
 
                         {/* Dropdown Menu */}
@@ -130,15 +128,15 @@ export function Header({
                               onMouseEnter={() => setOpenDropdown(item.label)}
                               onMouseLeave={() => setOpenDropdown(null)}
                             >
-                              <div 
+                              <div
                                 className="border-4 rounded-lg p-2 space-y-1"
                                 style={{
                                   backgroundColor: "var(--comic-white)",
                                   borderColor: "var(--comic-black)",
-                                  boxShadow: "4px 4px 0 var(--comic-black)"
+                                  boxShadow: "4px 4px 0 var(--comic-black)",
                                 }}
                               >
-                                {item.dropdown.items.map((dropdownItem) => {
+                                {item.dropdown?.items.map((dropdownItem) => {
                                   const DropdownIcon = dropdownItem.icon;
                                   return (
                                     <a
@@ -182,9 +180,7 @@ export function Header({
                               ? item.color || "var(--comic-red)"
                               : "var(--comic-white)",
                             borderColor: "var(--comic-black)",
-                            color: isActive
-                              ? "var(--comic-white)"
-                              : "var(--comic-black)",
+                            color: isActive ? "var(--comic-white)" : "var(--comic-black)",
                             boxShadow: isActive
                               ? "3px 3px 0 var(--comic-black)"
                               : "2px 2px 0 var(--comic-black)",
@@ -217,32 +213,31 @@ export function Header({
                 style={{
                   backgroundColor: "var(--comic-yellow)",
                   borderColor: "var(--comic-black)",
-                  boxShadow: "2px 2px 0 var(--comic-black)"
+                  boxShadow: "2px 2px 0 var(--comic-black)",
                 }}
               >
                 <div className="flex flex-col justify-center items-center w-6 h-6">
                   <span
                     className={`bg-black block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${
-                      isMobileMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-0.5'
+                      isMobileMenuOpen ? "rotate-45 translate-y-1" : "-translate-y-0.5"
                     }`}
                     style={{ backgroundColor: "var(--comic-black)" }}
                   />
                   <span
                     className={`bg-black block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 ${
-                      isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                      isMobileMenuOpen ? "opacity-0" : "opacity-100"
                     }`}
                     style={{ backgroundColor: "var(--comic-black)" }}
                   />
                   <span
                     className={`bg-black block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${
-                      isMobileMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'
+                      isMobileMenuOpen ? "-rotate-45 -translate-y-1" : "translate-y-0.5"
                     }`}
                     style={{ backgroundColor: "var(--comic-black)" }}
                   />
                 </div>
               </button>
             </div>
-
           </div>
 
           {/* Mobile Menu Dropdown */}
@@ -257,15 +252,18 @@ export function Header({
                 style={{
                   backgroundColor: "var(--comic-white)",
                   borderColor: "var(--comic-black)",
-                  boxShadow: "4px 4px 0 var(--comic-black)"
+                  boxShadow: "4px 4px 0 var(--comic-black)",
                 }}
               >
-                <div className="border-4 rounded-lg p-4 space-y-2" style={{ borderColor: "var(--comic-black)" }}>
+                <div
+                  className="border-4 rounded-lg p-4 space-y-2"
+                  style={{ borderColor: "var(--comic-black)" }}
+                >
                   {links.map((item) => {
                     const isActive = currentPath === item.href;
                     const Icon = item.icon;
                     const hasDropdown = item.dropdown && item.dropdown.items.length > 0;
-                    
+
                     if (hasDropdown) {
                       return (
                         <div key={item.label} className="space-y-2">
@@ -282,10 +280,10 @@ export function Header({
                             {Icon && <Icon className="text-lg" />}
                             <span>{item.label}</span>
                           </div>
-                          
+
                           {/* Dropdown Items */}
                           <div className="ml-4 space-y-2">
-                            {item.dropdown.items.map((dropdownItem) => {
+                            {item.dropdown?.items.map((dropdownItem) => {
                               const DropdownIcon = dropdownItem.icon;
                               return (
                                 <a
@@ -313,7 +311,7 @@ export function Header({
                         </div>
                       );
                     }
-                    
+
                     return (
                       <a
                         key={item.label}
@@ -329,16 +327,17 @@ export function Header({
                             ? item.color || "var(--comic-red)"
                             : "var(--comic-white)",
                           borderColor: "var(--comic-black)",
-                          color: isActive
-                            ? "var(--comic-white)"
-                            : "var(--comic-black)",
+                          color: isActive ? "var(--comic-white)" : "var(--comic-black)",
                           boxShadow: "2px 2px 0 var(--comic-black)",
                         }}
                       >
                         {Icon && <Icon className="text-lg" />}
                         <span>{item.label}</span>
                         {isActive && item.effect && (
-                          <span className="action-text text-sm ml-auto" style={{ color: "var(--comic-yellow)" }}>
+                          <span
+                            className="action-text text-sm ml-auto"
+                            style={{ color: "var(--comic-yellow)" }}
+                          >
                             {item.effect}
                           </span>
                         )}

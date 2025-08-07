@@ -220,17 +220,17 @@ Example: Adding Qwik framework
 1. **Create the generator** (`src/generators/qwik-template.ts`):
 
 ```typescript
-import { BaseGenerator } from './base-generator.js';
-import type { ProjectConfig } from '../types.js';
+import { BaseGenerator } from "./base-generator.js";
+import type { ProjectConfig } from "../types.js";
 
 export class QwikGenerator extends BaseGenerator {
   async generate(config: ProjectConfig) {
-    await this.processTemplate('frameworks/qwik/base', '', config);
-    
+    await this.processTemplate("frameworks/qwik/base", "", config);
+
     if (config.typescript) {
-      await this.processTemplate('frameworks/qwik/src', 'src/', config);
+      await this.processTemplate("frameworks/qwik/src", "src/", config);
     }
-    
+
     // Add framework-specific logic
   }
 }
@@ -257,20 +257,20 @@ qwik/
 export const FRAMEWORKS = [
   // ... existing frameworks
   {
-    id: 'qwik',
-    name: 'Qwik',
-    description: 'Resumable web framework',
-    supportedStyling: ['tailwind', 'css', 'scss'],
-    requiresNode: true
-  }
+    id: "qwik",
+    name: "Qwik",
+    description: "Resumable web framework",
+    supportedStyling: ["tailwind", "css", "scss"],
+    requiresNode: true,
+  },
 ] as const;
 ```
 
 4. **Add tests**:
 
 ```typescript
-describe('Qwik Generator', () => {
-  test('generates Qwik project with TypeScript', async () => {
+describe("Qwik Generator", () => {
+  test("generates Qwik project with TypeScript", async () => {
     // Test implementation
   });
 });
@@ -362,26 +362,31 @@ Available helpers in templates:
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
 - [ ] Tested with multiple framework combinations
 
 ## Documentation
+
 - [ ] README updated if needed
 - [ ] CLAUDE.md updated if needed
 - [ ] Developer docs updated if needed
 
 ## Screenshots
+
 <!-- Terminal output showing the changes work -->
 ```
 

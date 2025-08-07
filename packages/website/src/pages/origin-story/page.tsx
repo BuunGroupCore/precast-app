@@ -37,7 +37,7 @@ export function OriginStoryPage() {
   ];
 
   return (
-    <div className="min-h-screen pt-40 pb-20">
+    <div className="min-h-screen pt-8 pb-20">
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-4 mb-8">
         <button
@@ -47,6 +47,21 @@ export function OriginStoryPage() {
           <FaArrowLeft />
           BACK TO HOME
         </button>
+      </div>
+
+      {/* Comic-style separator below back button */}
+      <div className="max-w-7xl mx-auto px-4 mb-12">
+        <div className="relative">
+          <div className="h-2 bg-comic-black rounded-full border-2 border-comic-black shadow-lg"></div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+            <div className="action-text text-xl text-comic-white bg-comic-red px-4 py-1 rounded-full border-4 border-comic-black shadow-lg transform rotate-2">
+              STORY TIME!
+            </div>
+          </div>
+          {/* Comic dots decoration */}
+          <div className="absolute -left-3 -top-1 w-4 h-4 bg-comic-yellow rounded-full border-2 border-comic-black"></div>
+          <div className="absolute -right-3 -top-1 w-4 h-4 bg-comic-blue rounded-full border-2 border-comic-black"></div>
+        </div>
       </div>
 
       {/* Hero Section */}

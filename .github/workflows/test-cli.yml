@@ -67,14 +67,14 @@ jobs:
         run: pnpm install --frozen-lockfile
         
       - name: Build CLI
-        run: pnpm --filter @precast/cli build
+        run: pnpm --filter create-precast-app build
         
       - name: Run linting
-        run: pnpm --filter @precast/cli lint
+        run: pnpm --filter create-precast-app lint
         working-directory: packages/cli
         
       - name: Run type checking  
-        run: pnpm --filter @precast/cli typecheck
+        run: pnpm --filter create-precast-app typecheck
         working-directory: packages/cli
         
       - name: Run quick tests
@@ -116,20 +116,20 @@ jobs:
         run: pnpm install --frozen-lockfile
         
       - name: Build CLI
-        run: pnpm --filter @precast/cli build
+        run: pnpm --filter create-precast-app build
         
       - name: Run type checking
-        run: pnpm --filter @precast/cli typecheck
+        run: pnpm --filter create-precast-app typecheck
         
       - name: Run linting
-        run: pnpm --filter @precast/cli lint
+        run: pnpm --filter create-precast-app lint
         
       - name: Generate smart test combinations
         run: pnpm tsx smart-test-generator.ts
         working-directory: packages/cli
         
       - name: Run unit tests with Vitest
-        run: pnpm --filter @precast/cli test
+        run: pnpm --filter create-precast-app test
         
       - name: Generate test report
         run: pnpm tsx tests/test-reporter.ts
@@ -202,7 +202,7 @@ jobs:
         run: pnpm install --frozen-lockfile
         
       - name: Build CLI
-        run: pnpm --filter @precast/cli build
+        run: pnpm --filter create-precast-app build
         
       - name: Test CLI commands
         run: |

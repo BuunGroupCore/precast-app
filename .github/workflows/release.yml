@@ -56,11 +56,12 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build UI Package
-        run: pnpm --filter @precast/ui build
-          
-      - name: Build TypeScript Projects
-        run: npx tsc --build tsconfig.build.json
+      - name: Build TypeScript Projects in Order
+        run: |
+          pnpm --filter @precast/utils build
+          pnpm --filter @precast/hooks build
+          pnpm --filter @precast/ui build
+          pnpm --filter @precast/cli build
 
       - name: Build Website
         run: pnpm --filter website build
@@ -120,11 +121,12 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build UI Package
-        run: pnpm --filter @precast/ui build
-          
-      - name: Build TypeScript Projects
-        run: npx tsc --build tsconfig.build.json
+      - name: Build TypeScript Projects in Order
+        run: |
+          pnpm --filter @precast/utils build
+          pnpm --filter @precast/hooks build
+          pnpm --filter @precast/ui build
+          pnpm --filter @precast/cli build
 
       - name: Build Website
         run: pnpm --filter website build

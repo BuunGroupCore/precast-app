@@ -56,8 +56,16 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Website
-        run: pnpm --filter website build
+      - name: Build Packages in Order
+        run: |
+          echo "Cleaning TypeScript build cache..."
+          rm -f packages/*/tsconfig.tsbuildinfo
+          echo "Building UI package..."
+          pnpm --filter @precast/ui run build
+          echo "Contents of UI dist folder:"
+          ls -la packages/ui/dist/ || echo "UI dist folder not found"
+          echo "Building website..."
+          pnpm --filter website build
         env:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
@@ -114,8 +122,16 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Website
-        run: pnpm --filter website build
+      - name: Build Packages in Order
+        run: |
+          echo "Cleaning TypeScript build cache..."
+          rm -f packages/*/tsconfig.tsbuildinfo
+          echo "Building UI package..."
+          pnpm --filter @precast/ui run build
+          echo "Contents of UI dist folder:"
+          ls -la packages/ui/dist/ || echo "UI dist folder not found"
+          echo "Building website..."
+          pnpm --filter website build
         env:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}

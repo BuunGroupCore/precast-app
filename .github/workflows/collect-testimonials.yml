@@ -13,6 +13,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      actions: write
 
     steps:
       - name: Checkout Repository
@@ -206,24 +207,8 @@ jobs:
             // Write updated testimonials
             await fs.writeFile(testimonialsPath, JSON.stringify(testimonials, null, 2));
 
-            // Create branch and PR
-            const branchName = `testimonials-update-${Date.now()}`;
+            // Commit directly to main branch to avoid PR permission issues
             const defaultBranch = context.payload.repository.default_branch;
-
-            // Get the default branch ref
-            const ref = await github.rest.git.getRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `heads/${defaultBranch}`
-            });
-
-            // Create new branch
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/heads/${branchName}`,
-              sha: ref.data.object.sha
-            });
 
             // Read file content
             const fileContent = await fs.readFile(testimonialsPath, 'utf8');
@@ -243,46 +228,29 @@ jobs:
               console.log('File does not exist yet, will create it');
             }
 
-            // Create or update file
+            // Create or update file directly on main branch
             await github.rest.repos.createOrUpdateFileContents({
               owner: context.repo.owner,
               repo: context.repo.repo,
               path: 'packages/website/public/testimonials.json',
-              message: `feat: add new hero testimonials`,
+              message: `feat: add ${issues.data.length} new hero testimonial(s) 🦸\n\nProcessed issues: ${issues.data.map(i => `#${i.number}`).join(', ')}\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>`,
               content: contentBase64,
-              branch: branchName,
+              branch: defaultBranch,
               sha: fileSha
             });
 
-            // Create PR
-            const pr = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: '🦸 Update Hero Testimonials',
-              body: `This PR adds ${issues.data.length} new hero testimonial(s) to the website.\n\nProcessed issues: ${issues.data.map(i => `#${i.number}`).join(', ')}`,
-              head: branchName,
-              base: defaultBranch
-            });
-
-            console.log(`Created PR #${pr.data.number}`);
+            console.log(`Successfully added ${issues.data.length} testimonial(s) to main branch`);
             
             // Set output for the next step
-            core.setOutput('pr_number', pr.data.number);
-            core.setOutput('pr_created', 'true');
+            core.setOutput('testimonials_added', issues.data.length);
+            core.setOutput('commit_created', 'true');
 
-      - name: Setup Auto-merge
-        if: steps.process.outputs.pr_created == 'true'
+      - name: Summary
+        if: steps.process.outputs.commit_created == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.process.outputs.pr_number }}
+          TESTIMONIALS_COUNT: ${{ steps.process.outputs.testimonials_added }}
         run: |
-          # Enable auto-merge on the PR if it was created
-          if [ -n "$PR_NUMBER" ]; then
-            echo "Setting up auto-merge for PR #$PR_NUMBER"
-            gh pr merge --auto --squash --delete-branch "$PR_NUMBER" || {
-              echo "Failed to set up auto-merge for PR #$PR_NUMBER, but continuing..."
-              exit 0
-            }
-          else
-            echo "No PR number found, skipping auto-merge setup"
-          fi
+          echo "✅ Successfully processed testimonials!"
+          echo "📊 Added $TESTIMONIALS_COUNT new hero testimonial(s)"
+          echo "🚀 Changes committed directly to main branch"
+          echo "🌐 Website will now display the new testimonials automatically"

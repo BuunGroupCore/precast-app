@@ -87,7 +87,9 @@
       "Bash(# Fix formatting and create all index files\necho \"\"\"\" >> /home/sacha/repositories/precast-app/packages/website/src/pages/metrics/index.ts\n\n# Create index files for all pages\necho ''export { OriginStoryPage } from \"\"./page\"\";'' > src/pages/origin-story/index.ts\necho \"\"\"\" >> src/pages/origin-story/index.ts\n\necho ''export { ShowcasePage } from \"\"./page\"\";'' > src/pages/showcase/index.ts  \necho \"\"\"\" >> src/pages/showcase/index.ts\n\necho ''export { SubmitProjectPage } from \"\"./page\"\";'' > src/pages/submit-project/index.ts\necho \"\"\"\" >> src/pages/submit-project/index.ts\n\necho ''export { SupportPage } from \"\"./page\"\";'' > src/pages/support/index.ts\necho \"\"\"\" >> src/pages/support/index.ts\n\necho ''export { NotFoundPage } from \"\"./page\"\";'' > src/pages/not-found/index.ts\necho \"\"\"\" >> src/pages/not-found/index.ts)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "WebFetch(domain:www.dicebear.com)"
+      "WebFetch(domain:www.dicebear.com)",
+      "Bash(CI=true bun test tests/cli.test.ts -t \"should generate react-express-postgres\")",
+      "Bash(env CI=true bun test tests/cli.test.ts -t \"should generate react-express-postgres\")"
     ],
     "deny": []
   }

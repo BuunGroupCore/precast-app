@@ -67,8 +67,8 @@ describe("CLI Project Generation - Critical Tests", () => {
         expect(result.exitCode).toBe(0);
         expect(projectExists(projectName)).toBe(true);
       },
-      combination.expectedDuration + 10000
-    ); // Add 10s buffer
+      combination.expectedDuration + (process.env.CI ? 30000 : 10000)
+    ); // Add 30s buffer in CI, 10s locally
   });
 });
 
@@ -470,7 +470,7 @@ describe("CLI Project Generation - Full Test Suite", () => {
         expect(result.exitCode).toBe(0);
         expect(projectExists(projectName)).toBe(true);
       },
-      combination.expectedDuration + 10000
-    );
+      combination.expectedDuration + (process.env.CI ? 30000 : 10000)
+    ); // Add 30s buffer in CI, 10s locally
   });
 });

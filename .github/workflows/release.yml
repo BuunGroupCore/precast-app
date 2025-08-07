@@ -90,9 +90,9 @@ jobs:
 
   deploy:
     name: Deploy to Cloudflare Pages
-    needs: release
+    # needs: release
     runs-on: ubuntu-latest
-    if: success()
+    # if: success()
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -110,7 +110,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Workspace Dependencies  
+      - name: Build Workspace Dependencies
         run: pnpm --filter @precast/ui build
 
       - name: Build Website for Production
@@ -128,7 +128,7 @@ jobs:
           projectName: precast-website
           directory: packages/website/dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          wranglerVersion: '3'
+          wranglerVersion: "3"
 
       - name: Update PostHog with deployment
         run: |

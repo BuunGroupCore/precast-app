@@ -101,6 +101,7 @@ export const frameworkDefs: StackOption[] = [
   },
 ];
 
+
 export const backendDefs: StackOption[] = [
   {
     id: "node",
@@ -153,6 +154,7 @@ export const backendDefs: StackOption[] = [
   },
 ];
 
+
 export const databaseDefs: StackOption[] = [
   {
     id: "postgres",
@@ -193,6 +195,7 @@ export const databaseDefs: StackOption[] = [
   },
 ];
 
+
 export const ormDefs: StackOption[] = [
   {
     id: "prisma",
@@ -229,6 +232,7 @@ export const ormDefs: StackOption[] = [
   },
 ];
 
+
 export const stylingDefs: StackOption[] = [
   {
     id: "tailwind",
@@ -252,6 +256,7 @@ export const stylingDefs: StackOption[] = [
     dependencies: ["react"],
   },
 ];
+
 
 export const runtimeDefs: StackOption[] = [
   {

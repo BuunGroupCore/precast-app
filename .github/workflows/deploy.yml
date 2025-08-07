@@ -46,8 +46,11 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build All Packages
-        run: pnpm build
+      - name: Build TypeScript Projects
+        run: npx tsc --build tsconfig.build.json
+
+      - name: Build Website
+        run: pnpm --filter website build
         env:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}

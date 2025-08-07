@@ -6,7 +6,8 @@
     "composite": true,
     "noEmit": false,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "allowImportingTsExtensions": false
   },
   "include": ["src/**/*"],
   "references": [{ "path": "../utils" }]

@@ -95,7 +95,9 @@
       "Bash(pnpm --filter website format)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm --filter website lint --fix)",
-      "Bash(pnpm:*)"
+      "Bash(pnpm:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run audit:fix:*)"
     ],
     "deny": []
   }

@@ -4,8 +4,8 @@ import {
   SponsorsSection,
   TechStackSection,
   CTASection,
-} from "../components/home";
-import { HomePageSEO } from "../components/SEO";
+} from "@/components/home";
+import { HomePageSEO } from "@/features/common";
 
 /**
  * Home page component that combines all the modular sections.

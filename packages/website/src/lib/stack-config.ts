@@ -27,15 +27,15 @@ import {
   SiAuth0,
 } from "react-icons/si";
 
-import { AuthJSIcon } from "../components/icons/AuthJSIcon";
-import { BetterAuthIcon } from "../components/icons/BetterAuthIcon";
-import { ClerkIcon } from "../components/icons/ClerkIcon";
-import { ConvexIcon } from "../components/icons/ConvexIcon";
-import { CssIcon } from "../components/icons/CssIcon";
-import { HonoIcon } from "../components/icons/HonoIcon";
-import { PassportIcon } from "../components/icons/PassportIcon";
-import { SassIcon } from "../components/icons/SassIcon";
-import { TanStackIcon } from "../components/icons/TanStackIcon";
+import { AuthJSIcon } from "@/components/icons/AuthJSIcon";
+import { BetterAuthIcon } from "@/components/icons/BetterAuthIcon";
+import { ClerkIcon } from "@/components/icons/ClerkIcon";
+import { ConvexIcon } from "@/components/icons/ConvexIcon";
+import { CssIcon } from "@/components/icons/CssIcon";
+import { HonoIcon } from "@/components/icons/HonoIcon";
+import { PassportIcon } from "@/components/icons/PassportIcon";
+import { SassIcon } from "@/components/icons/SassIcon";
+import { TanStackIcon } from "@/components/icons/TanStackIcon";
 
 export interface StackOption {
   id: string;

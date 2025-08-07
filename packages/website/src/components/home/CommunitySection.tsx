@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { FaStar, FaDownload, FaUsers, FaCodeBranch, FaGithub } from "react-icons/fa";
 
-import { EXTERNAL_LINKS } from "../../config/constants";
-import { useGitHubStats } from "../../hooks/useGitHubStats";
-import { useNpmStats } from "../../hooks/useNpmStats";
+import { EXTERNAL_LINKS } from "@/config/constants";
+import { useGitHubStats } from "@/hooks/useGitHubStats";
+import { useNpmStats } from "@/hooks/useNpmStats";
 
 /**
  * Community section component displaying GitHub and NPM statistics.

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaCogs } from "react-icons/fa";
 
-import { runtimes } from "../../lib/stack-config";
+import { runtimes } from "@/lib/stack-config";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";

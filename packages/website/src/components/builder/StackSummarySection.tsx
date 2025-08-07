@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { FaDocker, FaGitAlt, FaPaintBrush, FaFolderOpen } from "react-icons/fa";
 import { SiTypescript } from "react-icons/si";
 
-import { powerUps } from "../../lib/powerups-config";
+import { powerUps } from "@/lib/powerups-config";
 import {
   backends,
   databases,
@@ -12,7 +12,7 @@ import {
   stylings,
   authProviders,
   runtimes,
-} from "../../lib/stack-config";
+} from "@/lib/stack-config";
 
 import { aiAssistants, deploymentMethods, uiLibraries } from "./constants";
 import { FolderStructureDialog } from "./FolderStructureDialog";

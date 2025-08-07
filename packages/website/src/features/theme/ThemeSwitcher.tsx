@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { FaPalette } from "react-icons/fa";
 
-import { useTheme, ComicTheme } from "../contexts/ThemeContext";
+import { useTheme, ComicTheme } from "@/contexts/ThemeContext";
 
 const themes: { id: ComicTheme; name: string; colors: string[] }[] = [
   { id: "classic", name: "CLASSIC", colors: ["#FF1744", "#FFD600", "#2962FF"] },

@@ -3,13 +3,11 @@ import { ReactNode, useState } from "react";
 import { FaCog } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { mainNavigation } from "../config/navigation";
+import { mainNavigation } from "@/config/navigation";
+import { GitHubStars, NpmStats } from "@/features/stats";
+import { SettingsDialog, ThemeSwitcher } from "@/features/theme";
 
 import { Footer } from "./Footer";
-import { GitHubStars } from "./GitHubStars";
-import { NpmStats } from "./NpmStats";
-import { SettingsDialog } from "./SettingsDialog";
-import { ThemeSwitcher } from "./ThemeSwitcher";
 
 interface LayoutProps {
   children: ReactNode;

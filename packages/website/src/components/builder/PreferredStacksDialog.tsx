@@ -20,14 +20,14 @@ import {
   SiPassport,
 } from "react-icons/si";
 
+import { AuthJSIcon } from "@/components/icons/AuthJSIcon";
+import { BetterAuthIcon } from "@/components/icons/BetterAuthIcon";
+import { TanStackIcon } from "@/components/icons/TanStackIcon";
 import {
   preferredStacks,
   getStacksByCategory,
   type PreferredStack,
-} from "../../lib/preferred-stacks-config";
-import { AuthJSIcon } from "../icons/AuthJSIcon";
-import { BetterAuthIcon } from "../icons/BetterAuthIcon";
-import { TanStackIcon } from "../icons/TanStackIcon";
+} from "@/lib/preferred-stacks-config";
 
 import type { ExtendedProjectConfig } from "./types";
 

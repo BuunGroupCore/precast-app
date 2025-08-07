@@ -1,0 +1,1 @@
+export { OriginStoryPage } from "./page";

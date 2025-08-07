@@ -2,7 +2,7 @@ import { IconType } from "react-icons";
 import { FaReact, FaVuejs, FaServer, FaCloud, FaBolt, FaBuilding } from "react-icons/fa";
 import { SiNextdotjs, SiRemix } from "react-icons/si";
 
-import type { ExtendedProjectConfig } from "../components/builder/types";
+import type { ExtendedProjectConfig } from "@/components/builder/types";
 
 export interface PreferredStack {
   id: string;

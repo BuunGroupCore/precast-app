@@ -2,8 +2,8 @@ import { IconType } from "react-icons";
 import { FaGithub, FaFileCode, FaSearch } from "react-icons/fa";
 import { SiPostgresql, SiMongodb, SiSupabase } from "react-icons/si";
 
-import { CloudflareIcon } from "../components/icons/CloudflareIcon";
-import { MCPIcon } from "../components/icons/MCPIcon";
+import { CloudflareIcon } from "@/components/icons/CloudflareIcon";
+import { MCPIcon } from "@/components/icons/MCPIcon";
 
 export interface MCPServer {
   id: string;

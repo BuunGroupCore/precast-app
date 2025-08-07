@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { API_ENDPOINTS, CACHE_DURATIONS } from "../config/constants";
+import { API_ENDPOINTS, CACHE_DURATIONS } from "@/config/constants";
 
 interface GitHubStats {
   stars: number;

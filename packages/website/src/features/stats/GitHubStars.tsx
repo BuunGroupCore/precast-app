@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaGithub, FaHeart, FaCodeBranch, FaExclamationCircle, FaEye } from "react-icons/fa";
 
+import { trackOutboundLink } from "@/utils/analytics";
+
 interface GitHubRepoData {
   stargazers_count: number;
   forks_count: number;
@@ -49,6 +51,10 @@ export function GitHubStars() {
         whileTap={{ scale: 0.95 }}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
+        onClick={(e) => {
+          e.preventDefault();
+          trackOutboundLink("https://github.com/BuunGroupCore/precast-app", "github");
+        }}
         className="flex items-center gap-2 bg-comic-white border-2 border-comic-black rounded-full px-3 py-1 hover:bg-comic-yellow transition-all relative z-10"
         style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
       >

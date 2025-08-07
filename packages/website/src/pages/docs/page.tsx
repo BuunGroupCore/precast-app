@@ -12,15 +12,15 @@ import {
   FaTimes,
 } from "react-icons/fa";
 
-import { CliCommandsDocs } from "../components/docs/CliCommandsDocs";
-import { AddCommandDocs } from "../components/docs/commands/AddCommandDocs";
-import { AddFeaturesCommandDocs } from "../components/docs/commands/AddFeaturesCommandDocs";
-import { BannerCommandDocs } from "../components/docs/commands/BannerCommandDocs";
-import { InitCommandDocs } from "../components/docs/commands/InitCommandDocs";
-import { ListCommandDocs } from "../components/docs/commands/ListCommandDocs";
-import { FAQDocs } from "../components/docs/FAQDocs";
-import { GettingStartedSimple } from "../components/docs/GettingStartedSimple";
-import { DocsPageSEO } from "../components/SEO";
+import { CliCommandsDocs } from "@/components/docs/CliCommandsDocs";
+import { AddCommandDocs } from "@/components/docs/commands/AddCommandDocs";
+import { AddFeaturesCommandDocs } from "@/components/docs/commands/AddFeaturesCommandDocs";
+import { BannerCommandDocs } from "@/components/docs/commands/BannerCommandDocs";
+import { InitCommandDocs } from "@/components/docs/commands/InitCommandDocs";
+import { ListCommandDocs } from "@/components/docs/commands/ListCommandDocs";
+import { FAQDocs } from "@/components/docs/FAQDocs";
+import { GettingStartedSimple } from "@/components/docs/GettingStartedSimple";
+import { DocsPageSEO } from "@/features/common";
 
 interface DocSection {
   id: string;

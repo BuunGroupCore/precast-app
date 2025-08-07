@@ -1,6 +1,6 @@
 import { IconType } from "react-icons";
 
-import { type SavedProject } from "../../lib/db";
+import { type SavedProject } from "@/lib/db";
 
 /**
  * Extended project configuration including all builder options and integrations.

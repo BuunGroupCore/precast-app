@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaCode } from "react-icons/fa";
 
-import { frameworks } from "../../lib/stack-config";
-import { ServiceTooltip } from "../ServiceTooltip";
+import { ServiceTooltip } from "@/features/common";
+import { frameworks } from "@/lib/stack-config";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
@@ -31,7 +31,7 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {frameworks.map((framework) => (
             <ServiceTooltip
-              serviceId={framework.id as keyof typeof import("../ServiceTooltip").serviceInfo}
+              serviceId={framework.id as keyof typeof import("@/features/common").serviceInfo}
               key={framework.id}
             >
               <button

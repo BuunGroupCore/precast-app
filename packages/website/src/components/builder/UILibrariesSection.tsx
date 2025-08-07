@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaPaintBrush } from "react-icons/fa";
 
-import { Tooltip } from "../ui/Tooltip";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import { uiLibraries } from "./constants";

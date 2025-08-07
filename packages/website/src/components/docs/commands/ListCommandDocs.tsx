@@ -1,4 +1,4 @@
-import { CodeBlock } from "../../CodeBlock";
+import { CodeBlock } from "@/features/common";
 
 export function ListCommandDocs() {
   return (

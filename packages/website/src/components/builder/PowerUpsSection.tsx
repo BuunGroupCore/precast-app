@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp, FaTools, FaGitAlt, FaDocker } from "react-icons/fa";
 import { SiTypescript } from "react-icons/si";
 
-import { powerUps, powerUpCategories } from "../../lib/powerups-config";
-import { Tooltip } from "../ui/Tooltip";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { powerUps, powerUpCategories } from "@/lib/powerups-config";
 
 import type { ExtendedProjectConfig } from "./types";
 

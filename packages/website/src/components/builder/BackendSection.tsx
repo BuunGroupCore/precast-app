@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaServer } from "react-icons/fa";
 
-import { backends } from "../../lib/stack-config";
-import { Tooltip } from "../ui/Tooltip";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { backends } from "@/lib/stack-config";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";

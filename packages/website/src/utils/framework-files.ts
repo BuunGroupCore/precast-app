@@ -1,4 +1,4 @@
-import type { FileNode } from "../components/builder/types";
+import type { FileNode } from "@/components/builder/types";
 
 interface FrameworkFiles {
   src: FileNode[];

@@ -22,11 +22,11 @@ import {
   StackSummarySection,
   StylingSection,
   UILibrariesSection,
-} from "../components/builder";
-import { GenericComicDialog } from "../components/GenericComicDialog";
-import { BuilderPageSEO } from "../components/SEO";
-import { db, type SavedProject } from "../lib/db";
-import { backends, databases, frameworks, orms, stylings } from "../lib/stack-config";
+} from "@/components/builder";
+import { BuilderPageSEO, GenericComicDialog } from "@/features/common";
+import { db, type SavedProject } from "@/lib/db";
+import { backends, databases, frameworks, orms, stylings } from "@/lib/stack-config";
+import { trackBuilderAction, trackConversion } from "@/utils/analytics";
 
 /**
  * Interactive project builder page for creating full-stack applications.
@@ -258,9 +258,18 @@ export function BuilderPage() {
   };
 
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(generateCommand());
+    const command = generateCommand();
+    await navigator.clipboard.writeText(command);
     setCopied(true);
     setTerminalCopied(true);
+
+    // Track analytics
+    trackBuilderAction(
+      "command_copied",
+      `${config.framework}-${config.backend}-${config.database}`
+    );
+    trackConversion("project_command_generated");
+
     setTimeout(() => {
       setCopied(false);
       setTerminalCopied(false);

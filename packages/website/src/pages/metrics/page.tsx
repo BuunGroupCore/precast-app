@@ -492,32 +492,79 @@ export function MetricsPage() {
           >
             <h3 className="font-display text-2xl mb-4 text-comic-red">30-DAY DOWNLOAD HISTORY</h3>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={downloadHistory}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="colorDownloads" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.8} />
-                      <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0.1} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#000" strokeOpacity={0.1} />
-                  <XAxis dataKey="day" stroke="#000" tick={{ fontFamily: "Kalam", fontSize: 12 }} />
-                  <YAxis stroke="#000" tick={{ fontFamily: "Kalam", fontSize: 12 }} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area
-                    type="monotone"
-                    dataKey="downloads"
-                    stroke={CHART_COLORS.primary}
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#colorDownloads)"
-                    name="downloads"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {loading || downloadHistory.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="inline-block"
+                    >
+                      <SiNpm className="text-6xl text-comic-red mb-4" />
+                    </motion.div>
+                    <p className="font-comic text-xl text-comic-black">
+                      {loading ? "FETCHING NPM STATS..." : "NO DOWNLOAD DATA YET"}
+                    </p>
+                    {loading && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="mt-4"
+                      >
+                        <div className="flex justify-center gap-3">
+                          {[0, 1, 2, 3].map((i) => (
+                            <motion.div
+                              key={i}
+                              animate={{ opacity: [0.3, 1, 0.3] }}
+                              transition={{
+                                duration: 1.2,
+                                repeat: Infinity,
+                                delay: i * 0.3,
+                              }}
+                              className="w-4 h-16 bg-comic-red rounded"
+                              style={{
+                                height: `${Math.random() * 40 + 20}px`,
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={downloadHistory}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorDownloads" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.8} />
+                        <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#000" strokeOpacity={0.1} />
+                    <XAxis
+                      dataKey="day"
+                      stroke="#000"
+                      tick={{ fontFamily: "Kalam", fontSize: 12 }}
+                    />
+                    <YAxis stroke="#000" tick={{ fontFamily: "Kalam", fontSize: 12 }} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area
+                      type="monotone"
+                      dataKey="downloads"
+                      stroke={CHART_COLORS.primary}
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorDownloads)"
+                      name="downloads"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </motion.div>
 
@@ -591,24 +638,67 @@ export function MetricsPage() {
           >
             <h3 className="font-display text-2xl mb-4 text-comic-blue">WEEKLY COMMIT HISTORY</h3>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={commitHistory} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#000" strokeOpacity={0.1} />
-                  <XAxis
-                    dataKey="week"
-                    stroke="#000"
-                    tick={{ fontFamily: "Kalam", fontSize: 12 }}
-                  />
-                  <YAxis stroke="#000" tick={{ fontFamily: "Kalam", fontSize: 12 }} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar
-                    dataKey="commits"
-                    fill={CHART_COLORS.secondary}
-                    radius={[8, 8, 0, 0]}
-                    name="commits"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              {loading || commitHistory.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="inline-block"
+                    >
+                      <FaCode className="text-6xl text-comic-blue mb-4" />
+                    </motion.div>
+                    <p className="font-comic text-xl text-comic-black">
+                      {loading ? "LOADING COMMIT DATA..." : "NO COMMIT DATA YET"}
+                    </p>
+                    {loading && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="mt-4"
+                      >
+                        <div className="flex justify-center gap-2">
+                          {[0, 1, 2].map((i) => (
+                            <motion.div
+                              key={i}
+                              animate={{ y: [-5, 5, -5] }}
+                              transition={{
+                                duration: 0.8,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                              }}
+                              className="w-3 h-3 bg-comic-blue rounded-full"
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={commitHistory}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#000" strokeOpacity={0.1} />
+                    <XAxis
+                      dataKey="week"
+                      stroke="#000"
+                      tick={{ fontFamily: "Kalam", fontSize: 12 }}
+                    />
+                    <YAxis stroke="#000" tick={{ fontFamily: "Kalam", fontSize: 12 }} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar
+                      dataKey="commits"
+                      fill={CHART_COLORS.secondary}
+                      radius={[8, 8, 0, 0]}
+                      name="commits"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </motion.div>
         </div>
@@ -639,7 +729,18 @@ export function MetricsPage() {
               className="comic-panel p-6 bg-comic-yellow text-center"
             >
               <FaHeart className="text-4xl mx-auto mb-2 text-comic-red" />
-              <div className="action-text text-3xl mb-1">{githubStats?.stars || "..."}</div>
+              <div className="action-text text-3xl mb-1">
+                {loading ? (
+                  <motion.span
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    ...
+                  </motion.span>
+                ) : (
+                  githubStats?.stars || 0
+                )}
+              </div>
               <div className="font-display text-lg">STARS</div>
             </motion.div>
 

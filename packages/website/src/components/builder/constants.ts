@@ -9,7 +9,7 @@ import {
   SiMantine,
 } from "react-icons/si";
 
-import { DaisyUIIcon } from "../icons/DaisyUIIcon";
+import { DaisyUIIcon } from "@/components/icons/DaisyUIIcon";
 
 import type { AIAssistant, UILibrary, PackageManager, DeploymentMethod } from "./types";
 

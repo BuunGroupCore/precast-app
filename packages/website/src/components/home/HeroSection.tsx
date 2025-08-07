@@ -4,7 +4,7 @@ import { FaTerminal, FaCopy, FaCheck } from "react-icons/fa";
 import { SiNpm, SiYarn, SiBun } from "react-icons/si";
 import { useNavigate } from "react-router-dom";
 
-import { PACKAGE_MANAGERS } from "../../config/constants";
+import { PACKAGE_MANAGERS } from "@/config/constants";
 
 /**
  * Hero section component for the home page.

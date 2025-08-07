@@ -2,13 +2,11 @@ import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { FaCog, FaSave, FaUndo } from "react-icons/fa";
 
-import { db, type UserSettings } from "../lib/db";
-import { preferredStacks } from "../lib/preferred-stacks";
-import { frameworks, backends, databases, stylings, runtimes } from "../lib/stack-config";
-
-import { packageManagers } from "./builder/constants";
-import { ComicSelect } from "./ComicSelect";
-import { GenericComicDialog } from "./GenericComicDialog";
+import { packageManagers } from "@/components/builder/constants";
+import { ComicSelect, GenericComicDialog } from "@/features/common";
+import { db, type UserSettings } from "@/lib/db";
+import { preferredStacks } from "@/lib/preferred-stacks";
+import { frameworks, backends, databases, stylings, runtimes } from "@/lib/stack-config";
 
 interface SettingsDialogProps {
   isOpen: boolean;

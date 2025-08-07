@@ -34,8 +34,8 @@ import {
   SiRemix,
 } from "react-icons/si";
 
-import { getFrameworkFiles } from "../../utils/framework-files";
-import { processTemplate, getTemplateContent } from "../../utils/template-processor";
+import { getFrameworkFiles } from "@/utils/framework-files";
+import { processTemplate, getTemplateContent } from "@/utils/template-processor";
 
 import type { ExtendedProjectConfig, FileNode } from "./types";
 

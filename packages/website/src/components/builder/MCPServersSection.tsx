@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React, { useEffect, useRef } from "react";
 import { FaMicrochip } from "react-icons/fa";
 
-import { mcpServers, getRelevantMCPServers } from "../../lib/mcp-servers-config";
+import { mcpServers, getRelevantMCPServers } from "@/lib/mcp-servers-config";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";

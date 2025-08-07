@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaUserShield } from "react-icons/fa";
 
-import { authProviders } from "../../lib/stack-config";
+import { authProviders } from "@/lib/stack-config";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";

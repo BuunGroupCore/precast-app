@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { FaExternalLinkAlt, FaHeart, FaRocket, FaCode, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-import { EXTERNAL_LINKS, APP_TAGLINE } from "../config/constants";
-import { footerNavigation, socialLinks } from "../config/navigation";
+import { EXTERNAL_LINKS, APP_TAGLINE } from "@/config/constants";
+import { footerNavigation, socialLinks } from "@/config/navigation";
 
 /**
  * Footer component displaying project information, links, and resources.

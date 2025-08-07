@@ -1,5 +1,6 @@
 # Robots.txt for Precast.dev
 # https://precast.dev
+# Last updated: 2025-08-07
 
 # Allow all crawlers
 User-agent: *
@@ -7,6 +8,7 @@ Allow: /
 
 # Sitemap location
 Sitemap: https://precast.dev/sitemap.xml
+Sitemap: https://precast.dev/sitemap-index.xml
 
 # Crawl delay (in seconds) - optional, helps prevent server overload
 Crawl-delay: 1

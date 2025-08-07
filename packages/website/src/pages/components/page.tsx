@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { FaExternalLinkAlt, FaGithub, FaTerminal } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-import { ComponentsPageSEO } from "../components/SEO";
+import { ComponentsPageSEO } from "@/features/common";
 
 interface ComponentLibrary {
   name: string;

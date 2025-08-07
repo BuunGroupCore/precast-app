@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp, FaLightbulb } from "react-icons/fa";
 
-import { preferredStacks } from "../../lib/preferred-stacks";
+import { preferredStacks } from "@/lib/preferred-stacks";
 
 import type { ExtendedProjectConfig } from "./types";
 

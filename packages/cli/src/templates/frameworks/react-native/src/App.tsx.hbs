@@ -1,0 +1,51 @@
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ */
+
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import HomeScreen from "./screens/HomeScreen";
+
+/**
+ * Type definitions for navigation stack
+ */
+export type RootStackParamList = {
+  Home: undefined;
+  // Add more screens here as needed
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+/**
+ * Main application component
+ * @returns {React.JSX.Element} The root application component
+ */
+function App(): React.JSX.Element {
+  const screenOptions = {
+    headerStyle: {
+      backgroundColor: "#f4511e",
+    },
+    headerTintColor: "#fff",
+    headerTitleStyle: {
+      fontWeight: "bold" as const,
+    },
+  };
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options=\{{ title: "{{name}}" }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default App;

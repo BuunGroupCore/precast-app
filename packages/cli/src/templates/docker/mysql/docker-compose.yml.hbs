@@ -5,10 +5,10 @@ services:
     image: mysql:8.0
     container_name: {{name}}-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: {{MYSQL_ROOT_PASSWORD}}
       MYSQL_DATABASE: {{name}}
       MYSQL_USER: {{name}}_user
-      MYSQL_PASSWORD: password
+      MYSQL_PASSWORD: {{MYSQL_PASSWORD}}
     ports:
       - "3306:3306"
     volumes:
@@ -33,7 +33,7 @@ services:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: rootpassword
+      PMA_PASSWORD: {{MYSQL_ROOT_PASSWORD}}
       UPLOAD_LIMIT: 100M
     ports:
       - "8080:80"

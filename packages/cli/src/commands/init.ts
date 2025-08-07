@@ -144,6 +144,16 @@ export async function initCommand(projectName: string | undefined, options: Init
 
       const pm = options.packageManager || (await detectPackageManager());
       await addSecurityOverridesToProject(projectPath, config.framework, pm);
+
+      // Format code before git initialization to ensure clean commits
+      if (!(options.install || config.autoInstall)) {
+        // Only format if we're not installing (installation will format automatically)
+        s.start("Formatting generated code");
+        const { formatGeneratedCode } = await import("../utils/package-manager.js");
+        await formatGeneratedCode(projectPath);
+        s.stop("Code formatted");
+      }
+
       if (config.git) {
         s.start("Initializing git repository");
         await initializeGit(projectPath);

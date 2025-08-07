@@ -3,7 +3,7 @@
  */
 export { HeroSection } from "./HeroSection";
 export { CommunitySection } from "./CommunitySection";
-export { SponsorsSection } from "./SponsorsSection";
+export { ComicSponsorsSection } from "./ComicSponsorsSection";
 export { TechStackSection } from "./TechStackSection";
 export { TestimonialsSection } from "./TestimonialsSection";
 export { CTASection } from "./CTASection";

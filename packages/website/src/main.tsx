@@ -8,7 +8,7 @@ import { ANALYTICS } from "./config/constants";
 
 const options = {
   api_host: ANALYTICS.POSTHOG_HOST,
-  capture_pageview: false, // We'll handle this manually
+  capture_pageview: false,
   capture_pageleave: true,
 };
 

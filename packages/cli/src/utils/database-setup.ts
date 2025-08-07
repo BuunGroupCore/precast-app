@@ -53,6 +53,11 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
       consola.warn(`Unknown ORM: ${config.orm}`);
   }
 
+  // Add database connection test for frontend projects
+  if (config.framework && config.framework !== "none" && config.database !== "none") {
+    await setupDatabaseConnectionTest(config, projectPath, templateEngine);
+  }
+
   consola.success(`✅ Database setup completed for ${config.database} with ${config.orm}!`);
 }
 
@@ -516,4 +521,72 @@ function getDatabaseProvider(database: string): string {
     default:
       return "postgresql";
   }
+}
+
+/**
+ * Setup database connection test for frontend projects
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ * @param templateEngine - Template engine instance
+ */
+async function setupDatabaseConnectionTest(
+  config: ProjectConfig,
+  projectPath: string,
+  templateEngine: TemplateEngine
+): Promise<void> {
+  consola.info("Adding database connection test utilities...");
+
+  // Determine where to place the test file based on framework
+  let testFilePath = projectPath;
+
+  // For monorepo structures, place in the web app
+  if (config.backend && config.backend !== "none") {
+    testFilePath = path.join(projectPath, "apps", "web");
+  }
+
+  // Create utils directory
+  const utilsDir = path.join(testFilePath, "src", "utils");
+  await ensureDir(utilsDir);
+
+  // Copy database connection test template
+  const templateRoot = getTemplateRoot();
+  const testTemplatePath = path.join(
+    templateRoot,
+    "database/connection/database-connection.ts.hbs"
+  );
+  const outputFileName = config.typescript ? "database-connection.ts" : "database-connection.js";
+
+  await templateEngine.processTemplate(
+    testTemplatePath,
+    path.join(utilsDir, outputFileName),
+    config
+  );
+
+  // Update main file to include database test
+  const mainFilePath = path.join(testFilePath, "src", config.typescript ? "main.ts" : "main.js");
+
+  try {
+    let mainContent = await readFile(mainFilePath, "utf-8");
+
+    // Add import for database test
+    const importStatement = `import { initializeDatabaseHealthMonitoring } from './utils/database-connection'${
+      config.typescript ? "" : ""
+    }\n`;
+
+    // Add import at the beginning of the file
+    if (!mainContent.includes("initializeDatabaseHealthMonitoring")) {
+      mainContent = importStatement + mainContent;
+
+      // Add initialization call at the end
+      mainContent += `\n// Initialize database health monitoring\ninitializeDatabaseHealthMonitoring()\n`;
+
+      await writeFile(mainFilePath, mainContent);
+      consola.success("Added database health monitoring to main file");
+    }
+  } catch (error) {
+    // Main file might not exist for some frameworks
+    consola.debug("Could not update main file:", error);
+  }
+
+  consola.success("✅ Database connection test utilities added!");
 }

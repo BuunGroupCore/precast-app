@@ -3,7 +3,7 @@ import { FaRocket, FaStar, FaBolt, FaHeart, FaFire } from "react-icons/fa";
 import {
   HeroSection,
   CommunitySection,
-  SponsorsSection,
+  ComicSponsorsSection,
   TechStackSection,
   TestimonialsSection,
   CTASection,
@@ -50,7 +50,7 @@ export function HomePage() {
       />
 
       <div id="sponsors">
-        <SponsorsSection />
+        <ComicSponsorsSection />
       </div>
 
       <ComicPageSeparator

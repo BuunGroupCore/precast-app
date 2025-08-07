@@ -102,10 +102,31 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
+  check-changes:
+    name: Check for Website Changes
+    runs-on: ubuntu-latest
+    outputs:
+      website-changed: ${{ steps.filter.outputs.website }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Check for website changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            website:
+              - 'packages/website/**'
+
   deploy:
     name: Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
-    if: always() && (github.event_name == 'workflow_dispatch' || github.event_name == 'push')
+    needs: check-changes
+    if: |
+      always() && 
+      (github.event_name == 'workflow_dispatch' || 
+       (github.event_name == 'push' && needs.check-changes.outputs.website-changed == 'true'))
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

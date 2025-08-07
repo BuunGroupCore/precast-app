@@ -1,18 +1,39 @@
-# create-precast-app
+<div align="center">
+  <img src="https://brutalist.precast.dev/logo.png" alt="Precast Logo" width="200" />
+  
+  # create-precast-app
+  
+  ### 🚀 Build TypeScript projects with SUPERHUMAN SPEED!
+  **Choose your stack, configure your powers, and launch into action!**
+  
+  [![npm version](https://img.shields.io/npm/v/create-precast-app.svg?style=flat-square)](https://www.npmjs.com/package/create-precast-app)
+  [![npm downloads](https://img.shields.io/npm/dm/create-precast-app.svg?style=flat-square)](https://www.npmjs.com/package/create-precast-app)
+  [![GitHub Stars](https://img.shields.io/github/stars/BuunGroupCore/precast-app?style=flat-square)](https://github.com/BuunGroupCore/precast-app)
+  [![License](https://img.shields.io/github/license/BuunGroupCore/precast-app?style=flat-square)](https://github.com/BuunGroupCore/precast-app/blob/main/LICENSE)
+  
+  [**Website**](https://precast.dev) • [**Builder**](https://precast.dev/builder) • [**Documentation**](https://precast.dev/docs) • [**Discord**](https://discord.gg/precast)
+</div>
 
-CLI tool for scaffolding full-stack web applications with modern frameworks and tools.
+---
 
-## Features
+## ✨ Features
 
-- **Multi-framework support** - React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Remix, Astro, Vite, and Vanilla JS
-- **Backend integration** - Express, Fastify, Hono, NestJS, Koa, or Next.js API Routes
-- **Database setup** - PostgreSQL, MySQL, MongoDB, SQLite with Prisma or Drizzle ORM
-- **Authentication** - Auth.js or Better Auth with social providers
-- **UI libraries** - Shadcn/ui, DaisyUI, Material UI, Chakra UI, Ant Design
-- **Claude Code integration** - Automatic .claude folder setup with project-specific configurations
-- **Smart package manager handling** - Detects and handles Bun compatibility issues automatically
+- 🎯 **Visual Builder** - Configure your stack visually at [precast.dev/builder](https://precast.dev/builder)
+- 🎨 **Multi-framework support** - React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Remix, Astro, Vite, and Vanilla JS
+- 🔧 **Backend integration** - Express, Fastify, Hono, NestJS, or Next.js API Routes
+- 🗄️ **Database setup** - PostgreSQL, MySQL, MongoDB, SQLite with Prisma, Drizzle, or TypeORM
+- 🔐 **Authentication** - Better Auth, NextAuth, Clerk, Supabase Auth, Auth0, Firebase Auth
+- 💅 **UI libraries** - Shadcn/ui, DaisyUI, Material UI, Chakra UI, Ant Design, Mantine
+- 🤖 **AI Integration** - Claude Code with MCP servers, GitHub Copilot configuration
+- 📦 **Smart package management** - Automatic fallback handling for compatibility issues
 
-## Quick Start
+## 🚀 Quick Start
+
+### Option 1: Visual Builder (Recommended)
+
+Visit [precast.dev/builder](https://precast.dev/builder) to visually configure your stack and copy the generated command.
+
+### Option 2: Command Line
 
 ```bash
 # Interactive mode
@@ -21,277 +42,181 @@ npx create-precast-app@latest
 # With options
 npx create-precast-app my-app --framework react --backend express --database postgres
 
-# Skip all prompts with defaults
-npx create-precast-app my-app -y
+# Full configuration
+npx create-precast-app my-app \
+  --framework next \
+  --backend express \
+  --database postgres \
+  --orm prisma \
+  --styling tailwind \
+  --ui-library shadcn \
+  --auth better-auth \
+  --install
 ```
 
-## Available Options
+## 📖 Commands
 
-### Frameworks
+| Command        | Description                                               | Documentation                                 |
+| -------------- | --------------------------------------------------------- | --------------------------------------------- |
+| `init`         | Create a new project with your chosen stack               | [Docs](https://precast.dev/docs#init)         |
+| `add`          | Add resources to existing project (component, route, api) | [Docs](https://precast.dev/docs#add)          |
+| `add-features` | Add features to existing project (UI libs, AI context)    | [Docs](https://precast.dev/docs#add-features) |
+| `list`         | List available templates and features                     | [Docs](https://precast.dev/docs#list)         |
+| `banner`       | Create a banner template for customization                | [Docs](https://precast.dev/docs#banner)       |
 
-- `react` - React 18 with Vite
-- `vue` - Vue 3 with Vite
-- `angular` - Angular 17+
-- `next` - Next.js 14 App Router
-- `nuxt` - Nuxt 3
-- `svelte` - SvelteKit
-- `solid` - SolidJS
-- `remix` - Remix
-- `astro` - Astro
-- `vite` - Vanilla Vite
-- `vanilla` - Vanilla JavaScript/TypeScript
-
-### Backends
-
-- `express` - Express.js server
-- `fastify` - Fastify server
-- `hono` - Hono server
-- `nestjs` - NestJS framework
-- `koa` - Koa server
-- `nextjs-api` - Next.js API Routes
-- `none` - Frontend only
-
-### Databases
-
-- `postgres` - PostgreSQL
-- `mysql` - MySQL
-- `mongodb` - MongoDB
-- `sqlite` - SQLite
-- `none` - No database
-
-### ORMs
-
-- `prisma` - Prisma ORM (SQL databases + MongoDB)
-- `drizzle` - Drizzle ORM (SQL databases)
-- `none` - No ORM
-
-### Styling
-
-- `tailwind` - Tailwind CSS
-- `css` - Plain CSS
-- `scss` - SCSS/Sass
-
-### UI Libraries
-
-- `shadcn` - shadcn/ui components
-- `daisyui` - DaisyUI components
-- `mui` - Material UI
-- `chakra` - Chakra UI
-- `ant` - Ant Design
-- `none` - No UI library
-
-### Authentication
-
-- `auth.js` - Auth.js (NextAuth v5)
-- `better-auth` - Better Auth
-- `none` - No authentication
-
-### Additional Options
-
-- `--typescript` / `--no-typescript` - TypeScript support (default: true)
-- `--git` / `--no-git` - Initialize git repository (default: true)
-- `--install` / `--no-install` - Install dependencies after creation
-- `--ai` - Include AI context files (.claude, cursor, etc)
-- `--docker` - Include Docker configuration
-- `--eslint` - Add ESLint configuration
-- `--prettier` - Add Prettier configuration
-- `--mcp` - Add Model Context Protocol configuration
-- `--pm <manager>` - Package manager (npm, yarn, pnpm, bun)
-- `-y, --yes` - Skip prompts and use defaults
-
-## Command Line Usage
+### Examples
 
 ```bash
-# Create a new project
-create-precast-app [project-name] [options]
+# Create a Next.js app with everything configured
+npx create-precast-app my-nextjs-app \
+  --framework next \
+  --backend none \
+  --database postgres \
+  --orm prisma \
+  --styling tailwind \
+  --ui-library shadcn \
+  --auth better-auth \
+  --ai claude \
+  --mcp-servers postgresql,github \
+  --install
 
-# Add features to existing project
-create-precast-app add [feature] [options]
+# Create a React + Express full-stack app
+npx create-precast-app my-fullstack-app \
+  --framework react \
+  --backend express \
+  --database postgres \
+  --orm drizzle \
+  --api-client tanstack-query \
+  --install
 
-# Show version
-create-precast-app --version
-
-# Show help
-create-precast-app --help
+# Add authentication to existing project
+npx create-precast-app add-features \
+  --auth better-auth \
+  --provider github,google
 ```
 
-## Project Structure
+## 🛠️ Available Options
 
-```
-packages/cli/
-├── src/
-│   ├── commands/        # CLI commands (init, add)
-│   ├── generators/      # Framework generators
-│   ├── templates/       # Handlebars templates
-│   ├── utils/           # Utilities (auth, package manager, etc)
-│   └── cli.ts          # Main entry point
-├── tests/              # Vitest test files
-├── dist/               # Built output
-└── package.json
-```
+| Category                | Options                                                                                 |
+| ----------------------- | --------------------------------------------------------------------------------------- |
+| **Frontend Frameworks** | `react` `vue` `angular` `next` `nuxt` `svelte` `solid` `remix` `astro` `vite` `vanilla` |
+| **Backend Frameworks**  | `express` `fastify` `hono` `nest` `none`                                                |
+| **Databases**           | `postgres` `mysql` `sqlite` `mongodb` `none`                                            |
+| **ORMs**                | `prisma` `drizzle` `typeorm` `mongoose` `none`                                          |
+| **Styling**             | `tailwind` `css` `scss` `css-modules` `styled-components` `emotion`                     |
+| **UI Libraries**        | `shadcn` `daisyui` `material-ui` `chakra-ui` `ant-design` `mantine`                     |
+| **Authentication**      | `better-auth` `next-auth` `clerk` `supabase-auth` `auth0` `firebase-auth`               |
+| **AI Assistance**       | `claude` `copilot` `none`                                                               |
 
-## Database Configuration
+## 📈 Star History
 
-When you select a database, the CLI:
+<a href="https://star-history.com/#BuunGroupCore/precast-app&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BuunGroupCore/precast-app&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=BuunGroupCore/precast-app&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=BuunGroupCore/precast-app&type=Date" />
+ </picture>
+</a>
 
-- Validates ORM compatibility
-- Generates connection configuration in `.env.example`
-- Adds required dependencies
-- Creates configuration files (Prisma schema, Drizzle config, etc.)
-- Sets up Docker Compose (if Docker enabled)
+## 🎯 Why Precast?
 
-### Example: PostgreSQL with Prisma
+- **Zero Config** - Sensible defaults that just work
+- **Production Ready** - Best practices and security built-in
+- **Type Safe** - Full TypeScript support across the stack
+- **Modern Stack** - Latest versions of all dependencies
+- **AI Ready** - Claude Code and GitHub Copilot pre-configured
+- **Fast Development** - Hot reload, auto-completion, and more
+- **Extensible** - Easy to customize and extend
 
-Generated files include:
-
-- `.env.example` with `DATABASE_URL`
-- `docker-compose.yml` for local development
-- Database scripts in `package.json`:
-  - `db:generate` - Generate Prisma client
-  - `db:migrate` - Run migrations
-  - `db:push` - Push schema changes
-  - `db:studio` - Open Prisma Studio
-
-### Database Setup
-
-```bash
-# Using Docker (recommended)
-docker-compose up -d
-npm run db:migrate
-
-# Using local database
-# 1. Install your database
-# 2. Update DATABASE_URL in .env
-# 3. Run migrations
-```
-
-## Testing
-
-### Running Tests
-
-```bash
-# Build the CLI
-bun run build
-
-# Run all tests
-bun test
-
-# Generate test combinations
-bun smart-test-generator.ts
-
-# Run tests with coverage
-bun test --coverage
-```
-
-### Test Coverage
-
-The test suite covers:
-
-- All framework combinations
-- Database and ORM compatibility
-- TypeScript/JavaScript generation
-- Styling options
-- Authentication setups
-- UI library integrations
-- Package manager handling
-
-## Development
-
-### Building from Source
+## 🔧 Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/BuunGroupCore/precast-app.git
-cd precast-app/packages/cli
 
 # Install dependencies
-bun install
+pnpm install
 
 # Build the CLI
-bun run build
+pnpm --filter create-precast-app build
 
 # Test locally
-./dist/cli.js init test-project
+./packages/cli/dist/cli.js init test-project
 ```
 
-### Adding New Frameworks
+## 🤝 Contributing
 
-1. Create a generator file in `src/generators/[framework]-template.ts`
-2. Add templates in `src/templates/frameworks/[framework]/`
-3. Update framework definitions in `shared/stack-config.ts`
-4. Add tests for the new framework
+We love contributions! Please see our [Contributing Guide](https://github.com/BuunGroupCore/precast-app/blob/main/CONTRIBUTING.md) for details.
 
-## Template System
+### How to Contribute
 
-### Handlebars Helpers
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-```handlebars
-{{#if typescript}}
-  // TypeScript code
-{{else}}
-  // JavaScript code
-{{/if}}
+## 💖 Sponsors
 
-{{#if (eq database "postgres")}}
-  DATABASE_URL=postgresql://...
-{{/if}}
+A huge thank you to our sponsors who make this project possible!
 
-{{#ifAny (eq backend "express") (eq backend "fastify")}}
-  // Server code
-{{/ifAny}}
-```
+<a href="https://github.com/sponsors/BuunGroupCore">
+  <img src="https://img.shields.io/badge/Sponsor%20Us-GitHub%20Sponsors-ea4aaa?style=for-the-badge&logo=github-sponsors" alt="Sponsor us on GitHub" />
+</a>
 
-### Available Helpers
+### Gold Sponsors
 
-- `eq` - Equality check
-- `and`, `or`, `not` - Logical operators
-- `includes` - Array includes
-- `ifAny`, `ifAll` - Multiple conditions
-- `capitalize` - Capitalize string
-- `kebabCase` - Convert to kebab-case
+<!-- Add sponsor logos/links here -->
 
-## Contributing
+_Become our first gold sponsor!_
 
-Contributions are welcome! Please ensure all tests pass before submitting a pull request.
+### Silver Sponsors
 
-## License
+<!-- Add sponsor logos/links here -->
 
-MIT
+_Your company here_
 
-## Package Manager Support
+### Bronze Sponsors
 
-The CLI automatically detects your preferred package manager and handles compatibility issues:
+<!-- Add sponsor logos/links here -->
 
-- **Bun** - Uses `--ignore-scripts` flag to avoid postinstall script failures
-- **npm** - Standard npm with automatic vulnerability fixing
-- **Yarn** - Classic Yarn support
-- **pnpm** - Efficient disk space usage
+_Support the project_
 
-### Bun Compatibility
+## 👥 Contributors
 
-When using Bun, the CLI automatically adds `--ignore-scripts` to avoid issues with packages that have postinstall scripts (like esbuild, prisma, sharp). This ensures smooth installation without manual intervention.
+Thanks to all the amazing people who have contributed to this project!
 
-## Claude Code Integration
+<a href="https://github.com/BuunGroupCore/precast-app/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=BuunGroupCore/precast-app" />
+</a>
 
-Every generated project includes:
+## 📄 License
 
-- `.claude/settings.json` - Project-specific permissions and configuration
-- `CLAUDE.md` - Comprehensive project context for Claude
-- MCP configuration for enhanced Claude Code features
-- Framework-specific permissions (e.g., WebFetch for documentation sites)
+MIT © [Buun Group Core](https://github.com/BuunGroupCore)
 
-## Troubleshooting
+## 🔗 Links
 
-### Installation Issues
+- [Website](https://precast.dev)
+- [Visual Builder](https://precast.dev/builder)
+- [Documentation](https://precast.dev/docs)
+- [GitHub](https://github.com/BuunGroupCore/precast-app)
+- [npm Package](https://www.npmjs.com/package/create-precast-app)
+- [Discord Community](https://discord.gg/precast)
+- [Twitter](https://twitter.com/precastdev)
 
-If you encounter installation errors:
+## 🚨 Security
 
-1. **With Bun**: The CLI automatically uses `--ignore-scripts`. If issues persist, try using npm instead.
-2. **Permission errors**: Run with `sudo` on Unix systems or as Administrator on Windows
-3. **Network issues**: Check your internet connection and proxy settings
+For security issues, please email security@precast.dev instead of using the issue tracker.
 
-### Common Issues
+## 📊 Stats
 
-- **"Command not found"**: Ensure npx is installed or install globally with `npm i -g create-precast-app`
-- **Template errors**: Update to the latest version with `npm update create-precast-app`
-- **Database connection**: Ensure Docker is running if using containerized databases
+![Alt](https://repobeats.axiom.co/api/embed/5bb7c1882deca2295845fa807bc19bde4fa5e8e2.svg "Repobeats analytics image")
+
+---
+
+<div align="center">
+  Made with ❤️ by the <a href="https://github.com/BuunGroupCore">Buun Group Core</a> team
+  <br />
+  <br />
+  <a href="https://precast.dev/builder">Try the Visual Builder →</a>
+</div>

@@ -45,33 +45,38 @@ jobs:
         with:
           node-version: 20
           
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          bun-version: latest
+          version: 8.15.1
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
           
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-bun-
+            ${{ runner.os }}-pnpm-store-
             
       - name: Install dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
         working-directory: packages/cli
         
       - name: Build CLI
-        run: bun run build
+        run: pnpm --filter @precast/cli build
         working-directory: packages/cli
         
       - name: Run linting
-        run: bun run lint
+        run: pnpm --filter @precast/cli lint
         working-directory: packages/cli
         
       - name: Run type checking  
-        run: bun run typecheck
+        run: pnpm --filter @precast/cli typecheck
         working-directory: packages/cli
         
       - name: Run quick tests
@@ -104,37 +109,37 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          bun-version: latest
+          version: 8.15.1
           
       - name: Install dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
         working-directory: packages/cli
         
       - name: Build CLI
-        run: bun run build
+        run: pnpm --filter @precast/cli build
         working-directory: packages/cli
         
       - name: Run type checking
-        run: bun run typecheck
+        run: pnpm --filter @precast/cli typecheck
         working-directory: packages/cli
         
       - name: Run linting
-        run: bun run lint
+        run: pnpm --filter @precast/cli lint
         working-directory: packages/cli
         
       - name: Generate smart test combinations
-        run: bun smart-test-generator.ts
+        run: pnpm tsx packages/cli/smart-test-generator.ts
         working-directory: packages/cli
         
       - name: Run unit tests with Vitest
-        run: bun test
+        run: pnpm --filter @precast/cli test
         working-directory: packages/cli
         
       - name: Generate test report
-        run: bun tests/test-reporter.ts
+        run: pnpm --filter @precast/cli tests/test-reporter.ts
         working-directory: packages/cli
         if: always()
         
@@ -195,17 +200,17 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          bun-version: latest
+          version: 8.15.1
           
       - name: Install dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
         working-directory: packages/cli
         
       - name: Build CLI
-        run: bun run build
+        run: pnpm --filter @precast/cli build
         working-directory: packages/cli
         
       - name: Test CLI commands

@@ -1,9 +1,8 @@
 {{#if typescript}}import { useState } from 'react'{{else}}import { useState } from 'react'{{/if}}
 {{#if (eq styling "styled-components")}}import styled from 'styled-components'{{/if}}
-{{#if (eq styling "css")}}import './App.css'{{/if}}
-{{#if (eq styling "scss")}}import './App.scss'{{/if}}
-import { HelloWorld } from './components/HelloWorld'
+
 import { Counter } from './components/Counter'
+import { HelloWorld } from './components/HelloWorld'
 
 {{#if (eq styling "styled-components")}}
 const Container = styled.div`
@@ -132,7 +131,7 @@ function App() {
       </div>
     </div>
     {{else}}
-    <div className="App">
+    <div className="app">
       <h1>{{name}}</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>

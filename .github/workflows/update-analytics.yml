@@ -45,10 +45,15 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.1
+
       - name: Install analytics script dependencies
         run: |
           cd scripts
-          npm install
+          pnpm install
 
       - name: Fetch GA4 Analytics Data
         env:

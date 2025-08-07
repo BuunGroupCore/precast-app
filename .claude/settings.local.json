@@ -97,7 +97,15 @@
       "Bash(pnpm --filter website lint --fix)",
       "Bash(pnpm:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run audit:fix:*)"
+      "Bash(npm run audit:fix:*)",
+      "Bash(for file in /home/sacha/repositories/precast-app/packages/cli/src/generators/*-template.ts)",
+      "Bash(do if ! grep -q \"generateBaseTemplate\" \"$file\")",
+      "Bash(then basename \"$file\")",
+      "Bash(fi)",
+      "Bash(npx prettier:*)",
+      "Bash(docker logs:*)",
+      "Bash(npm run docker:down:*)",
+      "Bash(npm run docker:up:*)"
     ],
     "deny": []
   }

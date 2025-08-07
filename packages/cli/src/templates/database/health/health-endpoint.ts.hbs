@@ -1,0 +1,363 @@
+/**
+ * Database Health Check Endpoint
+ * Provides health monitoring for database connectivity
+ */
+
+{{#if (eq backend "express")}}
+import { Request, Response, Router } from "express";
+{{#if (eq orm "prisma")}}
+import { prisma } from "../lib/prisma";
+{{else if (eq orm "drizzle")}}
+import { db } from "../lib/drizzle";
+{{else if (eq orm "typeorm")}}
+import { AppDataSource } from "../lib/typeorm";
+{{else if (eq orm "mongoose")}}
+import mongoose from "mongoose";
+{{/if}}
+
+const healthRouter = Router();
+
+/**
+ * Database health check endpoint
+ * GET /api/health/database
+ */
+healthRouter.get("/database", async (req: Request, res: Response) => {
+  const startTime = Date.now();
+
+  try {
+    // Perform database-specific health check
+    {{#if (eq database "postgres")}}
+      {{#if (eq orm "prisma")}}
+    await prisma.$queryRaw`SELECT 1`;
+      {{else if (eq orm "drizzle")}}
+    await db.execute("SELECT 1");
+      {{else if (eq orm "typeorm")}}
+    await AppDataSource.query("SELECT 1");
+      {{else}}
+    // Add your PostgreSQL health check here
+      {{/if}}
+    {{else if (eq database "mysql")}}
+      {{#if (eq orm "prisma")}}
+    await prisma.$queryRaw`SELECT 1`;
+      {{else if (eq orm "drizzle")}}
+    await db.execute("SELECT 1");
+      {{else if (eq orm "typeorm")}}
+    await AppDataSource.query("SELECT 1");
+      {{else}}
+    // Add your MySQL health check here
+      {{/if}}
+    {{else if (eq database "mongodb")}}
+      {{#if (eq orm "mongoose")}}
+    await mongoose.connection.db.admin().ping();
+      {{else if (eq orm "prisma")}}
+    await prisma.$runCommandRaw({ ping: 1 });
+      {{else}}
+    // Add your MongoDB health check here
+      {{/if}}
+    {{else if (eq database "sqlite")}}
+      {{#if (eq orm "prisma")}}
+    await prisma.$queryRaw`SELECT 1`;
+      {{else if (eq orm "drizzle")}}
+    await db.execute("SELECT 1");
+      {{else if (eq orm "typeorm")}}
+    await AppDataSource.query("SELECT 1");
+      {{else}}
+    // Add your SQLite health check here
+      {{/if}}
+    {{/if}}
+
+    const latency = Date.now() - startTime;
+
+    res.json({
+      status: "healthy",
+      database: "{{database}}",
+      timestamp: new Date().toISOString(),
+      latency,
+      details: {
+        connected: true,
+        orm: "{{orm}}",
+        {{#if (eq database "postgres")}}
+        type: "PostgreSQL",
+        {{else if (eq database "mysql")}}
+        type: "MySQL",
+        {{else if (eq database "mongodb")}}
+        type: "MongoDB",
+        {{else if (eq database "sqlite")}}
+        type: "SQLite",
+        {{/if}}
+      },
+    });
+  } catch (error) {
+    const latency = Date.now() - startTime;
+
+    console.error("Database health check failed:", error);
+
+    res.status(503).json({
+      status: "unhealthy",
+      database: "{{database}}",
+      timestamp: new Date().toISOString(),
+      latency,
+      error: error instanceof Error ? error.message : "Unknown error",
+      details: {
+        connected: false,
+        orm: "{{orm}}",
+      },
+    });
+  }
+});
+
+/**
+ * General application health check
+ * GET /api/health
+ */
+healthRouter.get("/", (req: Request, res: Response) => {
+  res.json({
+    status: "healthy",
+    service: "{{name}}-api",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
+export { healthRouter };
+
+{{else if (eq backend "fastify")}}
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+{{#if (eq orm "prisma")}}
+import { prisma } from "../lib/prisma";
+{{else if (eq orm "drizzle")}}
+import { db } from "../lib/drizzle";
+{{else if (eq orm "typeorm")}}
+import { AppDataSource } from "../lib/typeorm";
+{{else if (eq orm "mongoose")}}
+import mongoose from "mongoose";
+{{/if}}
+
+export async function healthRoutes(fastify: FastifyInstance) {
+  /**
+   * Database health check endpoint
+   * GET /api/health/database
+   */
+  fastify.get("/database", async (request: FastifyRequest, reply: FastifyReply) => {
+    const startTime = Date.now();
+
+    try {
+      // Perform database-specific health check
+      {{#if (eq database "postgres")}}
+        {{#if (eq orm "prisma")}}
+      await prisma.$queryRaw`SELECT 1`;
+        {{else if (eq orm "drizzle")}}
+      await db.execute("SELECT 1");
+        {{else if (eq orm "typeorm")}}
+      await AppDataSource.query("SELECT 1");
+        {{else}}
+      // Add your PostgreSQL health check here
+        {{/if}}
+      {{else if (eq database "mysql")}}
+        {{#if (eq orm "prisma")}}
+      await prisma.$queryRaw`SELECT 1`;
+        {{else if (eq orm "drizzle")}}
+      await db.execute("SELECT 1");
+        {{else if (eq orm "typeorm")}}
+      await AppDataSource.query("SELECT 1");
+        {{else}}
+      // Add your MySQL health check here
+        {{/if}}
+      {{else if (eq database "mongodb")}}
+        {{#if (eq orm "mongoose")}}
+      await mongoose.connection.db.admin().ping();
+        {{else if (eq orm "prisma")}}
+      await prisma.$runCommandRaw({ ping: 1 });
+        {{else}}
+      // Add your MongoDB health check here
+        {{/if}}
+      {{else if (eq database "sqlite")}}
+        {{#if (eq orm "prisma")}}
+      await prisma.$queryRaw`SELECT 1`;
+        {{else if (eq orm "drizzle")}}
+      await db.execute("SELECT 1");
+        {{else if (eq orm "typeorm")}}
+      await AppDataSource.query("SELECT 1");
+        {{else}}
+      // Add your SQLite health check here
+        {{/if}}
+      {{/if}}
+
+      const latency = Date.now() - startTime;
+
+      return reply.send({
+        status: "healthy",
+        database: "{{database}}",
+        timestamp: new Date().toISOString(),
+        latency,
+        details: {
+          connected: true,
+          orm: "{{orm}}",
+          {{#if (eq database "postgres")}}
+          type: "PostgreSQL",
+          {{else if (eq database "mysql")}}
+          type: "MySQL",
+          {{else if (eq database "mongodb")}}
+          type: "MongoDB",
+          {{else if (eq database "sqlite")}}
+          type: "SQLite",
+          {{/if}}
+        },
+      });
+    } catch (error) {
+      const latency = Date.now() - startTime;
+
+      console.error("Database health check failed:", error);
+
+      return reply.status(503).send({
+        status: "unhealthy",
+        database: "{{database}}",
+        timestamp: new Date().toISOString(),
+        latency,
+        error: error instanceof Error ? error.message : "Unknown error",
+        details: {
+          connected: false,
+          orm: "{{orm}}",
+        },
+      });
+    }
+  });
+
+  /**
+   * General application health check
+   * GET /api/health
+   */
+  fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
+    return reply.send({
+      status: "healthy",
+      service: "{{name}}-api",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || "development",
+    });
+  });
+}
+
+{{else if (eq backend "hono")}}
+import { Hono } from "hono";
+{{#if (eq orm "prisma")}}
+import { prisma } from "../lib/prisma";
+{{else if (eq orm "drizzle")}}
+import { db } from "../lib/drizzle";
+{{else if (eq orm "typeorm")}}
+import { AppDataSource } from "../lib/typeorm";
+{{else if (eq orm "mongoose")}}
+import mongoose from "mongoose";
+{{/if}}
+
+const healthRouter = new Hono();
+
+/**
+ * Database health check endpoint
+ * GET /api/health/database
+ */
+healthRouter.get("/database", async (c) => {
+  const startTime = Date.now();
+
+  try {
+    // Perform database-specific health check
+    {{#if (eq database "postgres")}}
+      {{#if (eq orm "prisma")}}
+    await prisma.$queryRaw`SELECT 1`;
+      {{else if (eq orm "drizzle")}}
+    await db.execute("SELECT 1");
+      {{else if (eq orm "typeorm")}}
+    await AppDataSource.query("SELECT 1");
+      {{else}}
+    // Add your PostgreSQL health check here
+      {{/if}}
+    {{else if (eq database "mysql")}}
+      {{#if (eq orm "prisma")}}
+    await prisma.$queryRaw`SELECT 1`;
+      {{else if (eq orm "drizzle")}}
+    await db.execute("SELECT 1");
+      {{else if (eq orm "typeorm")}}
+    await AppDataSource.query("SELECT 1");
+      {{else}}
+    // Add your MySQL health check here
+      {{/if}}
+    {{else if (eq database "mongodb")}}
+      {{#if (eq orm "mongoose")}}
+    await mongoose.connection.db.admin().ping();
+      {{else if (eq orm "prisma")}}
+    await prisma.$runCommandRaw({ ping: 1 });
+      {{else}}
+    // Add your MongoDB health check here
+      {{/if}}
+    {{else if (eq database "sqlite")}}
+      {{#if (eq orm "prisma")}}
+    await prisma.$queryRaw`SELECT 1`;
+      {{else if (eq orm "drizzle")}}
+    await db.execute("SELECT 1");
+      {{else if (eq orm "typeorm")}}
+    await AppDataSource.query("SELECT 1");
+      {{else}}
+    // Add your SQLite health check here
+      {{/if}}
+    {{/if}}
+
+    const latency = Date.now() - startTime;
+
+    return c.json({
+      status: "healthy",
+      database: "{{database}}",
+      timestamp: new Date().toISOString(),
+      latency,
+      details: {
+        connected: true,
+        orm: "{{orm}}",
+        {{#if (eq database "postgres")}}
+        type: "PostgreSQL",
+        {{else if (eq database "mysql")}}
+        type: "MySQL",
+        {{else if (eq database "mongodb")}}
+        type: "MongoDB",
+        {{else if (eq database "sqlite")}}
+        type: "SQLite",
+        {{/if}}
+      },
+    });
+  } catch (error) {
+    const latency = Date.now() - startTime;
+
+    console.error("Database health check failed:", error);
+
+    return c.json(
+      {
+        status: "unhealthy",
+        database: "{{database}}",
+        timestamp: new Date().toISOString(),
+        latency,
+        error: error instanceof Error ? error.message : "Unknown error",
+        details: {
+          connected: false,
+          orm: "{{orm}}",
+        },
+      },
+      503
+    );
+  }
+});
+
+/**
+ * General application health check
+ * GET /api/health
+ */
+healthRouter.get("/", (c) => {
+  return c.json({
+    status: "healthy",
+    service: "{{name}}-api",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
+export { healthRouter };
+{{/if}}

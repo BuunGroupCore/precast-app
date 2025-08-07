@@ -1,0 +1,279 @@
+/**
+ * Database Connection Utilities
+ * Provides health check and connection validation for database services
+ */
+
+export interface DatabaseHealthStatus {
+  status: "healthy" | "unhealthy" | "unknown";
+  database: string;
+  timestamp: string;
+  latency?: number;
+  error?: string;
+}
+
+/**
+ * Validates database connectivity through backend health endpoint
+ * @returns Promise resolving to health status of the database connection
+ */
+export async function validateDatabaseConnection(): Promise<DatabaseHealthStatus> {
+  const startTime = performance.now();
+
+  try {
+    const response = await fetch("/api/health/database", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      signal: AbortSignal.timeout(5000), // 5 second timeout
+    });
+
+    const latency = Math.round(performance.now() - startTime);
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      return {
+        status: "unhealthy",
+        database: "{{database}}",
+        timestamp: new Date().toISOString(),
+        latency,
+        error: errorData || response.statusText,
+      };
+    }
+
+    const data = await response.json();
+    return {
+      status: "healthy",
+      database: data.database || "{{database}}",
+      timestamp: new Date().toISOString(),
+      latency,
+    };
+  } catch (error) {
+    const latency = Math.round(performance.now() - startTime);
+    return {
+      status: "unhealthy",
+      database: "{{database}}",
+      timestamp: new Date().toISOString(),
+      latency,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    };
+  }
+}
+
+/**
+ * Creates a visual health indicator component for database connection status
+ */
+export class DatabaseHealthIndicator {
+  private container: HTMLDivElement;
+  private statusIndicator: HTMLDivElement;
+  private statusText: HTMLSpanElement;
+  private retryButton: HTMLButtonElement;
+  private isChecking = false;
+
+  constructor() {
+    this.container = this.createContainer();
+    this.statusIndicator = this.createStatusIndicator();
+    this.statusText = this.createStatusText();
+    this.retryButton = this.createRetryButton();
+
+    this.assembleComponent();
+    this.attachEventListeners();
+  }
+
+  private createContainer(): HTMLDivElement {
+    const container = document.createElement("div");
+    container.className = "database-health-indicator";
+    container.style.cssText = `
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+      z-index: 9999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      transition: all 0.3s ease;
+    `;
+    return container;
+  }
+
+  private createStatusIndicator(): HTMLDivElement {
+    const indicator = document.createElement("div");
+    indicator.className = "status-indicator";
+    indicator.style.cssText = `
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #6b7280;
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    `;
+
+    // Add pulse animation
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    return indicator;
+  }
+
+  private createStatusText(): HTMLSpanElement {
+    const text = document.createElement("span");
+    text.className = "status-text";
+    text.textContent = "Database";
+    text.style.cssText = `
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      user-select: none;
+    `;
+    return text;
+  }
+
+  private createRetryButton(): HTMLButtonElement {
+    const button = document.createElement("button");
+    button.className = "retry-button";
+    button.textContent = "Check";
+    button.style.cssText = `
+      padding: 6px 12px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    `;
+
+    button.addEventListener("mouseenter", () => {
+      if (!this.isChecking) {
+        button.style.background = "#2563eb";
+      }
+    });
+
+    button.addEventListener("mouseleave", () => {
+      if (!this.isChecking) {
+        button.style.background = "#3b82f6";
+      }
+    });
+
+    return button;
+  }
+
+  private assembleComponent(): void {
+    this.container.appendChild(this.statusIndicator);
+    this.container.appendChild(this.statusText);
+    this.container.appendChild(this.retryButton);
+    document.body.appendChild(this.container);
+  }
+
+  private attachEventListeners(): void {
+    this.retryButton.addEventListener("click", () => this.checkConnection());
+
+    // Check connection on initialization
+    setTimeout(() => this.checkConnection(), 1000);
+
+    // Periodic health checks every 30 seconds
+    setInterval(() => this.checkConnection(), 30000);
+  }
+
+  private async checkConnection(): Promise<void> {
+    if (this.isChecking) return;
+
+    this.isChecking = true;
+    this.setCheckingState();
+
+    try {
+      const status = await validateDatabaseConnection();
+      this.updateStatus(status);
+    } catch (error) {
+      this.updateStatus({
+        status: "unknown",
+        database: "{{database}}",
+        timestamp: new Date().toISOString(),
+        error: "Failed to check connection",
+      });
+    } finally {
+      this.isChecking = false;
+    }
+  }
+
+  private setCheckingState(): void {
+    this.retryButton.disabled = true;
+    this.retryButton.textContent = "Checking...";
+    this.retryButton.style.background = "#9ca3af";
+    this.retryButton.style.cursor = "not-allowed";
+    this.statusIndicator.style.background = "#fbbf24";
+    this.statusText.textContent = "Checking database...";
+  }
+
+  private updateStatus(status: DatabaseHealthStatus): void {
+    const isHealthy = status.status === "healthy";
+    const isUnhealthy = status.status === "unhealthy";
+
+    // Update indicator color
+    this.statusIndicator.style.background = isHealthy
+      ? "#10b981"
+      : isUnhealthy
+      ? "#ef4444"
+      : "#6b7280";
+
+    // Update text
+    this.statusText.textContent = isHealthy
+      ? `Database connected (${status.latency}ms)`
+      : isUnhealthy
+      ? "Database disconnected"
+      : "Database status unknown";
+
+    // Update button
+    this.retryButton.disabled = false;
+    this.retryButton.textContent = isHealthy ? "Healthy" : "Retry";
+    this.retryButton.style.background = isHealthy ? "#10b981" : "#3b82f6";
+    this.retryButton.style.cursor = "pointer";
+
+    // Add success/error animation
+    this.container.style.transform = "scale(1.05)";
+    setTimeout(() => {
+      this.container.style.transform = "scale(1)";
+    }, 200);
+
+    // Log for debugging
+    if (!isHealthy && status.error) {
+      console.error("Database connection error:", status.error);
+    }
+  }
+
+  public destroy(): void {
+    this.container.remove();
+  }
+}
+
+/**
+ * Initialize database health monitoring
+ */
+export function initializeDatabaseHealthMonitoring(): DatabaseHealthIndicator {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      return new DatabaseHealthIndicator();
+    });
+  } else {
+    return new DatabaseHealthIndicator();
+  }
+  return new DatabaseHealthIndicator();
+}
+
+// Auto-initialize in development environment
+if (import.meta.env.DEV) {
+  initializeDatabaseHealthMonitoring();
+}

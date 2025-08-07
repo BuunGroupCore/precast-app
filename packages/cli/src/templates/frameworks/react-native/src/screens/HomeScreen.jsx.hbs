@@ -1,0 +1,163 @@
+/**
+ * @format
+ * @flow strict-local
+ */
+
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+} from "react-native";
+
+/**
+ * Home screen component
+ * The main landing screen of the application
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.navigation - Navigation prop from React Navigation
+ * @returns {React.Node} The home screen component
+ */
+const HomeScreen = ({ navigation }) => {
+  /**
+   * Handle button press
+   */
+  const handleGetStarted = () => {
+    console.log("Get started pressed");
+    // Add navigation logic here
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f0f0f0" />
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
+      >
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Welcome to {{name}}!</Text>
+            <Text style={styles.subtitle}>
+              Your React Native app is ready to go 🚀
+            </Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Get Started</Text>
+            <Text style={styles.sectionDescription}>
+              Edit{" "}
+              <Text style={styles.highlight}>screens/HomeScreen.jsx</Text> to
+              change this screen and see your changes.
+            </Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Learn More</Text>
+            <Text style={styles.sectionDescription}>
+              Read the docs to discover what to do next:
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleGetStarted}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>Get Started</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+/**
+ * Styles for the HomeScreen component
+ */
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f0f0f0",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    padding: 20,
+  },
+  header: {
+    marginBottom: 32,
+    paddingTop: 20,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 18,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  section: {
+    marginBottom: 24,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+  },
+  sectionDescription: {
+    fontSize: 16,
+    color: "#666",
+    lineHeight: 22,
+  },
+  highlight: {
+    fontWeight: "700",
+    color: "#f4511e",
+  },
+  button: {
+    backgroundColor: "#f4511e",
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+});
+
+export default HomeScreen;

@@ -155,10 +155,8 @@ async function generateMonorepoProject(
   });
 
   const appsDir = path.join(projectPath, "apps");
-  const packagesDir = path.join(projectPath, "packages");
 
   await fs.mkdir(appsDir, { recursive: true });
-  await fs.mkdir(packagesDir, { recursive: true });
 
   const webDir = path.join(appsDir, "web");
   await fs.mkdir(webDir, { recursive: true });
@@ -182,23 +180,6 @@ async function generateMonorepoProject(
     const apiDir = path.join(appsDir, "api");
     await fs.mkdir(apiDir, { recursive: true });
     await generateBackendTemplate(config.backend, config, apiDir);
-  }
-
-  const sharedDir = path.join(packagesDir, "shared");
-  await fs.mkdir(sharedDir, { recursive: true });
-  await templateEngine.copyTemplateDirectory("shared", sharedDir, config, {
-    overwrite: true,
-  });
-
-  const sharedSrcExists = await templateEngine
-    .getAvailableTemplates("shared")
-    .then((dirs: string[]) => dirs.includes("src"))
-    .catch(() => false);
-
-  if (sharedSrcExists) {
-    await templateEngine.copyTemplateDirectory("shared/src", path.join(sharedDir, "src"), config, {
-      overwrite: true,
-    });
   }
 
   consola.success("Monorepo structure created successfully!");

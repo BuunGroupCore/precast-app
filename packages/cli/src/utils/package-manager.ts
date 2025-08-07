@@ -241,6 +241,7 @@ export async function checkPackageManagerAvailable(packageManager: string): Prom
 export async function installAllDependencies(options: {
   packageManager: string;
   projectPath: string;
+  skipFormatting?: boolean;
 }): Promise<void> {
   const pm = getPackageManagerConfig(options.packageManager);
 
@@ -291,12 +292,80 @@ export async function installAllDependencies(options: {
           stdio: "inherit",
         });
         consola.success("✅ Dependencies installed successfully with npm (fallback)");
-        return;
       } catch (fallbackError) {
         consola.error("Fallback to npm also failed:", fallbackError);
+        throw error;
       }
+    } else {
+      throw error;
     }
+  }
 
-    throw error;
+  // Format all generated code with Prettier after installation
+  if (!options.skipFormatting) {
+    await formatGeneratedCode(options.projectPath);
+  }
+}
+
+/**
+ * Format all generated code with Prettier for consistency
+ * @param projectPath - Path to the project
+ */
+export async function formatGeneratedCode(projectPath: string): Promise<void> {
+  consola.info("🎨 Formatting generated code with Prettier...");
+
+  try {
+    const fs = await import("fs-extra");
+
+    // Create a basic .prettierrc with double quotes for consistency
+    const prettierConfigPath = `${projectPath}/.prettierrc`;
+    const prettierConfig = {
+      semi: true,
+      trailingComma: "es5",
+      singleQuote: false, // Use double quotes
+      printWidth: 100,
+      tabWidth: 2,
+      useTabs: false,
+      arrowParens: "always",
+      endOfLine: "lf",
+    };
+    await fs.writeJSON(prettierConfigPath, prettierConfig, { spaces: 2 });
+
+    // First, ensure prettier is installed
+    consola.info("Installing Prettier temporarily for formatting...");
+    await execa("npm", ["install", "--no-save", "prettier"], {
+      cwd: projectPath,
+      stdio: "pipe",
+    });
+
+    // Format all relevant files
+    const filePatterns = "**/*.{ts,tsx,js,jsx,json,css,scss,md,html,yml,yaml}";
+
+    // Run prettier directly
+    await execa("npx", ["prettier", "--write", filePatterns, "--ignore-path", ".gitignore"], {
+      cwd: projectPath,
+      stdio: "pipe",
+    });
+
+    // Remove prettier after formatting
+    await execa("npm", ["uninstall", "prettier"], {
+      cwd: projectPath,
+      stdio: "pipe",
+    });
+
+    consola.success("✨ Code formatted successfully");
+  } catch (error) {
+    // Try a simpler approach with just npx
+    try {
+      consola.info("Trying alternative formatting approach...");
+      await execa("npx", ["-y", "prettier@latest", "--write", ".", "--ignore-path", ".gitignore"], {
+        cwd: projectPath,
+        stdio: "pipe",
+      });
+      consola.success("✨ Code formatted successfully");
+    } catch (fallbackError) {
+      consola.debug("Prettier formatting failed:", fallbackError);
+      consola.warn("⚠️ Code formatting skipped - install Prettier manually if needed");
+    }
   }
 }

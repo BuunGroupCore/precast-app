@@ -69,16 +69,30 @@ export async function setupDockerCompose(
     return;
   }
 
+  // Generate passwords once to use in both docker-compose and .env
+  const dbPasswords = {
+    postgres: generateRandomPassword(20),
+    mysql: generateRandomPassword(20),
+    mongodb: generateRandomPassword(20),
+    mysqlRoot: generateRandomPassword(20),
+    mongoAdmin: generateRandomPassword(20),
+  };
+
   // Special handling for Supabase
   if (database === "supabase") {
     await setupSupabaseDocker(dockerTemplateDir, dockerDir, config);
   } else {
-    // Copy docker-compose.yml
+    // Copy docker-compose.yml with the generated passwords
     const composeTemplate = await readFile(
       path.join(dockerTemplateDir, "docker-compose.yml.hbs"),
       "utf-8"
     );
-    const composeContent = processTemplate(composeTemplate, config);
+    const composeContent = processTemplateWithPasswords(
+      composeTemplate,
+      config,
+      dbPasswords,
+      database
+    );
     await writeFile(path.join(dockerDir, "docker-compose.yml"), composeContent);
     consola.success("Created docker-compose.yml");
 
@@ -91,8 +105,8 @@ export async function setupDockerCompose(
     }
   }
 
-  // Create .env.docker file with database connection strings
-  await createDockerEnvFile(projectPath, database, config);
+  // Create .env.docker AND .env files with matching passwords
+  await createDockerEnvFiles(projectPath, database, config, dbPasswords);
 
   // Create docker scripts in package.json
   await addDockerScripts(projectPath, database);
@@ -139,6 +153,51 @@ function processTemplate(template: string, config: ProjectConfig): string {
       .replace(/\{\{name\}\}-logflare-key-public-32-chars-min/g, secrets.logflarePublicToken)
       .replace(/\{\{name\}\}-logflare-key-private-32-chars-min/g, secrets.logflarePrivateToken)
   );
+}
+
+/**
+ * Process template with specific passwords for docker-compose
+ */
+function processTemplateWithPasswords(
+  template: string,
+  config: ProjectConfig,
+  passwords: Record<string, string>,
+  database: string
+): string {
+  let processed = template
+    .replace(/\{\{name\}\}/g, config.name)
+    .replace(/\{\{config\.name\}\}/g, config.name)
+    .replace(/\{\{projectName\}\}/g, config.name);
+
+  // Replace database-specific password placeholders
+  switch (database) {
+    case "postgres":
+      processed = processed
+        .replace(/\{\{POSTGRES_PASSWORD\}\}/g, passwords.postgres)
+        .replace(/rootpassword/g, passwords.postgres); // For backward compatibility
+      break;
+    case "mysql":
+      processed = processed
+        .replace(/\{\{MYSQL_ROOT_PASSWORD\}\}/g, passwords.mysqlRoot)
+        .replace(/\{\{MYSQL_PASSWORD\}\}/g, passwords.mysql)
+        .replace(
+          /MYSQL_ROOT_PASSWORD: rootpassword/g,
+          `MYSQL_ROOT_PASSWORD: ${passwords.mysqlRoot}`
+        )
+        .replace(/MYSQL_PASSWORD: password/g, `MYSQL_PASSWORD: ${passwords.mysql}`)
+        .replace(/PMA_PASSWORD: rootpassword/g, `PMA_PASSWORD: ${passwords.mysqlRoot}`)
+        .replace(/-prootpassword/g, `-p${passwords.mysqlRoot}`); // For healthcheck
+      break;
+    case "mongodb":
+      processed = processed
+        .replace(/\{\{MONGO_ADMIN_PASSWORD\}\}/g, passwords.mongoAdmin)
+        .replace(/\{\{MONGO_PASSWORD\}\}/g, passwords.mongodb)
+        .replace(/admin:password/g, `admin:${passwords.mongoAdmin}`) // For backward compatibility
+        .replace(/_user:password/g, `_user:${passwords.mongodb}`);
+      break;
+  }
+
+  return processed;
 }
 
 /**
@@ -197,52 +256,53 @@ async function addRedisService(dockerDir: string, config: ProjectConfig): Promis
 }
 
 /**
- * Create .env.docker file with database connection strings
+ * Create .env.docker AND .env files with database connection strings
  */
-async function createDockerEnvFile(
+async function createDockerEnvFiles(
   projectPath: string,
   database: string,
-  config: ProjectConfig
+  config: ProjectConfig,
+  passwords: Record<string, string>
 ): Promise<void> {
   const envContent: string[] = [
     "# Docker Database Configuration",
-    "# Copy these to your .env file when using Docker",
+    "# Auto-generated for Docker development",
     "",
   ];
 
-  // Generate random passwords for security
-  const randomPassword = generateRandomPassword(20);
   const mysqlUser = `${config.name}_user`;
 
   switch (database) {
     case "postgres":
       envContent.push(
-        `DATABASE_URL=postgresql://postgres:${randomPassword}@localhost:5432/${config.name}`,
+        `DATABASE_URL=postgresql://postgres:${passwords.postgres}@localhost:5432/${config.name}`,
         `POSTGRES_USER=postgres`,
-        `POSTGRES_PASSWORD=${randomPassword}`,
+        `POSTGRES_PASSWORD=${passwords.postgres}`,
         `POSTGRES_DB=${config.name}`
       );
       break;
     case "mysql":
       envContent.push(
-        `DATABASE_URL=mysql://${mysqlUser}:${randomPassword}@localhost:3306/${config.name}`,
+        `DATABASE_URL=mysql://${mysqlUser}:${passwords.mysql}@localhost:3306/${config.name}`,
         `MYSQL_HOST=localhost`,
         `MYSQL_PORT=3306`,
         `MYSQL_USER=${mysqlUser}`,
-        `MYSQL_PASSWORD=${randomPassword}`,
-        `MYSQL_DATABASE=${config.name}`
+        `MYSQL_PASSWORD=${passwords.mysql}`,
+        `MYSQL_DATABASE=${config.name}`,
+        `MYSQL_ROOT_PASSWORD=${passwords.mysqlRoot}`
       );
       break;
     case "mongodb": {
       const mongoUser = `${config.name}_user`;
       envContent.push(
-        `DATABASE_URL=mongodb://${mongoUser}:${randomPassword}@localhost:27017/${config.name}`,
-        `MONGODB_URI=mongodb://${mongoUser}:${randomPassword}@localhost:27017/${config.name}`,
+        `DATABASE_URL=mongodb://${mongoUser}:${passwords.mongodb}@localhost:27017/${config.name}`,
+        `MONGODB_URI=mongodb://${mongoUser}:${passwords.mongodb}@localhost:27017/${config.name}`,
         `MONGO_HOST=localhost`,
         `MONGO_PORT=27017`,
         `MONGO_USER=${mongoUser}`,
-        `MONGO_PASSWORD=${randomPassword}`,
-        `MONGO_DATABASE=${config.name}`
+        `MONGO_PASSWORD=${passwords.mongodb}`,
+        `MONGO_DATABASE=${config.name}`,
+        `MONGO_ADMIN_PASSWORD=${passwords.mongoAdmin}`
       );
       break;
     }
@@ -254,8 +314,8 @@ async function createDockerEnvFile(
         `SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q`,
         ``,
         `# Direct Database Access`,
-        `DATABASE_URL=postgresql://postgres:${randomPassword}@localhost:5432/postgres`,
-        `POSTGRES_PASSWORD=${randomPassword}`
+        `DATABASE_URL=postgresql://postgres:${passwords.postgres}@localhost:5432/postgres`,
+        `POSTGRES_PASSWORD=${passwords.postgres}`
       );
       break;
   }
@@ -269,8 +329,18 @@ async function createDockerEnvFile(
     "REDIS_PORT=6379"
   );
 
+  // Write .env.docker file
   await writeFile(path.join(projectPath, ".env.docker"), envContent.join("\n") + "\n");
   consola.success("Created .env.docker with connection strings");
+
+  // Also create/update .env file if it doesn't exist
+  const envPath = path.join(projectPath, ".env");
+  if (!(await pathExists(envPath))) {
+    await writeFile(envPath, envContent.join("\n") + "\n");
+    consola.success("Created .env file with Docker database configuration");
+  } else {
+    consola.info(".env file already exists - check .env.docker for Docker connection strings");
+  }
 }
 
 /**
@@ -335,52 +405,100 @@ async function createDockerReadme(
 ): Promise<void> {
   const readme = `# Docker Setup for ${config.name}
 
-## Quick Start
+## 🚀 Quick Start
 
-1. Start the database:
+### Automatic Setup (Recommended)
+
+Your project has been pre-configured with database connections!
+
+1. **Start the database** (it's that simple!):
    \`\`\`bash
    npm run docker:up
    \`\`\`
 
-2. View logs:
-   \`\`\`bash
-   npm run docker:logs
-   \`\`\`
+2. **Your app is ready to connect!**
+   - The \`.env\` file has been automatically configured
+   - Database passwords are securely randomized
+   - Connection strings are already set up
 
-3. Stop the database:
-   \`\`\`bash
-   npm run docker:down
-   \`\`\`
+3. **Test the connection** (if using Vite/React/Vue):
+   - Start your dev server: \`npm run dev\`
+   - Click the "Test Database Connection" button in the bottom-right corner
 
-4. Clean up (removes data):
-   \`\`\`bash
-   npm run docker:clean
-   \`\`\`
+### Docker Commands
 
-## Database Access
+- **Start database**: \`npm run docker:up\`
+- **View logs**: \`npm run docker:logs\`
+- **Stop database**: \`npm run docker:down\`
+- **Reset database** (removes all data): \`npm run docker:clean\`
 
-### ${database.charAt(0).toUpperCase() + database.slice(1)}
+## 📊 Database Access
+
+### ${database.charAt(0).toUpperCase() + database.slice(1)} Connection Details
 
 ${getDatabaseAccessInfo(database, config)}
 
-## Environment Variables
+## 🔧 Environment Configuration
 
-Copy the values from \`.env.docker\` to your \`.env\` file:
+### Already Configured!
+Your \`.env\` file has been automatically set up with the correct database connection strings.
+
+### Manual Configuration (if needed)
+If you need to reconfigure, check \`.env.docker\` for the connection details:
 
 \`\`\`bash
+# View the Docker environment configuration
+cat .env.docker
+
+# Copy to .env if needed
 cp .env.docker .env
 \`\`\`
 
-## Admin Tools
+## 🛠️ Admin Tools
 
 ${getAdminToolsInfo(database)}
 
-## Troubleshooting
+## 🔍 Troubleshooting
 
-- Ensure Docker and Docker Compose are installed
-- Check if ports are already in use: \`lsof -i :5432\` (PostgreSQL), \`lsof -i :3306\` (MySQL), \`lsof -i :27017\` (MongoDB)
-- View container status: \`docker ps\`
-- Check logs: \`npm run docker:logs\`
+### Common Issues
+
+1. **Port already in use**
+   - Check what's using the port: 
+     - PostgreSQL: \`lsof -i :5432\`
+     - MySQL: \`lsof -i :3306\`
+     - MongoDB: \`lsof -i :27017\`
+   - Stop the conflicting service or change the port in \`docker/docker-compose.yml\`
+
+2. **Connection refused**
+   - Ensure Docker is running: \`docker ps\`
+   - Check if the container started: \`npm run docker:logs\`
+   - Wait a few seconds for the database to initialize
+
+3. **Authentication failed**
+   - Check that your \`.env\` file matches \`.env.docker\`
+   - Restart the containers: \`npm run docker:down && npm run docker:up\`
+
+### Useful Commands
+
+- **View running containers**: \`docker ps\`
+- **Check container logs**: \`docker logs ${config.name}-${database}\`
+- **Execute commands in container**: \`docker exec -it ${config.name}-${database} bash\`
+
+## 🔒 Security Notes
+
+- Passwords are randomly generated for security
+- Never commit \`.env\` files to version control
+- For production, use proper secrets management
+- The current setup is for local development only
+
+## 📚 Next Steps
+
+1. Start developing your application
+2. The database connection is ready to use
+3. Use your ORM (${config.orm || "none"}) to interact with the database
+4. Check the admin tools for database management
+
+Happy coding! 🎉
 `;
 
   await writeFile(path.join(dockerDir, "README.md"), readme);

@@ -45,10 +45,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
+      - name: Install analytics script dependencies
         run: |
-          npm install @google-analytics/data
-          npm install dotenv
+          cd scripts
+          npm install
 
       - name: Fetch GA4 Analytics Data
         env:

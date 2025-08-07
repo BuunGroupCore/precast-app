@@ -50,10 +50,8 @@ jobs:
         with:
           version: 8.15.1
 
-      - name: Install analytics script dependencies
-        run: |
-          cd scripts
-          pnpm install
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Fetch GA4 Analytics Data
         env:

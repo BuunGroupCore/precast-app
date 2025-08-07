@@ -32,6 +32,7 @@
   ],
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
+    "@google-analytics/data": "^4.7.0",
     "@types/node": "^20.11.5",
     "husky": "^9.1.7",
     "prettier": "^3.2.4",

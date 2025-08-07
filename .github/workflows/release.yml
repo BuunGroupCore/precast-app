@@ -29,10 +29,20 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.deploy_only)
     steps:
+      # Try to use GitHub App first, fallback to PAT or GITHUB_TOKEN
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        continue-on-error: true
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token || secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -83,7 +93,7 @@ jobs:
           commit: "chore: release website"
           title: "chore: release website"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token || secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
           POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
           POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
 

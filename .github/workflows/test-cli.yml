@@ -131,7 +131,7 @@ jobs:
         working-directory: packages/cli
         
       - name: Generate smart test combinations
-        run: pnpm tsx packages/cli/smart-test-generator.ts
+        run: pnpm tsx smart-test-generator.ts
         working-directory: packages/cli
         
       - name: Run unit tests with Vitest
@@ -139,7 +139,7 @@ jobs:
         working-directory: packages/cli
         
       - name: Generate test report
-        run: pnpm --filter @precast/cli tests/test-reporter.ts
+        run: pnpm tsx tests/test-reporter.ts
         working-directory: packages/cli
         if: always()
         

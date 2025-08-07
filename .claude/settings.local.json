@@ -105,7 +105,8 @@
       "Bash(npx prettier:*)",
       "Bash(docker logs:*)",
       "Bash(npm run docker:down:*)",
-      "Bash(npm run docker:up:*)"
+      "Bash(npm run docker:up:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }

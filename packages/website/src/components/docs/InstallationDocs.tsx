@@ -4,7 +4,7 @@ export function InstallationDocs() {
   return (
     <div className="space-y-8">
       <section id="installation" className="comic-panel p-6">
-        <h2 className="font-display text-2xl text-comic-purple mb-4">Installation</h2>
+        <h2 className="font-comic text-2xl text-comic-purple mb-4">Installation</h2>
         <p className="font-comic mb-4">
           You don&apos;t need to install PRECAST globally. You can use it directly with npx:
         </p>
@@ -23,7 +23,7 @@ export function InstallationDocs() {
       </section>
 
       <section id="global-installation" className="comic-panel p-6">
-        <h2 className="font-display text-2xl text-comic-red mb-4">
+        <h2 className="font-comic text-2xl text-comic-red mb-4">
           Global Installation (Optional)
         </h2>
         <p className="font-comic mb-4">

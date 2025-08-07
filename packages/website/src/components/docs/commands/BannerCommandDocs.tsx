@@ -3,7 +3,7 @@ import { CodeBlock } from "@/features/common";
 export function BannerCommandDocs() {
   return (
     <section className="comic-panel p-6">
-      <h2 id="banner-overview" className="font-display text-3xl text-comic-orange mb-6">
+      <h2 id="banner-overview" className="font-comic text-3xl text-comic-orange mb-6">
         banner Command
       </h2>
 
@@ -27,7 +27,7 @@ export function BannerCommandDocs() {
         id="banner-how-it-works"
         className="bg-comic-yellow/20 p-4 rounded-lg border-2 border-comic-black"
       >
-        <h3 className="font-display text-lg mb-2">How it works</h3>
+        <h3 className="font-comic text-lg mb-2">How it works</h3>
         <ol className="font-comic space-y-2 list-decimal list-inside">
           <li>Run the banner command to create the precast-banner.txt template file</li>
           <li>Edit the template file with your custom ASCII art</li>
@@ -40,7 +40,7 @@ export function BannerCommandDocs() {
       </div>
 
       <div id="banner-example" className="mt-6">
-        <h3 className="font-display text-xl mb-3">Example</h3>
+        <h3 className="font-comic text-xl mb-3">Example</h3>
         <CodeBlock code="npx create-precast-app@latest banner" />
         <div className="mt-4 bg-comic-gray/10 p-4 rounded-lg border border-comic-black">
           <p className="font-comic text-sm mb-2">Output:</p>

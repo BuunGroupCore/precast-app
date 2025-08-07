@@ -1,0 +1,117 @@
+name: Update Analytics Data
+
+# Security: This workflow is restricted to only modify files in the data/ directory
+# - Path validation prevents writing outside data/ directory
+# - File validation only allows analytics.json and analytics.csv
+# - Git operations are limited to data/ directory files only
+# - Minimal permissions granted to workflow
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: "0 */6 * * *"
+  workflow_dispatch: # Allow manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/fetch-analytics.js"
+      - ".github/workflows/update-analytics.yml"
+
+jobs:
+  fetch-analytics:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      actions: read
+      checks: none
+      deployments: none
+      issues: none
+      packages: none
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install @google-analytics/data
+          npm install dotenv
+
+      - name: Fetch GA4 Analytics Data
+        env:
+          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
+          GA_SERVICE_ACCOUNT_KEY: ${{ secrets.GA_SERVICE_ACCOUNT_KEY }}
+        run: node scripts/fetch-analytics.js
+
+      - name: Check for changes in data directory only
+        id: verify-changed
+        run: |
+          # Only check for changes in data/ directory
+          if git diff --quiet data/; then
+            echo "No changes in data directory"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in data directory"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify only data files are modified
+        if: steps.verify-changed.outputs.changed == 'true'
+        run: |
+          # Get list of modified files
+          MODIFIED_FILES=$(git diff --name-only)
+          echo "Modified files: $MODIFIED_FILES"
+
+          # Check if any files outside data/ directory are modified
+          if echo "$MODIFIED_FILES" | grep -v '^data/' | grep -q .; then
+            echo "❌ Error: Files outside data/ directory were modified!"
+            echo "Modified files outside data/:"
+            echo "$MODIFIED_FILES" | grep -v '^data/' || true
+            exit 1
+          fi
+
+          echo "✅ All modifications are within data/ directory"
+
+      - name: Commit and push analytics data
+        if: steps.verify-changed.outputs.changed == 'true'
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Only add files from data/ directory
+          git add data/analytics.json data/analytics.csv
+
+          # Verify staging area only contains data/ files
+          STAGED_FILES=$(git diff --cached --name-only)
+          echo "Staged files: $STAGED_FILES"
+
+          if echo "$STAGED_FILES" | grep -v '^data/' | grep -q .; then
+            echo "❌ Error: Attempted to stage files outside data/ directory!"
+            git reset
+            exit 1
+          fi
+
+          git commit -m "📊 Update analytics data [skip ci]"
+          git push
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: analytics-data
+          path: |
+            data/analytics.json
+            data/analytics.csv
+          retention-days: 90

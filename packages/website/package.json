@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate:sitemap && tsc && vite build",
+    "build": "npm run sync:stack-config && npm run generate:sitemap && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
@@ -14,7 +14,8 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
-    "generate:sitemap": "node --loader tsx/esm scripts/generate-sitemap.ts"
+    "generate:sitemap": "node --loader tsx/esm scripts/generate-sitemap.ts",
+    "sync:stack-config": "node --loader tsx/esm scripts/sync-stack-config.ts"
   },
   "dependencies": {
     "@precast/hooks": "workspace:*",

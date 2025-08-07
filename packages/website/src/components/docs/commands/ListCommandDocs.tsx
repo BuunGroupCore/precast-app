@@ -3,7 +3,7 @@ import { CodeBlock } from "@/features/common";
 export function ListCommandDocs() {
   return (
     <section className="comic-panel p-6">
-      <h2 id="list-overview" className="font-display text-3xl text-comic-red mb-6">
+      <h2 id="list-overview" className="font-comic text-3xl text-comic-red mb-6">
         list Command
       </h2>
 
@@ -22,7 +22,7 @@ export function ListCommandDocs() {
       </div>
 
       <div id="list-future" className="mt-6">
-        <h3 className="font-display text-xl mb-3">Planned Functionality</h3>
+        <h3 className="font-comic text-xl mb-3">Planned Functionality</h3>
         <p className="font-comic mb-4">When implemented, this command will display:</p>
         <ul className="font-comic space-y-2 list-disc list-inside">
           <li>All available framework templates (React, Next.js, Vue, etc.)</li>

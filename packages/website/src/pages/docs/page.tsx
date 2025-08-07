@@ -133,7 +133,7 @@ export function DocsPage() {
               boxShadow: "4px 4px 0 var(--comic-black)",
             }}
           >
-            <h2 className="font-display text-2xl text-comic-purple mb-6">DOCUMENTATION</h2>
+            <h2 className="font-comic text-2xl text-comic-purple mb-6">DOCUMENTATION</h2>
             <nav className="space-y-2">
               {docSections.map((section) => (
                 <div key={section.id}>
@@ -209,7 +209,7 @@ export function DocsPage() {
               </div>
             </div>
 
-            <div className="max-w-2xl mb-8">
+            <div className="w-full mb-8">
               <div className="relative">
                 <div className="h-2 bg-comic-black rounded-full"></div>
                 <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
@@ -230,7 +230,7 @@ export function DocsPage() {
               {activeSection === "cli-commands-list" && <ListCommandDocs />}
               {activeSection === "guides" && (
                 <div className="comic-panel p-6">
-                  <h2 className="font-display text-3xl text-comic-green mb-4">Guides</h2>
+                  <h2 className="font-comic text-3xl text-comic-green mb-4">Guides</h2>
                   <p className="font-comic">Detailed guides coming soon!</p>
                 </div>
               )}
@@ -250,7 +250,7 @@ export function DocsPage() {
               boxShadow: "4px 4px 0 var(--comic-black)",
             }}
           >
-            <h3 className="font-display text-xl text-comic-purple mb-4 flex items-center gap-2">
+            <h3 className="font-comic text-xl text-comic-purple mb-4 flex items-center gap-2">
               <FaHashtag />
               ON THIS PAGE
             </h3>

@@ -48,6 +48,9 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build Workspace Dependencies
+        run: pnpm --filter @precast/ui build
+
       - name: Build Website
         run: pnpm --filter website build
         env:
@@ -107,7 +110,10 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build for Production
+      - name: Build Workspace Dependencies  
+        run: pnpm --filter @precast/ui build
+
+      - name: Build Website for Production
         run: pnpm --filter website build
         env:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}

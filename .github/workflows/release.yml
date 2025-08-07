@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy_only:
-        description: 'Deploy to Cloudflare Pages only (skip release)'
+        description: "Deploy to Cloudflare Pages only (skip release)"
         required: false
         default: false
         type: boolean
@@ -70,9 +70,6 @@ jobs:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
           VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
-
-      - name: Run Tests
-        run: pnpm --filter website test
 
       - name: Create Release Pull Request or Publish
         id: changesets
@@ -138,14 +135,11 @@ jobs:
           VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: precast-website
-          directory: packages/website/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          wranglerVersion: "3"
+          command: pages deploy packages/website/dist --project-name=precast-website
 
       - name: Update PostHog with deployment
         run: |

@@ -56,11 +56,8 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Workspace Dependencies
-        run: pnpm --filter @precast/ui build
-
-      - name: Build Website
-        run: pnpm --filter website build
+      - name: Build All Packages
+        run: pnpm build
         env:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
@@ -117,11 +114,8 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Workspace Dependencies
-        run: pnpm --filter @precast/ui build
-
-      - name: Build Website for Production
-        run: pnpm --filter website build
+      - name: Build All Packages
+        run: pnpm build
         env:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}

@@ -18,8 +18,8 @@ export function useTestimonials() {
       const finalTestimonials = [...staticTestimonials];
 
       try {
-        // Try to load additional testimonials from GitHub repository
-        const response = await fetch(DATA_URLS.TESTIMONIALS_JSON);
+        // Try to load additional testimonials from GitHub repository with cache-busting
+        const response = await fetch(`${DATA_URLS.TESTIMONIALS_JSON}?t=${Date.now()}`);
 
         if (response.ok) {
           const dynamicTestimonials = await response.json();

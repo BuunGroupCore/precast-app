@@ -90,7 +90,12 @@
       "WebFetch(domain:www.dicebear.com)",
       "Bash(CI=true bun test tests/cli.test.ts -t \"should generate react-express-postgres\")",
       "Bash(env CI=true bun test tests/cli.test.ts -t \"should generate react-express-postgres\")",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm --filter website format)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm --filter website lint --fix)",
+      "Bash(pnpm:*)"
     ],
     "deny": []
   }

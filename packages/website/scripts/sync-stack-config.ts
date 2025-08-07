@@ -66,7 +66,6 @@ ${runtimeDefsMatch[0]}
     // eslint-disable-next-line no-console
     console.log("✅ Stack configuration synced successfully!");
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("❌ Failed to sync stack configuration:", error);
     process.exit(1);
   }

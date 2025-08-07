@@ -23,6 +23,8 @@ import {
 } from "react-icons/si";
 import { useNavigate } from "react-router-dom";
 
+import { HonoIcon } from "@/components/icons/HonoIcon";
+
 /**
  * Tech stack section component showcasing available technologies.
  * Displays frontend, backend, database, and styling options in a visually appealing grid.
@@ -54,7 +56,7 @@ export function TechStackSection() {
         { name: "Node.js", icon: FaNodeJs },
         { name: "Express", icon: SiExpress },
         { name: "FastAPI", icon: SiFastapi },
-        { name: "Hono", icon: FaCode },
+        { name: "Hono", icon: HonoIcon },
       ],
     },
     {

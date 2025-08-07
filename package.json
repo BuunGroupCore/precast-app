@@ -13,8 +13,13 @@
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "changeset": "changeset",
+    "changeset:add": "changeset add",
+    "changeset:status": "changeset status",
     "version": "changeset version",
     "release": "changeset publish",
+    "ci:build": "pnpm install --frozen-lockfile && pnpm build",
+    "ci:test": "pnpm typecheck && pnpm lint && pnpm test",
+    "deploy:website": "pnpm --filter website build",
     "setup:husky": "husky || echo 'Husky not available - install git first'"
   },
   "engines": {

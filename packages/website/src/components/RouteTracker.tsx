@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 import { trackPageView } from "@/utils/analytics";
+import { trackPageView as trackPageViewPostHog } from "@/utils/analytics-posthog";
 
 /**
  * Component that tracks page views in Google Analytics and restores scroll position
@@ -20,6 +21,7 @@ export function RouteTracker() {
     }, 0);
 
     trackPageView(location.pathname + location.search, document.title);
+    trackPageViewPostHog(location.pathname + location.search, document.title);
 
     return () => clearTimeout(scrollTimeout);
   }, [location]);

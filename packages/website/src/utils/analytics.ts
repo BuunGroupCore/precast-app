@@ -2,13 +2,13 @@
  * Google Analytics utility functions for tracking events and page views.
  */
 
+import { ANALYTICS } from "@/config/constants";
+
 declare global {
   interface Window {
     gtag: (command: string, targetId: string, config?: Record<string, unknown>) => void;
   }
 }
-
-const GA_MEASUREMENT_ID = "G-4S73687P86";
 
 /**
  * Track a custom event in Google Analytics
@@ -33,8 +33,8 @@ export const trackEvent = (action: string, category: string, label?: string, val
  * @param title - The title of the page
  */
 export const trackPageView = (url: string, title?: string) => {
-  if (typeof window !== "undefined" && window.gtag) {
-    window.gtag("config", GA_MEASUREMENT_ID, {
+  if (typeof window !== "undefined" && window.gtag && ANALYTICS.GOOGLE_ANALYTICS_ID) {
+    window.gtag("config", ANALYTICS.GOOGLE_ANALYTICS_ID, {
       page_path: url,
       page_title: title,
     });

@@ -99,3 +99,9 @@ export const DATA_URLS = {
   TESTIMONIALS_JSON: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/packages/website/public/testimonials.json`,
   ANALYTICS_JSON: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/data/analytics.json`,
 } as const;
+
+export const ANALYTICS = {
+  POSTHOG_API_KEY: import.meta.env.VITE_PUBLIC_POSTHOG_KEY || "",
+  POSTHOG_HOST: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+  GOOGLE_ANALYTICS_ID: import.meta.env.VITE_GA_MEASUREMENT_ID || "",
+} as const;

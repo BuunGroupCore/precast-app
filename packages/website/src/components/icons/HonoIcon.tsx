@@ -10,7 +10,12 @@ export const HonoIcon: React.FC<HonoIconProps> = ({ className }) => {
       src="/icons/hono.svg"
       alt="Hono"
       className={className}
-      style={{ width: "1em", height: "1em", display: "inline-block" }}
+      style={{
+        width: "1em",
+        height: "1em",
+        display: "inline-block",
+        filter: "brightness(0) invert(1)",
+      }}
     />
   );
 };

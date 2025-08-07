@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FaExternalLinkAlt, FaHeart } from "react-icons/fa";
+import { FaExternalLinkAlt, FaHeart, FaFileContract, FaShieldAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 import { EXTERNAL_LINKS, APP_TAGLINE } from "@/config/constants";
@@ -153,8 +153,25 @@ export function Footer() {
                 </span>
               </motion.a>
             </div>
-            <div className="font-comic text-comic-white text-sm">
-              © 2025 PRECAST · All rights reserved
+            <div className="font-comic text-comic-white text-sm flex items-center gap-4">
+              <span>© 2025 PRECAST · All rights reserved</span>
+              <div className="flex items-center gap-3 text-xs">
+                <Link
+                  to="/legal/terms"
+                  className="hover:text-comic-yellow transition-colors flex items-center gap-1"
+                >
+                  <FaFileContract className="h-3 w-3" />
+                  Terms
+                </Link>
+                <span className="text-comic-white/40">|</span>
+                <Link
+                  to="/legal/privacy"
+                  className="hover:text-comic-yellow transition-colors flex items-center gap-1"
+                >
+                  <FaShieldAlt className="h-3 w-3" />
+                  Privacy
+                </Link>
+              </div>
             </div>
           </div>
         </div>

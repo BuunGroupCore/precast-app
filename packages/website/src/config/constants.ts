@@ -28,6 +28,21 @@ export const EXTERNAL_LINKS = {
   BUUN_GROUP: "https://buungroup.com",
 };
 
+export const INTERNAL_LINKS = {
+  PRECAST_DOCS: "https://precast.dev/docs",
+  PRECAST_URL: "https://precast.dev",
+  PRECAST_TESTIMONIALS: "https://precast.dev/testimonials",
+  PRECAST_SUBMIT_TESTIMONIAL: "https://precast.dev/submit-testimonial",
+};
+
+export const EMAILS = {
+  SUPPORT: "support@precast.dev",
+  SALES: "sales@precast.dev",
+  PARTNERSHIPS: "partners@precast.dev",
+  LEGAL: "legal@precast.dev",
+  PRESS: "press@precast.dev",
+};
+
 export const PACKAGE_MANAGERS = [
   { id: "npx", command: "npx create-precast-app" },
   { id: "npm", command: "npm create precast-app" },
@@ -62,4 +77,25 @@ export const Z_INDEX = {
   DIALOG: 50,
   TOOLTIP: 60,
   NOTIFICATION: 70,
+} as const;
+
+export const SOCIAL_MEDIA = {
+  TWITTER_HANDLE: "@buungroup",
+  TWITTER_PRECAST: "@PrecastDev",
+} as const;
+
+export const ORGANIZATIONS = {
+  BUUN_GROUP: "Buun Group",
+  PRECAST_TEAM: "PRECAST Team",
+} as const;
+
+export const THIRD_PARTY_APIS = {
+  DICEBEAR_BASE: "https://api.dicebear.com/9.x",
+  DICEBEAR_NOTIONISTS: "https://api.dicebear.com/9.x/notionists/svg",
+  RAW_GITHUB_CONTENT: `https://raw.githubusercontent.com/${GITHUB_REPO}/main`,
+} as const;
+
+export const DATA_URLS = {
+  TESTIMONIALS_JSON: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/packages/website/public/testimonials.json`,
+  ANALYTICS_JSON: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/data/analytics.json`,
 } as const;

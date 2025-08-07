@@ -444,7 +444,7 @@ export function MetricsPage() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-4">METRICS HQ</h1>
+            <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-8">METRICS HQ</h1>
             <p className="font-display text-2xl md:text-3xl text-comic-blue">
               Real-Time Project Analytics
             </p>

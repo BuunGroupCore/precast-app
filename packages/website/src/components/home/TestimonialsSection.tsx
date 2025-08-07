@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+import { THIRD_PARTY_APIS } from "@/config/constants";
 import { useTestimonials } from "@/hooks/useTestimonials";
 
 /**
@@ -197,7 +198,7 @@ export function TestimonialsSection() {
 
                           <div className="flex items-center gap-4">
                             <img
-                              src={`https://api.dicebear.com/9.x/notionists/svg?seed=${testimonial.avatarSeed}`}
+                              src={`${THIRD_PARTY_APIS.DICEBEAR_NOTIONISTS}?seed=${testimonial.avatarSeed}`}
                               alt={testimonial.name}
                               className="w-16 h-16 rounded-full border-3 border-comic-black"
                             />
@@ -313,8 +314,18 @@ export function TestimonialsSection() {
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-block"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
+            {testimonials.length > 0 && (
+              <motion.button
+                onClick={() => navigate("/testimonials")}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="action-text text-2xl text-comic-red bg-comic-white px-6 py-3 rounded-full border-4 border-comic-black inline-block cursor-pointer hover:bg-comic-yellow transition-colors"
+              >
+                VIEW ALL {testimonials.length} HEROES
+              </motion.button>
+            )}
             <motion.button
               onClick={() => navigate("/submit-testimonial")}
               whileHover={{ scale: 1.05 }}

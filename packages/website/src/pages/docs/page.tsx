@@ -197,7 +197,7 @@ export function DocsPage() {
             transition={{ duration: 0.3 }}
           >
             <div className="mb-8">
-              <h1 className="action-text text-4xl md:text-5xl text-comic-red mb-4">
+              <h1 className="action-text text-4xl md:text-5xl text-comic-red mb-8">
                 {activeSection.startsWith("cli-commands-")
                   ? "CLI Commands"
                   : currentSection?.title || "Documentation"}

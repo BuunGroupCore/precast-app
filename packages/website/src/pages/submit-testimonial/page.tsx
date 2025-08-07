@@ -3,6 +3,7 @@ import { FaHeart, FaArrowLeft, FaStar, FaQuoteLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 import { TestimonialForm, HowItWorks, BenefitsSection } from "@/components/submit-testimonial";
+import { EXTERNAL_LINKS } from "@/config/constants";
 
 /**
  * Testimonial submission page for sharing hero stories.
@@ -72,7 +73,7 @@ Please confirm by checking these boxes:
       template: "testimonial.md",
     });
 
-    return `https://github.com/BuunGroupCore/precast-app/issues/new?${params.toString()}`;
+    return `${EXTERNAL_LINKS.GITHUB}/issues/new?${params.toString()}`;
   };
 
   return (
@@ -164,7 +165,7 @@ Please confirm by checking these boxes:
               </a>
 
               <button
-                onClick={() => navigate("/#testimonials")}
+                onClick={() => navigate("/testimonials")}
                 className="btn-comic bg-comic-white text-comic-black hover:bg-comic-yellow inline-flex items-center gap-3 text-xl px-8 py-4"
               >
                 <FaStar />

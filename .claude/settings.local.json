@@ -89,7 +89,8 @@
       "Bash(git commit:*)",
       "WebFetch(domain:www.dicebear.com)",
       "Bash(CI=true bun test tests/cli.test.ts -t \"should generate react-express-postgres\")",
-      "Bash(env CI=true bun test tests/cli.test.ts -t \"should generate react-express-postgres\")"
+      "Bash(env CI=true bun test tests/cli.test.ts -t \"should generate react-express-postgres\")",
+      "Bash(npx eslint:*)"
     ],
     "deny": []
   }

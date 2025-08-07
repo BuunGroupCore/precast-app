@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+import { DATA_URLS } from "@/config/constants";
 import { testimonials as staticTestimonials, type Testimonial } from "@/config/testimonials";
 
 /**
@@ -18,9 +19,7 @@ export function useTestimonials() {
 
       try {
         // Try to load additional testimonials from GitHub repository
-        const response = await fetch(
-          "https://raw.githubusercontent.com/BuunGroupCore/precast-app/main/packages/website/public/testimonials.json"
-        );
+        const response = await fetch(DATA_URLS.TESTIMONIALS_JSON);
 
         if (response.ok) {
           const dynamicTestimonials = await response.json();

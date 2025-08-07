@@ -1,5 +1,7 @@
 import { FaDice } from "react-icons/fa";
 
+import { THIRD_PARTY_APIS } from "@/config/constants";
+
 interface AvatarGeneratorProps {
   avatarSeed: string;
   isLoading: boolean;
@@ -22,7 +24,7 @@ export function AvatarGenerator({
       <div className="inline-block relative">
         <div className="border-6 border-comic-black rounded-full overflow-hidden bg-comic-white shadow-xl">
           <img
-            src={`https://api.dicebear.com/9.x/notionists/svg?seed=${avatarSeed}`}
+            src={`${THIRD_PARTY_APIS.DICEBEAR_NOTIONISTS}?seed=${avatarSeed}`}
             alt="Your Hero Avatar"
             className="w-32 h-32"
             onLoad={onLoadComplete}

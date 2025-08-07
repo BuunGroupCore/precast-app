@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+import { INTERNAL_LINKS, SOCIAL_MEDIA, ORGANIZATIONS } from "@/config/constants";
+
 interface SEOProps {
   title?: string;
   description?: string;
@@ -21,9 +23,9 @@ const DEFAULT_DESCRIPTION =
   "Build TypeScript projects with superhuman speed! Precast is a powerful CLI tool that helps you scaffold modern web applications with your preferred technology stack.";
 const DEFAULT_KEYWORDS =
   "precast, cli, typescript, react, vue, angular, nextjs, web development, scaffolding, boilerplate, starter, template";
-const DEFAULT_IMAGE = "https://precast.dev/og-image.png";
-const DEFAULT_URL = "https://precast.dev";
-const DEFAULT_AUTHOR = "Buun Group";
+const DEFAULT_IMAGE = `${INTERNAL_LINKS.PRECAST_URL}/og-image.png`;
+const DEFAULT_URL = INTERNAL_LINKS.PRECAST_URL;
+const DEFAULT_AUTHOR = ORGANIZATIONS.BUUN_GROUP;
 
 /**
  * SEO component for managing meta tags, Open Graph, Twitter Cards, and structured data.
@@ -79,8 +81,8 @@ export function SEO({
     updateMetaTag("twitter:title", title);
     updateMetaTag("twitter:description", description);
     updateMetaTag("twitter:image", image);
-    updateMetaTag("twitter:site", "@buungroup");
-    updateMetaTag("twitter:creator", "@buungroup");
+    updateMetaTag("twitter:site", SOCIAL_MEDIA.TWITTER_HANDLE);
+    updateMetaTag("twitter:creator", SOCIAL_MEDIA.TWITTER_HANDLE);
 
     if (type === "article") {
       if (publishedTime) {
@@ -141,7 +143,7 @@ export function HomePageSEO() {
     "@type": "WebApplication",
     name: "Precast CLI",
     description: "The superhero CLI builder for modern web projects",
-    url: "https://precast.dev",
+    url: INTERNAL_LINKS.PRECAST_URL,
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Windows, macOS, Linux",
     offers: {
@@ -151,7 +153,7 @@ export function HomePageSEO() {
     },
     author: {
       "@type": "Organization",
-      name: "Buun Group",
+      name: ORGANIZATIONS.BUUN_GROUP,
       url: "https://buungroup.com",
     },
   };
@@ -169,7 +171,7 @@ export function BuilderPageSEO() {
     "@type": "SoftwareApplication",
     name: "Precast Project Builder",
     description: "Visual project builder for creating modern web applications",
-    url: "https://precast.dev/builder",
+    url: `${INTERNAL_LINKS.PRECAST_URL}/builder`,
     applicationCategory: "DeveloperApplication",
     screenshot: "https://precast.dev/builder-screenshot.png",
   };
@@ -205,10 +207,10 @@ export function DocsPageSEO() {
     "@type": "TechArticle",
     headline: "Precast Documentation",
     description: "Complete documentation for the Precast CLI tool",
-    url: "https://precast.dev/docs",
+    url: INTERNAL_LINKS.PRECAST_DOCS,
     author: {
       "@type": "Organization",
-      name: "Buun Group",
+      name: ORGANIZATIONS.BUUN_GROUP,
     },
   };
 
@@ -217,6 +219,46 @@ export function DocsPageSEO() {
       title="Documentation - Precast CLI"
       description="Learn how to use Precast CLI to build amazing projects. Complete guides, API references, and tutorials."
       type="article"
+      jsonLd={jsonLd}
+    />
+  );
+}
+
+/**
+ * Pre-configured SEO component for the testimonials page.
+ * Includes ItemList schema structured data for testimonials.
+ */
+export function TestimonialsPageSEO({ testimonialsCount = 0 }: { testimonialsCount?: number }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "PRECAST Hero League Testimonials",
+    description: "Developer testimonials and success stories from the PRECAST Hero League",
+    url: INTERNAL_LINKS.PRECAST_TESTIMONIALS,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "PRECAST",
+      url: INTERNAL_LINKS.PRECAST_URL,
+    },
+    about: {
+      "@type": "SoftwareApplication",
+      name: "PRECAST",
+      description: "Developer tools and templates for building amazing projects",
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      name: "Developer Testimonials",
+      description: "Reviews and success stories from PRECAST users",
+      numberOfItems: testimonialsCount,
+    },
+  };
+
+  return (
+    <SEO
+      title="PRECAST Hero League - Developer Testimonials | Success Stories"
+      description="Read testimonials from developers who joined the PRECAST Hero League. Discover success stories from our coding superheroes who built amazing projects with our tools and templates."
+      keywords="PRECAST testimonials, developer reviews, success stories, coding heroes, web development tools, project templates, developer experiences"
+      image="https://precast.dev/og-testimonials.png"
       jsonLd={jsonLd}
     />
   );

@@ -129,7 +129,7 @@ jobs:
                   }
                 } else if (line.includes('**Tell us about your experience')) {
                   currentSection = 'content';
-                  skipNext = true; // Skip the comment line
+                  // Don't skip next line for content
                 } else if (line.includes('**How many stars')) {
                   currentSection = 'rating';
                   skipNext = true; // Skip the comment line
@@ -157,9 +157,14 @@ jobs:
                       currentSection = '';
                       break;
                     case 'content':
-                      // Continue collecting content until we hit another section
-                      if (!line.startsWith('###') && !line.includes('**')) {
-                        testimonialData.content += line.trim() + ' ';
+                      // Continue collecting content until we hit another major section (###)
+                      if (!line.startsWith('###') && !line.includes('**Hero Rating') && !line.includes('**Consent')) {
+                        // Add content line by line, preserving line breaks
+                        if (testimonialData.content) {
+                          testimonialData.content += ' ' + line.trim();
+                        } else {
+                          testimonialData.content = line.trim();
+                        }
                       } else {
                         currentSection = '';
                         i--; // Re-process this line

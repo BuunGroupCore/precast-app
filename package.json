@@ -15,7 +15,7 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish",
-    "prepare": "node .husky/install.mjs"
+    "setup:husky": "husky || echo 'Husky not available - install git first'"
   },
   "engines": {
     "node": ">=18.0.0",

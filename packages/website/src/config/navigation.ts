@@ -20,6 +20,8 @@ import {
 import { RiTwitterXFill } from "react-icons/ri";
 import { SiNpm } from "react-icons/si";
 
+import { EMAILS } from "./constants";
+
 export interface NavItem {
   href: string;
   label: string;
@@ -129,7 +131,7 @@ export const footerNavigation: FooterSection[] = [
   {
     title: "SUPPORT",
     links: [
-      { label: "Contact", href: "mailto:support@precast.dev", icon: FaEnvelope },
+      { label: "Contact", href: `mailto:${EMAILS.SUPPORT}`, icon: FaEnvelope },
       {
         label: "Discord Community",
         href: "https://discord.gg/4Wen9Pg3rG",

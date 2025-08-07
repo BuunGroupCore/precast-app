@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+import { DATA_URLS } from "@/config/constants";
+
 interface CliAnalytics {
   updated: string;
   lastUpdatedFormatted: string;
@@ -61,8 +63,6 @@ interface CliAnalytics {
 }
 
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-const ANALYTICS_URL =
-  "https://raw.githubusercontent.com/BuunGroupCore/precast-app/main/data/analytics.json";
 
 /**
  * Custom hook to fetch CLI analytics data from GitHub repository.
@@ -106,7 +106,7 @@ export function useCliAnalytics() {
 
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch(ANALYTICS_URL);
+        const response = await fetch(DATA_URLS.ANALYTICS_JSON);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch CLI analytics: ${response.status}`);

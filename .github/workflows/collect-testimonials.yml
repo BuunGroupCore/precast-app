@@ -265,11 +265,24 @@ jobs:
             });
 
             console.log(`Created PR #${pr.data.number}`);
+            
+            // Set output for the next step
+            core.setOutput('pr_number', pr.data.number);
+            core.setOutput('pr_created', 'true');
 
       - name: Setup Auto-merge
-        if: success()
+        if: steps.process.outputs.pr_created == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.process.outputs.pr_number }}
         run: |
-          # Enable auto-merge on the PR
-          gh pr merge --auto --squash --delete-branch $(gh pr list --head "testimonials-update-*" --json number --jq '.[0].number')
+          # Enable auto-merge on the PR if it was created
+          if [ -n "$PR_NUMBER" ]; then
+            echo "Setting up auto-merge for PR #$PR_NUMBER"
+            gh pr merge --auto --squash --delete-branch "$PR_NUMBER" || {
+              echo "Failed to set up auto-merge for PR #$PR_NUMBER, but continuing..."
+              exit 0
+            }
+          else
+            echo "No PR number found, skipping auto-merge setup"
+          fi

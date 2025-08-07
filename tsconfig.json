@@ -19,12 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@precast/ui": ["./packages/ui/src"],
-      "@precast/utils": ["./packages/utils/src"],
-      "@precast/hooks": ["./packages/hooks/src"]
-    }
+    "baseUrl": "."
   },
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }

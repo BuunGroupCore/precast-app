@@ -56,13 +56,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build TypeScript Projects in Order
-        run: |
-          pnpm --filter @precast/utils build
-          pnpm --filter @precast/hooks build
-          pnpm --filter @precast/ui build
-          pnpm --filter @precast/cli build
-
       - name: Build Website
         run: pnpm --filter website build
         env:
@@ -120,13 +113,6 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Build TypeScript Projects in Order
-        run: |
-          pnpm --filter @precast/utils build
-          pnpm --filter @precast/hooks build
-          pnpm --filter @precast/ui build
-          pnpm --filter @precast/cli build
 
       - name: Build Website
         run: pnpm --filter website build

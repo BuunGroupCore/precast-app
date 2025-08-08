@@ -9,9 +9,15 @@ import {
   ormDefs,
   stylingDefs,
   runtimeDefs,
+  uiFrameworkDefs,
 } from "../../../shared/stack-config.js";
 import type { InitOptions } from "../commands/init.js";
-import { getAuthPromptOptions, isAuthProviderCompatible } from "../utils/auth-setup.js";
+import {
+  getAuthPromptOptions,
+  isAuthProviderCompatible,
+  getFilteredAuthOptions,
+  isAuthProviderCompatibleWithStack,
+} from "../utils/auth-setup.js";
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
 import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
 
@@ -51,6 +57,20 @@ export async function gatherProjectConfig(
         hint: f.description,
       })),
     })) as string);
+
+  // If Vite is selected, prompt for UI framework
+  let uiFramework: string | undefined = options.uiFramework;
+  if (framework === "vite" && !options.uiFramework && !options.yes) {
+    uiFramework = (await select({
+      message: "Choose your UI framework for Vite:",
+      options: uiFrameworkDefs.map((f) => ({
+        value: f.id,
+        label: f.name,
+        hint: f.description,
+      })),
+    })) as string;
+  }
+
   const backend =
     options.backend ||
     ((await select({
@@ -231,24 +251,36 @@ export async function gatherProjectConfig(
 
   let authProvider: string | undefined;
 
-  if (options.auth && options.auth !== "none") {
-    const authOptions = getAuthPromptOptions();
-    const validAuth = authOptions.find((opt) => opt.value === options.auth);
-    if (validAuth && isAuthProviderCompatible(options.auth, framework)) {
-      authProvider = options.auth;
-    } else if (validAuth) {
-      consola.warn(`⚠️  ${options.auth} is not compatible with ${framework} framework`);
-    } else {
-      consola.warn(`⚠️  Unknown authentication provider: ${options.auth}`);
+  // Check if auth is even possible with the selected stack
+  if (backend === "none" || database === "none") {
+    if (options.auth && options.auth !== "none") {
+      consola.warn(`⚠️  Authentication requires both a backend server and database for security.`);
+      consola.warn(`   Selected backend: ${backend}, database: ${database}`);
+      consola.warn(`   Please select a backend framework and database to enable authentication.`);
     }
-  } else if (!options.yes && database !== "none" && !options.auth) {
-    const authOptions = getAuthPromptOptions()
-      .filter((option) => isAuthProviderCompatible(option.value, framework))
-      .map((option) => ({
-        value: option.value,
-        label: option.label,
-        hint: option.hint,
-      }));
+    authProvider = undefined;
+  } else if (options.auth && options.auth !== "none") {
+    // User specified auth via CLI flag
+    const stackConfig = { framework, backend, database };
+    if (isAuthProviderCompatibleWithStack(options.auth, stackConfig)) {
+      authProvider = options.auth;
+    } else {
+      consola.warn(`⚠️  ${options.auth} is not compatible with your selected stack:`);
+      consola.warn(`   Framework: ${framework}, Backend: ${backend}, Database: ${database}`);
+
+      // Suggest compatible auth providers
+      const compatibleOptions = getFilteredAuthOptions(stackConfig);
+      if (compatibleOptions.length > 0) {
+        consola.info(`   Compatible auth providers for your stack:`);
+        compatibleOptions.forEach((opt) => {
+          consola.info(`   - ${opt.label}`);
+        });
+      }
+    }
+  } else if (!options.yes && backend !== "none" && database !== "none" && !options.auth) {
+    // Interactive mode - show filtered auth options based on stack
+    const stackConfig = { framework, backend, database, orm };
+    const authOptions = getFilteredAuthOptions(stackConfig);
 
     if (authOptions.length > 0) {
       authProvider = (await select({
@@ -262,6 +294,8 @@ export async function gatherProjectConfig(
       if (authProvider === "none") {
         authProvider = undefined;
       }
+    } else {
+      consola.info("ℹ️  No compatible authentication providers for your selected stack.");
     }
   }
 
@@ -321,5 +355,6 @@ export async function gatherProjectConfig(
     language: typescript ? "typescript" : "javascript",
     mcpServers: options.mcpServers,
     powerups: options.powerups,
+    uiFramework,
   };
 }

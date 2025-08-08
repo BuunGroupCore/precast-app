@@ -443,7 +443,7 @@ model User {
           icon: getFileIcon("package.json"),
           previewContent: getFilePreview({ name: "package.json", type: "file" }),
         },
-        { name: "turbo.json", type: "file", icon: FaCog },
+        { name: "turbo.json", type: "file", icon: <FaCog className="text-gray-600" /> },
         config.docker && {
           name: "docker-compose.yml",
           type: "file",
@@ -456,7 +456,7 @@ model User {
         {
           name: "src",
           type: "folder",
-          icon: FaFolder,
+          icon: <FaFolder className="text-comic-yellow" />,
           children: frameworkFiles.src.map((file) => ({
             ...file,
             icon: file.type === "file" ? getFileIcon(file.name) : undefined,
@@ -588,7 +588,11 @@ model User {
           )}
           <span className="text-lg">
             {node.icon ? (
-              <node.icon className={node.type === "folder" ? "text-comic-yellow" : ""} />
+              typeof node.icon === "function" ? (
+                <node.icon className="text-comic-blue" />
+              ) : (
+                node.icon
+              )
             ) : node.type === "folder" ? (
               isExpanded ? (
                 <FaFolderOpen className="text-comic-yellow" />

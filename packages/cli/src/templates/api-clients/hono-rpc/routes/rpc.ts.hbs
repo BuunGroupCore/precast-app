@@ -1,0 +1,277 @@
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
+{{#if (or (eq config.database "postgres") (eq config.database "mysql") (eq config.database "sqlite"))}}
+{{#if (eq config.orm "prisma")}}
+import { prisma } from "@/lib/prisma";
+{{/if}}
+{{/if}}
+
+const rpcApp = new Hono()
+  // Users endpoints
+  .get("/users", async (c) => {
+    {{#if (eq config.orm "prisma")}}
+    try {
+      const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+        },
+      });
+      return c.json({ users });
+    } catch (error) {
+      return c.json({ error: "Failed to fetch users" }, 500);
+    }
+    {{else}}
+    // TODO: Implement database query
+    return c.json({ 
+      users: [
+        { id: "1", name: "John Doe", email: "john@example.com" },
+        { id: "2", name: "Jane Smith", email: "jane@example.com" }
+      ] 
+    });
+    {{/if}}
+  })
+  .get("/users/:id", async (c) => {
+    const id = c.req.param("id");
+    {{#if (eq config.orm "prisma")}}
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      if (!user) {
+        return c.json({ error: "User not found" }, 404);
+      }
+      return c.json({ user });
+    } catch (error) {
+      return c.json({ error: "Failed to fetch user" }, 500);
+    }
+    {{else}}
+    // TODO: Implement database query
+    return c.json({ 
+      user: { 
+        id, 
+        name: "John Doe", 
+        email: "john@example.com",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } 
+    });
+    {{/if}}
+  })
+  .post(
+    "/users",
+    zValidator(
+      "json",
+      z.object({
+        name: z.string().min(1).max(100),
+        email: z.string().email(),
+        {{#if (eq config.authProvider "better-auth")}}
+        password: z.string().min(8),
+        {{/if}}
+      })
+    ),
+    async (c) => {
+      const body = c.req.valid("json");
+      {{#if (eq config.orm "prisma")}}
+      try {
+        const user = await prisma.user.create({
+          data: {
+            name: body.name,
+            email: body.email,
+            {{#if (eq config.authProvider "better-auth")}}
+            // TODO: Hash password before saving
+            password: body.password,
+            {{/if}}
+          },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            createdAt: true,
+          },
+        });
+        return c.json({ user }, 201);
+      } catch (error) {
+        if (error.code === "P2002") {
+          return c.json({ error: "Email already exists" }, 409);
+        }
+        return c.json({ error: "Failed to create user" }, 500);
+      }
+      {{else}}
+      // TODO: Implement database query
+      return c.json({ 
+        user: {
+          id: Date.now().toString(),
+          ...body,
+          createdAt: new Date().toISOString()
+        }
+      }, 201);
+      {{/if}}
+    }
+  )
+  .patch(
+    "/users/:id",
+    zValidator(
+      "json",
+      z.object({
+        name: z.string().min(1).max(100).optional(),
+        email: z.string().email().optional(),
+      })
+    ),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      {{#if (eq config.orm "prisma")}}
+      try {
+        const user = await prisma.user.update({
+          where: { id },
+          data: body,
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            updatedAt: true,
+          },
+        });
+        return c.json({ user });
+      } catch (error) {
+        if (error.code === "P2025") {
+          return c.json({ error: "User not found" }, 404);
+        }
+        return c.json({ error: "Failed to update user" }, 500);
+      }
+      {{else}}
+      // TODO: Implement database query
+      return c.json({ 
+        user: {
+          id,
+          ...body,
+          updatedAt: new Date().toISOString()
+        }
+      });
+      {{/if}}
+    }
+  )
+  .delete("/users/:id", async (c) => {
+    const id = c.req.param("id");
+    {{#if (eq config.orm "prisma")}}
+    try {
+      await prisma.user.delete({
+        where: { id },
+      });
+      return c.json({ success: true });
+    } catch (error) {
+      if (error.code === "P2025") {
+        return c.json({ error: "User not found" }, 404);
+      }
+      return c.json({ error: "Failed to delete user" }, 500);
+    }
+    {{else}}
+    // TODO: Implement database query
+    return c.json({ success: true });
+    {{/if}}
+  })
+  // Posts endpoints (example of another resource)
+  .get("/posts", async (c) => {
+    const limit = parseInt(c.req.query("limit") || "10");
+    const offset = parseInt(c.req.query("offset") || "0");
+    
+    {{#if (eq config.orm "prisma")}}
+    try {
+      const [posts, total] = await Promise.all([
+        prisma.post.findMany({
+          take: limit,
+          skip: offset,
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        }),
+        prisma.post.count(),
+      ]);
+      return c.json({ posts, total, limit, offset });
+    } catch (error) {
+      return c.json({ error: "Failed to fetch posts" }, 500);
+    }
+    {{else}}
+    // TODO: Implement database query
+    return c.json({ 
+      posts: [
+        { 
+          id: "1", 
+          title: "First Post", 
+          content: "This is the first post",
+          authorId: "1",
+          author: { id: "1", name: "John Doe" },
+          createdAt: new Date().toISOString()
+        }
+      ],
+      total: 1,
+      limit,
+      offset
+    });
+    {{/if}}
+  })
+  .post(
+    "/posts",
+    zValidator(
+      "json",
+      z.object({
+        title: z.string().min(1).max(200),
+        content: z.string().min(1),
+        authorId: z.string(),
+        published: z.boolean().optional().default(false),
+      })
+    ),
+    async (c) => {
+      const body = c.req.valid("json");
+      {{#if (eq config.orm "prisma")}}
+      try {
+        const post = await prisma.post.create({
+          data: body,
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        return c.json({ post }, 201);
+      } catch (error) {
+        return c.json({ error: "Failed to create post" }, 500);
+      }
+      {{else}}
+      // TODO: Implement database query
+      return c.json({ 
+        post: {
+          id: Date.now().toString(),
+          ...body,
+          createdAt: new Date().toISOString()
+        }
+      }, 201);
+      {{/if}}
+    }
+  );
+
+// Export the type for client
+export type RpcAppType = typeof rpcApp;
+export default rpcApp;

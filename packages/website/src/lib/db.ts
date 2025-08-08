@@ -26,6 +26,7 @@ export interface SavedProject {
 export interface UserSettings {
   id?: number;
   preferredFramework?: string;
+  preferredUIFramework?: string;
   preferredBackend?: string;
   preferredDatabase?: string;
   preferredOrm?: string;

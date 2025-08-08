@@ -38,6 +38,7 @@ export function BuilderPage() {
     framework: "react",
     backend: "node",
     database: "postgres",
+    databaseDeployment: "local",
     orm: "prisma",
     styling: "tailwind",
     typescript: true,
@@ -65,6 +66,7 @@ export function BuilderPage() {
     framework: "react",
     backend: "node",
     database: "postgres",
+    databaseDeployment: "local",
     orm: "prisma",
     styling: "tailwind",
     typescript: true,
@@ -80,9 +82,45 @@ export function BuilderPage() {
     mcpServers: [],
   };
 
-  const resetToDefaults = () => {
-    setConfig(defaultConfig);
-    setPackageManager("bun");
+  const resetToDefaults = async () => {
+    try {
+      const userSettings = await db.userSettings.orderBy("updatedAt").last();
+      if (userSettings) {
+        /** Use user's preferred settings as reset defaults */
+        const resetConfig: ExtendedProjectConfig = {
+          name: "my-awesome-project",
+          framework: userSettings.preferredFramework || "react",
+          uiFramework: userSettings.preferredUIFramework,
+          backend: userSettings.preferredBackend || "node",
+          database: userSettings.preferredDatabase || "postgres",
+          databaseDeployment: "local",
+          orm: userSettings.preferredOrm || "prisma",
+          styling: userSettings.preferredStyling || "tailwind",
+          runtime: userSettings.preferredRuntime || "bun",
+          auth: userSettings.preferredAuth || "none",
+          uiLibrary: userSettings.preferredUILibrary || "none",
+          packageManager: userSettings.preferredPackageManager || "bun",
+          deploymentMethod: userSettings.preferredDeployment || "none",
+          typescript: userSettings.defaultTypescript ?? true,
+          git: userSettings.defaultGit ?? true,
+          docker: userSettings.defaultDocker ?? false,
+          autoInstall: userSettings.defaultAutoInstall ?? true,
+          aiAssistant: "none",
+          mcpServers: [],
+        };
+        setConfig(resetConfig);
+        setPackageManager(userSettings.preferredPackageManager || "bun");
+      } else {
+        /** Fallback to hardcoded defaults if no user settings */
+        setConfig(defaultConfig);
+        setPackageManager("bun");
+      }
+    } catch (error) {
+      console.error("Failed to load user settings for reset:", error);
+      /** Fallback to hardcoded defaults on error */
+      setConfig(defaultConfig);
+      setPackageManager("bun");
+    }
   };
 
   const handleSelectPreferredStack = (stackConfig: Partial<ExtendedProjectConfig>) => {
@@ -105,8 +143,10 @@ export function BuilderPage() {
         const newDefaults: ExtendedProjectConfig = {
           name: "my-awesome-project",
           framework: userSettings.preferredFramework || "react",
+          uiFramework: userSettings.preferredUIFramework,
           backend: userSettings.preferredBackend || "node",
           database: userSettings.preferredDatabase || "postgres",
+          databaseDeployment: "local",
           orm: userSettings.preferredOrm || "prisma",
           styling: userSettings.preferredStyling || "tailwind",
           runtime: userSettings.preferredRuntime || "bun",
@@ -200,6 +240,11 @@ export function BuilderPage() {
     parts.push(`--orm=${config.orm || "none"}`);
     parts.push(`--styling=${config.styling}`);
     parts.push(`--runtime=${config.runtime || "node"}`);
+
+    /** UI Framework (when using Vite) */
+    if (config.framework === "vite" && config.uiFramework) {
+      parts.push(`--ui-framework=${config.uiFramework}`);
+    }
 
     /** Auth option (CLI supports this) */
     if (config.auth && config.auth !== "none") {
@@ -318,10 +363,29 @@ export function BuilderPage() {
               <RuntimeSection config={config} setConfig={setConfig} />
 
               {/* 6. Database Selection - If backend exists */}
-              <DatabaseSection config={config} setConfig={setConfig} />
+              {config.backend && config.backend !== "none" && (
+                <DatabaseSection config={config} setConfig={setConfig} />
+              )}
 
-              {/* 7. Authentication Section - User management */}
-              <AuthSection config={config} setConfig={setConfig} />
+              {/* 7. Authentication Section - User management (requires backend AND database) */}
+              {config.backend &&
+                config.backend !== "none" &&
+                config.database &&
+                config.database !== "none" && <AuthSection config={config} setConfig={setConfig} />}
+
+              {/* Show warning when backend is none but trying to use auth */}
+              {config.backend === "none" && (
+                <div className="comic-panel p-4 bg-comic-yellow/20 border-3 border-comic-yellow">
+                  <h3 className="font-display text-lg text-comic-black mb-2 flex items-center gap-2">
+                    ⚠️ AUTHENTICATION REQUIRES BACKEND
+                  </h3>
+                  <p className="font-comic text-sm text-comic-black/80">
+                    Authentication requires a backend server to securely handle credentials and
+                    tokens. Client-side only applications cannot safely store API keys or secrets.
+                    Please select a backend framework to enable authentication options.
+                  </p>
+                </div>
+              )}
 
               {/* 8. Power-ups - Development tools and extensions */}
               <PowerUpsSection config={config} setConfig={setConfig} />

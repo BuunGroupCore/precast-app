@@ -17,11 +17,29 @@ interface AuthSectionProps {
  */
 export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) => {
   const availableAuthProviders = authProviders.filter((auth) => {
-    if (
-      auth.dependencies?.includes("react") &&
-      !["react", "next", "remix"].includes(config.framework)
-    ) {
+    // Special handling for Cloudflare Workers
+    if (config.backend === "cloudflare-workers") {
+      // Better Auth has known compatibility issues with Workers
+      if (auth.id === "better-auth") return false;
+
+      // Passport.js doesn't work well with edge runtime
+      if (auth.id === "passport") return false;
+    }
+
+    // Check if auth provider requires a database (self-hosted auth solutions)
+    const requiresDatabase = ["auth.js", "better-auth", "passport", "lucia"].includes(auth.id);
+    if (requiresDatabase && (!config.database || config.database === "none")) {
       return false;
+    }
+
+    if (auth.dependencies?.includes("react")) {
+      // When using Vite, check the UI framework instead of the build tool
+      const frameworkToCheck =
+        config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
+
+      if (!["react", "next", "remix"].includes(frameworkToCheck)) {
+        return false;
+      }
     }
     if (
       auth.dependencies?.includes("node") &&
@@ -59,13 +77,32 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
               (auth.recommendedFor.frameworks?.includes(config.framework) ||
                 auth.recommendedFor.backends?.includes(config.backend || ""));
 
+            // Special recommendations for Cloudflare Workers
+            const isWorkersRecommended =
+              config.backend === "cloudflare-workers" &&
+              config.database === "cloudflare-d1" &&
+              ["auth.js", "lucia", "clerk"].includes(auth.id);
+
+            const isWorkersManaged =
+              config.backend === "cloudflare-workers" && ["clerk", "auth0"].includes(auth.id);
+
+            // Warnings for Workers
+            const hasWorkersWarning =
+              config.backend === "cloudflare-workers" && auth.id === "lucia"; // Needs Rust worker for password hashing
+
             return (
               <button
                 key={auth.id}
                 onClick={() => setConfig({ ...config, auth: auth.id })}
                 data-active={config.auth === auth.id}
-                className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative"
-                title={auth.description}
+                className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative ${
+                  isWorkersRecommended ? "ring-2 ring-comic-yellow ring-offset-1" : ""
+                }`}
+                title={
+                  hasWorkersWarning
+                    ? `${auth.description} (Requires Rust worker for password hashing on Workers)`
+                    : auth.description
+                }
               >
                 {/* Badges */}
                 <div className="absolute -top-2 -right-2 flex gap-2">
@@ -74,9 +111,19 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
                       BETA
                     </span>
                   )}
-                  {isRecommended && (
+                  {(isRecommended || isWorkersRecommended) && (
                     <span className="bg-comic-green text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
                       RECOMMENDED
+                    </span>
+                  )}
+                  {isWorkersManaged && !isWorkersRecommended && (
+                    <span className="bg-comic-blue text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                      NO DB NEEDED
+                    </span>
+                  )}
+                  {hasWorkersWarning && (
+                    <span className="bg-comic-orange text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                      ⚠️
                     </span>
                   )}
                 </div>

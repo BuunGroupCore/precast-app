@@ -29,6 +29,10 @@ export interface MCPServer {
   };
   /** Repository URL */
   repository?: string;
+  /** Whether this server is recommended for Claude Code users */
+  recommended?: boolean;
+  /** Reason why this server is recommended */
+  recommendedReason?: string;
 }
 
 /**
@@ -204,6 +208,44 @@ export const mcpServers: MCPServer[] = [
       args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/sequential-thinking",
+  },
+  {
+    id: "context7",
+    name: "Context7",
+    description:
+      "Real-time, version-specific documentation and code examples for accurate library usage",
+    icon: MCPIcon,
+    category: "ai",
+    triggers: {
+      any: false, // Recommended for all Claude Code users
+    },
+    config: {
+      server_name: "Context7",
+      command: "npx",
+      args: ["-y", "@upstash/context7-mcp"],
+    },
+    repository: "https://github.com/upstash/context7",
+    recommended: true,
+    recommendedReason: "Provides up-to-date library documentation to prevent outdated API usage",
+  },
+  {
+    id: "consult7",
+    name: "Consult7",
+    description: "Analyze entire codebases beyond context limits using large language models",
+    icon: MCPIcon,
+    category: "ai",
+    triggers: {
+      any: false, // Recommended for large projects
+    },
+    config: {
+      server_name: "consult7",
+      command: "uvx",
+      args: ["consult7", "openrouter", "your-api-key"],
+    },
+    repository: "https://github.com/szeider/consult7",
+    recommended: true,
+    recommendedReason:
+      "Essential for analyzing large codebases that exceed Claude's context window",
   },
 ];
 

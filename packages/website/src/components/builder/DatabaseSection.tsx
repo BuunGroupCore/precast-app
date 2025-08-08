@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
-import React from "react";
+import React, { useState } from "react";
 import { FaDatabase } from "react-icons/fa";
 
 import { Tooltip } from "@/components/ui/Tooltip";
-import { databases, orms } from "@/lib/stack-config";
+import { databases, orms, type StackOption } from "@/lib/stack-config";
 
 import { CollapsibleSection } from "./CollapsibleSection";
+import { DatabaseDeploymentModal } from "./DatabaseDeploymentModal";
+import { PublicIcon } from "./PublicIcon";
 import type { ExtendedProjectConfig } from "./types";
 
 interface DatabaseSectionProps {
@@ -14,6 +16,45 @@ interface DatabaseSectionProps {
 }
 
 export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setConfig }) => {
+  const [deploymentModalOpen, setDeploymentModalOpen] = useState(false);
+  const [selectedDatabase, setSelectedDatabase] = useState<StackOption | null>(null);
+
+  const handleDatabaseSelect = (db: StackOption) => {
+    if (db.deploymentOptions && (db.deploymentOptions.local || db.deploymentOptions.cloud)) {
+      setSelectedDatabase(db);
+      setDeploymentModalOpen(true);
+    } else {
+      const updates: Partial<ExtendedProjectConfig> = {
+        database: db.id,
+        databaseDeployment: undefined,
+      };
+
+      if (db.id === "none") {
+        updates.orm = "none";
+        updates.auth = "none";
+      }
+
+      setConfig({ ...config, ...updates });
+    }
+  };
+
+  const handleDeploymentSelect = (deployment: "local" | "cloud") => {
+    if (!selectedDatabase) return;
+
+    const updates: Partial<ExtendedProjectConfig> = {
+      database: selectedDatabase.id,
+      databaseDeployment: deployment,
+    };
+
+    if (selectedDatabase.id === "none") {
+      updates.orm = "none";
+      updates.auth = "none";
+    }
+
+    setConfig({ ...config, ...updates });
+    setSelectedDatabase(null);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -50 }}
@@ -29,18 +70,60 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
           Store your data - pick from SQL databases, NoSQL, or backend-as-a-service options
         </p>
         <div className="grid grid-cols-3 gap-3">
-          {databases.map((db) => (
-            <Tooltip key={db.id} content={db.description || ""}>
-              <button
-                onClick={() => setConfig({ ...config, database: db.id })}
-                data-active={config.database === db.id}
-                className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
-              >
-                {db.icon && <db.icon className="text-2xl" />}
-                <span className="text-xs">{db.name}</span>
-              </button>
-            </Tooltip>
-          ))}
+          {databases.map((db) => {
+            const isRecommendedForBackend =
+              config.backend === "cloudflare-workers" && db.id === "cloudflare-d1";
+
+            const isSelected = config.database === db.id;
+            const hasDeploymentOptions =
+              db.deploymentOptions && (db.deploymentOptions.local || db.deploymentOptions.cloud);
+            const deploymentBadge = isSelected && hasDeploymentOptions && config.databaseDeployment;
+            const isCloudOnly = !hasDeploymentOptions && db.id !== "none";
+
+            return (
+              <Tooltip key={db.id} content={db.description || ""}>
+                <button
+                  onClick={() => handleDatabaseSelect(db)}
+                  data-active={isSelected}
+                  className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative ${
+                    isRecommendedForBackend ? "ring-2 ring-comic-yellow ring-offset-2" : ""
+                  }`}
+                >
+                  <div className="absolute -top-2 -right-2 flex flex-col gap-1">
+                    {isRecommendedForBackend && (
+                      <span className="bg-comic-yellow text-comic-black text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black z-10">
+                        RECOMMENDED
+                      </span>
+                    )}
+                    {deploymentBadge && (
+                      <span
+                        className={`text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black ${
+                          config.databaseDeployment === "local"
+                            ? "bg-comic-blue text-comic-white"
+                            : "bg-comic-green text-comic-white"
+                        }`}
+                      >
+                        {config.databaseDeployment?.toUpperCase()}
+                      </span>
+                    )}
+                    {isCloudOnly && (
+                      <span className="bg-comic-orange text-comic-white text-[8px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
+                        CLOUD ONLY
+                      </span>
+                    )}
+                  </div>
+
+                  {db.icon &&
+                    (typeof db.icon === "string" ? (
+                      <PublicIcon name={db.icon} className="text-2xl" />
+                    ) : (
+                      <db.icon className="text-2xl" />
+                    ))}
+                  <span className="text-xs">{db.name}</span>
+                </button>
+              </Tooltip>
+            );
+          })}
         </div>
         {/* ORM Selection */}
         {config.database !== "none" &&
@@ -67,7 +150,12 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                         data-active={config.orm === orm.id}
                         className="filter-btn-comic flex flex-col items-center justify-center gap-1 h-16 text-xs w-full"
                       >
-                        {orm.icon && <orm.icon className="text-xl" />}
+                        {orm.icon &&
+                          (typeof orm.icon === "string" ? (
+                            <PublicIcon name={orm.icon} className="text-xl" />
+                          ) : (
+                            <orm.icon className="text-xl" />
+                          ))}
                         <span className="text-xs">{orm.name}</span>
                       </button>
                     </Tooltip>
@@ -76,6 +164,15 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
             </div>
           )}
       </CollapsibleSection>
+
+      {selectedDatabase && (
+        <DatabaseDeploymentModal
+          isOpen={deploymentModalOpen}
+          onClose={() => setDeploymentModalOpen(false)}
+          database={selectedDatabase}
+          onSelect={handleDeploymentSelect}
+        />
+      )}
     </motion.div>
   );
 };

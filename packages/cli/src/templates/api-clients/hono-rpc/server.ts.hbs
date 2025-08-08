@@ -1,0 +1,40 @@
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
+
+const app = new Hono()
+  .use("*", cors())
+  .use("*", logger());
+
+// Example route with validation
+const route = app
+  .get("/api/hello", (c) => {
+    return c.json({ message: "Hello from Hono RPC!" });
+  })
+  .post(
+    "/api/users",
+    zValidator(
+      "json",
+      z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+      })
+    ),
+    async (c) => {
+      const body = c.req.valid("json");
+      // Process the validated data
+      return c.json({ success: true, user: body }, 201);
+    }
+  )
+  .get("/api/users/:id", (c) => {
+    const id = c.req.param("id");
+    // Fetch user by id
+    return c.json({ id, name: "John Doe", email: "john@example.com" });
+  });
+
+// Export the type for client
+export type AppType = typeof route;
+
+export default app;

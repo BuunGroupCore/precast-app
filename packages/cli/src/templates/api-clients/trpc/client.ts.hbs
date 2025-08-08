@@ -1,0 +1,17 @@
+import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import superjson from "superjson";
+import type { AppRouter } from "{{#if (eq backend "express")}}@/server/routers/_app{{else}}@/server/trpc/router{{/if}}";
+
+export const trpc = createTRPCProxyClient<AppRouter>({
+  transformer: superjson,
+  links: [
+    httpBatchLink({
+      url: `${process.env.{{#if (eq framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:3001"}/api/trpc`,
+      headers() {
+        return {
+          // Add auth headers here if needed
+        };
+      },
+    }),
+  ],
+});

@@ -47,14 +47,14 @@ export async function validateDatabaseConnection(): Promise<DatabaseHealthStatus
       timestamp: new Date().toISOString(),
       latency,
     };
-  } catch (error) {
+  } catch (err) {
     const latency = Math.round(performance.now() - startTime);
     return {
       status: "unhealthy",
       database: "{{database}}",
       timestamp: new Date().toISOString(),
       latency,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
+      error: err instanceof Error ? err.message : "Unknown error occurred",
     };
   }
 }
@@ -197,7 +197,7 @@ export class DatabaseHealthIndicator {
     try {
       const status = await validateDatabaseConnection();
       this.updateStatus(status);
-    } catch (error) {
+    } catch (err) {
       this.updateStatus({
         status: "unknown",
         database: "{{database}}",

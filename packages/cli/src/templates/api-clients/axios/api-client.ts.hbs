@@ -1,0 +1,52 @@
+import axios from "axios";
+
+const API_URL = process.env.{{#if (eq framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:3001";
+
+// Create axios instance with default config
+export const apiClient = axios.create({
+  baseURL: API_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Request interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    // Add auth token if available
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+// API methods
+export const api = {
+  // Users
+  getUsers: () => apiClient.get("/api/users"),
+  getUser: (id: string) => apiClient.get(`/api/users/${id}`),
+  createUser: (data: any) => apiClient.post("/api/users", data),
+  updateUser: (id: string, data: any) => apiClient.put(`/api/users/${id}`, data),
+  deleteUser: (id: string) => apiClient.delete(`/api/users/${id}`),
+};

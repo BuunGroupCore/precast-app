@@ -56,16 +56,31 @@ export async function setupDockerCompose(
     return;
   }
 
-  consola.info(`🐳 Setting up Docker Compose for ${database}...`);
+  // Map serverless databases to their local development equivalents
+  let localDatabase = database;
+  if (database === "neon") {
+    localDatabase = "postgres"; // Neon uses Postgres locally
+    consola.info("🔄 Using local PostgreSQL for Neon database development");
+  } else if (database === "planetscale") {
+    localDatabase = "mysql"; // PlanetScale uses MySQL locally
+    consola.info("🔄 Using local MySQL for PlanetScale database development");
+  } else if (database === "turso") {
+    // Turso uses SQLite locally, no Docker needed
+    consola.info("ℹ️ Turso uses SQLite locally, Docker setup not needed");
+    consola.info("   Run 'turso dev' to start a local libSQL server");
+    return;
+  }
+
+  consola.info(`🐳 Setting up Docker Compose for ${localDatabase}...`);
 
   const dockerDir = path.join(projectPath, "docker");
   await ensureDir(dockerDir);
 
   const templateRoot = getTemplateRoot();
-  const dockerTemplateDir = path.join(templateRoot, "docker", database);
+  const dockerTemplateDir = path.join(templateRoot, "docker", localDatabase);
 
   if (!(await pathExists(dockerTemplateDir))) {
-    consola.warn(`Docker templates not found for ${database}`);
+    consola.warn(`Docker templates not found for ${localDatabase}`);
     return;
   }
 
@@ -79,7 +94,7 @@ export async function setupDockerCompose(
   };
 
   // Special handling for Supabase
-  if (database === "supabase") {
+  if (localDatabase === "supabase") {
     await setupSupabaseDocker(dockerTemplateDir, dockerDir, config);
   } else {
     // Copy docker-compose.yml with the generated passwords
@@ -91,13 +106,13 @@ export async function setupDockerCompose(
       composeTemplate,
       config,
       dbPasswords,
-      database
+      localDatabase
     );
     await writeFile(path.join(dockerDir, "docker-compose.yml"), composeContent);
     consola.success("Created docker-compose.yml");
 
     // Copy database-specific initialization files
-    await copyDatabaseInitFiles(database, dockerTemplateDir, dockerDir, config);
+    await copyDatabaseInitFiles(localDatabase, dockerTemplateDir, dockerDir, config);
 
     // Optionally add Redis
     if (dockerConfig?.includeRedis) {
@@ -109,7 +124,7 @@ export async function setupDockerCompose(
   await createDockerEnvFiles(projectPath, database, config, dbPasswords);
 
   // Create docker scripts in package.json
-  await addDockerScripts(projectPath, database);
+  await addDockerScripts(projectPath, localDatabase);
 
   // Create README for Docker setup
   await createDockerReadme(dockerDir, database, config);

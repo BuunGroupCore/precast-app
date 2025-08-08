@@ -1,0 +1,17 @@
+import { hc } from "hono/client";
+{{#if config.backend}}{{#unless (eq config.backend "none")}}
+import type { AppType } from "../../../api/src";
+{{else}}
+import type { AppType } from "@/server/app";
+{{/unless}}{{else}}
+import type { AppType } from "@/server/app";
+{{/if}}
+
+// Create the Hono RPC client
+export const client = hc<AppType>(
+  process.env.{{#if (eq config.framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:{{#if (eq config.backend "hono")}}3001{{else}}3001{{/if}}"
+);
+
+// Example usage:
+// const res = await client.api.users.$get();
+// const data = await res.json();

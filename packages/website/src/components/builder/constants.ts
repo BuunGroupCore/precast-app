@@ -101,35 +101,46 @@ export const deploymentMethods: DeploymentMethod[] = [
     name: "Cloudflare Pages",
     icon: "cloudflare-color",
     color: "text-orange-500",
-    description: "JAMstack platform with unlimited bandwidth on Cloudflare's global network",
+    description: "JAMstack platform with unlimited bandwidth",
+    supportsStatic: true,
+    supportsDynamic: true,
   },
   {
     id: "azure-static",
     name: "Azure Static Web Apps",
     icon: "microsoft-color",
     color: "text-blue-600",
-    description: "Full-stack web apps with free SSL, custom domains, and serverless APIs",
+    description: "Free SSL, custom domains, and serverless APIs",
+    supportsStatic: true,
+    supportsDynamic: false,
   },
   {
-    id: "vercel",
-    name: "Vercel",
-    icon: "vercel",
-    color: "text-black",
-    description: "Frontend cloud platform with zero-config deployments and edge functions",
-  },
-  {
-    id: "netlify",
-    name: "Netlify",
-    icon: "netlify",
-    color: "text-teal-500",
-    description: "Git-based continuous deployment with serverless functions and forms",
+    id: "aws-amplify",
+    name: "AWS Amplify",
+    icon: "aws-color",
+    color: "text-orange-600",
+    description: "Full-stack development platform with CI/CD",
+    supportsStatic: true,
+    supportsDynamic: true,
   },
   {
     id: "github-pages",
     name: "GitHub Pages",
     icon: FaGithub,
     color: "text-gray-800",
-    description: "Free static site hosting directly from your GitHub repository",
+    description: "Free static site hosting from GitHub",
+    supportsStatic: true,
+    supportsDynamic: false,
+  },
+  {
+    id: "vercel",
+    name: "Vercel",
+    icon: "vercel",
+    color: "text-black",
+    description: "Optimized for Next.js deployments",
+    frameworkOnly: "next",
+    supportsStatic: true,
+    supportsDynamic: true,
   },
 ];
 
@@ -170,7 +181,7 @@ export const uiLibraries: UILibrary[] = [
     color: "text-black",
     description: "Bold, raw, and unapologetic design components with comic book aesthetics",
     frameworks: ["react", "next", "remix"],
-    requires: ["tailwind"], // Best with Tailwind
+    requires: ["css"], // Uses plain CSS, not Tailwind
   },
   {
     id: "mui",
@@ -179,6 +190,7 @@ export const uiLibraries: UILibrary[] = [
     color: "text-blue-600",
     description: "React components implementing Google's Material Design system",
     frameworks: ["react", "next", "remix"],
+    incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
   },
   {
     id: "chakra",
@@ -187,6 +199,7 @@ export const uiLibraries: UILibrary[] = [
     color: "text-teal-500",
     description: "Simple, modular and accessible component library for React",
     frameworks: ["react", "next", "remix"],
+    incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
   },
   {
     id: "antd",
@@ -195,6 +208,7 @@ export const uiLibraries: UILibrary[] = [
     color: "text-blue-500",
     description: "Enterprise-class UI design language and React components",
     frameworks: ["react", "next", "remix"],
+    incompatible: ["tailwind"], // Has its own design system, not compatible with Tailwind
   },
   {
     id: "mantine",
@@ -203,5 +217,6 @@ export const uiLibraries: UILibrary[] = [
     color: "text-blue-600",
     description: "Full-featured React components and hooks library with dark mode support",
     frameworks: ["react", "next", "remix"],
+    incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
   },
 ];

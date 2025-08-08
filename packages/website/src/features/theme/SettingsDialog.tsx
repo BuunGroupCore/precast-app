@@ -6,7 +6,14 @@ import { packageManagers } from "@/components/builder/constants";
 import { ComicSelect, GenericComicDialog } from "@/features/common";
 import { db, type UserSettings } from "@/lib/db";
 import { preferredStacks } from "@/lib/preferred-stacks";
-import { frameworks, backends, databases, stylings, runtimes } from "@/lib/stack-config";
+import {
+  frameworks,
+  backends,
+  databases,
+  stylings,
+  runtimes,
+  uiLibraries_frontend,
+} from "@/lib/stack-config";
 
 interface SettingsDialogProps {
   isOpen: boolean;
@@ -20,6 +27,7 @@ interface SettingsDialogProps {
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [settings, setSettings] = useState<UserSettings>({
     preferredFramework: "react",
+    preferredUIFramework: undefined,
     preferredBackend: "node",
     preferredDatabase: "postgres",
     preferredOrm: "prisma",
@@ -79,6 +87,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
   const resetToDefaults = () => {
     setSettings({
       preferredFramework: "react",
+      preferredUIFramework: undefined,
       preferredBackend: "node",
       preferredDatabase: "postgres",
       preferredOrm: "prisma",
@@ -103,6 +112,8 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
       setSettings({
         ...settings,
         preferredFramework: stack.config.framework,
+        preferredUIFramework: (stack.config as typeof stack.config & { uiFramework?: string })
+          .uiFramework,
         preferredBackend: stack.config.backend,
         preferredDatabase: stack.config.database,
         preferredOrm: stack.config.orm || "none",
@@ -153,8 +164,33 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose 
               label="Framework"
               options={frameworks}
               value={settings.preferredFramework || "react"}
-              onChange={(value) => setSettings({ ...settings, preferredFramework: value })}
+              onChange={(value) =>
+                setSettings({
+                  ...settings,
+                  preferredFramework: value,
+                  // Clear UI Framework when switching away from Vite
+                  preferredUIFramework:
+                    value === "vite" ? settings.preferredUIFramework : undefined,
+                })
+              }
             />
+
+            {/* Only show UI Framework selector when Vite is selected */}
+            {settings.preferredFramework === "vite" && (
+              <ComicSelect
+                label="UI Framework (for Vite)"
+                options={[
+                  { id: "", name: "Auto", icon: null },
+                  ...uiLibraries_frontend.filter((f) =>
+                    ["react", "vue", "svelte", "solid"].includes(f.id)
+                  ),
+                ]}
+                value={settings.preferredUIFramework || ""}
+                onChange={(value) =>
+                  setSettings({ ...settings, preferredUIFramework: value || undefined })
+                }
+              />
+            )}
 
             <ComicSelect
               label="Backend"

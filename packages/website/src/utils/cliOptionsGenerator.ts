@@ -44,6 +44,11 @@ export function generateCliOptions(): CliOption[] {
       description: "Choose your JavaScript runtime",
     },
     {
+      flag: "--ui-framework",
+      values: "react, vue, svelte, solid",
+      description: "Choose UI framework when using Vite",
+    },
+    {
       flag: "-u, --ui-library",
       values: "shadcn, daisyui, mui, chakra, antd, mantine, brutalist",
       description: "Choose a UI component library",

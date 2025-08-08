@@ -1,5 +1,7 @@
+import path from "path";
 import { consola } from "consola";
 import { execa } from "execa";
+import fsExtra from "fs-extra";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
@@ -268,6 +270,21 @@ export async function installAllDependencies(options: {
       consola.info("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
     }
 
+    // For pnpm, check if we're in a workspace and add --ignore-workspace flag
+    if (actualPm.id === "pnpm") {
+      try {
+        // Check if we're in a pnpm workspace by looking for pnpm-workspace.yaml
+        const parentPath = path.dirname(options.projectPath);
+        const workspaceFile = path.join(parentPath, "pnpm-workspace.yaml");
+        if (await fsExtra.pathExists(workspaceFile)) {
+          installArgs.push("--ignore-workspace");
+          consola.info("💡 Using --ignore-workspace flag as project is inside a pnpm workspace");
+        }
+      } catch (error) {
+        // Ignore errors when checking for workspace file
+      }
+    }
+
     await execa(actualPm.id, installArgs, {
       cwd: options.projectPath,
       stdio: "inherit",
@@ -315,9 +332,7 @@ export async function formatGeneratedCode(projectPath: string): Promise<void> {
   consola.info("🎨 Formatting generated code with Prettier...");
 
   try {
-    const fs = await import("fs-extra");
-
-    // Create a basic .prettierrc with double quotes for consistency
+    // Create a comprehensive .prettierrc with proper configuration
     const prettierConfigPath = `${projectPath}/.prettierrc`;
     const prettierConfig = {
       semi: true,
@@ -328,44 +343,53 @@ export async function formatGeneratedCode(projectPath: string): Promise<void> {
       useTabs: false,
       arrowParens: "always",
       endOfLine: "lf",
+      bracketSpacing: true,
+      bracketSameLine: false,
     };
-    await fs.writeJSON(prettierConfigPath, prettierConfig, { spaces: 2 });
+    await fsExtra.writeFile(prettierConfigPath, JSON.stringify(prettierConfig, null, 2));
 
-    // First, ensure prettier is installed
-    consola.info("Installing Prettier temporarily for formatting...");
-    await execa("npm", ["install", "--no-save", "prettier"], {
-      cwd: projectPath,
-      stdio: "pipe",
-    });
+    // Create .prettierignore to avoid formatting issues
+    const prettierIgnorePath = `${projectPath}/.prettierignore`;
+    const prettierIgnoreContent = `node_modules/
+dist/
+build/
+coverage/
+.next/
+.nuxt/
+.vercel/
+.netlify/
+*.min.*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb`;
+    await fsExtra.writeFile(prettierIgnorePath, prettierIgnoreContent);
 
-    // Format all relevant files
-    const filePatterns = "**/*.{ts,tsx,js,jsx,json,css,scss,md,html,yml,yaml}";
-
-    // Run prettier directly
-    await execa("npx", ["prettier", "--write", filePatterns, "--ignore-path", ".gitignore"], {
-      cwd: projectPath,
-      stdio: "pipe",
-    });
-
-    // Remove prettier after formatting
-    await execa("npm", ["uninstall", "prettier"], {
-      cwd: projectPath,
-      stdio: "pipe",
-    });
-
-    consola.success("✨ Code formatted successfully");
-  } catch {
-    // Try a simpler approach with just npx
-    try {
-      consola.info("Trying alternative formatting approach...");
-      await execa("npx", ["-y", "prettier@latest", "--write", ".", "--ignore-path", ".gitignore"], {
+    // Use npx directly with specific config - more reliable
+    consola.info("Formatting files with Prettier...");
+    await execa(
+      "npx",
+      [
+        "-y",
+        "prettier@latest",
+        "--write",
+        "**/*.{ts,tsx,js,jsx,json,css,scss,md,html,yml,yaml}",
+        "--config",
+        ".prettierrc",
+        "--ignore-path",
+        ".prettierignore",
+        "--log-level",
+        "warn",
+      ],
+      {
         cwd: projectPath,
-        stdio: "pipe",
-      });
-      consola.success("✨ Code formatted successfully");
-    } catch (fallbackError) {
-      consola.debug("Prettier formatting failed:", fallbackError);
-      consola.warn("⚠️ Code formatting skipped - install Prettier manually if needed");
-    }
+        stdio: "inherit", // Show output so we can see what's happening
+      }
+    );
+
+    consola.success("✨ Code formatted successfully with Prettier");
+  } catch (error) {
+    consola.error("❌ Prettier formatting failed:", error);
+    consola.warn("⚠️ Code formatting skipped - files may not follow project style guidelines");
   }
 }

@@ -148,6 +148,15 @@ async function setupDatabaseSpecificFiles(
     case "firebase":
       await setupFirebase(config, projectPath, templateEngine);
       break;
+    case "neon":
+      await setupNeon(config, projectPath);
+      break;
+    case "turso":
+      await setupTurso(config, projectPath);
+      break;
+    case "planetscale":
+      await setupPlanetScale(config, projectPath);
+      break;
     default:
     // No specific database setup needed
   }
@@ -589,4 +598,234 @@ async function setupDatabaseConnectionTest(
   }
 
   consola.success("✅ Database connection test utilities added!");
+}
+
+/**
+ * Setup Neon database configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+async function setupNeon(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("Setting up Neon database configuration...");
+
+  // Install Neon serverless driver
+  const packages = ["@neondatabase/serverless"];
+
+  if (config.orm === "prisma") {
+    packages.push("@prisma/adapter-neon", "ws");
+  } else if (config.orm === "drizzle") {
+    packages.push("@neondatabase/serverless");
+  }
+
+  await installDependencies(packages, {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  // Setup environment variables
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("DATABASE_URL")) {
+    envContent += `
+# Neon Database Configuration
+DATABASE_URL="postgresql://[user]:[password]@[neon_hostname]/[dbname]?sslmode=require"
+# Get your connection string from https://console.neon.tech
+
+# For local development with Docker (optional)
+# LOCAL_DATABASE_URL="postgresql://postgres:password@localhost:5432/${config.name.replace(/-/g, "_")}"
+`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+
+  // Create database connection helper
+  const dbDir = path.join(projectPath, "src", "lib");
+  await ensureDir(dbDir);
+
+  const dbContent = config.typescript
+    ? `
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL!);
+
+export { sql };
+`
+    : `
+const { neon } = require('@neondatabase/serverless');
+
+const sql = neon(process.env.DATABASE_URL);
+
+module.exports = { sql };
+`;
+
+  await writeFile(path.join(dbDir, config.typescript ? "db.ts" : "db.js"), dbContent.trim());
+
+  consola.success("✅ Neon database setup completed!");
+}
+
+/**
+ * Setup Turso database configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+async function setupTurso(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("Setting up Turso database configuration...");
+
+  // Install libSQL client
+  const packages = ["@libsql/client"];
+
+  if (config.orm === "drizzle") {
+    packages.push("drizzle-orm");
+  }
+
+  await installDependencies(packages, {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  // Setup environment variables
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("TURSO_DATABASE_URL")) {
+    envContent += `
+# Turso Database Configuration
+TURSO_DATABASE_URL="libsql://[database]-[organization].turso.io"
+TURSO_AUTH_TOKEN="[your-auth-token]"
+# Get your credentials from https://turso.tech
+
+# For local development
+# LOCAL_DB_PATH="file:local.db"
+`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+
+  // Create database connection helper
+  const dbDir = path.join(projectPath, "src", "lib");
+  await ensureDir(dbDir);
+
+  const dbContent = config.typescript
+    ? `
+import { createClient } from "@libsql/client";
+
+export const turso = createClient({
+  url: process.env.TURSO_DATABASE_URL || "file:local.db",
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+`
+    : `
+const { createClient } = require("@libsql/client");
+
+const turso = createClient({
+  url: process.env.TURSO_DATABASE_URL || "file:local.db",
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+
+module.exports = { turso };
+`;
+
+  await writeFile(path.join(dbDir, config.typescript ? "db.ts" : "db.js"), dbContent.trim());
+
+  consola.success("✅ Turso database setup completed!");
+}
+
+/**
+ * Setup PlanetScale database configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+async function setupPlanetScale(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("Setting up PlanetScale database configuration...");
+
+  // Install PlanetScale database driver
+  const packages = ["@planetscale/database"];
+
+  if (config.orm === "prisma") {
+    packages.push("@prisma/adapter-planetscale");
+  } else if (config.orm === "drizzle") {
+    packages.push("drizzle-orm");
+  }
+
+  await installDependencies(packages, {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: false,
+  });
+
+  // Setup environment variables
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("DATABASE_URL")) {
+    envContent += `
+# PlanetScale Database Configuration
+DATABASE_URL="mysql://[username]:[password]@[host]/[database]?ssl={"rejectUnauthorized":true}"
+# Get your connection string from https://app.planetscale.com
+
+# Alternative: Use individual credentials
+# DATABASE_HOST="aws.connect.psdb.cloud"
+# DATABASE_USERNAME="[username]"
+# DATABASE_PASSWORD="[password]"
+# DATABASE_NAME="[database]"
+`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+
+  // Create database connection helper
+  const dbDir = path.join(projectPath, "src", "lib");
+  await ensureDir(dbDir);
+
+  const dbContent = config.typescript
+    ? `
+import { connect } from '@planetscale/database';
+
+const config = {
+  url: process.env.DATABASE_URL,
+  // Or use individual credentials:
+  // host: process.env.DATABASE_HOST,
+  // username: process.env.DATABASE_USERNAME,
+  // password: process.env.DATABASE_PASSWORD,
+};
+
+export const db = connect(config);
+`
+    : `
+const { connect } = require('@planetscale/database');
+
+const config = {
+  url: process.env.DATABASE_URL,
+  // Or use individual credentials:
+  // host: process.env.DATABASE_HOST,
+  // username: process.env.DATABASE_USERNAME,
+  // password: process.env.DATABASE_PASSWORD,
+};
+
+const db = connect(config);
+
+module.exports = { db };
+`;
+
+  await writeFile(path.join(dbDir, config.typescript ? "db.ts" : "db.js"), dbContent.trim());
+
+  consola.success("✅ PlanetScale database setup completed!");
 }

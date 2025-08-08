@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 /**
  * MongoDB connection configuration
  */
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/{{name}}';
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/{{name}}";
 
 /**
  * Connect to MongoDB using Mongoose
@@ -13,10 +13,10 @@ export async function connectToDatabase(): Promise<void> {
   try {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(MONGODB_URI);
-      console.log('✅ Connected to MongoDB');
+      console.log("✅ Connected to MongoDB");
     }
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
+    console.error("❌ MongoDB connection error:", error);
     process.exit(1);
   }
 }
@@ -28,31 +28,31 @@ export async function connectToDatabase(): Promise<void> {
 export async function disconnectFromDatabase(): Promise<void> {
   try {
     await mongoose.disconnect();
-    console.log('✅ Disconnected from MongoDB');
+    console.log("✅ Disconnected from MongoDB");
   } catch (error) {
-    console.error('❌ MongoDB disconnection error:', error);
+    console.error("❌ MongoDB disconnection error:", error);
   }
 }
 
 /**
  * Handle MongoDB connection events
  */
-mongoose.connection.on('connected', () => {
-  console.log('📡 Mongoose connected to MongoDB');
+mongoose.connection.on("connected", () => {
+  console.log("📡 Mongoose connected to MongoDB");
 });
 
-mongoose.connection.on('error', (error) => {
-  console.error('❌ Mongoose connection error:', error);
+mongoose.connection.on("error", (error) => {
+  console.error("❌ Mongoose connection error:", error);
 });
 
-mongoose.connection.on('disconnected', () => {
-  console.log('📡 Mongoose disconnected from MongoDB');
+mongoose.connection.on("disconnected", () => {
+  console.log("📡 Mongoose disconnected from MongoDB");
 });
 
 /**
  * Graceful shutdown
  */
-process.on('SIGINT', async () => {
+process.on("SIGINT", async () => {
   await disconnectFromDatabase();
   process.exit(0);
 });

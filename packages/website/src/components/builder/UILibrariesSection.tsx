@@ -20,13 +20,27 @@ interface UILibrariesSectionProps {
 export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, setConfig }) => {
   const isUILibraryCompatible = (lib: (typeof uiLibraries)[0]) => {
     if (lib.frameworks.includes("*")) return true;
-    return lib.frameworks.includes(config.framework);
+
+    // When using Vite, check compatibility with the UI framework instead
+    const frameworkToCheck =
+      config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
+
+    return lib.frameworks.includes(frameworkToCheck);
   };
 
   const isUILibraryStyleCompatible = (lib: (typeof uiLibraries)[0]) => {
+    // Check if the selected styling is incompatible with this library
+    if (lib.incompatible && lib.incompatible.includes(config.styling)) {
+      return false;
+    }
+
+    // Check if the library requires a specific styling that we don't have
     if (!lib.requires) return true;
     return lib.requires.every((req) => {
       if (req === "tailwind") return config.styling === "tailwind";
+      if (req === "css") return config.styling === "css";
+      if (req === "scss") return config.styling === "scss";
+      if (req === "styled-components") return config.styling === "styled-components";
       return true;
     });
   };
@@ -53,8 +67,12 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
             let tooltipContent = lib.description || "";
             if (!isCompatible) {
               tooltipContent += ` (Requires: ${lib.frameworks.join(", ")})`;
-            } else if (!isStyleCompatible && lib.requires) {
-              tooltipContent += ` (Requires: ${lib.requires.join(", ")})`;
+            } else if (!isStyleCompatible) {
+              if (lib.incompatible && lib.incompatible.includes(config.styling)) {
+                tooltipContent += ` (Incompatible with ${config.styling})`;
+              } else if (lib.requires) {
+                tooltipContent += ` (Requires: ${lib.requires.join(", ")})`;
+              }
             }
 
             return (
@@ -79,13 +97,6 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
             );
           })}
         </div>
-        {config.styling !== "tailwind" &&
-          config.uiLibrary &&
-          ["daisyui", "shadcn", "brutalist"].includes(config.uiLibrary) && (
-            <p className="text-xs text-comic-red mt-2 font-comic">
-              ⚠️ This UI library works best with Tailwind CSS
-            </p>
-          )}
       </CollapsibleSection>
     </motion.div>
   );

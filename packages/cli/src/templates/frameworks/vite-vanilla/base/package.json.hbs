@@ -1,0 +1,29 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "{{#if typescript}}tsc -b && {{/if}}vite build",
+    "preview": "vite preview"{{#if typescript}},
+    "type-check": "tsc --noEmit"{{/if}}{{#if (eq orm "prisma")}},
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"{{/if}}
+  },
+  "dependencies": {
+    {{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}}"axios": "^1.7.7"{{#if (eq orm "prisma")}},{{/if}}{{/ifAny}}{{#if (eq orm "prisma")}}"@prisma/client": "^5.20.0"{{/if}}
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"{{#if typescript}},
+    "@types/node": "^20.14.0",
+    "typescript": "^5.7.2"{{/if}}{{#if (eq styling "tailwind")}},
+    "tailwindcss": "^3.4.13",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},
+    "sass": "^1.79.4"{{/if}}{{#if (eq orm "prisma")}},
+    "prisma": "^5.20.0"{{/if}}
+  }
+}

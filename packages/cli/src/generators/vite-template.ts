@@ -8,5 +8,16 @@ import { generateBaseTemplate } from "./base-generator.js";
  * @param projectPath - Path where the project will be created
  */
 export async function generateViteTemplate(config: ProjectConfig, projectPath: string) {
-  await generateBaseTemplate("vite", config, projectPath);
+  // Determine which Vite template to use based on UI framework
+  let templateName = "vite";
+
+  if (config.uiFramework) {
+    // Use specific Vite + UI framework template
+    templateName = `vite-${config.uiFramework}`;
+  } else {
+    // Default to vanilla Vite if no UI framework specified
+    templateName = "vite";
+  }
+
+  await generateBaseTemplate(templateName, config, projectPath);
 }

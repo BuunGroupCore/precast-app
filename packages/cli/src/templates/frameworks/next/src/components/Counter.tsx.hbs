@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 
 export default function Counter() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <div className="{{#if (eq styling "tailwind")}}bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto{{else}}counter{{/if}}">
@@ -34,7 +34,7 @@ export default function Counter() {
         Reset
       </button>
     </div>
-  )
+  );
 }
 
 {{#unless (eq styling "tailwind")}}

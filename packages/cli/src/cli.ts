@@ -35,6 +35,7 @@ program
   .description("Create a new project")
   .option("-y, --yes", "Skip all prompts and use defaults")
   .option("-f, --framework <framework>", "Frontend framework")
+  .option("--ui-framework <framework>", "UI framework (react, vue, solid, svelte) - used with Vite")
   .option("-b, --backend <backend>", "Backend framework")
   .option("-d, --database <database>", "Database")
   .option("-o, --orm <orm>", "ORM")
@@ -67,6 +68,7 @@ program
     await initCommand(projectName, {
       yes: options.yes,
       framework: options.framework,
+      uiFramework: options.uiFramework,
       backend: options.backend,
       database: options.database,
       orm: options.orm,

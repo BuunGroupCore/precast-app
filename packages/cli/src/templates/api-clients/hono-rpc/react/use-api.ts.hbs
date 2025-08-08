@@ -1,0 +1,31 @@
+import { useState, useEffect } from "react";
+import { client } from "@/lib/api-client";
+
+export function useApi<T>(
+  fetcher: () => Promise<Response>,
+  deps: any[] = []
+) {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetcher();
+        if (!res.ok) throw new Error("API request failed");
+        const result = await res.json();
+        setData(result);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, deps);
+
+  return { data, error, loading };
+}

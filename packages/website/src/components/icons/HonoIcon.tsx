@@ -2,9 +2,10 @@ import React from "react";
 
 interface HonoIconProps {
   className?: string;
+  variant?: "white" | "black";
 }
 
-export const HonoIcon: React.FC<HonoIconProps> = ({ className }) => {
+export const HonoIcon: React.FC<HonoIconProps> = ({ className, variant = "white" }) => {
   return (
     <img
       src="/icons/hono.svg"
@@ -14,7 +15,7 @@ export const HonoIcon: React.FC<HonoIconProps> = ({ className }) => {
         width: "1em",
         height: "1em",
         display: "inline-block",
-        filter: "brightness(0) invert(1)",
+        filter: variant === "white" ? "brightness(0) invert(1)" : "none",
       }}
     />
   );

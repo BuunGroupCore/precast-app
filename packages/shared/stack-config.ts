@@ -31,6 +31,7 @@ export interface ProjectConfig {
   apiClient?: string;
   mcpServers?: string[];
   powerups?: string[];
+  uiFramework?: string; // UI framework when using Vite
 }
 
 // Stack definitions without React Icons (for CLI usage)
@@ -75,12 +76,6 @@ export const frameworkDefs: StackOption[] = [
     recommended: ["typescript", "tailwind"],
   },
   {
-    id: "vite",
-    name: "Vite",
-    description: "Next Generation Frontend Tooling",
-    recommended: ["typescript"],
-  },
-  {
     id: "remix",
     name: "Remix",
     description: "Build better websites with Remix",
@@ -122,6 +117,44 @@ export const frameworkDefs: StackOption[] = [
     id: "none",
     name: "None",
     description: "No frontend framework - backend only or custom setup",
+  },
+  {
+    id: "vite",
+    name: "Vite",
+    description: "Next Generation Frontend Tooling",
+    recommended: ["typescript"],
+  },
+];
+
+export const uiFrameworkDefs: StackOption[] = [
+  {
+    id: "react",
+    name: "React",
+    description: "A JavaScript library for building user interfaces",
+    recommended: ["typescript", "tailwind"],
+  },
+  {
+    id: "vue",
+    name: "Vue",
+    description: "The Progressive JavaScript Framework",
+    recommended: ["typescript", "tailwind"],
+  },
+  {
+    id: "solid",
+    name: "Solid",
+    description: "Simple and performant reactivity for building user interfaces",
+    recommended: ["typescript", "tailwind"],
+  },
+  {
+    id: "svelte",
+    name: "Svelte",
+    description: "Cybernetically enhanced web apps",
+    recommended: ["typescript", "tailwind"],
+  },
+  {
+    id: "vanilla",
+    name: "Vanilla",
+    description: "Plain JavaScript, no framework",
   },
 ];
 
@@ -209,6 +242,24 @@ export const databaseDefs: StackOption[] = [
     name: "Firebase",
     description: "Google's mobile and web app development platform",
     incompatible: ["prisma", "drizzle", "typeorm"],
+  },
+  {
+    id: "neon",
+    name: "Neon",
+    description: "Serverless Postgres with branching and autoscaling",
+    recommended: ["prisma", "drizzle"],
+  },
+  {
+    id: "turso",
+    name: "Turso",
+    description: "Edge-hosted distributed SQLite database",
+    recommended: ["drizzle"],
+  },
+  {
+    id: "planetscale",
+    name: "PlanetScale",
+    description: "Serverless MySQL platform with branching",
+    recommended: ["prisma", "drizzle"],
   },
   {
     id: "none",

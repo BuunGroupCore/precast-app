@@ -1,0 +1,65 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+const API_URL = process.env.{{#if (eq framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:3001";
+
+// Generic fetch function
+async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+// Example: Get all users
+export function useUsers() {
+  return useQuery({
+    queryKey: ["users"],
+    queryFn: () => fetchApi<User[]>("/api/users"),
+  });
+}
+
+// Example: Get single user
+export function useUser(id: string) {
+  return useQuery({
+    queryKey: ["users", id],
+    queryFn: () => fetchApi<User>(`/api/users/${id}`),
+    enabled: !!id,
+  });
+}
+
+// Example: Create user mutation
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userData: CreateUserDto) =>
+      fetchApi<User>("/api/users", {
+        method: "POST",
+        body: JSON.stringify(userData),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+}
+
+// Types (should be imported from shared types in real app)
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface CreateUserDto {
+  name: string;
+  email: string;
+}

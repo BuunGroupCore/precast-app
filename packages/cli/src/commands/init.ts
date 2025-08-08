@@ -8,6 +8,7 @@ import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
 import { gatherProjectConfig } from "../prompts/config-prompts.js";
+import { gatherProjectConfigWithNavigation } from "../prompts/config-prompts-with-navigation.js";
 import { trackProjectCreation, displayTelemetryNotice } from "../utils/analytics.js";
 import { setupApiClient } from "../utils/api-client-setup.js";
 import { displayBanner } from "../utils/banner.js";
@@ -37,6 +38,8 @@ export interface InitOptions {
   yes?: boolean;
   /** Frontend framework to use */
   framework?: string;
+  /** UI framework to use (React, Vue, etc.) when Vite is selected */
+  uiFramework?: string;
   /** Backend framework to use */
   backend?: string;
   /** Database type to configure */
@@ -88,7 +91,14 @@ export async function initCommand(projectName: string | undefined, options: Init
   const startTime = Date.now();
 
   try {
-    const config = await gatherProjectConfig(projectName, options);
+    // Check if navigation mode is enabled via environment variable or if not in --yes mode
+    const useNavigation =
+      process.env.PRECAST_NAV === "true" || (!options.yes && process.env.PRECAST_NAV !== "false");
+
+    const config = useNavigation
+      ? await gatherProjectConfigWithNavigation(projectName, options)
+      : await gatherProjectConfig(projectName, options);
+
     const validator = getConfigValidator();
     const validation = validator.validate(config);
     if (!validation.valid) {
@@ -202,9 +212,9 @@ export async function initCommand(projectName: string | undefined, options: Init
           try {
             await setupApiClient(config, projectPath);
             s.stop(`API client setup completed`);
-          } catch {
+          } catch (error) {
             s.stop(`Failed to setup API client`);
-            log.warn(`API client setup failed. You can retry manually later.`);
+            log.warn(`API client setup failed: ${error}. You can retry manually later.`);
           }
         }
       }

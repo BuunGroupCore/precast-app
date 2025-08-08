@@ -1,14 +1,14 @@
 {{#if (eq database "postgres")}}
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 {{else if (eq database "mysql")}}
-import { drizzle } from 'drizzle-orm/mysql2'
-import mysql from 'mysql2/promise'
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 {{/if}}
-import * as schema from './schema{{#if typescript}}.js{{/if}}'
+import * as schema from "./schema{{#if typescript}}.js{{/if}}";
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is required')
+  throw new Error("DATABASE_URL environment variable is required");
 }
 
 {{#if (eq database "postgres")}}
@@ -26,7 +26,7 @@ const pool = new Pool({
  * Drizzle database instance
  * @description Pre-configured Drizzle client for PostgreSQL
  */
-export const db = drizzle(pool, { schema })
+export const db = drizzle(pool, { schema });
 {{else if (eq database "mysql")}}
 /**
  * MySQL connection pool
@@ -34,13 +34,13 @@ export const db = drizzle(pool, { schema })
 const connection = mysql.createPool({
   uri: process.env.DATABASE_URL,
   connectionLimit: 20,
-})
+});
 
 /**
  * Drizzle database instance  
  * @description Pre-configured Drizzle client for MySQL
  */
-export const db = drizzle(connection, { schema, mode: 'default' })
+export const db = drizzle(connection, { schema, mode: "default" });
 {{/if}}
 
 /**
@@ -50,14 +50,14 @@ export const db = drizzle(connection, { schema, mode: 'default' })
 export async function checkDatabaseConnection(): Promise<boolean> {
   try {
     {{#if (eq database "postgres")}}
-    const result = await db.execute('SELECT 1' as any)
+    const result = await db.execute("SELECT 1" as any);
     {{else if (eq database "mysql")}}
-    const result = await db.execute('SELECT 1' as any)
+    const result = await db.execute("SELECT 1" as any);
     {{/if}}
-    return true
+    return true;
   } catch (error) {
-    console.error('Database connection failed:', error)
-    return false
+    console.error("Database connection failed:", error);
+    return false;
   }
 }
 
@@ -65,11 +65,11 @@ export async function checkDatabaseConnection(): Promise<boolean> {
  * Graceful shutdown
  * @description Closes database connections properly
  */
-process.on('SIGINT', async () => {
+process.on("SIGINT", async () => {
   {{#if (eq database "postgres")}}
-  await pool.end()
+  await pool.end();
   {{else if (eq database "mysql")}}
-  await connection.end()
+  await connection.end();
   {{/if}}
-  process.exit(0)
-})
+  process.exit(0);
+});

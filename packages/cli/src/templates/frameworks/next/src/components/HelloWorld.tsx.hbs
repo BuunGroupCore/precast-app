@@ -1,8 +1,8 @@
 interface HelloWorldProps {
-  greeting?: string
+  greeting?: string;
 }
 
-export default function HelloWorld({ greeting = 'Hello from Next.js!' }: HelloWorldProps) {
+export default function HelloWorld({ greeting = "Hello from Next.js!" }: HelloWorldProps) {
   return (
     <div className="{{#if (eq styling "tailwind")}}bg-gradient-to-r from-purple-500 to-pink-500 text-white p-8 rounded-lg shadow-lg{{else}}hello-world{{/if}}">
       <h2 className="{{#if (eq styling "tailwind")}}text-2xl font-bold mb-2{{else}}hello-world-title{{/if}}">
@@ -12,7 +12,7 @@ export default function HelloWorld({ greeting = 'Hello from Next.js!' }: HelloWo
         This is a simple component example using {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}.
       </p>
     </div>
-  )
+  );
 }
 
 {{#unless (eq styling "tailwind")}}

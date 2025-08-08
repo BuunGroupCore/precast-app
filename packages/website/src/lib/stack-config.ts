@@ -1,5 +1,4 @@
 import { IconType } from "react-icons";
-import { BiSolidData } from "react-icons/bi";
 import { FaReact, FaVuejs, FaAngular, FaNodeJs, FaDocker, FaGitAlt } from "react-icons/fa";
 import {
   SiTypescript,
@@ -30,9 +29,11 @@ import {
 import { AuthJSIcon } from "@/components/icons/AuthJSIcon";
 import { BetterAuthIcon } from "@/components/icons/BetterAuthIcon";
 import { ClerkIcon } from "@/components/icons/ClerkIcon";
+import { CloudflareIcon } from "@/components/icons/CloudflareIcon";
 import { ConvexIcon } from "@/components/icons/ConvexIcon";
 import { CssIcon } from "@/components/icons/CssIcon";
-import { HonoIcon } from "@/components/icons/HonoIcon";
+import { HonoIconBlack } from "@/components/icons/HonoIconBlack";
+import { LuciaIcon } from "@/components/icons/LuciaIcon";
 import { PassportIcon } from "@/components/icons/PassportIcon";
 import { SassIcon } from "@/components/icons/SassIcon";
 import { TanStackIcon } from "@/components/icons/TanStackIcon";
@@ -40,18 +41,41 @@ import { TanStackIcon } from "@/components/icons/TanStackIcon";
 export interface StackOption {
   id: string;
   name: string;
-  icon: IconType | React.FC<{ className?: string }> | null;
+  icon: IconType | React.FC<{ className?: string }> | string | null;
   color: string;
   description?: string;
   dependencies?: string[];
   incompatible?: string[];
   recommended?: string[];
   beta?: boolean;
+  serverless?: boolean;
+  language?: string;
+  languageIcon?: string;
+  category?: "ui-library" | "meta-framework" | "build-tool" | "mobile" | "vanilla" | "none";
+  apiClientCompatibility?: {
+    recommended?: string[];
+    compatible?: string[];
+    incompatible?: string[];
+  };
   recommendedFor?: {
     frameworks?: string[];
     backends?: string[];
     databases?: string[];
+    uiLibraries?: string[];
+    buildTools?: string[];
     reason?: string;
+  };
+  deploymentOptions?: {
+    local?: {
+      name: string;
+      description: string;
+      dockerCompose?: boolean;
+    };
+    cloud?: {
+      name: string;
+      description: string;
+      providers?: string[];
+    };
   };
 }
 
@@ -62,16 +86,16 @@ export interface StackCategory {
 }
 
 /**
- * Framework definitions with dependencies.
- * Each framework can declare required dependencies and recommended technologies.
+ * UI Library definitions - core libraries for building user interfaces.
  */
-export const frameworks: StackOption[] = [
+export const uiLibraries_frontend: StackOption[] = [
   {
     id: "react",
     name: "React",
     icon: FaReact,
     color: "text-comic-blue",
     description: "A JavaScript library for building user interfaces",
+    category: "ui-library",
     recommended: ["typescript", "tailwind"],
   },
   {
@@ -80,6 +104,7 @@ export const frameworks: StackOption[] = [
     icon: FaVuejs,
     color: "text-comic-green",
     description: "The Progressive JavaScript Framework",
+    category: "ui-library",
     recommended: ["typescript", "tailwind"],
   },
   {
@@ -88,15 +113,41 @@ export const frameworks: StackOption[] = [
     icon: FaAngular,
     color: "text-comic-red",
     description: "Platform for building mobile and desktop web applications",
+    category: "ui-library",
     dependencies: ["typescript"], // Angular requires TypeScript
     recommended: ["scss"],
   },
+  {
+    id: "solid",
+    name: "Solid",
+    icon: SiSolid,
+    color: "text-comic-blue",
+    description: "Simple and performant reactivity for building user interfaces",
+    category: "ui-library",
+    recommended: ["typescript", "tailwind"],
+  },
+  {
+    id: "svelte",
+    name: "Svelte",
+    icon: SiSvelte,
+    color: "text-comic-orange",
+    description: "Cybernetically enhanced web apps",
+    category: "ui-library",
+    recommended: ["typescript", "tailwind"],
+  },
+];
+
+/**
+ * Meta-framework definitions - full-stack frameworks that include UI, routing, and more.
+ */
+export const metaFrameworks: StackOption[] = [
   {
     id: "next",
     name: "Next.js",
     icon: SiNextdotjs,
     color: "text-comic-black",
     description: "The React Framework for Production",
+    category: "meta-framework",
     dependencies: ["react"], // Next.js is built on React
     recommended: ["typescript", "tailwind", "prisma"],
   },
@@ -106,6 +157,7 @@ export const frameworks: StackOption[] = [
     icon: SiNuxtdotjs,
     color: "text-comic-green",
     description: "The Intuitive Vue Framework",
+    category: "meta-framework",
     dependencies: ["vue"], // Nuxt is built on Vue
     recommended: ["typescript", "tailwind"],
   },
@@ -115,15 +167,8 @@ export const frameworks: StackOption[] = [
     icon: SiAstro,
     color: "text-comic-orange",
     description: "Build faster websites with Astro's next-gen island architecture",
+    category: "meta-framework",
     recommended: ["typescript", "tailwind"],
-  },
-  {
-    id: "vite",
-    name: "Vite",
-    icon: SiVite,
-    color: "text-comic-purple",
-    description: "Next Generation Frontend Tooling",
-    recommended: ["typescript"],
   },
   {
     id: "remix",
@@ -131,33 +176,9 @@ export const frameworks: StackOption[] = [
     icon: SiRemix,
     color: "text-comic-black",
     description: "Build better websites with Remix",
+    category: "meta-framework",
     dependencies: ["react"],
     recommended: ["typescript", "tailwind", "prisma"],
-  },
-  {
-    id: "solid",
-    name: "Solid",
-    icon: SiSolid,
-    color: "text-comic-blue",
-    description: "Simple and performant reactivity for building user interfaces",
-    recommended: ["typescript", "tailwind"],
-  },
-  {
-    id: "svelte",
-    name: "Svelte",
-    icon: SiSvelte,
-    color: "text-comic-orange",
-    description: "Cybernetically enhanced web apps",
-    recommended: ["typescript", "tailwind"],
-  },
-  {
-    id: "react-native",
-    name: "React Native",
-    icon: FaReact,
-    color: "text-comic-blue",
-    description: "Build native mobile apps using React",
-    dependencies: ["react"],
-    recommended: ["typescript"],
   },
   {
     id: "tanstack-start",
@@ -165,8 +186,45 @@ export const frameworks: StackOption[] = [
     icon: TanStackIcon,
     color: "text-comic-orange",
     description: "Full-stack React framework powered by TanStack Router",
+    category: "meta-framework",
     dependencies: ["react"],
     recommended: ["typescript", "tailwind"],
+  },
+];
+
+/**
+ * Build tool definitions - development and build tooling.
+ */
+export const buildTools: StackOption[] = [
+  {
+    id: "vite",
+    name: "Vite",
+    icon: SiVite,
+    color: "text-comic-purple",
+    description: "Next Generation Frontend Tooling",
+    category: "build-tool",
+    recommended: ["typescript"],
+    recommendedFor: {
+      uiLibraries: ["react", "vue", "solid", "svelte"],
+      reason:
+        "Vite provides excellent development experience with fast HMR for modern UI libraries",
+    },
+  },
+];
+
+/**
+ * Special framework categories.
+ */
+export const specialFrameworks: StackOption[] = [
+  {
+    id: "react-native",
+    name: "React Native",
+    icon: FaReact,
+    color: "text-comic-blue",
+    description: "Build native mobile apps using React",
+    category: "mobile",
+    dependencies: ["react"],
+    recommended: ["typescript"],
   },
   {
     id: "vanilla",
@@ -174,6 +232,7 @@ export const frameworks: StackOption[] = [
     icon: SiJavascript,
     color: "text-comic-yellow",
     description: "Plain JavaScript, no framework",
+    category: "vanilla",
   },
   {
     id: "none",
@@ -181,7 +240,19 @@ export const frameworks: StackOption[] = [
     icon: null,
     color: "text-comic-gray",
     description: "No frontend framework - backend only or custom setup",
+    category: "none",
   },
+];
+
+/**
+ * Combined frameworks array for backward compatibility.
+ * TODO: Replace usage with category-specific arrays.
+ */
+export const frameworks: StackOption[] = [
+  ...uiLibraries_frontend,
+  ...metaFrameworks,
+  ...buildTools,
+  ...specialFrameworks,
 ];
 
 /**
@@ -195,7 +266,13 @@ export const backends: StackOption[] = [
     icon: FaNodeJs,
     color: "text-comic-green",
     description: "JavaScript runtime built on Chrome's V8 JavaScript engine",
+    language: "JavaScript",
+    languageIcon: "js",
     recommended: ["typescript", "express"],
+    apiClientCompatibility: {
+      recommended: ["axios", "tanstack-query"],
+      compatible: ["swr", "trpc"],
+    },
   },
   {
     id: "express",
@@ -203,8 +280,14 @@ export const backends: StackOption[] = [
     icon: SiExpress,
     color: "text-comic-black",
     description: "Fast, unopinionated, minimalist web framework for Node.js",
-    dependencies: ["node"], // Express requires Node.js
+    language: "JavaScript",
+    languageIcon: "js",
+    dependencies: ["node"],
     recommended: ["typescript"],
+    apiClientCompatibility: {
+      recommended: ["axios", "tanstack-query"],
+      compatible: ["swr", "trpc"],
+    },
   },
   {
     id: "fastapi",
@@ -212,17 +295,30 @@ export const backends: StackOption[] = [
     icon: SiFastapi,
     color: "text-comic-green",
     description: "Modern, fast web framework for building APIs with Python",
-    incompatible: ["typescript"], // Python backend incompatible with TypeScript
+    language: "Python",
+    languageIcon: "python",
+    incompatible: ["typescript"],
     recommended: ["postgres", "mysql"],
+    apiClientCompatibility: {
+      recommended: ["axios", "tanstack-query", "swr"],
+      compatible: [],
+      incompatible: ["trpc"],
+    },
   },
   {
     id: "hono",
     name: "Hono",
-    icon: HonoIcon,
+    icon: HonoIconBlack,
     color: "text-comic-orange",
     description: "Ultrafast web framework for the Edges",
+    language: "TypeScript",
+    languageIcon: "ts",
     dependencies: ["node"],
     recommended: ["typescript"],
+    apiClientCompatibility: {
+      recommended: ["hono-rpc", "trpc"],
+      compatible: ["axios", "tanstack-query", "swr"],
+    },
   },
   {
     id: "nextjs",
@@ -230,8 +326,14 @@ export const backends: StackOption[] = [
     icon: SiNextdotjs,
     color: "text-comic-black",
     description: "Full-stack React framework with API routes",
+    language: "JavaScript",
+    languageIcon: "js",
     dependencies: ["react"],
     recommended: ["typescript", "prisma"],
+    apiClientCompatibility: {
+      recommended: ["axios", "tanstack-query"],
+      compatible: ["swr", "trpc"],
+    },
   },
   {
     id: "fastify",
@@ -239,8 +341,14 @@ export const backends: StackOption[] = [
     icon: SiFastify,
     color: "text-comic-black",
     description: "Fast and low overhead web framework for Node.js",
+    language: "JavaScript",
+    languageIcon: "js",
     dependencies: ["node"],
     recommended: ["typescript"],
+    apiClientCompatibility: {
+      recommended: ["axios", "tanstack-query"],
+      compatible: ["swr", "trpc"],
+    },
   },
   {
     id: "convex",
@@ -248,7 +356,34 @@ export const backends: StackOption[] = [
     icon: ConvexIcon,
     color: "text-comic-orange",
     description: "Backend-as-a-Service with real-time sync",
+    language: "TypeScript",
+    languageIcon: "ts",
+    serverless: true,
     recommended: ["typescript"],
+    apiClientCompatibility: {
+      recommended: ["convex-client"],
+      incompatible: ["axios", "tanstack-query", "swr", "trpc"],
+    },
+  },
+  {
+    id: "cloudflare-workers",
+    name: "Cloudflare Workers",
+    icon: CloudflareIcon,
+    color: "text-comic-orange",
+    description: "Serverless execution environment at the edge",
+    language: "JavaScript",
+    languageIcon: "js",
+    serverless: true,
+    recommended: ["typescript"],
+    recommendedFor: {
+      databases: ["cloudflare-d1", "cloudflare-r2", "postgres", "mongodb"],
+      reason: "Edge computing with global distribution and built-in KV/D1/R2 storage",
+    },
+    apiClientCompatibility: {
+      recommended: ["hono-rpc", "trpc"],
+      compatible: ["tanstack-query", "swr"],
+      incompatible: ["axios"],
+    },
   },
   {
     id: "none",
@@ -271,6 +406,18 @@ export const databases: StackOption[] = [
     color: "text-comic-blue",
     description: "The World's Most Advanced Open Source Relational Database",
     recommended: ["prisma", "drizzle"],
+    deploymentOptions: {
+      local: {
+        name: "Local Development",
+        description: "PostgreSQL running in Docker container for development",
+        dockerCompose: true,
+      },
+      cloud: {
+        name: "Managed Service",
+        description: "Use a managed PostgreSQL service",
+        providers: ["Neon", "Supabase", "AWS RDS", "Google Cloud SQL"],
+      },
+    },
   },
   {
     id: "mongodb",
@@ -279,7 +426,19 @@ export const databases: StackOption[] = [
     color: "text-comic-green",
     description: "The most popular NoSQL database",
     recommended: ["prisma"],
-    incompatible: ["drizzle"], // Drizzle doesn't support MongoDB
+    incompatible: ["drizzle"],
+    deploymentOptions: {
+      local: {
+        name: "Local Development",
+        description: "MongoDB running in Docker container for development",
+        dockerCompose: true,
+      },
+      cloud: {
+        name: "MongoDB Atlas",
+        description: "Use MongoDB's cloud service",
+        providers: ["MongoDB Atlas"],
+      },
+    },
   },
   {
     id: "mysql",
@@ -288,6 +447,18 @@ export const databases: StackOption[] = [
     color: "text-comic-blue",
     description: "The world's most popular open source database",
     recommended: ["prisma", "drizzle"],
+    deploymentOptions: {
+      local: {
+        name: "Local Development",
+        description: "MySQL running in Docker container for development",
+        dockerCompose: true,
+      },
+      cloud: {
+        name: "Managed Service",
+        description: "Use a managed MySQL service",
+        providers: ["PlanetScale", "AWS RDS", "Google Cloud SQL"],
+      },
+    },
   },
   {
     id: "supabase",
@@ -295,8 +466,20 @@ export const databases: StackOption[] = [
     icon: SiSupabase,
     color: "text-comic-green",
     description: "The open source Firebase alternative",
-    dependencies: ["postgres"], // Supabase is built on PostgreSQL
-    incompatible: ["prisma", "drizzle", "typeorm"], // Has its own client
+    dependencies: ["postgres"],
+    incompatible: ["prisma", "drizzle", "typeorm"],
+    deploymentOptions: {
+      local: {
+        name: "Local Development",
+        description: "Supabase local development with Docker and CLI",
+        dockerCompose: true,
+      },
+      cloud: {
+        name: "Supabase Cloud",
+        description: "Fully managed Supabase hosting",
+        providers: ["Supabase"],
+      },
+    },
   },
   {
     id: "firebase",
@@ -305,6 +488,54 @@ export const databases: StackOption[] = [
     color: "text-comic-orange",
     description: "Google's mobile and web app development platform",
     incompatible: ["prisma", "drizzle", "typeorm"], // Has its own SDK
+  },
+  {
+    id: "cloudflare-d1",
+    name: "Cloudflare D1",
+    icon: CloudflareIcon,
+    color: "text-comic-orange",
+    description: "SQLite at the edge - serverless SQL database",
+    recommended: ["drizzle"],
+    recommendedFor: {
+      backends: ["cloudflare-workers"],
+      reason: "Native integration with Cloudflare Workers for edge computing",
+    },
+  },
+  {
+    id: "planetscale",
+    name: "PlanetScale",
+    icon: "planetscale",
+    color: "text-comic-black",
+    description: "Serverless MySQL platform with branching",
+    recommended: ["prisma", "drizzle"],
+    recommendedFor: {
+      backends: ["cloudflare-workers"],
+      reason: "Serverless MySQL with edge connections and branching",
+    },
+  },
+  {
+    id: "neon",
+    name: "Neon",
+    icon: "neon",
+    color: "text-comic-green",
+    description: "Serverless Postgres with branching and autoscaling",
+    recommended: ["prisma", "drizzle"],
+    recommendedFor: {
+      backends: ["cloudflare-workers"],
+      reason: "Serverless Postgres optimized for edge functions",
+    },
+  },
+  {
+    id: "turso",
+    name: "Turso",
+    icon: "turso",
+    color: "text-comic-teal",
+    description: "Edge-hosted distributed SQLite database",
+    recommended: ["drizzle"],
+    recommendedFor: {
+      backends: ["cloudflare-workers"],
+      reason: "SQLite at the edge with global replication",
+    },
   },
   {
     id: "none",
@@ -341,7 +572,7 @@ export const orms: StackOption[] = [
   {
     id: "typeorm",
     name: "TypeORM",
-    icon: BiSolidData,
+    icon: "typeorm",
     color: "text-comic-orange",
     description: "ORM for TypeScript and JavaScript",
     dependencies: ["node"],
@@ -376,6 +607,9 @@ export const stylings: StackOption[] = [
     icon: SiTailwindcss,
     color: "text-comic-blue",
     description: "A utility-first CSS framework",
+    // Compatible with all frameworks except React Native (needs NativeWind)
+    incompatible: ["react-native"],
+    recommended: ["react", "vue", "next", "nuxt", "astro", "remix", "svelte", "solid"],
   },
   {
     id: "css",
@@ -383,6 +617,8 @@ export const stylings: StackOption[] = [
     icon: CssIcon,
     color: "text-comic-blue",
     description: "Plain CSS",
+    // Compatible with all web frameworks
+    incompatible: ["react-native"], // React Native uses StyleSheet
   },
   {
     id: "scss",
@@ -390,14 +626,20 @@ export const stylings: StackOption[] = [
     icon: SassIcon,
     color: "text-comic-pink",
     description: "Sass CSS preprocessor",
+    // Compatible with all web frameworks, excellent for Angular
+    incompatible: ["react-native"], // React Native doesn't support CSS preprocessors
+    recommended: ["angular", "vue", "nuxt", "svelte"],
   },
   {
     id: "styled-components",
     name: "Styled Components",
-    icon: null,
+    icon: "styledcomponents",
     color: "text-comic-purple",
     description: "CSS-in-JS styling",
-    dependencies: ["react"], // Styled Components is React-specific
+    dependencies: ["react"], // Styled Components requires React ecosystem
+    // Only compatible with React-based frameworks and React Native
+    incompatible: ["vue", "angular", "nuxt", "astro", "svelte", "solid", "vanilla"],
+    recommended: ["react", "next", "remix", "react-native"],
   },
 ];
 
@@ -413,6 +655,7 @@ export const runtimes: StackOption[] = [
     color: "text-comic-green",
     description: "JavaScript runtime built on Chrome's V8 JavaScript engine",
     recommended: ["typescript"],
+    // Node.js supports all frameworks
   },
   {
     id: "bun",
@@ -421,14 +664,23 @@ export const runtimes: StackOption[] = [
     color: "text-comic-yellow",
     description: "Fast all-in-one JavaScript runtime",
     recommended: ["typescript"],
+    // Bun supports most frameworks with high Node.js compatibility
+    incompatible: ["react-native"], // Mobile framework not applicable
   },
   {
     id: "deno",
     name: "Deno",
     icon: SiDeno,
     color: "text-comic-black",
-    description: "Secure runtime for JavaScript and TypeScript",
+    description: "Secure runtime for JavaScript and TypeScript with npm compatibility",
     recommended: ["typescript"],
+    // Deno 2.0 has good framework support but some limitations
+    incompatible: ["react-native", "angular", "vite", "tanstack-start"], // Limited or no support
+    recommendedFor: {
+      frameworks: ["react", "vue", "next", "nuxt", "astro", "remix", "solid", "svelte", "vanilla"],
+      reason:
+        "Deno 2.0 provides excellent npm compatibility and native TypeScript support for most modern frameworks",
+    },
   },
 ];
 
@@ -518,16 +770,20 @@ export const authProviders: StackOption[] = [
     dependencies: ["firebase"],
     recommended: ["typescript"],
   },
-  /** Lucia auth provider - commented out for future implementation
-   * {
-   *   id: "lucia",
-   *   name: "Lucia",
-   *   icon: LuciaIcon,
-   *   color: "text-comic-yellow",
-   *   description: "Simple and flexible authentication library",
-   *   recommended: ["typescript", "database"],
-   * }
-   */
+  {
+    id: "lucia",
+    name: "Lucia",
+    icon: LuciaIcon,
+    color: "text-comic-yellow",
+    description: "Modern authentication library with edge support",
+    recommended: ["typescript", "database"],
+    recommendedFor: {
+      frameworks: ["react", "next", "vue", "svelte", "solid", "astro"],
+      backends: ["node", "express", "hono", "cloudflare-workers"],
+      databases: ["cloudflare-d1", "postgres", "mysql"],
+      reason: "Type-safe authentication with D1 adapter and edge runtime support",
+    },
+  },
   {
     id: "none",
     name: "None",

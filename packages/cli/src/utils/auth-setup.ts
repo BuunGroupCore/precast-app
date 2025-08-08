@@ -892,8 +892,130 @@ export function getAuthPromptOptions() {
   }));
 }
 
+// Get filtered auth options based on the selected stack
+export function getFilteredAuthOptions(config: {
+  framework: string;
+  backend: string;
+  database: string;
+  orm?: string;
+}) {
+  // No auth if no backend
+  if (!config.backend || config.backend === "none") {
+    return [];
+  }
+
+  // No auth if no database
+  if (!config.database || config.database === "none") {
+    return [];
+  }
+
+  return Object.entries(authProviders)
+    .filter(([id, provider]) => {
+      // Check framework compatibility
+      if (!provider.supportedFrameworks.includes(config.framework)) {
+        return false;
+      }
+
+      // Filter out providers that require database if no database selected
+      if (provider.requiresDatabase && (!config.database || config.database === "none")) {
+        return false;
+      }
+
+      // Smart filtering based on selected stack
+      // Remove Supabase Auth if not using Supabase database
+      if (id === "supabase-auth" && config.database !== "supabase") {
+        return false;
+      }
+
+      // Remove Firebase Auth if not using Firebase
+      if (id === "firebase-auth" && config.database !== "firebase") {
+        return false;
+      }
+
+      // Remove passport.js if not using a Node.js backend
+      if (
+        id === "passport.js" &&
+        !["express", "fastify", "node", "nest", "hono"].includes(config.backend)
+      ) {
+        return false;
+      }
+
+      // auth.js works best with specific frameworks
+      if (id === "auth.js") {
+        // Only show for Next.js, Remix, SvelteKit, SolidStart
+        if (!["next", "remix", "svelte", "solid"].includes(config.framework)) {
+          // For React, only if there's a proper backend
+          if (
+            config.framework === "react" &&
+            !["express", "fastify", "node"].includes(config.backend)
+          ) {
+            return false;
+          }
+        }
+      }
+
+      // Better Auth is more flexible but still needs proper backend
+      if (id === "better-auth" && config.backend === "next-api" && config.framework !== "next") {
+        return false;
+      }
+
+      return true;
+    })
+    .map(([id, provider]) => ({
+      value: id,
+      label: provider.name,
+      hint: provider.requiresDatabase ? "Requires database" : "Cloud-hosted",
+    }));
+}
+
 // Check if auth provider is compatible with framework
 export function isAuthProviderCompatible(authProviderId: string, framework: string): boolean {
   const provider = authProviders[authProviderId];
   return provider ? provider.supportedFrameworks.includes(framework) : false;
+}
+
+// Check if auth provider is compatible with the full stack
+export function isAuthProviderCompatibleWithStack(
+  authProviderId: string,
+  config: {
+    framework: string;
+    backend: string;
+    database: string;
+  }
+): boolean {
+  const provider = authProviders[authProviderId];
+  if (!provider) return false;
+
+  // Check basic framework compatibility
+  if (!provider.supportedFrameworks.includes(config.framework)) {
+    return false;
+  }
+
+  // Check backend requirement
+  if (!config.backend || config.backend === "none") {
+    return false; // No auth without backend for security
+  }
+
+  // Check database requirement
+  if (provider.requiresDatabase && (!config.database || config.database === "none")) {
+    return false;
+  }
+
+  // Additional stack-specific checks
+  if (authProviderId === "supabase-auth" && config.database !== "supabase") {
+    return false;
+  }
+
+  if (authProviderId === "firebase-auth" && config.database !== "firebase") {
+    return false;
+  }
+
+  if (
+    authProviderId === "passport.js" &&
+    !["express", "fastify", "node", "nest", "hono"].includes(config.backend)
+  ) {
+    return false;
+  }
+
+  return true;
 }

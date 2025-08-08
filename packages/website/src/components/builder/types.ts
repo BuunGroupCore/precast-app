@@ -9,6 +9,8 @@ export interface ExtendedProjectConfig
   extends Omit<SavedProject, "id" | "createdAt" | "updatedAt"> {
   aiAssistant?: string;
   uiLibrary?: string;
+  uiFramework?: string; // New: UI framework when using build tools like Vite
+  buildTool?: string; // New: separate build tool selection
   autoInstall?: boolean;
   packageManager?: string;
   deploymentMethod?: string;
@@ -17,6 +19,7 @@ export interface ExtendedProjectConfig
   powerups?: string[];
   mcpServers?: string[];
   apiClient?: string;
+  databaseDeployment?: "local" | "cloud";
 }
 
 /**
@@ -43,6 +46,7 @@ export interface UILibrary {
   description: string;
   frameworks: string[];
   requires?: string[];
+  incompatible?: string[];
   beta?: boolean;
 }
 
@@ -55,7 +59,7 @@ export interface FileNode {
   children?: FileNode[];
   previewContent?: string;
   path?: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: React.ComponentType<{ className?: string }> | React.ReactElement;
   description?: string;
 }
 
@@ -77,4 +81,7 @@ export interface DeploymentMethod {
   icon: IconType | string | null;
   color: string;
   description: string;
+  frameworkOnly?: string;
+  supportsStatic?: boolean;
+  supportsDynamic?: boolean;
 }

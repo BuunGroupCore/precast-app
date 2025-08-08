@@ -1,13 +1,13 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
 /**
  * Global Prisma client instance to prevent multiple connections in development
  */
 declare global {
   {{#if typescript}}
-  var prisma: PrismaClient | undefined
+  var prisma: PrismaClient | undefined;
   {{else}}
-  var prisma
+  var prisma;
   {{/if}}
 }
 
@@ -16,17 +16,17 @@ declare global {
  * @description Reuses the same client instance across hot reloads in development
  */
 export const prisma = globalThis.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-})
+  log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+});
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma
+if (process.env.NODE_ENV !== "production") {
+  globalThis.prisma = prisma;
 }
 
 /**
  * Graceful shutdown handler
  * @description Ensures database connections are properly closed
  */
-process.on('beforeExit', async () => {
-  await prisma.$disconnect()
-})
+process.on("beforeExit", async () => {
+  await prisma.$disconnect();
+});

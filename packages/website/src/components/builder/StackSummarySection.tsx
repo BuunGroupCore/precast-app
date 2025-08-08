@@ -35,6 +35,7 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
     config.styling !== "css" ? 1 : 0,
     config.runtime !== "node" ? 1 : 0,
     config.uiLibrary && config.uiLibrary !== "none" ? 1 : 0,
+    config.uiFramework ? 1 : 0,
     config.aiAssistant && config.aiAssistant !== "none" ? 1 : 0,
     config.deploymentMethod && config.deploymentMethod !== "none" ? 1 : 0,
     config.auth && config.auth !== "none" ? 1 : 0,
@@ -128,10 +129,6 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                 <FaFolderOpen className="text-lg" />
                 <span className="font-comic font-bold text-sm">VIEW STRUCTURE</span>
               </div>
-              {/* Comic burst effect */}
-              <div className="absolute -top-1 -right-1 w-4 h-4">
-                <div className="action-burst bg-comic-red w-full h-full"></div>
-              </div>
             </motion.button>
           </div>
           {/* Power count badge */}
@@ -187,6 +184,23 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                   )}
                   <span className="text-xs font-comic text-center">
                     {uiLib?.name || config.uiLibrary}
+                  </span>
+                </div>
+              );
+            })()}
+
+          {/* UI Framework (for Vite builds) */}
+          {config.uiFramework &&
+            (() => {
+              const uiFramework = frameworks.find((f) => f.id === config.uiFramework);
+              return (
+                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative">
+                  <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                    UI Framework
+                  </span>
+                  {uiFramework?.icon && <uiFramework.icon className="text-2xl text-white" />}
+                  <span className="text-xs font-comic text-center">
+                    {uiFramework?.name || config.uiFramework}
                   </span>
                 </div>
               );

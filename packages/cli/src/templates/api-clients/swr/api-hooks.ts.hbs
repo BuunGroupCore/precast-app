@@ -1,0 +1,29 @@
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
+
+const API_URL = process.env.{{#if (eq framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:3001";
+
+// Example: Get all users
+export function useUsers() {
+  const { data, error, isLoading } = useSWR(`${API_URL}/api/users`, fetcher);
+
+  return {
+    users: data,
+    isLoading,
+    isError: error,
+  };
+}
+
+// Example: Get single user
+export function useUser(id: string) {
+  const { data, error, isLoading } = useSWR(
+    id ? `${API_URL}/api/users/${id}` : null,
+    fetcher
+  );
+
+  return {
+    user: data,
+    isLoading,
+    isError: error,
+  };
+}

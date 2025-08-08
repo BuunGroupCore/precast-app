@@ -106,7 +106,10 @@
       "Bash(docker logs:*)",
       "Bash(npm run docker:down:*)",
       "Bash(npm run docker:up:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebFetch(domain:hono.dev)",
+      "WebFetch(domain:vite.dev)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-vue-counter-fixed --framework vite --ui-framework vue --backend none --database none --orm none --styling css --runtime node --install --yes)"
     ],
     "deny": []
   }

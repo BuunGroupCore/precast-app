@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { FaPlug, FaChevronDown, FaChevronUp, FaTimes } from "react-icons/fa";
 import { SiTrpc, SiGraphql, SiAxios, SiApollographql, SiReactquery } from "react-icons/si";
 
+import { HonoIconBlack } from "@/components/icons/HonoIconBlack";
+import { backends } from "@/lib/stack-config";
+
 import type { ExtendedProjectConfig } from "./types";
 
 interface ApiSectionProps {
@@ -22,11 +25,20 @@ interface ApiOption {
 
 const apiOptions: ApiOption[] = [
   {
+    id: "hono-rpc",
+    name: "Hono RPC",
+    description: "Type-safe RPC client for Hono (recommended for Workers)",
+    icon: HonoIconBlack,
+    compatibleBackends: ["hono", "cloudflare-workers"],
+    compatibleFrameworks: ["react", "next", "vue", "svelte", "solid"],
+    dependencies: ["typescript"],
+  },
+  {
     id: "trpc",
     name: "tRPC",
     description: "End-to-end typesafe APIs made easy",
     icon: SiTrpc,
-    compatibleBackends: ["hono", "express", "fastify"],
+    compatibleBackends: ["hono", "express", "fastify", "cloudflare-workers"],
     compatibleFrameworks: ["react", "next", "vue", "svelte", "solid"],
     dependencies: ["typescript"],
   },
@@ -82,12 +94,44 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
 
   /** Filter compatible API options */
   const compatibleOptions = apiOptions.filter((option) => {
+    // Get the selected backend configuration
+    const selectedBackend = backends.find((b) => b.id === config.backend);
+
+    // If backend has API client compatibility info, use that
+    if (selectedBackend?.apiClientCompatibility) {
+      const {
+        recommended = [],
+        compatible = [],
+        incompatible = [],
+      } = selectedBackend.apiClientCompatibility;
+
+      // If it's explicitly incompatible, exclude it
+      if (incompatible.includes(option.id)) {
+        return false;
+      }
+
+      // If it's in recommended or compatible, include it
+      if (recommended.includes(option.id) || compatible.includes(option.id)) {
+        return true;
+      }
+
+      // If backend has specific compatibility rules and this option isn't listed, exclude it
+      if (incompatible.length > 0 || recommended.length > 0 || compatible.length > 0) {
+        return false;
+      }
+    }
+
+    // Fallback to old logic
     const backendMatch =
       option.compatibleBackends.includes("*") || option.compatibleBackends.includes(config.backend);
+    // When using Vite, check the UI framework instead of the build tool
+    const frameworkToCheck =
+      config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
+
     const frameworkMatch =
       !option.compatibleFrameworks ||
       option.compatibleFrameworks.includes("*") ||
-      option.compatibleFrameworks.includes(config.framework);
+      option.compatibleFrameworks.includes(frameworkToCheck);
     return backendMatch && frameworkMatch;
   });
 
@@ -169,6 +213,17 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
                     return true;
                   });
 
+                // Get backend compatibility info
+                const selectedBackend = backends.find((b) => b.id === config.backend);
+                const isRecommended =
+                  selectedBackend?.apiClientCompatibility?.recommended?.includes(option.id) ||
+                  false;
+                const isCompatible =
+                  selectedBackend?.apiClientCompatibility?.compatible?.includes(option.id) || false;
+
+                // Check if there are compatibility warnings (compatible but not recommended)
+                const hasCompatibilityWarning = isCompatible && !isRecommended;
+
                 return (
                   <button
                     key={option.id}
@@ -179,9 +234,13 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
                     } ${
                       isSelected
                         ? "bg-comic-yellow text-comic-black"
-                        : hasRequiredDependencies
-                          ? "bg-comic-white text-comic-black hover:bg-comic-gray/10"
-                          : "bg-comic-gray/20 text-comic-gray"
+                        : isRecommended
+                          ? "bg-comic-green/20 text-comic-black hover:bg-comic-green/30"
+                          : hasCompatibilityWarning
+                            ? "bg-comic-orange/10 text-comic-black hover:bg-comic-orange/20"
+                            : hasRequiredDependencies
+                              ? "bg-comic-white text-comic-black hover:bg-comic-gray/10"
+                              : "bg-comic-gray/20 text-comic-gray"
                     }`}
                     style={{
                       boxShadow: hasRequiredDependencies
@@ -191,9 +250,21 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
                     title={
                       !hasRequiredDependencies
                         ? `Requires: ${option.dependencies?.join(", ")}`
-                        : option.description
+                        : hasCompatibilityWarning
+                          ? `${option.description} (May have edge runtime compatibility issues)`
+                          : option.description
                     }
                   >
+                    {isRecommended && (
+                      <span className="absolute -top-2 -right-2 bg-comic-green text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                        RECOMMENDED
+                      </span>
+                    )}
+                    {hasCompatibilityWarning && (
+                      <span className="absolute -top-2 -right-2 bg-comic-orange text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                        ⚠️ WORKS
+                      </span>
+                    )}
                     <div className="flex items-center gap-2 mb-1">
                       <Icon className="text-lg" />
                       <span className="font-display text-sm">{option.name}</span>

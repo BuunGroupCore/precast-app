@@ -1,0 +1,47 @@
+import { initTRPC } from "@trpc/server";
+import superjson from "superjson";
+import { z } from "zod";
+
+const t = initTRPC.create({
+  transformer: superjson,
+});
+
+export const router = t.router;
+export const publicProcedure = t.procedure;
+
+// Example user router
+const userRouter = router({
+  getAll: publicProcedure.query(async () => {
+    // Fetch users from database
+    return [
+      { id: "1", name: "John Doe", email: "john@example.com" },
+      { id: "2", name: "Jane Smith", email: "jane@example.com" },
+    ];
+  }),
+
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      // Fetch user by id
+      return { id: input.id, name: "John Doe", email: "john@example.com" };
+    }),
+
+  create: publicProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      // Create user in database
+      return { id: "3", ...input };
+    }),
+});
+
+// Main app router
+export const appRouter = router({
+  users: userRouter,
+});
+
+export type AppRouter = typeof appRouter;

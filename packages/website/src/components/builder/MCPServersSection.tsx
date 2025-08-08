@@ -75,9 +75,16 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
     }
   };
 
+  // Show recommended servers first, then relevant servers, then others
+  const recommendedServers = mcpServers.filter((s) => s.recommended);
+  const otherServers = mcpServers.filter(
+    (s) => !s.recommended && !relevantServers.some((rs) => rs.id === s.id)
+  );
+
   const availableServers = [
-    ...relevantServers,
-    ...mcpServers.filter((server) => !relevantServers.some((rs) => rs.id === server.id)),
+    ...recommendedServers,
+    ...relevantServers.filter((rs) => !recommendedServers.some((rec) => rec.id === rs.id)),
+    ...otherServers,
   ];
 
   if (availableServers.length === 0) {
@@ -103,7 +110,7 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
           {availableServers.map((server) => {
             const Icon = server.icon;
             const isSelected = config.mcpServers?.includes(server.id) || false;
-            const isRecommended = relevantServers.some((rs) => rs.id === server.id);
+            const isAutoRelevant = relevantServers.some((rs) => rs.id === server.id);
 
             return (
               <button
@@ -111,11 +118,11 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
                 onClick={() => toggleMCPServer(server.id)}
                 data-active={isSelected}
                 className="filter-btn-comic flex flex-col items-center justify-center gap-1 py-2 h-16 w-full relative"
-                title={server.description}
+                title={server.recommendedReason || server.description}
               >
-                {isRecommended && (
+                {isAutoRelevant && (
                   <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full whitespace-nowrap">
-                    Recommended
+                    Auto
                   </span>
                 )}
                 <Icon className="text-lg" />

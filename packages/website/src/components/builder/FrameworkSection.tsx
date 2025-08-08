@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
-import React from "react";
-import { FaCode } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaCode, FaCube, FaWrench, FaJsSquare } from "react-icons/fa";
 
 import { ServiceTooltip } from "@/features/common";
-import { frameworks } from "@/lib/stack-config";
+import {
+  uiLibraries_frontend,
+  metaFrameworks,
+  buildTools,
+  specialFrameworks,
+} from "@/lib/stack-config";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
@@ -13,7 +18,78 @@ interface FrameworkSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+type FrameworkCategory = "all" | "ui-library" | "meta-framework" | "build-tool" | "special";
+
+interface CategoryInfo {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
+  items: Array<{
+    id: string;
+    name: string;
+    icon?: React.ComponentType<{ className?: string }> | string | null;
+    description?: string;
+    category?: string;
+  }>;
+}
+
+const categories: Record<FrameworkCategory, CategoryInfo> = {
+  all: {
+    name: "All Options",
+    icon: FaCode,
+    description: "All available frontend options - frameworks, libraries, and tools",
+    items: [...uiLibraries_frontend, ...metaFrameworks, ...buildTools, ...specialFrameworks],
+  },
+  "ui-library": {
+    name: "UI Libraries",
+    icon: FaCube,
+    description: "Core libraries for building user interfaces",
+    items: uiLibraries_frontend,
+  },
+  "meta-framework": {
+    name: "Meta-Frameworks",
+    icon: FaCode,
+    description: "Full-stack frameworks with routing, SSR, and more",
+    items: metaFrameworks,
+  },
+  "build-tool": {
+    name: "Build Tools",
+    icon: FaWrench,
+    description: "Development and build tooling",
+    items: buildTools,
+  },
+  special: {
+    name: "Other Options",
+    icon: FaJsSquare,
+    description: "Mobile, vanilla, and custom options",
+    items: specialFrameworks,
+  },
+};
+
 export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setConfig }) => {
+  const [selectedCategory, setSelectedCategory] = useState<FrameworkCategory>("all");
+  const [showViteLibraries, setShowViteLibraries] = useState(false);
+
+  const handleFrameworkSelect = (frameworkId: string) => {
+    setConfig({ ...config, framework: frameworkId });
+
+    // Show nested UI libraries when Vite is selected
+    if (frameworkId === "vite") {
+      setShowViteLibraries(true);
+    } else {
+      setShowViteLibraries(false);
+    }
+  };
+
+  const handleViteLibrarySelect = (libraryId: string) => {
+    setConfig({ ...config, framework: "vite", uiFramework: libraryId });
+  };
+
+  // UI libraries that work well with Vite
+  const viteCompatibleLibraries = uiLibraries_frontend.filter((lib) =>
+    ["react", "vue", "svelte", "solid"].includes(lib.id)
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -50 }}
@@ -22,29 +98,130 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
     >
       <CollapsibleSection
         icon={<FaCode className="text-3xl text-comic-orange" />}
-        title={<h3 className="font-display text-2xl text-comic-orange">FRONTEND FRAMEWORK</h3>}
+        title={<h3 className="font-display text-2xl text-comic-orange">FRONTEND STACK</h3>}
         className="bg-comic-green"
       >
         <p className="font-comic text-sm mb-4 text-comic-black/90">
-          Choose your weapon of choice for building amazing user interfaces
+          Choose your frontend architecture - from UI libraries to full-stack frameworks
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {frameworks.map((framework) => (
-            <ServiceTooltip
-              serviceId={framework.id as keyof typeof import("@/features/common").serviceInfo}
-              key={framework.id}
+
+        {/* Category Tabs */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {Object.entries(categories).map(([categoryKey, category]) => (
+            <button
+              key={categoryKey}
+              onClick={() => setSelectedCategory(categoryKey as FrameworkCategory)}
+              className={`px-3 py-1.5 text-xs font-comic rounded border-2 border-comic-black transition-colors ${
+                selectedCategory === categoryKey
+                  ? "bg-comic-yellow text-comic-black"
+                  : "bg-comic-white text-comic-black hover:bg-comic-gray/10"
+              }`}
+              style={{ boxShadow: "1px 1px 0 var(--comic-black)" }}
             >
-              <button
-                onClick={() => setConfig({ ...config, framework: framework.id })}
-                data-active={config.framework === framework.id}
-                className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full"
-              >
-                {framework.icon && <framework.icon className="text-2xl" />}
-                <span className="text-xs">{framework.name}</span>
-              </button>
-            </ServiceTooltip>
+              <category.icon className="inline mr-1" />
+              {category.name}
+            </button>
           ))}
         </div>
+
+        {/* Selected Category Description */}
+        <p className="font-comic text-xs text-comic-black/70 mb-3">
+          {categories[selectedCategory].description}
+        </p>
+
+        {/* Framework Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {categories[selectedCategory].items.map((framework) => {
+            // Find which category this framework belongs to for badge
+            const frameworkCategory = Object.entries(categories).find(
+              ([key, category]) =>
+                key !== "all" && category.items.some((item) => item.id === framework.id)
+            );
+            const CategoryIcon = frameworkCategory
+              ? categories[frameworkCategory[0] as FrameworkCategory].icon
+              : null;
+
+            return (
+              <ServiceTooltip
+                serviceId={framework.id as keyof typeof import("@/features/common").serviceInfo}
+                key={framework.id}
+              >
+                <button
+                  onClick={() => handleFrameworkSelect(framework.id)}
+                  data-active={config.framework === framework.id}
+                  className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative"
+                >
+                  {/* Category Badge */}
+                  {selectedCategory === "all" && CategoryIcon && (
+                    <div
+                      className={`absolute top-1 right-1 w-5 h-5 rounded border border-comic-black flex items-center justify-center p-0.5 ${
+                        config.framework === framework.id
+                          ? "bg-comic-black text-comic-white"
+                          : "bg-comic-white text-comic-black"
+                      }`}
+                    >
+                      <CategoryIcon className="text-[10px]" />
+                    </div>
+                  )}
+
+                  {framework.icon && <framework.icon className="text-2xl" />}
+                  <span className="text-xs">{framework.name}</span>
+                </button>
+              </ServiceTooltip>
+            );
+          })}
+        </div>
+
+        {/* Nested UI Libraries for Vite */}
+        {showViteLibraries && config.framework === "vite" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            transition={{ duration: 0.3 }}
+            className="mt-6"
+          >
+            <div className="border-t-3 border-comic-black/20 pt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-4 h-0.5 bg-comic-black/30"></div>
+                <h4 className="font-display text-lg text-comic-black">
+                  Choose UI Library for Vite
+                </h4>
+                <div className="flex-1 h-0.5 bg-comic-black/30"></div>
+              </div>
+              <p className="font-comic text-xs text-comic-black/70 mb-4">
+                Select which UI library you want to use with Vite
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {viteCompatibleLibraries.map((library) => (
+                  <ServiceTooltip
+                    serviceId={library.id as keyof typeof import("@/features/common").serviceInfo}
+                    key={`vite-${library.id}`}
+                  >
+                    <button
+                      onClick={() => handleViteLibrarySelect(library.id)}
+                      data-active={config.framework === "vite" && config.uiFramework === library.id}
+                      className="filter-btn-comic flex flex-col items-center justify-center gap-1 py-2 h-16 w-full text-xs"
+                      style={{
+                        backgroundColor:
+                          config.framework === "vite" && config.uiFramework === library.id
+                            ? "var(--comic-yellow)"
+                            : "var(--comic-white)",
+                      }}
+                    >
+                      {library.icon && <library.icon className="text-lg" />}
+                      <span className="text-[10px]">{library.name}</span>
+                    </button>
+                  </ServiceTooltip>
+                ))}
+              </div>
+
+              <p className="font-comic text-[10px] text-comic-black/50 mt-3 text-center">
+                💡 This creates a Vite project using {config.uiFramework} as the UI library
+              </p>
+            </div>
+          </motion.div>
+        )}
       </CollapsibleSection>
     </motion.div>
   );

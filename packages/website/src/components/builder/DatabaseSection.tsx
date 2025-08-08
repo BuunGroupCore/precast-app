@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaDatabase } from "react-icons/fa";
 
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -18,6 +18,37 @@ interface DatabaseSectionProps {
 export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setConfig }) => {
   const [deploymentModalOpen, setDeploymentModalOpen] = useState(false);
   const [selectedDatabase, setSelectedDatabase] = useState<StackOption | null>(null);
+
+  /**
+   * Automatically resets ORM selection when it becomes incompatible with the selected database
+   */
+  useEffect(() => {
+    if (config.orm && config.database) {
+      const selectedOrm = orms.find((o) => o.id === config.orm);
+
+      const isIncompatible =
+        selectedOrm?.incompatible?.includes(config.database) ||
+        (config.orm === "drizzle" && config.database === "mongodb") ||
+        (config.database === "none" && config.orm !== "none") ||
+        (config.database === "supabase" && config.orm !== "none") ||
+        (config.database === "firebase" && config.orm !== "none");
+
+      if (isIncompatible) {
+        const compatibleOrm = orms.find(
+          (o) =>
+            o.id === "none" ||
+            (!o.incompatible?.includes(config.database) &&
+              !(o.id === "drizzle" && config.database === "mongodb"))
+        );
+
+        setConfig((prev) => ({
+          ...prev,
+          orm: compatibleOrm?.id || "none",
+        }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.database]);
 
   const handleDatabaseSelect = (db: StackOption) => {
     if (db.deploymentOptions && (db.deploymentOptions.local || db.deploymentOptions.cloud)) {
@@ -125,7 +156,6 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
             );
           })}
         </div>
-        {/* ORM Selection */}
         {config.database !== "none" &&
           config.database !== "supabase" &&
           config.database !== "firebase" && (

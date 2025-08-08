@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React from "react";
+import React, { useEffect } from "react";
 import { FaPaintBrush } from "react-icons/fa";
 
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -21,7 +21,6 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
   const isUILibraryCompatible = (lib: (typeof uiLibraries)[0]) => {
     if (lib.frameworks.includes("*")) return true;
 
-    // When using Vite, check compatibility with the UI framework instead
     const frameworkToCheck =
       config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
 
@@ -29,12 +28,10 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
   };
 
   const isUILibraryStyleCompatible = (lib: (typeof uiLibraries)[0]) => {
-    // Check if the selected styling is incompatible with this library
     if (lib.incompatible && lib.incompatible.includes(config.styling)) {
       return false;
     }
 
-    // Check if the library requires a specific styling that we don't have
     if (!lib.requires) return true;
     return lib.requires.every((req) => {
       if (req === "tailwind") return config.styling === "tailwind";
@@ -44,6 +41,27 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
       return true;
     });
   };
+
+  /**
+   * Automatically resets UI library selection when it becomes incompatible with framework or styling changes
+   */
+  useEffect(() => {
+    if (config.uiLibrary && config.uiLibrary !== "none") {
+      const selectedLib = uiLibraries.find((lib) => lib.id === config.uiLibrary);
+      if (selectedLib) {
+        const isCompatible = isUILibraryCompatible(selectedLib);
+        const isStyleCompatible = isUILibraryStyleCompatible(selectedLib);
+
+        if (!isCompatible || !isStyleCompatible) {
+          setConfig((prev) => ({
+            ...prev,
+            uiLibrary: "none",
+          }));
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.framework, config.uiFramework, config.styling]);
 
   return (
     <motion.div

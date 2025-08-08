@@ -1,0 +1,79 @@
+# {{name}}
+
+This is a [TanStack Start](https://tanstack.com/start) application.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- {{#if (eq packageManager "bun")}}Bun{{else if (eq packageManager "pnpm")}}pnpm{{else if (eq packageManager "yarn")}}Yarn{{else}}npm{{/if}}
+
+### Installation
+
+```bash
+{{#if (eq packageManager "bun")}}bun install{{else if (eq packageManager "pnpm")}}pnpm install{{else if (eq packageManager "yarn")}}yarn{{else}}npm install{{/if}}
+```
+
+### Development
+
+Start the development server:
+
+```bash
+{{#if (eq packageManager "bun")}}bun run dev{{else if (eq packageManager "pnpm")}}pnpm dev{{else if (eq packageManager "yarn")}}yarn dev{{else}}npm run dev{{/if}}
+```
+
+Your application will be available at [http://localhost:3000](http://localhost:3000).
+
+### Building for Production
+
+```bash
+{{#if (eq packageManager "bun")}}bun run build{{else if (eq packageManager "pnpm")}}pnpm build{{else if (eq packageManager "yarn")}}yarn build{{else}}npm run build{{/if}}
+```
+
+### Running in Production
+
+```bash
+{{#if (eq packageManager "bun")}}bun run start{{else if (eq packageManager "pnpm")}}pnpm start{{else if (eq packageManager "yarn")}}yarn start{{else}}npm run start{{/if}}
+```
+
+## 📁 Project Structure
+
+```
+{{name}}/
+├── app/
+│   ├── routes/        # Application routes
+│   ├── components/    # React components
+│   ├── utils/        # Utility functions
+│   └── globals.css   # Global styles
+├── public/           # Static assets
+├── app.config.ts     # TanStack Start configuration
+└── package.json
+```
+
+## 🛠️ Built With
+
+- [TanStack Start](https://tanstack.com/start) - Type-safe, full-stack React framework
+- [TanStack Router](https://tanstack.com/router) - Type-safe routing
+- [Vite](https://vitejs.dev/) - Build tool
+- [Vinxi](https://vinxi.dev/) - Full-stack JavaScript toolkit
+{{#if (eq styling "tailwind")}}
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+{{/if}}
+{{#if typescript}}
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+{{/if}}
+
+## 📚 Learn More
+
+- [TanStack Start Documentation](https://tanstack.com/start/latest/docs/overview)
+- [TanStack Router Documentation](https://tanstack.com/router/latest)
+- [Vite Documentation](https://vitejs.dev/guide/)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License.

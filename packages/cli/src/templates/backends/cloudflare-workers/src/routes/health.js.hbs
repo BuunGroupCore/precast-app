@@ -1,0 +1,77 @@
+import { Hono } from 'hono';
+
+const health = new Hono();
+
+// GET /health - Basic health check
+health.get('/', async (c) => {
+  return c.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime ? process.uptime() : 'N/A',
+    environment: c.env.NODE_ENV || 'development',
+    version: c.env.API_VERSION || 'v1',
+  });
+});
+
+// GET /health/ready - Readiness check
+health.get('/ready', async (c) => {
+  const checks = {
+    api: true,
+    {{#if (eq database "cloudflare-d1")}}
+    database: false,
+    {{/if}}
+    cache: false,
+  };
+  
+  try {
+    // Check KV store
+    await c.env.CACHE.put('health-check', Date.now().toString(), {
+      expirationTtl: 60,
+    });
+    const testValue = await c.env.CACHE.get('health-check');
+    checks.cache = !!testValue;
+    
+    {{#if (eq database "cloudflare-d1")}}
+    // Check database connection
+    try {
+      await c.env.DB.prepare('SELECT 1').first();
+      checks.database = true;
+    } catch (error) {
+      console.error('Database health check failed:', error);
+      checks.database = false;
+    }
+    {{/if}}
+    
+    const allHealthy = Object.values(checks).every((check) => check === true);
+    
+    return c.json(
+      {
+        status: allHealthy ? 'ready' : 'not ready',
+        checks,
+        timestamp: new Date().toISOString(),
+      },
+      allHealthy ? 200 : 503
+    );
+  } catch (error) {
+    console.error('Health check error:', error);
+    return c.json(
+      {
+        status: 'error',
+        checks,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      },
+      503
+    );
+  }
+});
+
+// GET /health/live - Liveness check
+health.get('/live', (c) => {
+  return c.json({
+    status: 'alive',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+export const healthRoutes = health;

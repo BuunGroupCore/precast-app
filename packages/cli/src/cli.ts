@@ -10,16 +10,13 @@ import { addFeaturesCommand } from "./commands/add-features.js";
 import { addCommand } from "./commands/add.js";
 import { initCommand } from "./commands/init.js";
 
-/** File system utilities */
-// eslint-disable-next-line import/no-named-as-default-member
-const { readJSON } = fsExtra;
-
 /** Current file and directory paths */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /** Package metadata for version information */
-const packageJson = await readJSON(path.join(__dirname, "..", "package.json"));
+// eslint-disable-next-line import/no-named-as-default-member
+const packageJson = await fsExtra.readJSON(path.join(__dirname, "..", "package.json"));
 
 /**
  * Main CLI program definition.
@@ -47,7 +44,14 @@ program
   )
   .option("--no-typescript", "Disable TypeScript")
   .option("--no-git", "Skip git initialization")
+  .option("--no-gitignore", "Skip .gitignore file creation")
+  .option("--no-eslint", "Skip ESLint configuration")
+  .option("--no-prettier", "Skip Prettier configuration")
   .option("--docker", "Include Docker configuration")
+  .option(
+    "--no-secure-passwords",
+    "Use generic passwords instead of secure random ones (Docker only)"
+  )
   .option("--install", "Install dependencies after project creation")
   .option("--pm, --package-manager <pm>", "Package manager to use (npm, yarn, pnpm, bun)")
   .option("-a, --auth <provider>", "Authentication provider (auth.js, better-auth)")
@@ -77,7 +81,11 @@ program
       uiLibrary: options.uiLibrary,
       typescript: options.typescript,
       git: options.git,
+      gitignore: options.gitignore,
+      eslint: options.eslint,
+      prettier: options.prettier,
       docker: options.docker,
+      securePasswords: options.securePasswords,
       install: options.install,
       packageManager: options.packageManager,
       auth: options.auth,

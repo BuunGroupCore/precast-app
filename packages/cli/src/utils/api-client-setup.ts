@@ -2,6 +2,7 @@ import path from "path";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
 
+// eslint-disable-next-line import/no-named-as-default-member
 const { pathExists, ensureDir, writeFile } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";

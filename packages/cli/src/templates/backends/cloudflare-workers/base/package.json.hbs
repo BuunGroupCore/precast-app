@@ -1,0 +1,36 @@
+{
+  "name": "{{name}}-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "{{#if typescript}}tsc --noEmit && {{/if}}wrangler deploy --dry-run",
+    "deploy": "wrangler deploy",
+    "deploy:production": "wrangler deploy --env production",
+    "tail": "wrangler tail",
+    "tail:production": "wrangler tail --env production",
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami"{{#if (eq database "cloudflare-d1")}},
+    "db:create": "wrangler d1 create {{name}}-db",
+    "db:migrate": "wrangler d1 migrations apply {{name}}-db --local",
+    "db:migrate:production": "wrangler d1 migrations apply {{name}}-db --env production",
+    "db:execute": "wrangler d1 execute {{name}}-db --local --command"{{/if}},
+    "kv:create": "wrangler kv:namespace create CACHE && wrangler kv:namespace create SESSIONS",
+    "kv:list": "wrangler kv:namespace list"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@hono/cors": "^1.0.0",
+    "@hono/zod-validator": "^0.2.0",
+    "zod": "^3.22.0"{{#if (eq database "cloudflare-d1")}},
+    "drizzle-orm": "^0.29.0"{{/if}}{{#if authProvider}},
+    "jose": "^5.0.0"{{/if}}
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "wrangler": "^3.0.0"{{#if typescript}},
+    "typescript": "^5.0.0"{{/if}}{{#if (eq database "cloudflare-d1")}},
+    "drizzle-kit": "^0.20.0"{{/if}}
+  }
+}

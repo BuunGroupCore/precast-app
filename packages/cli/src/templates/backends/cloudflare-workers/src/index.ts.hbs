@@ -1,0 +1,177 @@
+{{#if typescript}}import { cors } from '@hono/cors';
+import { Hono } from 'hono';
+import { logger } from 'hono/logger';
+import { prettyJSON } from 'hono/pretty-json';
+
+// Import routes
+import { apiRoutes } from '@/routes/api';
+import { healthRoutes } from '@/routes/health';
+
+import type { Env } from '../worker-configuration';
+{{#if authProvider}}import { authRoutes } from '@/routes/auth';{{/if}}
+{{#if (eq database "cloudflare-d1")}}import { createDb } from '@/db/connection';{{/if}}
+
+// Create Hono app with Cloudflare Workers bindings
+const app = new Hono<{ Bindings: Env }>();
+
+// Global middleware
+app.use('*', logger());
+app.use('*', prettyJSON());
+
+// CORS configuration
+app.use('*', async (c, next) => {
+  const corsMiddleware = cors({
+    origin: (origin) => {
+      const allowedOrigins = c.env.NODE_ENV === 'production'
+        ? ['https://{{name}}.com'] // Update with your domain
+        : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4321'];
+      return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+    },
+    allowHeaders: ['Content-Type', 'Authorization'],
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    exposeHeaders: ['Content-Length'],
+    maxAge: 600,
+    credentials: true,
+  });
+  return corsMiddleware(c, next);
+});
+
+{{#if (eq database "cloudflare-d1")}}
+// Database middleware - attach DB to context
+app.use('*', async (c, next) => {
+  const db = createDb(c.env);
+  c.set('db', db);
+  await next();
+});
+{{/if}}
+
+// API Routes
+app.route('/health', healthRoutes);
+app.route('/api', apiRoutes);
+{{#if authProvider}}app.route('/auth', authRoutes);{{/if}}
+
+// Root endpoint
+app.get('/', (c) => {
+  return c.json({
+    name: '{{name}} API',
+    version: c.env.API_VERSION || 'v1',
+    status: 'operational',
+    environment: c.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// 404 handler
+app.notFound((c) => {
+  return c.json(
+    {
+      error: 'Not Found',
+      message: `Route ${c.req.path} not found`,
+      status: 404,
+    },
+    404
+  );
+});
+
+// Error handler
+app.onError((err, c) => {
+  console.error('Error:', err);
+  return c.json(
+    {
+      error: 'Internal Server Error',
+      message: c.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+      status: 500,
+    },
+    500
+  );
+});
+
+// Export for Cloudflare Workers
+export default app;{{else}}import { Hono } from 'hono';
+import { cors } from '@hono/cors';
+import { logger } from 'hono/logger';
+import { prettyJSON } from 'hono/pretty-json';
+
+// Import routes
+import { healthRoutes } from '@/routes/health.js';
+import { apiRoutes } from '@/routes/api.js';
+{{#if authProvider}}import { authRoutes } from '@/routes/auth.js';{{/if}}
+{{#if (eq database "cloudflare-d1")}}import { createDb } from '@/db/connection.js';{{/if}}
+
+// Create Hono app
+const app = new Hono();
+
+// Global middleware
+app.use('*', logger());
+app.use('*', prettyJSON());
+
+// CORS configuration
+app.use('*', async (c, next) => {
+  const corsMiddleware = cors({
+    origin: (origin) => {
+      const allowedOrigins = c.env.NODE_ENV === 'production'
+        ? ['https://{{name}}.com'] // Update with your domain
+        : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4321'];
+      return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+    },
+    allowHeaders: ['Content-Type', 'Authorization'],
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    exposeHeaders: ['Content-Length'],
+    maxAge: 600,
+    credentials: true,
+  });
+  return corsMiddleware(c, next);
+});
+
+{{#if (eq database "cloudflare-d1")}}
+// Database middleware
+app.use('*', async (c, next) => {
+  const db = createDb(c.env);
+  c.set('db', db);
+  await next();
+});
+{{/if}}
+
+// API Routes
+app.route('/health', healthRoutes);
+app.route('/api', apiRoutes);
+{{#if authProvider}}app.route('/auth', authRoutes);{{/if}}
+
+// Root endpoint
+app.get('/', (c) => {
+  return c.json({
+    name: '{{name}} API',
+    version: c.env.API_VERSION || 'v1',
+    status: 'operational',
+    environment: c.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// 404 handler
+app.notFound((c) => {
+  return c.json(
+    {
+      error: 'Not Found',
+      message: `Route ${c.req.path} not found`,
+      status: 404,
+    },
+    404
+  );
+});
+
+// Error handler
+app.onError((err, c) => {
+  console.error('Error:', err);
+  return c.json(
+    {
+      error: 'Internal Server Error',
+      message: c.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+      status: 500,
+    },
+    500
+  );
+});
+
+// Export for Cloudflare Workers
+export default app;{{/if}}

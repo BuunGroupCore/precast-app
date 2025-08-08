@@ -22,7 +22,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/cli.ts",
-    "build": "tsup src/cli.ts src/index.ts --format esm --clean && cp -r src/templates dist/ && pnpm run audit:fix",
+    "build": "tsup && cp -r src/templates dist/ && pnpm run audit:fix",
     "audit:fix": "(pnpm audit --audit-level=moderate 2>/dev/null || echo 'Audit check skipped in CI environment') || true",
     "update:templates": "pnpm run src/scripts/update-template-deps.ts && pnpm run build",
     "security:check": "pnpm audit --audit-level=moderate",

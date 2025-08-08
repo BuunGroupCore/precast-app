@@ -1,0 +1,115 @@
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+import { createId } from "@paralleldrive/cuid2";
+
+{{#if (or authProvider (eq authProvider "better-auth"))}}
+/**
+ * Users table for authentication
+ */
+export const users = sqliteTable("users", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  image: text("image"),
+  createdAt: text("created_at")
+    .default(sql`(datetime('now'))`)
+    .notNull(),
+  updatedAt: text("updated_at")
+    .default(sql`(datetime('now'))`)
+    .notNull(),
+});
+
+/**
+ * Accounts table for OAuth providers
+ */
+export const accounts = sqliteTable("accounts", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: text("type").notNull(),
+  provider: text("provider").notNull(),
+  providerAccountId: text("provider_account_id").notNull(),
+  refresh_token: text("refresh_token"),
+  access_token: text("access_token"),
+  expires_at: integer("expires_at"),
+  token_type: text("token_type"),
+  scope: text("scope"),
+  id_token: text("id_token"),
+  session_state: text("session_state"),
+});
+
+/**
+ * Sessions table for active user sessions
+ */
+export const sessions = sqliteTable("sessions", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  sessionToken: text("session_token").notNull().unique(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: text("expires").notNull(),
+});
+
+/**
+ * Verification tokens for email verification
+ */
+export const verificationTokens = sqliteTable("verification_tokens", {
+  identifier: text("identifier").notNull(),
+  token: text("token").notNull().unique(),
+  expires: text("expires").notNull(),
+});
+{{else}}
+/**
+ * Example users table - replace with your actual schema
+ */
+export const users = sqliteTable("users", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  createdAt: text("created_at")
+    .default(sql`(datetime('now'))`)
+    .notNull(),
+  updatedAt: text("updated_at")
+    .default(sql`(datetime('now'))`)
+    .notNull(),
+});
+
+/**
+ * Example posts table - replace with your actual schema
+ */
+export const posts = sqliteTable("posts", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  title: text("title").notNull(),
+  content: text("content"),
+  published: integer("published", { mode: "boolean" }).default(false).notNull(),
+  authorId: text("author_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: text("created_at")
+    .default(sql`(datetime('now'))`)
+    .notNull(),
+  updatedAt: text("updated_at")
+    .default(sql`(datetime('now'))`)
+    .notNull(),
+});
+{{/if}}
+
+// Export all tables for use with Drizzle relations
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+{{#unless (or authProvider (eq authProvider "better-auth"))}}
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;
+{{/unless}}

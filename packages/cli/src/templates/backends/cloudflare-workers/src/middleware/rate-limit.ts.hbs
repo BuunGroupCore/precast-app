@@ -1,0 +1,143 @@
+{{#if typescript}}import { MiddlewareHandler } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+
+import type { Env } from '../../worker-configuration';
+
+interface RateLimitConfig {
+  windowMs: number; // Time window in milliseconds
+  max: number; // Max requests per window
+  keyGenerator?: (c: any) => string; // Function to generate key
+}
+
+/**
+ * Rate limiting middleware using Cloudflare KV
+ */
+export const rateLimiter = (config: RateLimitConfig): MiddlewareHandler<{ Bindings: Env }> => {
+  const { windowMs = 60000, max = 100, keyGenerator } = config;
+  
+  return async (c, next) => {
+    // Generate rate limit key
+    const defaultKeyGen = () => {
+      const ip = c.req.header('CF-Connecting-IP') || 
+                  c.req.header('X-Forwarded-For') || 
+                  'unknown';
+      return `rate-limit:${ip}:${c.req.path}`;
+    };
+    
+    const key = keyGenerator ? keyGenerator(c) : defaultKeyGen();
+    
+    try {
+      // Get current count from KV
+      const current = await c.env.CACHE.get(key);
+      const count = current ? parseInt(current, 10) : 0;
+      
+      if (count >= max) {
+        // Rate limit exceeded
+        const retryAfter = Math.ceil(windowMs / 1000);
+        
+        c.header('X-RateLimit-Limit', max.toString());
+        c.header('X-RateLimit-Remaining', '0');
+        c.header('X-RateLimit-Reset', new Date(Date.now() + windowMs).toISOString());
+        c.header('Retry-After', retryAfter.toString());
+        
+        throw new HTTPException(429, {
+          message: 'Too many requests, please try again later',
+        });
+      }
+      
+      // Increment counter
+      const newCount = count + 1;
+      const ttl = Math.ceil(windowMs / 1000);
+      
+      await c.env.CACHE.put(key, newCount.toString(), {
+        expirationTtl: ttl,
+      });
+      
+      // Set rate limit headers
+      c.header('X-RateLimit-Limit', max.toString());
+      c.header('X-RateLimit-Remaining', (max - newCount).toString());
+      c.header('X-RateLimit-Reset', new Date(Date.now() + windowMs).toISOString());
+      
+      await next();
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      
+      // If KV fails, allow the request but log the error
+      console.error('Rate limit error:', error);
+      await next();
+    }
+  };
+};
+
+/**
+ * IP-based rate limiter
+ */
+export const ipRateLimiter = rateLimiter({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // 60 requests per minute
+});
+
+/**
+ * API key rate limiter
+ */
+export const apiKeyRateLimiter = rateLimiter({
+  windowMs: 60 * 1000, // 1 minute
+  max: 1000, // 1000 requests per minute for API keys
+  keyGenerator: (c) => {
+    const apiKey = c.req.header('X-API-Key') || 'anonymous';
+    return `rate-limit:api:${apiKey}`;
+  },
+});
+
+/**
+ * Strict rate limiter for sensitive endpoints
+ */
+export const strictRateLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per 15 minutes
+});{{else}}import { HTTPException } from 'hono/http-exception';
+
+/**
+ * Simple rate limiting middleware using Cloudflare KV
+ */
+export const rateLimiter = (config = {}) => {
+  const { windowMs = 60000, max = 100 } = config;
+  
+  return async (c, next) => {
+    const ip = c.req.header('CF-Connecting-IP') || 'unknown';
+    const key = `rate-limit:${ip}:${c.req.path}`;
+    
+    try {
+      const current = await c.env.CACHE.get(key);
+      const count = current ? parseInt(current, 10) : 0;
+      
+      if (count >= max) {
+        throw new HTTPException(429, {
+          message: 'Too many requests',
+        });
+      }
+      
+      const ttl = Math.ceil(windowMs / 1000);
+      await c.env.CACHE.put(key, (count + 1).toString(), {
+        expirationTtl: ttl,
+      });
+      
+      await next();
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      
+      // If KV fails, allow the request
+      console.error('Rate limit error:', error);
+      await next();
+    }
+  };
+};
+
+export const ipRateLimiter = rateLimiter({
+  windowMs: 60 * 1000,
+  max: 60,
+});{{/if}}

@@ -11,6 +11,7 @@ import {
   DatabaseSection,
   DeploymentSection,
   ExtendedProjectConfig,
+  FeatureTogglesSection,
   FrameworkSection,
   InstallOptionsSection,
   MCPServersSection,
@@ -56,7 +57,7 @@ export function BuilderPage() {
   const [copied, setCopied] = useState(false);
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
   const [showSaved, setShowSaved] = useState(false);
-  const [packageManager, setPackageManager] = useState("bun");
+  const [packageManager, setPackageManager] = useState("npx");
   const [terminalCopied, setTerminalCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showPreferredStacks, setShowPreferredStacks] = useState(false);
@@ -109,11 +110,11 @@ export function BuilderPage() {
           mcpServers: [],
         };
         setConfig(resetConfig);
-        setPackageManager(userSettings.preferredPackageManager || "bun");
+        setPackageManager(userSettings.preferredPackageManager || "npx");
       } else {
         /** Fallback to hardcoded defaults if no user settings */
         setConfig(defaultConfig);
-        setPackageManager("bun");
+        setPackageManager("npx");
       }
     } catch (error) {
       console.error("Failed to load user settings for reset:", error);
@@ -163,7 +164,7 @@ export function BuilderPage() {
         };
 
         setConfig(newDefaults);
-        setPackageManager(userSettings.preferredPackageManager || "bun");
+        setPackageManager(userSettings.preferredPackageManager || "npx");
       }
     } catch (error) {
       console.error("Failed to load user settings:", error);
@@ -292,6 +293,20 @@ export function BuilderPage() {
       parts.push(`--powerups=${config.powerups.join(",")}`);
     }
 
+    /** CLI Feature Toggles (add flags for disabled features) */
+    if (config.prettier === false) {
+      parts.push("--no-prettier");
+    }
+    if (config.eslint === false) {
+      parts.push("--no-eslint");
+    }
+    if (config.dockerCompose === false) {
+      parts.push("--no-secure-passwords");
+    }
+    if (config.gitignore === false) {
+      parts.push("--no-gitignore");
+    }
+
     parts.push("--yes");
 
     /** These options are not supported by the CLI yet, so we'll comment them out
@@ -401,7 +416,10 @@ export function BuilderPage() {
               {/* 11. Install Options Section - Package management */}
               <InstallOptionsSection config={config} setConfig={setConfig} />
 
-              {/* 12. Deployment Options Section - Where to deploy */}
+              {/* 12. CLI Feature Toggles - Control what gets generated */}
+              <FeatureTogglesSection config={config} setConfig={setConfig} />
+
+              {/* 13. Deployment Options Section - Where to deploy */}
               <DeploymentSection config={config} setConfig={setConfig} />
             </div>
 

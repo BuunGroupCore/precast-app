@@ -1,0 +1,52 @@
+-- PlanetScale MySQL initialization script
+-- This script sets up the database similar to PlanetScale's environment
+
+-- Set SQL mode to be strict like PlanetScale
+SET SESSION sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+
+-- Create sample schema
+{{#if (or authProvider (eq authProvider "better-auth"))}}
+-- Authentication tables will be created by your ORM/migrations
+-- Note: PlanetScale uses vitess which has some foreign key limitations
+-- Your migration tools should handle this appropriately
+{{else}}
+-- Create sample tables (without foreign keys for PlanetScale compatibility)
+CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(128) PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+    id VARCHAR(128) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    published BOOLEAN DEFAULT FALSE,
+    author_id VARCHAR(128) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Create indexes for performance (similar to PlanetScale best practices)
+CREATE INDEX idx_posts_author_id ON posts(author_id);
+CREATE INDEX idx_posts_published ON posts(published);
+CREATE INDEX idx_posts_created_at ON posts(created_at);
+CREATE INDEX idx_users_email ON users(email);
+{{/if}}
+
+-- Insert some sample data for development
+{{#unless (or authProvider (eq authProvider "better-auth"))}}
+INSERT IGNORE INTO users (id, email, name) VALUES 
+    ('user_1', 'john@example.com', 'John Doe'),
+    ('user_2', 'jane@example.com', 'Jane Smith');
+
+INSERT IGNORE INTO posts (id, title, content, published, author_id) VALUES
+    ('post_1', 'Welcome to {{name}}', 'This is a sample post created during database initialization.', TRUE, 'user_1'),
+    ('post_2', 'Getting Started', 'Learn how to use {{name}} effectively.', FALSE, 'user_2');
+{{/unless}}
+
+-- Show current configuration
+SELECT @@sql_mode as sql_mode;
+SELECT @@version as mysql_version;

@@ -1,0 +1,76 @@
+from functools import lru_cache
+from typing import Optional, Literal, List
+from pydantic import BaseSettings, validator
+{{#if config.database}}
+{{#if (or (eq config.database "postgres") (eq config.database "mysql"))}}
+from pydantic import PostgresDsn
+{{/if}}
+{{/if}}
+
+
+class Settings(BaseSettings):
+    """Application settings"""
+    
+    # Application Settings
+    app_name: str = "{{projectName}}"
+    app_version: str = "1.0.0"
+    debug: bool = False
+    
+    # Environment
+    environment: Literal["development", "staging", "production"] = "development"
+    
+    # API Settings
+    api_v1_prefix: str = "/api/v1"
+    secret_key: str
+    access_token_expire_minutes: int = 30
+    
+    {{#if config.database}}
+    {{#unless (eq config.database "none")}}
+    # Database
+    database_url: str
+    {{#if (or (eq config.database "postgres") (eq config.database "mysql"))}}
+    database_pool_size: int = 10
+    database_max_overflow: int = 20
+    {{/if}}
+    {{/unless}}
+    {{/if}}
+    
+    # Redis (optional)
+    redis_url: Optional[str] = None
+    
+    # CORS
+    allowed_hosts: List[str] = ["*"]
+    cors_origins: List[str] = []
+    
+    {{#if (includes config.powerups "sentry")}}
+    # External Services
+    sentry_dsn: Optional[str] = None
+    {{/if}}
+    
+    # Email Settings (optional)
+    smtp_host: Optional[str] = None
+    smtp_port: int = 587
+    smtp_username: Optional[str] = None
+    smtp_password: Optional[str] = None
+    emails_from_email: Optional[str] = None
+
+    @validator("cors_origins", pre=True)
+    def assemble_cors_origins(cls, v):
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    """Get cached settings instance"""
+    return Settings()
+
+
+settings = get_settings()

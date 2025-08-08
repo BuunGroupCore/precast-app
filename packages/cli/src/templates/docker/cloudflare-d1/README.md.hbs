@@ -1,0 +1,232 @@
+# Cloudflare D1 Development Setup
+
+Cloudflare D1 is a serverless SQLite database that runs at the edge. Since it's designed for Cloudflare Workers, local development uses Wrangler CLI and local SQLite files.
+
+## Prerequisites
+
+1. Install Wrangler CLI:
+   ```bash
+   npm install -g wrangler
+   # or
+   bun add -g wrangler
+   ```
+
+2. Authenticate with Cloudflare:
+   ```bash
+   wrangler login
+   ```
+
+## Local Development
+
+### 1. Configure wrangler.toml
+
+Create a `wrangler.toml` file in your project root:
+
+```toml
+name = "{{name}}"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB" # Available in your Worker as env.DB
+database_name = "{{name}}-db"
+database_id = "<your-database-id>" # Set after creating database
+migrations_dir = "./migrations"
+
+# For local development
+[env.dev.d1_databases]
+binding = "DB"
+database_name = "{{name}}-db-dev"
+preview_database_id = "<your-preview-database-id>"
+
+# Environment variables
+[vars]
+NODE_ENV = "development"
+
+[env.dev.vars]
+NODE_ENV = "development"
+```
+
+### 2. Create D1 Database
+
+```bash
+# Create production database
+wrangler d1 create {{name}}-db
+
+# Create preview database for development
+wrangler d1 create {{name}}-db-dev
+```
+
+Update your `wrangler.toml` with the database IDs returned by the commands above.
+
+### 3. Database Migrations
+
+Create your first migration:
+
+```bash
+wrangler d1 migrations create {{name}}-db "initial_schema"
+```
+
+This creates a new SQL file in the `migrations` directory. Add your schema:
+
+```sql
+-- migrations/0001_initial_schema.sql
+{{#if (or authProvider (eq authProvider "better-auth"))}}
+-- Authentication tables
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  image TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE accounts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  provider_account_id TEXT NOT NULL,
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at INTEGER,
+  token_type TEXT,
+  scope TEXT,
+  id_token TEXT,
+  session_state TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE sessions (
+  id TEXT PRIMARY KEY,
+  session_token TEXT UNIQUE NOT NULL,
+  user_id TEXT NOT NULL,
+  expires TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE verification_tokens (
+  identifier TEXT NOT NULL,
+  token TEXT UNIQUE NOT NULL,
+  expires TEXT NOT NULL,
+  PRIMARY KEY (identifier, token)
+);
+{{else}}
+-- Example schema
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT,
+  published INTEGER DEFAULT 0,
+  author_id TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_posts_author_id ON posts(author_id);
+CREATE INDEX idx_posts_published ON posts(published);
+{{/if}}
+```
+
+### 4. Run Migrations
+
+```bash
+# Apply to local development database
+wrangler d1 migrations apply {{name}}-db --local
+
+# Apply to preview database
+wrangler d1 migrations apply {{name}}-db --preview
+
+# Apply to production database
+wrangler d1 migrations apply {{name}}-db
+```
+
+### 5. Local Development Commands
+
+```bash
+# Start local development server
+wrangler dev
+
+# Execute SQL queries locally
+wrangler d1 execute {{name}}-db --local --command="SELECT * FROM users;"
+
+# Import data from file
+wrangler d1 execute {{name}}-db --local --file=./seed.sql
+```
+
+### 6. Environment Variables
+
+For your application, set these in `.env.local`:
+
+```env
+# For local development, this points to your local D1 database
+DATABASE_URL="file:./local.db"
+
+# Cloudflare account info (if needed)
+CLOUDFLARE_ACCOUNT_ID="your-account-id"
+CLOUDFLARE_API_TOKEN="your-api-token"
+```
+
+## Example Worker Code
+
+```typescript
+import { createDb } from './src/database/connection';
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const db = createDb(env);
+    
+    try {
+      const users = await db.select().from(schema.users);
+      return Response.json(users);
+    } catch (error) {
+      return Response.json({ error: 'Database error' }, { status: 500 });
+    }
+  }
+};
+```
+
+## Useful Commands
+
+```bash
+# List databases
+wrangler d1 list
+
+# Create backup
+wrangler d1 export {{name}}-db --output=backup.sql
+
+# Monitor database
+wrangler d1 info {{name}}-db
+
+# Delete database (careful!)
+wrangler d1 delete {{name}}-db
+```
+
+## Deployment
+
+```bash
+# Deploy to Cloudflare
+wrangler deploy
+
+# View logs
+wrangler tail
+```
+
+## Notes
+
+- D1 uses SQLite syntax and features
+- No foreign key constraints in the traditional sense (use application-level)
+- Optimized for read-heavy workloads
+- Global replication and edge caching
+- Pay-per-request pricing model
+- 10GB storage limit per database

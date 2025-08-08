@@ -1,0 +1,248 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://precast.dev/precast.schema.json",
+  "title": "Precast CLI Configuration",
+  "description": "Configuration file for projects generated with create-precast-app",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference",
+      "default": "https://precast.dev/precast.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of create-precast-app used to generate the project",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the project was created"
+    },
+    "framework": {
+      "type": "string",
+      "description": "Frontend framework or library",
+      "enum": [
+        "react",
+        "vue",
+        "angular",
+        "next",
+        "nuxt",
+        "astro",
+        "remix",
+        "solid",
+        "svelte",
+        "vite",
+        "vanilla",
+        "react-native",
+        "tanstack-start",
+        "none"
+      ]
+    },
+    "uiFramework": {
+      "type": "string",
+      "description": "UI framework when using Vite as the build tool",
+      "enum": ["react", "vue", "svelte", "solid"]
+    },
+    "language": {
+      "type": "string",
+      "description": "Programming language",
+      "enum": ["typescript", "javascript"]
+    },
+    "backend": {
+      "type": "string",
+      "description": "Backend framework or runtime",
+      "enum": ["node", "express", "fastify", "nestjs", "hono", "cloudflare-workers", "none"]
+    },
+    "database": {
+      "type": "string",
+      "description": "Database system",
+      "enum": [
+        "postgres",
+        "mysql",
+        "sqlite",
+        "mongodb",
+        "supabase",
+        "firebase",
+        "cloudflare-d1",
+        "none"
+      ]
+    },
+    "orm": {
+      "type": "string",
+      "description": "ORM or database client",
+      "enum": ["prisma", "drizzle", "typeorm", "mongoose", "none"]
+    },
+    "styling": {
+      "type": "string",
+      "description": "Styling solution",
+      "enum": ["tailwind", "css", "scss", "css-modules", "styled-components", "emotion", "none"]
+    },
+    "uiLibrary": {
+      "type": "string",
+      "description": "UI component library",
+      "enum": ["shadcn", "daisyui", "mui", "chakra", "antd", "mantine", "brutalist", "none"]
+    },
+    "apiClient": {
+      "type": "string",
+      "description": "API client library",
+      "enum": ["tanstack-query", "swr", "axios", "trpc", "apollo", "none"]
+    },
+    "authProvider": {
+      "type": "string",
+      "description": "Authentication provider",
+      "enum": [
+        "better-auth",
+        "auth.js",
+        "clerk",
+        "supabase",
+        "auth0",
+        "firebase",
+        "lucia",
+        "passport",
+        "none"
+      ]
+    },
+    "aiAssistant": {
+      "type": "string",
+      "description": "AI assistant integration",
+      "enum": ["claude", "copilot", "cursor", "gemini", "codeium", "tabnine", "none"]
+    },
+    "runtime": {
+      "type": "string",
+      "description": "JavaScript runtime",
+      "enum": ["node", "bun", "deno", "edge-light"]
+    },
+    "typescript": {
+      "type": "boolean",
+      "description": "Whether TypeScript is enabled",
+      "default": true
+    },
+    "git": {
+      "type": "boolean",
+      "description": "Whether Git repository was initialized",
+      "default": true
+    },
+    "gitignore": {
+      "type": "boolean",
+      "description": "Whether .gitignore file was generated",
+      "default": true
+    },
+    "eslint": {
+      "type": "boolean",
+      "description": "Whether ESLint configuration was added",
+      "default": true
+    },
+    "prettier": {
+      "type": "boolean",
+      "description": "Whether Prettier configuration was added",
+      "default": true
+    },
+    "docker": {
+      "type": "boolean",
+      "description": "Whether Docker configuration was added",
+      "default": false
+    },
+    "securePasswords": {
+      "type": "boolean",
+      "description": "Whether secure passwords were generated for Docker services",
+      "default": true
+    },
+    "packageManager": {
+      "type": "string",
+      "description": "Package manager used for the project",
+      "enum": ["npm", "yarn", "pnpm", "bun"]
+    },
+    "deploymentMethod": {
+      "type": "string",
+      "description": "Deployment platform or method",
+      "enum": [
+        "vercel",
+        "netlify",
+        "cloudflare",
+        "railway",
+        "fly.io",
+        "render",
+        "heroku",
+        "digitalocean",
+        "aws",
+        "azure",
+        "gcp",
+        "none"
+      ]
+    },
+    "mcpServers": {
+      "type": "array",
+      "description": "MCP servers configured for Claude integration",
+      "items": {
+        "type": "string",
+        "enum": [
+          "postgresql",
+          "github",
+          "git",
+          "filesystem",
+          "slack",
+          "memory",
+          "puppeteer",
+          "google-maps",
+          "google-drive",
+          "fetch",
+          "everart",
+          "obsidian"
+        ]
+      }
+    },
+    "powerups": {
+      "type": "array",
+      "description": "Additional features and integrations",
+      "items": {
+        "type": "string",
+        "enum": [
+          "storybook",
+          "cypress",
+          "playwright",
+          "jest",
+          "vitest",
+          "husky",
+          "commitlint",
+          "semantic-release",
+          "sentry",
+          "datadog",
+          "github-actions",
+          "gitlab-ci",
+          "i18n",
+          "pwa",
+          "graphql",
+          "websocket",
+          "redis",
+          "elasticsearch",
+          "monitoring",
+          "analytics"
+        ]
+      }
+    },
+    "addons": {
+      "type": "array",
+      "description": "Legacy field for additional features (deprecated, use powerups)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "autoInstall": {
+      "type": "boolean",
+      "description": "Whether dependencies were automatically installed",
+      "default": false
+    }
+  },
+  "required": [
+    "version",
+    "createdAt",
+    "framework",
+    "language",
+    "typescript",
+    "git",
+    "packageManager"
+  ],
+  "additionalProperties": false
+}

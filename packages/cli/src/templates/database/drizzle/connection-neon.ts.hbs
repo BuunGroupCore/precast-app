@@ -1,0 +1,55 @@
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import * as schema from "./schema{{#if typescript}}.js{{/if}}";
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
+
+/**
+ * Neon serverless connection
+ * @description Direct HTTP connection to Neon serverless PostgreSQL
+ */
+const sql = neon(process.env.DATABASE_URL);
+
+/**
+ * Drizzle database instance
+ * @description Pre-configured Drizzle client for Neon serverless PostgreSQL
+ */
+export const db = drizzle(sql, { schema });
+
+/**
+ * Database health check
+ * @description Verifies database connection is working
+ */
+export async function checkDatabaseConnection(): Promise<boolean> {
+  try {
+    const result = await sql`SELECT 1`;
+    return Array.isArray(result) && result.length > 0;
+  } catch (error) {
+    console.error("Neon database connection failed:", error);
+    return false;
+  }
+}
+
+/**
+ * Connection info
+ * @description Display connection information for debugging
+ */
+export async function getDatabaseInfo() {
+  try {
+    const result = await sql`SELECT version(), current_database()`;
+    return {
+      type: "neon-postgresql",
+      version: result[0]?.version,
+      database: result[0]?.current_database,
+      status: "connected"
+    };
+  } catch (error) {
+    return {
+      type: "neon-postgresql",
+      status: "error",
+      error: error instanceof Error ? error.message : "Unknown error"
+    };
+  }
+}

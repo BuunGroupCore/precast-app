@@ -20,6 +20,11 @@ export interface ExtendedProjectConfig
   mcpServers?: string[];
   apiClient?: string;
   databaseDeployment?: "local" | "cloud";
+  // CLI Feature Toggles
+  prettier?: boolean;
+  eslint?: boolean;
+  dockerCompose?: boolean;
+  gitignore?: boolean;
 }
 
 /**

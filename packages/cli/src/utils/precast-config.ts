@@ -171,9 +171,13 @@ export async function detectPrecastProject(projectDir: string): Promise<ProjectC
     aiAssistant: config.aiAssistant,
     typescript: config.typescript,
     git: config.git,
+    gitignore: true,
+    eslint: true,
+    prettier: true,
     docker: config.docker ?? false,
     packageManager: config.packageManager,
     projectPath: projectDir,
+    runtime: "node",
     addons: config.addons,
   };
 }

@@ -1,11 +1,13 @@
-/* eslint-disable import/order */
 import path from "path";
+
 import { consola } from "consola";
+// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
+
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine, type TemplateEngine } from "../core/template-engine.js";
-import { getTemplateRoot } from "./template-path.js";
 import { installDependencies } from "./package-manager.js";
+import { getTemplateRoot } from "./template-path.js";
 
 // eslint-disable-next-line import/no-named-as-default-member
 const { ensureDir, readFile, writeFile } = fsExtra;
@@ -156,6 +158,9 @@ async function setupDatabaseSpecificFiles(
       break;
     case "planetscale":
       await setupPlanetScale(config, projectPath);
+      break;
+    case "cloudflare-d1":
+      await setupCloudflareD1(config, projectPath);
       break;
     default:
     // No specific database setup needed
@@ -363,16 +368,30 @@ async function setupPrisma(
   await ensureDir(path.join(projectPath, "prisma"));
 
   const templateRoot = getTemplateRoot();
+
+  // Use database-specific schema template if available
+  let schemaTemplate = "database/prisma/schema.prisma.hbs";
+  if (["neon", "planetscale"].includes(config.database)) {
+    schemaTemplate = `database/prisma/schema-${config.database}.prisma.hbs`;
+  }
+
   await templateEngine.processTemplate(
-    path.join(templateRoot, "database/prisma/schema.prisma.hbs"),
+    path.join(templateRoot, schemaTemplate),
     path.join(projectPath, "prisma/schema.prisma"),
     { ...config, databaseProvider: getDatabaseProvider(config.database) }
   );
 
   // Create Prisma client
   await ensureDir(path.join(projectPath, "src", "lib"));
+
+  // Use database-specific client template if available
+  let clientTemplate = "database/prisma/client.ts.hbs";
+  if (["neon", "planetscale"].includes(config.database)) {
+    clientTemplate = `database/prisma/client-${config.database}.ts.hbs`;
+  }
+
   await templateEngine.processTemplate(
-    path.join(templateRoot, "database/prisma/client.ts.hbs"),
+    path.join(templateRoot, clientTemplate),
     path.join(projectPath, "src/lib", config.typescript ? "prisma.ts" : "prisma.js"),
     config
   );
@@ -407,6 +426,20 @@ async function setupDrizzle(
     case "mysql":
       drizzlePackages.push("mysql2");
       break;
+    case "neon":
+      drizzlePackages.push("@neondatabase/serverless");
+      break;
+    case "planetscale":
+      drizzlePackages.push("@planetscale/database");
+      break;
+    case "turso":
+      drizzlePackages.push("@libsql/client");
+      break;
+    case "cloudflare-d1":
+      if (config.typescript) {
+        devPackages.push("@cloudflare/workers-types");
+      }
+      break;
     default:
       break;
   }
@@ -433,14 +466,26 @@ async function setupDrizzle(
     { ...config, databaseProvider: getDatabaseProvider(config.database) }
   );
 
+  // Use database-specific connection template if available
+  let connectionTemplate = "database/drizzle/connection.ts.hbs";
+  if (["neon", "planetscale", "turso", "cloudflare-d1"].includes(config.database)) {
+    connectionTemplate = `database/drizzle/connection-${config.database}.ts.hbs`;
+  }
+
   await templateEngine.processTemplate(
-    path.join(templateRoot, "database/drizzle/connection.ts.hbs"),
+    path.join(templateRoot, connectionTemplate),
     path.join(projectPath, "src/db", config.typescript ? "connection.ts" : "connection.js"),
     { ...config, databaseProvider: getDatabaseProvider(config.database) }
   );
 
+  // Use database-specific schema template if available
+  let schemaTemplate = "database/drizzle/schema.ts.hbs";
+  if (["neon", "planetscale", "turso", "cloudflare-d1"].includes(config.database)) {
+    schemaTemplate = `database/drizzle/schema-${config.database}.ts.hbs`;
+  }
+
   await templateEngine.processTemplate(
-    path.join(templateRoot, "database/drizzle/schema.ts.hbs"),
+    path.join(templateRoot, schemaTemplate),
     path.join(projectPath, "src/db", config.typescript ? "schema.ts" : "schema.js"),
     config
   );
@@ -522,11 +567,16 @@ function getDatabaseProvider(database: string): string {
   switch (database) {
     case "postgres":
     case "supabase":
+    case "neon":
       return "postgresql";
     case "mysql":
+    case "planetscale":
       return "mysql";
     case "mongodb":
       return "mongodb";
+    case "turso":
+    case "cloudflare-d1":
+      return "sqlite";
     default:
       return "postgresql";
   }
@@ -828,4 +878,143 @@ module.exports = { db };
   await writeFile(path.join(dbDir, config.typescript ? "db.ts" : "db.js"), dbContent.trim());
 
   consola.success("✅ PlanetScale database setup completed!");
+}
+
+/**
+ * Setup Cloudflare D1 database configuration
+ * @param config - Project configuration
+ * @param projectPath - Path to the project
+ */
+async function setupCloudflareD1(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("Setting up Cloudflare D1 database configuration...");
+
+  // Install Cloudflare/Wrangler dependencies
+  const packages = ["wrangler"];
+
+  if (config.orm === "drizzle") {
+    packages.push("drizzle-orm", "@cloudflare/workers-types");
+  }
+
+  await installDependencies(packages, {
+    packageManager: config.packageManager,
+    projectPath,
+    dev: true,
+  });
+
+  // Create wrangler.toml configuration
+  const wranglerConfig = `name = "${config.name}"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB" # Available in your Worker as env.DB
+database_name = "${config.name}-db"
+database_id = "YOUR_DATABASE_ID" # Set after creating database with: wrangler d1 create ${config.name}-db
+migrations_dir = "./migrations"
+
+# For local development
+[env.dev.d1_databases]
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "${config.name}-db-dev"
+preview_database_id = "YOUR_PREVIEW_DATABASE_ID" # Set after creating preview database
+
+# Environment variables
+[vars]
+NODE_ENV = "development"
+
+[env.dev.vars]
+NODE_ENV = "development"
+`;
+
+  await writeFile(path.join(projectPath, "wrangler.toml"), wranglerConfig);
+
+  // Setup environment variables
+  const envExamplePath = path.join(projectPath, ".env.example");
+  let envContent = "";
+
+  try {
+    envContent = await readFile(envExamplePath, "utf-8");
+  } catch {
+    // File doesn't exist, create it
+  }
+
+  if (!envContent.includes("CLOUDFLARE_ACCOUNT_ID")) {
+    envContent += `
+# Cloudflare D1 Configuration
+# Run these commands to set up your database:
+# 1. wrangler login
+# 2. wrangler d1 create ${config.name}-db
+# 3. wrangler d1 create ${config.name}-db-dev
+# 4. Update database_id values in wrangler.toml with the IDs returned
+
+CLOUDFLARE_ACCOUNT_ID="your-account-id"
+CLOUDFLARE_API_TOKEN="your-api-token"
+`;
+    await writeFile(envExamplePath, envContent.trim() + "\n");
+  }
+
+  // Create migrations directory
+  await ensureDir(path.join(projectPath, "migrations"));
+
+  // Create initial migration file
+  const migrationContent = `-- Initial schema for ${config.name}
+-- This migration will be applied when you run: wrangler d1 migrations apply ${config.name}-db
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX idx_users_email ON users(email);
+`;
+
+  await writeFile(
+    path.join(projectPath, "migrations", "0001_initial_schema.sql"),
+    migrationContent
+  );
+
+  // Create database helper for Worker environment
+  const dbDir = path.join(projectPath, "src", "lib");
+  await ensureDir(dbDir);
+
+  const dbContent = config.typescript
+    ? `
+import type { D1Database } from '@cloudflare/workers-types';
+
+export interface Env {
+  DB: D1Database;
+}
+
+export function getDatabase(env: Env): D1Database {
+  if (!env.DB) {
+    throw new Error('D1 database binding not found. Make sure DB is configured in wrangler.toml');
+  }
+  return env.DB;
+}
+`
+    : `
+function getDatabase(env) {
+  if (!env.DB) {
+    throw new Error('D1 database binding not found. Make sure DB is configured in wrangler.toml');
+  }
+  return env.DB;
+}
+
+module.exports = { getDatabase };
+`;
+
+  await writeFile(path.join(dbDir, config.typescript ? "d1.ts" : "d1.js"), dbContent.trim());
+
+  consola.info("📝 Next steps for Cloudflare D1:");
+  consola.info("   1. Run: wrangler login");
+  consola.info(`   2. Run: wrangler d1 create ${config.name}-db`);
+  consola.info(`   3. Run: wrangler d1 create ${config.name}-db-dev`);
+  consola.info("   4. Update wrangler.toml with the database IDs");
+  consola.info(`   5. Run: wrangler d1 migrations apply ${config.name}-db --local`);
+
+  consola.success("✅ Cloudflare D1 database setup completed!");
 }

@@ -147,6 +147,12 @@ export const backendDefs: StackOption[] = [
     recommended: ["typescript"],
   },
   {
+    id: "cloudflare-workers",
+    name: "Cloudflare Workers",
+    description: "Edge-first serverless functions with global deployment",
+    recommended: ["typescript", "cloudflare-d1", "drizzle"],
+  },
+  {
     id: "none",
     name: "None",
     description: "Frontend only, no backend",
@@ -205,6 +211,13 @@ export const databaseDefs: StackOption[] = [
     recommended: ["prisma", "drizzle"],
   },
   {
+    id: "cloudflare-d1",
+    name: "Cloudflare D1",
+    description: "Serverless SQLite database at the edge",
+    recommended: ["drizzle"],
+    incompatible: ["prisma", "typeorm", "mongoose"],
+  },
+  {
     id: "none",
     name: "None",
     description: "No database",
@@ -217,7 +230,7 @@ export const ormDefs: StackOption[] = [
     name: "Prisma",
     description: "Next-generation Node.js and TypeScript ORM",
     dependencies: ["node", "typescript"],
-    incompatible: ["supabase", "firebase", "none"],
+    incompatible: ["supabase", "firebase", "cloudflare-d1", "none"],
   },
   {
     id: "drizzle",
@@ -231,14 +244,24 @@ export const ormDefs: StackOption[] = [
     name: "TypeORM",
     description: "ORM for TypeScript and JavaScript",
     dependencies: ["node"],
-    incompatible: ["supabase", "firebase", "none"],
+    incompatible: ["supabase", "firebase", "cloudflare-d1", "none"],
   },
   {
     id: "mongoose",
     name: "Mongoose",
     description: "Elegant MongoDB object modeling for Node.js",
     dependencies: ["node"],
-    incompatible: ["postgres", "mysql", "supabase", "firebase", "none"],
+    incompatible: [
+      "postgres",
+      "mysql",
+      "supabase",
+      "firebase",
+      "cloudflare-d1",
+      "turso",
+      "neon",
+      "planetscale",
+      "none",
+    ],
   },
   {
     id: "none",

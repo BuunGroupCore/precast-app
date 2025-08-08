@@ -1,0 +1,88 @@
+import { PrismaClient } from "@prisma/client";
+
+/**
+ * Global variable to store Prisma Client instance
+ * @description Prevents multiple instances in development with hot reloading
+ */
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+/**
+ * Prisma Client instance for PlanetScale serverless MySQL
+ * @description Pre-configured client optimized for PlanetScale's serverless architecture
+ */
+export const db =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+    {{#if (eq runtime "deno")}}
+    // Deno-specific configuration for edge compatibility
+    __internal: {
+      engine: {
+        closePromise: undefined,
+      },
+    },
+    {{/if}}
+  });
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+
+/**
+ * Database health check
+ * @description Verifies PlanetScale database connection is working
+ */
+export async function checkDatabaseConnection(): Promise<boolean> {
+  try {
+    await db.$queryRaw`SELECT 1`;
+    return true;
+  } catch (error) {
+    console.error("PlanetScale database connection failed:", error);
+    return false;
+  }
+}
+
+/**
+ * Connection info
+ * @description Display connection information for debugging
+ */
+export async function getDatabaseInfo() {
+  try {
+    const result = await db.$queryRaw`SELECT @@version as version, DATABASE() as database_name` as Array<{
+      version: string;
+      database_name: string;
+    }>;
+    
+    return {
+      type: "planetscale-mysql",
+      version: result[0]?.version,
+      database: result[0]?.database_name, 
+      status: "connected"
+    };
+  } catch (error) {
+    return {
+      type: "planetscale-mysql",
+      status: "error", 
+      error: error instanceof Error ? error.message : "Unknown error"
+    };
+  }
+}
+
+/**
+ * Graceful shutdown
+ * @description Properly disconnect from database on app shutdown
+ */
+process.on("SIGINT", async () => {
+  await db.$disconnect();
+  process.exit(0);
+});
+
+/**
+ * Export for use in API routes and server components
+ */
+export default db;

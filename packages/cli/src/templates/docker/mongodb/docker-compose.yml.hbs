@@ -6,7 +6,7 @@ services:
     container_name: {{name}}-mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_PASSWORD: {{MONGO_ADMIN_PASSWORD}}
       MONGO_INITDB_DATABASE: {{name}}
     ports:
       - "27017:27017"
@@ -30,10 +30,10 @@ services:
     container_name: {{name}}-mongo-express
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: password
-      ME_CONFIG_MONGODB_URL: mongodb://admin:password@mongodb:27017/
+      ME_CONFIG_MONGODB_ADMINPASSWORD: {{MONGO_ADMIN_PASSWORD}}
+      ME_CONFIG_MONGODB_URL: mongodb://admin:{{MONGO_ADMIN_PASSWORD}}@mongodb:27017/
       ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: {{MONGO_ADMIN_PASSWORD}}
       ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
     ports:
       - "8081:8081"

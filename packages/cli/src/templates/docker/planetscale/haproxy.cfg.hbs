@@ -1,0 +1,42 @@
+# HAProxy configuration to mimic PlanetScale's connection handling
+# This provides connection pooling and load balancing similar to PlanetScale
+
+global
+    daemon
+    log stdout local0 info
+    maxconn 2000
+    tune.ssl.default-dh-param 2048
+
+defaults
+    mode tcp
+    log global
+    option tcplog
+    option dontlognull
+    retries 3
+    timeout queue 5000ms
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+    timeout check 2000ms
+
+# MySQL frontend (PlanetScale-like port)
+frontend mysql_frontend
+    bind *:4000
+    mode tcp
+    default_backend mysql_backend
+    
+# MySQL backend
+backend mysql_backend
+    mode tcp
+    balance roundrobin
+    option mysql-check user planetscale
+    server mysql1 planetscale-mysql:3306 check
+
+# Stats interface for monitoring
+frontend stats
+    bind *:8404
+    mode http
+    stats enable
+    stats uri /stats
+    stats refresh 30s
+    stats admin if TRUE

@@ -1,0 +1,363 @@
+{{#if typescript}}import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
+import { z } from 'zod';
+
+import type { Env } from '../../worker-configuration';
+{{#if (eq database "cloudflare-d1")}}
+import { eq } from 'drizzle-orm';
+import type { DrizzleD1Database } from 'drizzle-orm/d1';
+
+import * as schema from '@/db/schema';
+{{/if}}
+
+const apiRoutes = new Hono<{
+  Bindings: Env;
+  {{#if (eq database "cloudflare-d1")}}
+  Variables: {
+    db: DrizzleD1Database<typeof schema>;
+  };
+  {{/if}}
+}>();
+
+// Example: List users endpoint
+apiRoutes.get('/users', async (c) => {
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    const db = c.get('db');
+    const users = await db.select().from(schema.users).limit(100);
+    
+    return c.json({
+      success: true,
+      data: users,
+      count: users.length,
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to fetch users',
+      },
+      500
+    );
+  }
+  {{else}}
+  // Example response - replace with your data source
+  return c.json({
+    success: true,
+    data: [
+      { id: '1', name: 'John Doe', email: 'john@example.com' },
+      { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
+    ],
+    count: 2,
+  });
+  {{/if}}
+});
+
+// Example: Get user by ID
+apiRoutes.get('/users/:id', async (c) => {
+  const id = c.req.param('id');
+  
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    const db = c.get('db');
+    const user = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
+    
+    if (!user.length) {
+      return c.json(
+        {
+          success: false,
+          error: 'User not found',
+        },
+        404
+      );
+    }
+    
+    return c.json({
+      success: true,
+      data: user[0],
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to fetch user',
+      },
+      500
+    );
+  }
+  {{else}}
+  // Example response
+  return c.json({
+    success: true,
+    data: { id: id, name: 'John Doe', email: 'john@example.com' },
+  });
+  {{/if}}
+});
+
+// Example: Create user with validation
+const createUserSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+});
+
+apiRoutes.post(
+  '/users',
+  zValidator('json', createUserSchema),
+  async (c) => {
+    const data = c.req.valid('json');
+    
+    {{#if (eq database "cloudflare-d1")}}
+    try {
+      const db = c.get('db');
+      const newUser = await db
+        .insert(schema.users)
+        .values({
+          ...data,
+          id: crypto.randomUUID(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        .returning();
+      
+      return c.json(
+        {
+          success: true,
+          data: newUser[0],
+        },
+        201
+      );
+    } catch (error) {
+      console.error('Error creating user:', error);
+      return c.json(
+        {
+          success: false,
+          error: 'Failed to create user',
+        },
+        500
+      );
+    }
+    {{else}}
+    // Example response
+    const newUser = {
+      id: crypto.randomUUID(),
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return c.json(
+      {
+        success: true,
+        data: newUser,
+      },
+      201
+    );
+    {{/if}}
+  }
+);
+
+// Example: Update user
+const updateUserSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  email: z.string().email().optional(),
+});
+
+apiRoutes.put(
+  '/users/:id',
+  zValidator('json', updateUserSchema),
+  async (c) => {
+    const id = c.req.param('id');
+    const data = c.req.valid('json');
+    
+    {{#if (eq database "cloudflare-d1")}}
+    try {
+      const db = c.get('db');
+      const updatedUser = await db
+        .update(schema.users)
+        .set({
+          ...data,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(schema.users.id, id))
+        .returning();
+      
+      if (!updatedUser.length) {
+        return c.json(
+          {
+            success: false,
+            error: 'User not found',
+          },
+          404
+        );
+      }
+      
+      return c.json({
+        success: true,
+        data: updatedUser[0],
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return c.json(
+        {
+          success: false,
+          error: 'Failed to update user',
+        },
+        500
+      );
+    }
+    {{else}}
+    // Example response
+    const updatedUser = {
+      id,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return c.json({
+      success: true,
+      data: updatedUser,
+    });
+    {{/if}}
+  }
+);
+
+// Example: Delete user
+apiRoutes.delete('/users/:id', async (c) => {
+  const id = c.req.param('id');
+  
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    const db = c.get('db');
+    const deletedUser = await db
+      .delete(schema.users)
+      .where(eq(schema.users.id, id))
+      .returning();
+    
+    if (!deletedUser.length) {
+      return c.json(
+        {
+          success: false,
+          error: 'User not found',
+        },
+        404
+      );
+    }
+    
+    return c.json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to delete user',
+      },
+      500
+    );
+  }
+  {{else}}
+  return c.json({
+    success: true,
+    message: `User ${id} deleted successfully`,
+  });
+  {{/if}}
+});
+
+// Example: Cache endpoint using KV
+apiRoutes.get('/cache/:key', async (c) => {
+  const key = c.req.param('key');
+  
+  try {
+    const value = await c.env.CACHE.get(key);
+    
+    if (!value) {
+      return c.json(
+        {
+          success: false,
+          error: 'Key not found in cache',
+        },
+        404
+      );
+    }
+    
+    return c.json({
+      success: true,
+      data: JSON.parse(value),
+    });
+  } catch (error) {
+    console.error('Error reading from cache:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to read from cache',
+      },
+      500
+    );
+  }
+});
+
+apiRoutes.post('/cache/:key', async (c) => {
+  const key = c.req.param('key');
+  const body = await c.req.json();
+  const ttl = body.ttl || 3600; // Default 1 hour
+  
+  try {
+    await c.env.CACHE.put(key, JSON.stringify(body.data), {
+      expirationTtl: ttl,
+    });
+    
+    return c.json({
+      success: true,
+      message: 'Data cached successfully',
+      ttl,
+    });
+  } catch (error) {
+    console.error('Error writing to cache:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to write to cache',
+      },
+      500
+    );
+  }
+});
+
+export { apiRoutes };{{else}}import { Hono } from 'hono';
+
+const apiRoutes = new Hono();
+
+// Example endpoints - replace with your implementation
+apiRoutes.get('/users', async (c) => {
+  return c.json({
+    success: true,
+    data: [],
+    count: 0,
+  });
+});
+
+apiRoutes.get('/users/:id', async (c) => {
+  const id = c.req.param('id');
+  return c.json({
+    success: true,
+    data: { id },
+  });
+});
+
+apiRoutes.post('/users', async (c) => {
+  const body = await c.req.json();
+  return c.json({
+    success: true,
+    data: body,
+  }, 201);
+});
+
+export { apiRoutes };{{/if}}

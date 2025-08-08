@@ -2,17 +2,13 @@ import { lazy, Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+import { PageLoader } from "@/components/PageLoader";
 import { RouteTracker } from "@/components/RouteTracker";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Layout } from "@/features/layout";
+import { BuilderPage } from "@/pages/builder";
+import { HomePage } from "@/pages/home";
 
-// Lazy load all pages for better performance
-const HomePage = lazy(() =>
-  import("@/pages/home").then((module) => ({ default: module.HomePage }))
-);
-const BuilderPage = lazy(() =>
-  import("@/pages/builder").then((module) => ({ default: module.BuilderPage }))
-);
 const ComponentsPage = lazy(() =>
   import("@/pages/components").then((module) => ({ default: module.ComponentsPage }))
 );
@@ -59,30 +55,16 @@ function App() {
   return (
     <HelmetProvider>
       <ThemeProvider>
-        <Router future={{ v7_startTransition: true }}>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <RouteTracker />
           <Layout>
             <Routes>
-              <Route
-                path="/"
-                element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
-                    <HomePage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/builder"
-                element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
-                    <BuilderPage />
-                  </Suspense>
-                }
-              />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/builder" element={<BuilderPage />} />
               <Route
                 path="/components"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <ComponentsPage />
                   </Suspense>
                 }
@@ -90,7 +72,7 @@ function App() {
               <Route
                 path="/docs"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <DocsPage />
                   </Suspense>
                 }
@@ -98,7 +80,7 @@ function App() {
               <Route
                 path="/origin-story"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <OriginStoryPage />
                   </Suspense>
                 }
@@ -106,7 +88,7 @@ function App() {
               <Route
                 path="/showcase"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <ShowcasePage />
                   </Suspense>
                 }
@@ -114,7 +96,7 @@ function App() {
               <Route
                 path="/submit-project"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <SubmitProjectPage />
                   </Suspense>
                 }
@@ -122,7 +104,7 @@ function App() {
               <Route
                 path="/submit-testimonial"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <SubmitTestimonialPage />
                   </Suspense>
                 }
@@ -130,7 +112,7 @@ function App() {
               <Route
                 path="/testimonials"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <TestimonialsPage />
                   </Suspense>
                 }
@@ -138,7 +120,7 @@ function App() {
               <Route
                 path="/support"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <SupportPage />
                   </Suspense>
                 }
@@ -146,7 +128,7 @@ function App() {
               <Route
                 path="/metrics"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <MetricsPage />
                   </Suspense>
                 }
@@ -154,7 +136,7 @@ function App() {
               <Route
                 path="/legal/terms"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <TermsOfServicePage />
                   </Suspense>
                 }
@@ -162,7 +144,7 @@ function App() {
               <Route
                 path="/legal/privacy"
                 element={
-                  <Suspense fallback={<div className="min-h-screen"></div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <PrivacyPolicyPage />
                   </Suspense>
                 }

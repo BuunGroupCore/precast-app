@@ -12,12 +12,7 @@ import {
   uiFrameworkDefs,
 } from "../../../shared/stack-config.js";
 import type { InitOptions } from "../commands/init.js";
-import {
-  getAuthPromptOptions,
-  isAuthProviderCompatible,
-  getFilteredAuthOptions,
-  isAuthProviderCompatibleWithStack,
-} from "../utils/auth-setup.js";
+import { getFilteredAuthOptions, isAuthProviderCompatibleWithStack } from "../utils/auth-setup.js";
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
 import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
 
@@ -170,6 +165,20 @@ export async function gatherProjectConfig(
             message: "Include Docker configuration?",
             initialValue: false,
           })) as boolean);
+
+  // Only prompt for secure passwords if Docker is enabled
+  let securePasswords = true; // Default to secure
+  if (docker) {
+    if (options.securePasswords !== undefined) {
+      securePasswords = options.securePasswords;
+    } else if (!options.yes) {
+      securePasswords = (await confirm({
+        message: "Use secure random passwords for Docker databases?",
+        initialValue: true,
+      })) as boolean;
+    }
+  }
+
   let uiLibrary: string | undefined = options.uiLibrary;
 
   if (styling === "tailwind" && !options.yes && !options.uiLibrary) {
@@ -342,7 +351,11 @@ export async function gatherProjectConfig(
     runtime,
     typescript,
     git,
+    gitignore: options.gitignore !== undefined ? options.gitignore : true,
+    eslint: options.eslint !== undefined ? options.eslint : true,
+    prettier: options.prettier !== undefined ? options.prettier : true,
     docker,
+    securePasswords,
     uiLibrary,
     aiContext,
     aiAssistant,

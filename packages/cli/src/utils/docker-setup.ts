@@ -85,13 +85,23 @@ export async function setupDockerCompose(
   }
 
   // Generate passwords once to use in both docker-compose and .env
-  const dbPasswords = {
-    postgres: generateRandomPassword(20),
-    mysql: generateRandomPassword(20),
-    mongodb: generateRandomPassword(20),
-    mysqlRoot: generateRandomPassword(20),
-    mongoAdmin: generateRandomPassword(20),
-  };
+  // Use secure random passwords if enabled, otherwise use generic defaults
+  const dbPasswords =
+    config.securePasswords !== false
+      ? {
+          postgres: generateRandomPassword(20),
+          mysql: generateRandomPassword(20),
+          mongodb: generateRandomPassword(20),
+          mysqlRoot: generateRandomPassword(20),
+          mongoAdmin: generateRandomPassword(20),
+        }
+      : {
+          postgres: "postgres",
+          mysql: "password",
+          mongodb: "password",
+          mysqlRoot: "rootpassword",
+          mongoAdmin: "admin",
+        };
 
   // Special handling for Supabase
   if (localDatabase === "supabase") {
@@ -138,15 +148,28 @@ export async function setupDockerCompose(
  */
 function processTemplate(template: string, config: ProjectConfig): string {
   // Generate random secrets for security-sensitive templates
-  const secrets = {
-    postgresPassword: generateRandomPassword(24),
-    jwtSecret: generateJWTSecret(64),
-    dashboardPassword: generateRandomPassword(20),
-    secretKeyBase: generateRandomSecret(64),
-    vaultEncKey: generateRandomSecret(32),
-    logflarePublicToken: generateRandomSecret(32),
-    logflarePrivateToken: generateRandomSecret(32),
-  };
+  // Use secure random values if enabled, otherwise use generic defaults
+  const secrets =
+    config.securePasswords !== false
+      ? {
+          postgresPassword: generateRandomPassword(24),
+          jwtSecret: generateJWTSecret(64),
+          dashboardPassword: generateRandomPassword(20),
+          secretKeyBase: generateRandomSecret(64),
+          vaultEncKey: generateRandomSecret(32),
+          logflarePublicToken: generateRandomSecret(32),
+          logflarePrivateToken: generateRandomSecret(32),
+        }
+      : {
+          postgresPassword: "postgres",
+          jwtSecret: "your-super-secret-jwt-token-with-at-least-32-characters-long",
+          dashboardPassword: "admin",
+          secretKeyBase:
+            "your-super-secret-key-base-with-at-least-64-characters-long-for-encryption",
+          vaultEncKey: "your-vault-encryption-key-32char",
+          logflarePublicToken: "your-logflare-public-token-32chr",
+          logflarePrivateToken: "your-logflare-private-token-32ch",
+        };
 
   return (
     template

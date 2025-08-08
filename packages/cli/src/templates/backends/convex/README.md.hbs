@@ -1,0 +1,373 @@
+# {{projectName}} - Convex Backend
+
+A modern Convex backend application generated with Precast CLI.
+
+## Features
+
+- ⚡ **Real-time Database** - Automatic real-time updates across all connected clients
+- 🔒 **Type Safety** - End-to-end TypeScript type safety from database to frontend
+- 🚀 **Serverless Functions** - Built-in query, mutation, and action functions
+- 🔄 **Automatic Sync** - Data synchronization without manual cache management
+{{#if config.auth}}
+- 🔐 **Authentication** - Integrated authentication with multiple providers
+{{/if}}
+- 📁 **File Storage** - Built-in file upload and storage capabilities
+- 🌍 **Edge Runtime** - Global distribution for low-latency access
+- 🧪 **Testing** - Comprehensive test suite with Convex Test framework
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18 or higher
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
+
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   # or
+   bun run dev
+   ```
+
+This will:
+- Start the Convex development deployment
+- Generate TypeScript types automatically
+- Watch for changes and hot-reload
+
+## Development Workflow
+
+### Convex Commands
+
+```bash
+# Start development environment
+npx convex dev
+
+# Deploy to production
+npx convex deploy
+
+# Generate TypeScript types
+npx convex codegen
+
+# Run a function manually
+npx convex run functions/posts:createPost --arg title "Hello" --arg content "World"
+
+# View logs
+npx convex logs
+
+# Reset development data
+npx convex run --prod functions/setup:resetData
+```
+
+### Code Quality
+
+```bash
+# Type checking
+npm run typecheck
+
+# Linting
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+```
+
+### Testing
+
+```bash
+# Run tests
+npm run test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+## Project Structure
+
+```
+{{projectName}}/
+├── convex/                     # Convex backend functions
+│   ├── _generated/            # Auto-generated types (commit to git)
+│   ├── schema.ts             # Database schema definition
+│   ├── auth.config.ts        # Authentication configuration
+│   ├── functions/            # Organized function modules
+│   │   ├── users.ts         # User-related functions
+│   │   ├── posts.ts         # Post-related functions
+│   │   └── files.ts         # File storage functions
+│   ├── lib/                 # Helper functions and utilities
+│   └── http.ts              # HTTP actions for REST endpoints
+├── convex.json              # Convex configuration
+├── package.json
+└── .env.example            # Environment variables template
+```
+
+## Database Schema
+
+The schema is defined in `convex/schema.ts`. Key tables include:
+
+{{#if config.auth}}
+### Users
+- `name` - User display name
+- `email` - User email address
+- `tokenIdentifier` - Authentication token identifier
+- `avatar` - Profile picture (file storage reference)
+- `isActive` - Account status
+{{/if}}
+
+### Posts (Example)
+- `title` - Post title
+- `content` - Post content
+{{#if config.auth}}
+- `authorId` - Reference to user who created the post
+{{else}}
+- `author` - Author name
+{{/if}}
+- `tags` - Array of tags
+- `published` - Publication status
+
+### Files
+- `storageId` - Reference to stored file
+- `name` - Original filename
+- `type` - MIME type
+- `size` - File size in bytes
+{{#if config.auth}}
+- `uploadedBy` - Reference to user who uploaded the file
+{{else}}
+- `uploaderName` - Name of the uploader
+{{/if}}
+
+## Functions
+
+### Queries (Read Operations)
+Queries are reactive and automatically update when data changes:
+
+```typescript
+// Get current user
+const user = useQuery(api.functions.users.currentUser);
+
+// List posts with real-time updates
+const posts = useQuery(api.functions.posts.listPosts, { limit: 10 });
+```
+
+### Mutations (Write Operations)
+Mutations modify data and trigger automatic updates:
+
+```typescript
+// Create a new post
+const createPost = useMutation(api.functions.posts.createPost);
+await createPost({ title: "Hello", content: "World" });
+```
+
+### Actions (External Side Effects)
+Actions can call external APIs and services:
+
+```typescript
+// Send email notification
+const sendEmail = useAction(api.functions.emails.sendWelcomeEmail);
+await sendEmail({ userId: "user123" });
+```
+
+{{#if config.auth}}
+## Authentication
+
+The backend is configured with authentication support. Available functions:
+
+### User Management
+- `currentUser` - Get current authenticated user
+- `storeUser` - Store user information from auth provider
+- `updateProfile` - Update user profile information
+- `listUsers` - Admin function to list all users
+
+### Authentication Flow
+1. User authenticates with chosen provider
+2. `storeUser` mutation creates/updates user record
+3. Subsequent requests automatically include user context
+4. Functions can access user via `ctx.auth.getUserIdentity()`
+{{/if}}
+
+## File Storage
+
+Built-in file storage capabilities:
+
+```typescript
+// Generate upload URL
+const uploadUrl = await generateUploadUrl();
+
+// Upload file to URL
+const response = await fetch(uploadUrl, {
+  method: "POST",
+  body: file,
+});
+
+// Save file metadata
+const fileId = await saveFile({
+  storageId: response.storageId,
+  name: file.name,
+  type: file.type,
+  size: file.size,
+});
+```
+
+## Real-time Features
+
+Convex automatically provides real-time updates:
+
+```typescript
+// This component will automatically re-render when posts change
+function PostList() {
+  const posts = useQuery(api.functions.posts.listPosts);
+  
+  if (posts === undefined) return <div>Loading...</div>;
+  
+  return (
+    <div>
+      {posts.map(post => (
+        <PostCard key={post._id} post={post} />
+      ))}
+    </div>
+  );
+}
+```
+
+## Environment Variables
+
+Configure your application with environment variables:
+
+```bash
+# Convex deployment URL (auto-generated)
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+
+{{#if config.auth}}
+# Authentication (if using Convex Auth)
+AUTH_PRIVATE_KEY=your_private_key_here
+CONVEX_AUTH_ADAPTER_SECRET=your_auth_adapter_secret_here
+
+# External auth providers
+AUTH0_CLIENT_ID=your_auth0_client_id
+AUTH0_CLIENT_SECRET=your_auth0_client_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+{{/if}}
+
+# External API keys
+OPENAI_API_KEY=your_openai_api_key
+SENDGRID_API_KEY=your_sendgrid_api_key
+```
+
+## Deployment
+
+### Production Deployment
+
+```bash
+# Deploy to production
+npx convex deploy --prod
+
+# Set production environment variables
+npx convex env set API_KEY your_api_key_here --prod
+
+# View production logs
+npx convex logs --prod
+```
+
+### CI/CD Integration
+
+Example GitHub Actions workflow:
+
+```yaml
+name: Deploy to Convex
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm test
+      - name: Deploy to Convex
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+        run: npx convex deploy --prod
+```
+
+## Best Practices
+
+### Function Organization
+- Group related functions by feature (users, posts, etc.)
+- Keep functions focused and single-purpose
+- Use helper functions in the `lib/` directory
+
+### Error Handling
+- Always validate user permissions in mutations
+- Use descriptive error messages
+- Handle edge cases gracefully
+
+### Performance
+- Use indexes for efficient queries
+- Implement pagination for large result sets
+- Cache expensive computations where appropriate
+
+### Security
+- Validate all user inputs
+- Check permissions in every mutation
+- Never trust client-side data
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Types not generating**: Run `npx convex codegen`
+2. **Functions not found**: Check file paths and exports
+3. **Authentication issues**: Verify token configuration
+4. **Real-time not working**: Check query subscriptions
+
+### Debug Mode
+
+Enable debug logging:
+
+```bash
+DEBUG=convex* npm run dev
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Write tests for new functions
+4. Run the test suite
+5. Submit a pull request
+
+## Resources
+
+- [Convex Documentation](https://docs.convex.dev)
+- [Convex Community Discord](https://discord.gg/convex)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+
+## License
+
+MIT License - see LICENSE file for details.
+
+---
+
+Generated with [Precast CLI](https://precast.dev) 🚀

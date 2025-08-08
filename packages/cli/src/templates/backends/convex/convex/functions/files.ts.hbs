@@ -1,0 +1,157 @@
+import { mutation, query } from "../_generated/server";
+import { v } from "convex/values";
+
+/**
+ * Generate upload URL for file uploads
+ */
+export const generateUploadUrl = mutation({
+  handler: async (ctx) => {
+    {{#if config.auth}}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    {{/if}}
+    
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+/**
+ * Save file metadata after upload
+ */
+export const saveFile = mutation({
+  args: {
+    storageId: v.id("_storage"),
+    name: v.string(),
+    type: v.string(),
+    size: v.number(),
+    {{#unless config.auth}}
+    uploaderName: v.string(),
+    {{/unless}}
+  },
+  handler: async (ctx, args) => {
+    {{#if config.auth}}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+    {{/if}}
+
+    return await ctx.db.insert("files", {
+      storageId: args.storageId,
+      name: args.name,
+      type: args.type,
+      size: args.size,
+      {{#if config.auth}}
+      uploadedBy: user._id,
+      {{else}}
+      uploaderName: args.uploaderName,
+      {{/if}}
+    });
+  },
+});
+
+/**
+ * Get file URL for download
+ */
+export const getFileUrl = query({
+  args: { fileId: v.id("files") },
+  handler: async (ctx, args) => {
+    const file = await ctx.db.get(args.fileId);
+    if (!file) {
+      return null;
+    }
+
+    return await ctx.storage.getUrl(file.storageId);
+  },
+});
+
+/**
+ * List files
+ */
+export const listFiles = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 20;
+
+    {{#if config.auth}}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user) {
+      return [];
+    }
+
+    return await ctx.db
+      .query("files")
+      .withIndex("by_uploader", (q) => q.eq("uploadedBy", user._id))
+      .order("desc")
+      .take(limit);
+    {{else}}
+    return await ctx.db
+      .query("files")
+      .order("desc")
+      .take(limit);
+    {{/if}}
+  },
+});
+
+/**
+ * Delete a file
+ */
+export const deleteFile = mutation({
+  args: { fileId: v.id("files") },
+  handler: async (ctx, args) => {
+    const file = await ctx.db.get(args.fileId);
+    if (!file) {
+      throw new Error("File not found");
+    }
+
+    {{#if config.auth}}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user || file.uploadedBy !== user._id) {
+      throw new Error("Not authorized to delete this file");
+    }
+    {{/if}}
+
+    // Delete from storage
+    await ctx.storage.delete(file.storageId);
+    
+    // Delete from database
+    await ctx.db.delete(args.fileId);
+    
+    return args.fileId;
+  },
+});

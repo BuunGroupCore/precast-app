@@ -35,6 +35,7 @@ interface PromptState {
   typescript?: boolean;
   git?: boolean;
   docker?: boolean;
+  securePasswords?: boolean;
   packageManager?: string;
   authProvider?: string;
   apiClient?: string;
@@ -438,6 +439,26 @@ export async function gatherProjectConfigWithNavigation(
               process.exit(0);
             } else {
               state.docker = result as boolean;
+
+              // If Docker is enabled, ask about secure passwords
+              if (state.docker) {
+                if (options.securePasswords !== undefined) {
+                  state.securePasswords = options.securePasswords;
+                } else if (!options.yes) {
+                  const secureResult = await confirm({
+                    message: "Use secure random passwords for Docker databases?",
+                    initialValue: true,
+                  });
+
+                  if (isCancel(secureResult)) {
+                    cancel("Operation cancelled");
+                    process.exit(0);
+                  }
+
+                  state.securePasswords = secureResult as boolean;
+                }
+              }
+
               currentStep++;
             }
           }
@@ -620,7 +641,11 @@ export async function gatherProjectConfigWithNavigation(
     runtime: state.runtime || "node",
     typescript: state.typescript !== false,
     git: state.git !== false,
+    gitignore: options.gitignore !== undefined ? options.gitignore : true,
+    eslint: options.eslint !== undefined ? options.eslint : true,
+    prettier: options.prettier !== undefined ? options.prettier : true,
     docker: state.docker === true,
+    securePasswords: state.securePasswords,
     uiLibrary: state.uiLibrary,
     aiContext: state.aiContext,
     aiAssistant: state.aiAssistant,

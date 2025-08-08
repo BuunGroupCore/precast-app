@@ -1,0 +1,35 @@
+# Core FastAPI - minimal setup
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+{{#if config.database}}
+{{#if (eq config.database "postgres")}}
+# PostgreSQL Database
+sqlalchemy>=2.0.35
+alembic>=1.13.3
+asyncpg>=0.29.0
+{{/if}}
+{{#if (eq config.database "mysql")}}
+# MySQL Database
+sqlalchemy>=2.0.35
+alembic>=1.13.3
+aiomysql>=0.2.0
+{{/if}}
+{{#if (eq config.database "mongodb")}}
+# MongoDB Database
+motor>=3.6.0
+{{/if}}
+{{#if (eq config.database "sqlite")}}
+# SQLite Database
+sqlalchemy>=2.0.35
+alembic>=1.13.3
+aiosqlite>=0.20.0
+{{/if}}
+{{/if}}
+
+{{#if config.auth}}
+# Authentication & Security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.12
+{{/if}}

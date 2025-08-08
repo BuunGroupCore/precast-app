@@ -32,6 +32,7 @@ export class TemplateEngine {
    */
   private registerDefaultHelpers() {
     this.registerHelper("eq", (a, b) => a === b);
+    this.registerHelper("ne", (a, b) => a !== b);
     this.registerHelper("and", (a, b) => a && b);
     this.registerHelper("or", (a, b) => a || b);
     this.registerHelper("not", (a) => !a);
@@ -91,7 +92,17 @@ export class TemplateEngine {
           throw new Error(`File already exists: ${outputPath}`);
         }
       }
-      const templateContent = await readFile(templatePath, "utf-8");
+
+      // Resolve template path relative to template root if it's not absolute
+      const resolvedTemplatePath = path.isAbsolute(templatePath)
+        ? templatePath
+        : path.join(this.templateRoot, templatePath);
+
+      if (!(await pathExists(resolvedTemplatePath))) {
+        throw new Error(`Template not found: ${resolvedTemplatePath}`);
+      }
+
+      const templateContent = await readFile(resolvedTemplatePath, "utf-8");
       const template = handlebars.compile(templateContent);
       const processedContent = template(context);
       await ensureDir(path.dirname(outputPath));
@@ -99,7 +110,9 @@ export class TemplateEngine {
       consola.debug(`Generated: ${outputPath}`);
     } catch (error) {
       consola.error(`Error processing template ${templatePath}:`, error);
-      throw new Error(`Failed to process template: ${templatePath}`);
+      throw new Error(
+        `Failed to process template: ${templatePath} (resolved: ${path.isAbsolute(templatePath) ? templatePath : path.join(this.templateRoot, templatePath)})`
+      );
     }
   }
 
@@ -193,6 +206,46 @@ export class TemplateEngine {
     const fileName = path.basename(file);
 
     const isConfigFile = fileName.match(/\.(config|rc)\.(js|mjs|cjs)\.hbs$/);
+
+    // Skip gitignore if flag is set to false
+    if (context.gitignore === false && fileName === "_gitignore") {
+      return true;
+    }
+
+    // Skip ESLint files if flag is set to false
+    if (
+      context.eslint === false &&
+      (fileName === "_eslintrc.json" ||
+        fileName === "_eslintrc.js" ||
+        fileName === "_eslintrc.cjs" ||
+        fileName === "_eslintrc.json.hbs" ||
+        fileName === "_eslintrc.js.hbs" ||
+        fileName === "_eslintrc.cjs.hbs" ||
+        fileName === "eslint.config.js.hbs" ||
+        fileName === "eslint.config.mjs.hbs" ||
+        fileName === "_eslintignore" ||
+        fileName === "_eslintignore.hbs")
+    ) {
+      return true;
+    }
+
+    // Skip Prettier files if flag is set to false
+    if (
+      context.prettier === false &&
+      (fileName === "_prettierrc" ||
+        fileName === "_prettierrc.json" ||
+        fileName === "_prettierrc.js" ||
+        fileName === "_prettierrc.cjs" ||
+        fileName === "_prettierrc.json.hbs" ||
+        fileName === "_prettierrc.js.hbs" ||
+        fileName === "_prettierrc.cjs.hbs" ||
+        fileName === "prettier.config.js.hbs" ||
+        fileName === "prettier.config.mjs.hbs" ||
+        fileName === "_prettierignore" ||
+        fileName === "_prettierignore.hbs")
+    ) {
+      return true;
+    }
 
     if (!context.typescript && (fileName.endsWith(".ts.hbs") || fileName.endsWith(".tsx.hbs"))) {
       return true;

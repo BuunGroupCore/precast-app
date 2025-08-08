@@ -1,0 +1,35 @@
+{{#if typescript}}import { createFileRoute } from '@tanstack/react-router';
+
+import { Welcome } from '@/components/Welcome';
+
+export const Route = createFileRoute('/')({
+  component: Home,
+});
+
+/**
+ * Home page component
+ */
+function Home() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <Welcome projectName="{{name}}" />
+    </div>
+  );
+}{{else}}import { createFileRoute } from '@tanstack/react-router';
+
+import { Welcome } from '@/components/Welcome';
+
+export const Route = createFileRoute('/')({
+  component: Home,
+});
+
+/**
+ * Home page component
+ */
+function Home() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <Welcome projectName="{{name}}" />
+    </div>
+  );
+}{{/if}}

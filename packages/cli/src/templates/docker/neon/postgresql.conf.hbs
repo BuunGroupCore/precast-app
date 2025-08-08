@@ -1,0 +1,61 @@
+# PostgreSQL configuration optimized for Neon-like behavior
+# This configuration mimics Neon's PostgreSQL settings for local development
+
+# Connection Settings
+listen_addresses = '*'
+port = 5432
+max_connections = 100
+
+# Memory Settings
+shared_buffers = 256MB
+effective_cache_size = 1GB
+maintenance_work_mem = 64MB
+work_mem = 4MB
+
+# Write Ahead Logging (WAL)
+wal_buffers = 16MB
+checkpoint_completion_target = 0.9
+checkpoint_timeout = 5min
+max_wal_size = 1GB
+min_wal_size = 80MB
+
+# Query Planning
+default_statistics_target = 100
+random_page_cost = 1.1
+effective_io_concurrency = 200
+
+# Logging
+log_destination = 'stderr'
+logging_collector = on
+log_directory = 'log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_rotation_age = 1d
+log_rotation_size = 100MB
+log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+log_statement = 'all'
+log_min_duration_statement = 1000
+log_checkpoints = on
+log_connections = on
+log_disconnections = on
+log_lock_waits = on
+log_temp_files = 0
+
+# Autovacuum
+autovacuum = on
+log_autovacuum_min_duration = 0
+
+# Performance Extensions
+shared_preload_libraries = 'pg_stat_statements'
+
+# Timezone
+timezone = 'UTC'
+log_timezone = 'UTC'
+
+# Locale
+lc_messages = 'en_US.UTF-8'
+lc_monetary = 'en_US.UTF-8'
+lc_numeric = 'en_US.UTF-8'
+lc_time = 'en_US.UTF-8'
+
+# Character Set
+default_text_search_config = 'pg_catalog.english'

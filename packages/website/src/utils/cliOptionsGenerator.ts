@@ -103,6 +103,26 @@ export function generateCliOptions(): CliOption[] {
       values: "-",
       description: "Skip all prompts and use defaults",
     },
+    {
+      flag: "--no-prettier",
+      values: "-",
+      description: "Skip Prettier formatting during generation",
+    },
+    {
+      flag: "--no-eslint",
+      values: "-",
+      description: "Skip ESLint configuration setup",
+    },
+    {
+      flag: "--no-secure-passwords",
+      values: "-",
+      description: "Skip secure password generation for Docker services",
+    },
+    {
+      flag: "--no-gitignore",
+      values: "-",
+      description: "Skip .gitignore file generation",
+    },
   ];
 }
 

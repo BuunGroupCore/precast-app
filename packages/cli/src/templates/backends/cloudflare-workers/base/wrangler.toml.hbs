@@ -1,0 +1,67 @@
+name = "{{name}}"
+main = "src/index.{{#if typescript}}ts{{else}}js{{/if}}"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Bindings
+[vars]
+NODE_ENV = "development"
+API_VERSION = "v1"
+
+[env.production.vars]
+NODE_ENV = "production"
+
+{{#if (eq database "cloudflare-d1")}}
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "{{name}}-db"
+database_id = "YOUR_DATABASE_ID"
+migrations_dir = "./migrations"
+
+[env.production.d1_databases]
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "{{name}}-db"
+database_id = "YOUR_PRODUCTION_DATABASE_ID"
+{{/if}}
+
+# KV Namespaces
+[[kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_KV_NAMESPACE_ID"
+preview_id = "YOUR_KV_PREVIEW_ID"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "YOUR_SESSIONS_NAMESPACE_ID"
+preview_id = "YOUR_SESSIONS_PREVIEW_ID"
+
+# R2 Bucket for file storage (optional)
+# [[r2_buckets]]
+# binding = "BUCKET"
+# bucket_name = "{{name}}-bucket"
+
+# Durable Objects (optional)
+# [[durable_objects.bindings]]
+# name = "COUNTER"
+# class_name = "Counter"
+# script_name = "counter"
+
+# Service bindings to other Workers (optional)
+# [[services]]
+# binding = "AUTH_SERVICE"
+# service = "auth-worker"
+
+# CORS headers
+[env.production.cors]
+allowed_origins = ["https://{{name}}.com"]
+allowed_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+allowed_headers = ["Content-Type", "Authorization"]
+max_age = 86400
+
+[env.development.cors]
+allowed_origins = ["http://localhost:3000", "http://localhost:5173"]
+allowed_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+allowed_headers = ["Content-Type", "Authorization"]
+max_age = 86400

@@ -1,0 +1,102 @@
+import { mysqlTable, varchar, timestamp, boolean, int } from "drizzle-orm/mysql-core";
+import { createId } from "@paralleldrive/cuid2";
+
+{{#if (or authProvider (eq authProvider "better-auth"))}}
+/**
+ * Users table for authentication
+ */
+export const users = mysqlTable("users", {
+  id: varchar("id", { length: 128 })
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  image: varchar("image", { length: 500 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull().onUpdateNow(),
+});
+
+/**
+ * Accounts table for OAuth providers
+ */
+export const accounts = mysqlTable("accounts", {
+  id: varchar("id", { length: 128 })
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  userId: varchar("user_id", { length: 128 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: varchar("type", { length: 50 }).notNull(),
+  provider: varchar("provider", { length: 50 }).notNull(),
+  providerAccountId: varchar("provider_account_id", { length: 255 }).notNull(),
+  refresh_token: varchar("refresh_token", { length: 500 }),
+  access_token: varchar("access_token", { length: 500 }),
+  expires_at: int("expires_at"),
+  token_type: varchar("token_type", { length: 50 }),
+  scope: varchar("scope", { length: 500 }),
+  id_token: varchar("id_token", { length: 500 }),
+  session_state: varchar("session_state", { length: 500 }),
+});
+
+/**
+ * Sessions table for active user sessions
+ */
+export const sessions = mysqlTable("sessions", {
+  id: varchar("id", { length: 128 })
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  sessionToken: varchar("session_token", { length: 255 }).notNull().unique(),
+  userId: varchar("user_id", { length: 128 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: timestamp("expires").notNull(),
+});
+
+/**
+ * Verification tokens for email verification
+ */
+export const verificationTokens = mysqlTable("verification_tokens", {
+  identifier: varchar("identifier", { length: 255 }).notNull(),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  expires: timestamp("expires").notNull(),
+});
+{{else}}
+/**
+ * Example users table - replace with your actual schema
+ */
+export const users = mysqlTable("users", {
+  id: varchar("id", { length: 128 })
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull().onUpdateNow(),
+});
+
+/**
+ * Example posts table - replace with your actual schema
+ */
+export const posts = mysqlTable("posts", {
+  id: varchar("id", { length: 128 })
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: varchar("content", { length: 1000 }),
+  published: boolean("published").default(false).notNull(),
+  authorId: varchar("author_id", { length: 128 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull().onUpdateNow(),
+});
+{{/if}}
+
+// Export all tables for use with Drizzle relations
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+{{#unless (or authProvider (eq authProvider "better-auth"))}}
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;
+{{/unless}}

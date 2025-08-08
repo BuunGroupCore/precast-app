@@ -4,11 +4,11 @@ import path from "path";
 import { consola } from "consola";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
-import { getPluginManager } from "../core/plugin-manager.js";
-import { createTemplateEngine } from "../core/template-engine.js";
-import { getTemplateRoot } from "../utils/template-path.js";
 
-import { generateBackendTemplate } from "./backend-generator.js";
+import { getPluginManager } from "@/core/plugin-manager.js";
+import { createTemplateEngine } from "@/core/template-engine.js";
+import { generateBackendTemplate } from "@/generators/backend-generator.js";
+import { getTemplateRoot } from "@/utils/template-path.js";
 
 /**
  * Generate package.json file for a project
@@ -177,7 +177,9 @@ async function generateMonorepoProject(
   }
 
   if (config.backend && config.backend !== "none") {
-    const apiDir = path.join(appsDir, "api");
+    // Use "workers" folder for cloudflare-workers, "api" for everything else
+    const backendFolderName = config.backend === "cloudflare-workers" ? "workers" : "api";
+    const apiDir = path.join(appsDir, backendFolderName);
     await fs.mkdir(apiDir, { recursive: true });
     await generateBackendTemplate(config.backend, config, apiDir);
   }

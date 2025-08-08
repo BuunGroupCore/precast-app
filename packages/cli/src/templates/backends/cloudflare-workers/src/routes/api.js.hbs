@@ -1,0 +1,249 @@
+import { Hono } from 'hono';
+import { zValidator } from '@hono/zod-validator';
+import { z } from 'zod';
+
+const api = new Hono();
+
+// Example schema for validation
+const createItemSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().optional(),
+});
+
+// GET /api/items - List all items
+api.get('/items', async (c) => {
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    // Example D1 query
+    const { results } = await c.env.DB.prepare(
+      'SELECT * FROM items ORDER BY created_at DESC LIMIT 100'
+    ).all();
+    
+    return c.json({
+      success: true,
+      data: results,
+      count: results.length,
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Database Error',
+        message: 'Failed to fetch items',
+      },
+      500
+    );
+  }
+  {{else}}
+  // Mock data - replace with your actual data source
+  const items = [
+    { id: 1, name: 'Item 1', description: 'Description 1' },
+    { id: 2, name: 'Item 2', description: 'Description 2' },
+  ];
+  
+  return c.json({
+    success: true,
+    data: items,
+    count: items.length,
+  });
+  {{/if}}
+});
+
+// GET /api/items/:id - Get a specific item
+api.get('/items/:id', async (c) => {
+  const id = c.req.param('id');
+  
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    const result = await c.env.DB.prepare(
+      'SELECT * FROM items WHERE id = ?'
+    ).bind(id).first();
+    
+    if (!result) {
+      return c.json(
+        {
+          success: false,
+          error: 'Not Found',
+          message: `Item with id ${id} not found`,
+        },
+        404
+      );
+    }
+    
+    return c.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Database Error',
+        message: 'Failed to fetch item',
+      },
+      500
+    );
+  }
+  {{else}}
+  // Mock implementation
+  return c.json({
+    success: true,
+    data: {
+      id,
+      name: `Item ${id}`,
+      description: `Description for item ${id}`,
+    },
+  });
+  {{/if}}
+});
+
+// POST /api/items - Create a new item
+api.post('/items', zValidator('json', createItemSchema), async (c) => {
+  const data = c.req.valid('json');
+  
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    const result = await c.env.DB.prepare(
+      'INSERT INTO items (name, description) VALUES (?, ?) RETURNING *'
+    ).bind(data.name, data.description || null).first();
+    
+    return c.json(
+      {
+        success: true,
+        message: 'Item created successfully',
+        data: result,
+      },
+      201
+    );
+  } catch (error) {
+    console.error('Database error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Database Error',
+        message: 'Failed to create item',
+      },
+      500
+    );
+  }
+  {{else}}
+  // Mock implementation
+  const newItem = {
+    id: Date.now(),
+    ...data,
+    createdAt: new Date().toISOString(),
+  };
+  
+  return c.json(
+    {
+      success: true,
+      message: 'Item created successfully',
+      data: newItem,
+    },
+    201
+  );
+  {{/if}}
+});
+
+// PUT /api/items/:id - Update an item
+api.put('/items/:id', zValidator('json', createItemSchema), async (c) => {
+  const id = c.req.param('id');
+  const data = c.req.valid('json');
+  
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    const result = await c.env.DB.prepare(
+      'UPDATE items SET name = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING *'
+    ).bind(data.name, data.description || null, id).first();
+    
+    if (!result) {
+      return c.json(
+        {
+          success: false,
+          error: 'Not Found',
+          message: `Item with id ${id} not found`,
+        },
+        404
+      );
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Item updated successfully',
+      data: result,
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Database Error',
+        message: 'Failed to update item',
+      },
+      500
+    );
+  }
+  {{else}}
+  // Mock implementation
+  const updatedItem = {
+    id,
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
+  
+  return c.json({
+    success: true,
+    message: 'Item updated successfully',
+    data: updatedItem,
+  });
+  {{/if}}
+});
+
+// DELETE /api/items/:id - Delete an item
+api.delete('/items/:id', async (c) => {
+  const id = c.req.param('id');
+  
+  {{#if (eq database "cloudflare-d1")}}
+  try {
+    const result = await c.env.DB.prepare(
+      'DELETE FROM items WHERE id = ? RETURNING id'
+    ).bind(id).first();
+    
+    if (!result) {
+      return c.json(
+        {
+          success: false,
+          error: 'Not Found',
+          message: `Item with id ${id} not found`,
+        },
+        404
+      );
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Item deleted successfully',
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Database Error',
+        message: 'Failed to delete item',
+      },
+      500
+    );
+  }
+  {{else}}
+  // Mock implementation
+  return c.json({
+    success: true,
+    message: 'Item deleted successfully',
+  });
+  {{/if}}
+});
+
+export const apiRoutes = api;

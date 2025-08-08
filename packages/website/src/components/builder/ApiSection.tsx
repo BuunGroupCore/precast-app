@@ -77,27 +77,28 @@ const apiOptions: ApiOption[] = [
   },
 ];
 
+/**
+ * API client selection component that appears when a backend is configured
+ */
 export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  /** Initialize with "none" if not set */
+  /**
+   * Initialize with "none" if not set
+   */
   useEffect(() => {
     if (!config.apiClient && config.backend && config.backend !== "none") {
       setConfig((prev) => ({ ...prev, apiClient: "none" }));
     }
   }, [config.apiClient, config.backend, setConfig]);
 
-  /** Only show if backend is selected and not "none" */
   if (!config.backend || config.backend === "none") {
     return null;
   }
 
-  /** Filter compatible API options */
   const compatibleOptions = apiOptions.filter((option) => {
-    // Get the selected backend configuration
     const selectedBackend = backends.find((b) => b.id === config.backend);
 
-    // If backend has API client compatibility info, use that
     if (selectedBackend?.apiClientCompatibility) {
       const {
         recommended = [],
@@ -105,26 +106,21 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
         incompatible = [],
       } = selectedBackend.apiClientCompatibility;
 
-      // If it's explicitly incompatible, exclude it
       if (incompatible.includes(option.id)) {
         return false;
       }
 
-      // If it's in recommended or compatible, include it
       if (recommended.includes(option.id) || compatible.includes(option.id)) {
         return true;
       }
 
-      // If backend has specific compatibility rules and this option isn't listed, exclude it
       if (incompatible.length > 0 || recommended.length > 0 || compatible.length > 0) {
         return false;
       }
     }
 
-    // Fallback to old logic
     const backendMatch =
       option.compatibleBackends.includes("*") || option.compatibleBackends.includes(config.backend);
-    // When using Vite, check the UI framework instead of the build tool
     const frameworkToCheck =
       config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
 
@@ -146,11 +142,8 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
       transition={{ delay: 0.5 }}
       className="comic-card relative overflow-hidden"
     >
-      {/* Connection line from Backend section */}
       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-comic-darkBlue" />
       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-comic-darkBlue rounded-full" />
-
-      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <FaPlug className="text-3xl text-comic-darkBlue" />
@@ -182,7 +175,6 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
               Choose how your frontend will communicate with the {config.backend} backend
             </p>
 
-            {/* None option first */}
             <button
               onClick={() => handleApiSelection("none")}
               className={`w-full p-3 mb-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 h-[80px] flex flex-col items-center justify-center ${
@@ -209,11 +201,10 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
                   !option.dependencies ||
                   option.dependencies.every((dep) => {
                     if (dep === "typescript") return config.typescript;
-                    if (dep === "graphql") return true; // Will be installed with Apollo
+                    if (dep === "graphql") return true;
                     return true;
                   });
 
-                // Get backend compatibility info
                 const selectedBackend = backends.find((b) => b.id === config.backend);
                 const isRecommended =
                   selectedBackend?.apiClientCompatibility?.recommended?.includes(option.id) ||
@@ -221,7 +212,6 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
                 const isCompatible =
                   selectedBackend?.apiClientCompatibility?.compatible?.includes(option.id) || false;
 
-                // Check if there are compatibility warnings (compatible but not recommended)
                 const hasCompatibilityWarning = isCompatible && !isRecommended;
 
                 return (

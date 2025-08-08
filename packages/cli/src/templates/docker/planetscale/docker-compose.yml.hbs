@@ -1,0 +1,83 @@
+name: {{name}}
+
+# PlanetScale development environment using MySQL
+# This provides a local development setup that mimics PlanetScale's MySQL environment
+services:
+  planetscale-mysql:
+    image: mysql:8.0
+    container_name: {{name}}-planetscale-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: planetscale
+      MYSQL_DATABASE: {{name}}
+      MYSQL_USER: planetscale
+      MYSQL_PASSWORD: planetscale
+    ports:
+      - "3306:3306"
+    volumes:
+      - {{name}}_planetscale_mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "planetscale", "-pplanetscale"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Connection proxy (similar to PlanetScale's connection handling)
+  planetscale-proxy:
+    image: haproxy:2.8-alpine
+    container_name: {{name}}-planetscale-proxy
+    ports:
+      - "4000:4000"  # PlanetScale-like port
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      planetscale-mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Optional: Database administration
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: {{name}}-phpmyadmin
+    environment:
+      PMA_HOST: planetscale-mysql
+      PMA_PORT: 3306
+      PMA_USER: planetscale
+      PMA_PASSWORD: planetscale
+      MYSQL_ROOT_PASSWORD: planetscale
+    ports:
+      - "8080:80"
+    depends_on:
+      planetscale-mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    profiles:
+      - admin
+
+volumes:
+  {{name}}_planetscale_mysql_data:
+    driver: local
+
+networks:
+  {{name}}_network:
+    driver: bridge

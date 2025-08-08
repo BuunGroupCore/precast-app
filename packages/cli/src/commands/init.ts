@@ -56,8 +56,16 @@ export interface InitOptions {
   typescript?: boolean;
   /** Whether to initialize git repository */
   git?: boolean;
+  /** Whether to create .gitignore file */
+  gitignore?: boolean;
+  /** Whether to include ESLint configuration */
+  eslint?: boolean;
+  /** Whether to include Prettier configuration */
+  prettier?: boolean;
   /** Whether to include Docker configuration */
   docker?: boolean;
+  /** Whether to use secure random passwords for Docker databases */
+  securePasswords?: boolean;
   /** Whether to install dependencies after creation */
   install?: boolean;
   /** Package manager to use for installation */
@@ -160,7 +168,7 @@ export async function initCommand(projectName: string | undefined, options: Init
         // Only format if we're not installing (installation will format automatically)
         s.start("Formatting generated code");
         const { formatGeneratedCode } = await import("../utils/package-manager.js");
-        await formatGeneratedCode(projectPath);
+        await formatGeneratedCode(projectPath, config.prettier);
         s.stop("Code formatted");
       }
 
@@ -178,6 +186,7 @@ export async function initCommand(projectName: string | undefined, options: Init
         await installAllDependencies({
           packageManager: pm,
           projectPath: projectPath,
+          skipFormatting: !config.prettier,
         });
         s.stop("Dependencies installed");
 

@@ -1,0 +1,157 @@
+{{#if typescript}}import { Hono } from 'hono';
+
+import type { Env } from '../../worker-configuration';
+{{#if (eq database "cloudflare-d1")}}
+import type { DrizzleD1Database } from 'drizzle-orm/d1';
+{{/if}}
+
+const healthRoutes = new Hono<{ 
+  Bindings: Env;
+  {{#if (eq database "cloudflare-d1")}}
+  Variables: {
+    db: DrizzleD1Database;
+  };
+  {{/if}}
+}>();
+
+// Basic health check
+healthRoutes.get('/', async (c) => {
+  const health = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: c.env.NODE_ENV,
+    uptime: process.uptime ? process.uptime() : 'N/A',
+    services: {
+      api: 'operational',
+      {{#if (eq database "cloudflare-d1")}}database: 'checking',{{/if}}
+      cache: 'checking',
+    },
+  };
+
+  // Check KV namespace
+  try {
+    await c.env.CACHE.put('health-check', Date.now().toString(), { expirationTtl: 60 });
+    const value = await c.env.CACHE.get('health-check');
+    health.services.cache = value ? 'operational' : 'degraded';
+  } catch {
+    health.services.cache = 'unavailable';
+  }
+
+  {{#if (eq database "cloudflare-d1")}}
+  // Check D1 database
+  try {
+    const db = c.get('db');
+    await db.run(sql`SELECT 1`);
+    health.services.database = 'operational';
+  } catch {
+    health.services.database = 'unavailable';
+    health.status = 'degraded';
+  }
+  {{/if}}
+
+  const statusCode = health.status === 'healthy' ? 200 : 503;
+  return c.json(health, statusCode);
+});
+
+// Detailed health check
+healthRoutes.get('/detailed', async (c) => {
+  const detailed = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: c.env.NODE_ENV,
+    worker: {
+      version: c.env.API_VERSION || 'v1',
+      region: c.req.header('cf-ray')?.split('-')[1] || 'unknown',
+      colo: c.req.header('cf-ipcountry') || 'unknown',
+    },
+    services: {
+      api: {
+        status: 'operational',
+        latency: 0,
+      },
+      {{#if (eq database "cloudflare-d1")}}
+      database: {
+        status: 'checking',
+        latency: 0,
+      },
+      {{/if}}
+      cache: {
+        status: 'checking',
+        latency: 0,
+      },
+    },
+  };
+
+  // Measure KV latency
+  try {
+    const start = Date.now();
+    await c.env.CACHE.put('health-check', Date.now().toString(), { expirationTtl: 60 });
+    await c.env.CACHE.get('health-check');
+    detailed.services.cache.latency = Date.now() - start;
+    detailed.services.cache.status = 'operational';
+  } catch {
+    detailed.services.cache.status = 'unavailable';
+    detailed.status = 'degraded';
+  }
+
+  {{#if (eq database "cloudflare-d1")}}
+  // Measure D1 latency
+  try {
+    const start = Date.now();
+    const db = c.get('db');
+    await db.run(sql`SELECT 1`);
+    detailed.services.database.latency = Date.now() - start;
+    detailed.services.database.status = 'operational';
+  } catch {
+    detailed.services.database.status = 'unavailable';
+    detailed.status = 'degraded';
+  }
+  {{/if}}
+
+  const statusCode = detailed.status === 'healthy' ? 200 : 503;
+  return c.json(detailed, statusCode);
+});
+
+export { healthRoutes };{{else}}import { Hono } from 'hono';
+
+const healthRoutes = new Hono();
+
+// Basic health check
+healthRoutes.get('/', async (c) => {
+  const health = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: c.env.NODE_ENV,
+    services: {
+      api: 'operational',
+      {{#if (eq database "cloudflare-d1")}}database: 'checking',{{/if}}
+      cache: 'checking',
+    },
+  };
+
+  // Check KV namespace
+  try {
+    await c.env.CACHE.put('health-check', Date.now().toString(), { expirationTtl: 60 });
+    const value = await c.env.CACHE.get('health-check');
+    health.services.cache = value ? 'operational' : 'degraded';
+  } catch {
+    health.services.cache = 'unavailable';
+  }
+
+  {{#if (eq database "cloudflare-d1")}}
+  // Check D1 database
+  try {
+    const db = c.get('db');
+    await db.run(sql`SELECT 1`);
+    health.services.database = 'operational';
+  } catch {
+    health.services.database = 'unavailable';
+    health.status = 'degraded';
+  }
+  {{/if}}
+
+  const statusCode = health.status === 'healthy' ? 200 : 503;
+  return c.json(health, statusCode);
+});
+
+export { healthRoutes };{{/if}}

@@ -1,11 +1,12 @@
 import { Header } from "@precast/ui";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { FaCog } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { mainNavigation } from "@/config/navigation";
 import { GitHubStars, NpmStats } from "@/features/stats";
 import { SettingsDialog, ThemeSwitcher } from "@/features/theme";
+import { preloadRoute, preloadCommonRoutes } from "@/utils/route-preloader";
 
 import { Footer } from "./Footer";
 
@@ -22,15 +23,20 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [showSettings, setShowSettings] = useState(false);
 
-  // Transform navigation config to include onClick handlers
+  useEffect(() => {
+    preloadCommonRoutes();
+  }, []);
+
   const navItems = mainNavigation.map((item) => ({
     ...item,
     onClick: () => navigate(item.href),
+    onMouseEnter: () => preloadRoute(item.href),
     dropdown: item.dropdown
       ? {
           items: item.dropdown.items.map((dropdownItem) => ({
             ...dropdownItem,
             onClick: () => navigate(dropdownItem.href),
+            onMouseEnter: () => preloadRoute(dropdownItem.href),
           })),
         }
       : undefined,

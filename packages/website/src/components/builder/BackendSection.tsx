@@ -62,6 +62,11 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
                       <FaCloud className="text-[10px]" />
                     </div>
                   )}
+                  {be.uvBadge && (
+                    <div className="absolute top-1 right-7 w-5 h-5 bg-comic-purple text-comic-white rounded border border-comic-black flex items-center justify-center p-0.5">
+                      <PublicIcon name="uv" className="w-full h-full object-contain" />
+                    </div>
+                  )}
                   {be.languageIcon && be.id !== "none" && (
                     <div className="absolute top-1 right-1 w-5 h-5 bg-comic-white rounded border border-comic-black flex items-center justify-center p-0.5">
                       <PublicIcon name={be.languageIcon} className="w-full h-full object-contain" />

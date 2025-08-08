@@ -1,0 +1,14 @@
+{
+  "$schema": "https://cdn.convex.dev/schema.json",
+  "functions": "convex/",
+  "codegen": {
+    "staticApi": true,
+    "staticDataModel": true
+  }{{#if config.auth}},
+  "authInfo": [
+    {
+      "domain": "https://{{projectName}}.com",
+      "applicationID": "convex"
+    }
+  ]{{/if}}
+}

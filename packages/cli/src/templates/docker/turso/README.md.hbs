@@ -1,0 +1,309 @@
+# Turso Development Setup
+
+Turso is an edge-hosted distributed SQLite database built on libSQL. It provides local development through the Turso CLI and embedded replicas.
+
+## Prerequisites
+
+1. Install Turso CLI:
+   ```bash
+   curl -sSfL https://get.tur.so/install.sh | bash
+   # or
+   brew install tursodatabase/tap/turso
+   ```
+
+2. Authenticate with Turso:
+   ```bash
+   turso auth login
+   ```
+
+## Local Development
+
+### 1. Create Database
+
+```bash
+# Create a new database
+turso db create {{name}}-db
+
+# Show database details
+turso db show {{name}}-db
+
+# Get connection URL and auth token
+turso db show {{name}}-db --url
+turso db tokens create {{name}}-db
+```
+
+### 2. Environment Variables
+
+Create a `.env.local` file:
+
+```env
+# Turso connection details
+DATABASE_URL="libsql://{{name}}-db-[your-username].turso.io"
+DATABASE_AUTH_TOKEN="your-auth-token-here"
+
+# For local development with embedded replica
+DATABASE_SYNC_URL="libsql://{{name}}-db-[your-username].turso.io"
+DATABASE_LOCAL_PATH="./local.db"
+```
+
+### 3. Local Development with Embedded Replica
+
+For faster local development, use an embedded replica:
+
+```typescript
+// src/database/turso-local.ts
+import { createClient } from "@libsql/client";
+
+const client = createClient({
+  url: "file:local.db",
+  syncUrl: process.env.DATABASE_SYNC_URL,
+  authToken: process.env.DATABASE_AUTH_TOKEN,
+});
+
+// Sync periodically (optional)
+setInterval(async () => {
+  await client.sync();
+}, 60000); // Sync every minute
+
+export { client as db };
+```
+
+### 4. Database Schema
+
+Create a migration file `migrations/001_initial.sql`:
+
+```sql
+{{#if (or authProvider (eq authProvider "better-auth"))}}
+-- Authentication tables
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  image TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE accounts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  provider_account_id TEXT NOT NULL,
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at INTEGER,
+  token_type TEXT,
+  scope TEXT,
+  id_token TEXT,
+  session_state TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE sessions (
+  id TEXT PRIMARY KEY,
+  session_token TEXT UNIQUE NOT NULL,
+  user_id TEXT NOT NULL,
+  expires TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE verification_tokens (
+  identifier TEXT NOT NULL,
+  token TEXT UNIQUE NOT NULL,
+  expires TEXT NOT NULL,
+  PRIMARY KEY (identifier, token)
+);
+
+-- Create indexes
+CREATE INDEX idx_accounts_user_id ON accounts(user_id);
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+{{else}}
+-- Example schema
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT,
+  published INTEGER DEFAULT 0,
+  author_id TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Create indexes for performance
+CREATE INDEX idx_posts_author_id ON posts(author_id);
+CREATE INDEX idx_posts_published ON posts(published);
+CREATE INDEX idx_users_email ON users(email);
+{{/if}}
+```
+
+### 5. Run Migrations
+
+```bash
+# Execute migration on remote database
+turso db shell {{name}}-db < migrations/001_initial.sql
+
+# Or use the interactive shell
+turso db shell {{name}}-db
+```
+
+### 6. Local Development Server
+
+For local SQLite development without syncing:
+
+```bash
+# Create local SQLite database
+sqlite3 local.db < migrations/001_initial.sql
+
+# Use sqld for local development (libSQL server)
+docker run -p 8080:8080 -v $(pwd)/local.db:/var/lib/sqld/data.db ghcr.io/tursodatabase/libsql-server:latest
+```
+
+### 7. Docker Compose for Local Development
+
+Create `docker-compose.yml` for local development:
+
+```yaml
+version: '3.8'
+
+services:
+  sqld:
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    container_name: {{name}}-turso-local
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./local.db:/var/lib/sqld/data.db
+      - ./migrations:/migrations:ro
+    environment:
+      - SQLD_NODE_ID=primary
+      - SQLD_DB_PATH=/var/lib/sqld/data.db
+      - SQLD_HTTP_LISTEN_ADDR=0.0.0.0:8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Optional: SQLite Web UI for database management
+  sqlite-web:
+    image: coleifer/sqlite-web:latest
+    container_name: {{name}}-sqlite-web
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./local.db:/data/db.sqlite3
+    environment:
+      - SQLITE_DATABASE=/data/db.sqlite3
+    depends_on:
+      - sqld
+    restart: unless-stopped
+```
+
+Run with:
+```bash
+docker-compose up -d
+```
+
+Your local Turso-compatible server will be available at `http://localhost:8080`.
+
+### 8. Example Application Code
+
+```typescript
+// src/database/connection.ts
+import { createClient } from "@libsql/client";
+
+// Use local server in development, remote in production
+const url = process.env.NODE_ENV === 'development' 
+  ? "http://localhost:8080"
+  : process.env.DATABASE_URL!;
+
+const authToken = process.env.NODE_ENV === 'development'
+  ? undefined
+  : process.env.DATABASE_AUTH_TOKEN!;
+
+export const db = createClient({
+  url,
+  authToken,
+});
+
+// Example query
+export async function getUsers() {
+  const result = await db.execute("SELECT * FROM users");
+  return result.rows;
+}
+```
+
+### 9. Useful Commands
+
+```bash
+# List all databases
+turso db list
+
+# Get database stats
+turso db inspect {{name}}-db
+
+# Create database replica in another region
+turso db replicate {{name}}-db ams
+
+# List available regions
+turso db locations
+
+# Export database
+turso db export {{name}}-db > backup.sql
+
+# Delete database (careful!)
+turso db destroy {{name}}-db
+```
+
+### 10. Development Scripts
+
+Add to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "db:create": "turso db create {{name}}-db",
+    "db:migrate": "turso db shell {{name}}-db < migrations/001_initial.sql",
+    "db:shell": "turso db shell {{name}}-db",
+    "db:local": "docker-compose up -d",
+    "db:local:stop": "docker-compose down",
+    "db:sync": "node scripts/sync-db.js"
+  }
+}
+```
+
+## Production Deployment
+
+1. Use environment variables for production:
+   ```env
+   DATABASE_URL="libsql://{{name}}-db-[your-username].turso.io"
+   DATABASE_AUTH_TOKEN="your-production-token"
+   ```
+
+2. Enable edge replicas for global performance:
+   ```bash
+   turso db replicate {{name}}-db lhr
+   turso db replicate {{name}}-db syd
+   turso db replicate {{name}}-db iad
+   ```
+
+## Notes
+
+- Turso uses libSQL (SQLite fork) with additional features
+- Supports embedded replicas for zero-latency reads
+- Automatic replication across regions
+- WebSocket support for real-time updates
+- Row-level TTL support
+- Built-in connection pooling
+- Pay-per-request pricing with generous free tier

@@ -1,0 +1,42 @@
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+{{#if (eq config.database "mongodb")}}
+from datetime import datetime
+from typing import Optional
+from odmantic import Model, Field
+from bson import ObjectId
+
+
+class BaseModel(Model):
+    """Base model for MongoDB documents"""
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        collection = "base"  # This will be overridden in child classes
+{{else}}
+from datetime import datetime
+from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
+
+
+@as_declarative()
+class Base:
+    """Base class for SQLAlchemy models"""
+    id: int
+    __name__: str
+    
+    @declared_attr
+    def __tablename__(cls) -> str:
+        return cls.__name__.lower()
+    
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+{{/if}}
+{{else}}
+# No database configured
+# Add your base model here if needed later
+pass
+{{/unless}}
+{{/if}}

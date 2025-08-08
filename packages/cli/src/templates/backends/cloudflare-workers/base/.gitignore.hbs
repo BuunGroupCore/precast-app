@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+
+# Build outputs
+dist/
+build/
+.wrangler/
+.mf/
+
+# Environment files
+.env
+.env.local
+.env.production
+.dev.vars
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Cloudflare
+.wrangler/
+wrangler-dist/
+.miniflare/
+
+# Database
+{{#if (eq database "cloudflare-d1")}}
+*.db
+*.db-shm
+*.db-wal
+local.db*
+{{/if}}
+
+# Misc
+.temp/
+.tmp/
+*.pid
+*.seed
+*.pid.lock

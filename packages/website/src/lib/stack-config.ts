@@ -49,9 +49,16 @@ export interface StackOption {
   recommended?: string[];
   beta?: boolean;
   serverless?: boolean;
+  uvBadge?: boolean;
   language?: string;
   languageIcon?: string;
   category?: "ui-library" | "meta-framework" | "build-tool" | "mobile" | "vanilla" | "none";
+  badges?: Array<{
+    icon: string;
+    tooltip: string;
+    link?: string;
+    color: string;
+  }>;
   apiClientCompatibility?: {
     recommended?: string[];
     compatible?: string[];
@@ -299,6 +306,7 @@ export const backends: StackOption[] = [
     languageIcon: "python",
     incompatible: ["typescript"],
     recommended: ["postgres", "mysql"],
+    uvBadge: true,
     apiClientCompatibility: {
       recommended: ["axios", "tanstack-query", "swr"],
       compatible: [],

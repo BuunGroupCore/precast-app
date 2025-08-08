@@ -1,0 +1,20 @@
+{{#if config.auth}}
+import { convexAuth } from "@convex-dev/auth/server";
+
+export const { auth, signIn, signOut, store } = convexAuth({
+  providers: [
+    {
+      domain: process.env.AUTH_DOMAIN || "https://{{projectName}}.com",
+      applicationID: "convex",
+    }
+  ],
+});
+{{else}}
+// Authentication configuration not set up
+// Configure authentication here if needed later
+
+export const auth = null;
+export const signIn = null;
+export const signOut = null;
+export const store = null;
+{{/if}}

@@ -1,0 +1,69 @@
+{{#if config.auth}}
+from typing import Optional
+from pydantic import BaseModel, EmailStr
+
+
+class Token(BaseModel):
+    """Token response schema"""
+    access_token: str
+    token_type: str
+
+
+class TokenPayload(BaseModel):
+    """Token payload schema"""
+    sub: Optional[str] = None
+
+
+class UserBase(BaseModel):
+    """Base user schema"""
+    email: EmailStr
+    is_active: bool = True
+    full_name: Optional[str] = None
+
+
+class UserCreate(UserBase):
+    """User creation schema"""
+    password: str
+
+
+class UserUpdate(UserBase):
+    """User update schema"""
+    password: Optional[str] = None
+
+
+class UserInDBBase(UserBase):
+    """Base user schema in database"""
+    id: Optional[int] = None
+    
+    class Config:
+        orm_mode = True
+
+
+class User(UserInDBBase):
+    """User schema for API responses"""
+    pass
+
+
+class UserInDB(UserInDBBase):
+    """User schema with hashed password"""
+    hashed_password: str
+
+
+class UserResponse(BaseModel):
+    """User response schema"""
+    id: int
+    email: EmailStr
+    full_name: Optional[str] = None
+    is_active: bool
+    
+    class Config:
+        orm_mode = True
+{{else}}
+# Authentication schemas not configured
+from pydantic import BaseModel
+
+
+class PlaceholderSchema(BaseModel):
+    """Placeholder schema - authentication not configured"""
+    message: str = "Authentication not configured"
+{{/if}}

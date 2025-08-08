@@ -16,16 +16,13 @@ interface StylingSectionProps {
 
 export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfig }) => {
   const isStylingCompatible = (style: (typeof stylings)[0]) => {
-    // When using Vite, check the UI framework instead of the build tool
     const frameworkToCheck =
       config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
 
-    // Check if the selected framework is incompatible with this styling solution
     if (style.incompatible && style.incompatible.includes(frameworkToCheck)) {
       return false;
     }
 
-    // Check if this styling solution requires dependencies that aren't met
     if (style.dependencies) {
       return style.dependencies.every((dep) => {
         if (dep === "react") {
@@ -54,7 +51,6 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
         </p>
         <div className="grid grid-cols-3 gap-3">
           {stylings.map((style) => {
-            // When using Vite, check the UI framework instead of the build tool
             const frameworkToCheck =
               config.framework === "vite" && config.uiFramework
                 ? config.uiFramework

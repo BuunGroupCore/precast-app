@@ -1,0 +1,266 @@
+import { query, mutation } from "../_generated/server";
+import { v } from "convex/values";
+
+/**
+ * List published posts
+ */
+export const listPosts = query({
+  args: { 
+    limit: v.optional(v.number()),
+    search: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 20;
+    
+    let results = ctx.db.query("posts");
+    
+    // Search functionality
+    if (args.search) {
+      results = results.withSearchIndex("search_content", (q) =>
+        q.search("content", args.search!)
+      );
+    }
+    
+    // Only show published posts
+    results = results.filter((q) => q.eq(q.field("published"), true));
+    
+    const posts = await results
+      .order("desc")
+      .take(limit);
+
+    // Enrich with author information
+    return await Promise.all(
+      posts.map(async (post) => {
+        {{#if config.auth}}
+        const author = await ctx.db.get(post.authorId);
+        return {
+          ...post,
+          author: author ? {
+            _id: author._id,
+            name: author.name,
+            avatar: author.avatar,
+          } : null,
+        };
+        {{else}}
+        return {
+          ...post,
+          author: {
+            name: post.author,
+          }
+        };
+        {{/if}}
+      })
+    );
+  },
+});
+
+/**
+ * Get single post by ID
+ */
+export const getPost = query({
+  args: { id: v.id("posts") },
+  handler: async (ctx, args) => {
+    const post = await ctx.db.get(args.id);
+    if (!post) {
+      return null;
+    }
+
+    {{#if config.auth}}
+    const author = await ctx.db.get(post.authorId);
+    {{/if}}
+
+    return {
+      ...post,
+      {{#if config.auth}}
+      author: author ? {
+        _id: author._id,
+        name: author.name,
+        avatar: author.avatar,
+      } : null,
+      {{else}}
+      author: {
+        name: post.author,
+      },
+      {{/if}}
+    };
+  },
+});
+
+/**
+ * Create a new post
+ */
+export const createPost = mutation({
+  args: {
+    title: v.string(),
+    content: v.string(),
+    tags: v.optional(v.array(v.string())),
+    published: v.optional(v.boolean()),
+    {{#unless config.auth}}
+    authorName: v.string(),
+    {{/unless}}
+  },
+  handler: async (ctx, args) => {
+    {{#if config.auth}}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+    {{/if}}
+
+    const published = args.published ?? false;
+
+    return await ctx.db.insert("posts", {
+      title: args.title,
+      content: args.content,
+      tags: args.tags ?? [],
+      published,
+      publishedAt: published ? Date.now() : undefined,
+      {{#if config.auth}}
+      authorId: user._id,
+      {{else}}
+      author: args.authorName,
+      {{/if}}
+      _creationTime: Date.now(),
+    });
+  },
+});
+
+/**
+ * Update an existing post
+ */
+export const updatePost = mutation({
+  args: {
+    id: v.id("posts"),
+    title: v.optional(v.string()),
+    content: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    published: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const post = await ctx.db.get(args.id);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    {{#if config.auth}}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user || post.authorId !== user._id) {
+      throw new Error("Not authorized to edit this post");
+    }
+    {{/if}}
+
+    const updates: any = {};
+    
+    if (args.title !== undefined) updates.title = args.title;
+    if (args.content !== undefined) updates.content = args.content;
+    if (args.tags !== undefined) updates.tags = args.tags;
+    if (args.published !== undefined) {
+      updates.published = args.published;
+      if (args.published && !post.published) {
+        updates.publishedAt = Date.now();
+      }
+    }
+
+    await ctx.db.patch(args.id, updates);
+    return args.id;
+  },
+});
+
+/**
+ * Delete a post
+ */
+export const deletePost = mutation({
+  args: { id: v.id("posts") },
+  handler: async (ctx, args) => {
+    const post = await ctx.db.get(args.id);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    {{#if config.auth}}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user || post.authorId !== user._id) {
+      throw new Error("Not authorized to delete this post");
+    }
+    {{/if}}
+
+    // Delete related comments
+    const comments = await ctx.db
+      .query("comments")
+      .withIndex("by_post", (q) => q.eq("postId", args.id))
+      .collect();
+
+    for (const comment of comments) {
+      await ctx.db.delete(comment._id);
+    }
+
+    // Delete the post
+    await ctx.db.delete(args.id);
+    return args.id;
+  },
+});
+
+{{#if config.auth}}
+/**
+ * Get posts by current user
+ */
+export const myPosts = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user) {
+      return [];
+    }
+
+    return await ctx.db
+      .query("posts")
+      .withIndex("by_author", (q) => q.eq("authorId", user._id))
+      .order("desc")
+      .take(args.limit ?? 20);
+  },
+});
+{{/if}}

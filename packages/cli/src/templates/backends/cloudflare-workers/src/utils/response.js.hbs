@@ -1,0 +1,85 @@
+/**
+ * Utility functions for consistent API responses
+ */
+
+/**
+ * Create a success response
+ */
+export function successResponse(data, message = 'Success', statusCode = 200) {
+  return new Response(
+    JSON.stringify({
+      success: true,
+      message,
+      data,
+    }),
+    {
+      status: statusCode,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+}
+
+/**
+ * Create an error response
+ */
+export function errorResponse(error, message = 'An error occurred', statusCode = 500) {
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  
+  return new Response(
+    JSON.stringify({
+      success: false,
+      error: error.name || 'Error',
+      message: isDevelopment ? error.message : message,
+      ...(isDevelopment && { stack: error.stack }),
+    }),
+    {
+      status: statusCode,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+}
+
+/**
+ * Create a paginated response
+ */
+export function paginatedResponse(items, total, page = 1, pageSize = 20) {
+  const totalPages = Math.ceil(total / pageSize);
+  
+  return successResponse({
+    items,
+    pagination: {
+      total,
+      page,
+      pageSize,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    },
+  });
+}
+
+/**
+ * Parse pagination parameters from request
+ */
+export function getPaginationParams(request) {
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get('page') || '1', 10);
+  const pageSize = parseInt(url.searchParams.get('pageSize') || '20', 10);
+  
+  return {
+    page: Math.max(1, page),
+    pageSize: Math.min(100, Math.max(1, pageSize)),
+    offset: (Math.max(1, page) - 1) * Math.min(100, Math.max(1, pageSize)),
+  };
+}
+
+/**
+ * Generate a unique request ID
+ */
+export function generateRequestId() {
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}

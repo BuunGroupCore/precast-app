@@ -1,0 +1,41 @@
+{
+  "name": "{{projectName}}-backend",
+  "version": "0.1.0",
+  "description": "Convex backend for {{projectName}}",
+  "main": "convex/main.ts",
+  "scripts": {
+    "dev": "convex dev",
+    "deploy": "convex deploy",
+    "codegen": "convex codegen",
+    "typecheck": "convex typecheck",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint convex/ --ext .ts",
+    "lint:fix": "eslint convex/ --ext .ts --fix"
+  },
+  "dependencies": {
+    "convex": "^1.14.0"{{#if config.auth}},
+    "@convex-dev/auth": "^0.0.60",
+    "@auth/core": "^0.34.0"{{/if}}
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "convex-test": "^0.1.8",
+    "vitest": "^2.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "convex",
+    "backend",
+    "typescript",
+    "{{projectName}}"
+  ],
+  "author": "{{authorName}}",
+  "license": "MIT"
+}

@@ -3,8 +3,9 @@ import path from "path";
 import { consola } from "consola";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
-import { createTemplateEngine } from "../core/template-engine.js";
-import { getTemplateRoot } from "../utils/template-path.js";
+
+import { createTemplateEngine } from "@/core/template-engine.js";
+import { getTemplateRoot } from "@/utils/template-path.js";
 
 /**
  * Generate backend template files for the specified backend framework
@@ -19,6 +20,26 @@ export async function generateBackendTemplate(
 ) {
   if (backend === "next-api") {
     consola.info("Next.js API routes are integrated into the Next.js framework");
+    return;
+  }
+
+  if (backend === "cloudflare-workers") {
+    const { generateCloudflareWorkersTemplate } = await import(
+      "@/generators/cloudflare-workers-template.js"
+    );
+    await generateCloudflareWorkersTemplate(config, projectPath);
+    return;
+  }
+
+  if (backend === "fastapi") {
+    const { generateFastApiTemplate } = await import("@/generators/fastapi-template.js");
+    await generateFastApiTemplate(config, projectPath);
+    return;
+  }
+
+  if (backend === "convex") {
+    const { generateConvexTemplate } = await import("@/generators/convex-template.js");
+    await generateConvexTemplate(config, projectPath);
     return;
   }
 
@@ -56,6 +77,17 @@ export async function generateBackendTemplate(
  * @returns True if the backend is supported
  */
 export function isValidBackend(backend: string): boolean {
-  const validBackends = ["node", "express", "fastify", "hono", "nestjs", "koa", "next-api"];
+  const validBackends = [
+    "node",
+    "express",
+    "fastify",
+    "hono",
+    "nestjs",
+    "koa",
+    "next-api",
+    "cloudflare-workers",
+    "fastapi",
+    "convex",
+  ];
   return validBackends.includes(backend);
 }

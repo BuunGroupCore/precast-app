@@ -1,0 +1,267 @@
+# {{name}} - Cloudflare Workers API
+
+This is a serverless API built with Cloudflare Workers and Hono framework, deployed globally at the edge.
+
+## 🚀 Features
+
+- **Edge-first**: Runs at Cloudflare's edge locations worldwide
+- **Serverless**: No servers to manage, automatic scaling
+- **Fast**: Sub-millisecond cold starts
+- **Type-safe**: Built with TypeScript
+- **Modern**: Uses Hono framework for routing
+{{#if (eq database "cloudflare-d1")}}
+- **Database**: Cloudflare D1 (SQLite at the edge)
+{{/if}}
+- **Caching**: Built-in KV storage for caching
+- **CORS**: Configured for frontend integration
+
+## 📁 Project Structure
+
+```
+{{name}}-api/
+├── src/
+│   ├── index.{{#if typescript}}ts{{else}}js{{/if}}          # Main entry point
+│   ├── routes/          # API route handlers
+│   │   ├── health.{{#if typescript}}ts{{else}}js{{/if}}   # Health check endpoints
+│   │   ├── api.{{#if typescript}}ts{{else}}js{{/if}}      # API endpoints
+│   │   └── auth.{{#if typescript}}ts{{else}}js{{/if}}     # Authentication endpoints
+│   ├── middleware/      # Middleware functions
+│   │   ├── auth.{{#if typescript}}ts{{else}}js{{/if}}     # Authentication middleware
+│   │   └── rate-limit.{{#if typescript}}ts{{else}}js{{/if}} # Rate limiting
+│   ├── utils/           # Utility functions
+│   │   └── response.{{#if typescript}}ts{{else}}js{{/if}}  # Response helpers
+{{#if (eq database "cloudflare-d1")}}
+│   └── db/              # Database files
+│       ├── connection.{{#if typescript}}ts{{else}}js{{/if}} # D1 connection
+│       └── schema.{{#if typescript}}ts{{else}}js{{/if}}    # Database schema
+{{/if}}
+├── migrations/          # Database migrations
+├── wrangler.toml        # Cloudflare Workers configuration
+{{#if typescript}}├── tsconfig.json        # TypeScript configuration{{/if}}
+└── package.json         # Dependencies and scripts
+```
+
+## 🛠️ Development
+
+### Prerequisites
+
+1. Install dependencies:
+   ```bash
+   {{packageManager}} install
+   ```
+
+2. Login to Cloudflare:
+   ```bash
+   wrangler login
+   ```
+
+{{#if (eq database "cloudflare-d1")}}
+3. Create D1 database:
+   ```bash
+   wrangler d1 create {{name}}-db
+   wrangler d1 create {{name}}-db-dev  # For development
+   ```
+
+4. Update `wrangler.toml` with the database IDs returned from the commands above.
+
+5. Run migrations:
+   ```bash
+   wrangler d1 migrations apply {{name}}-db --local
+   ```
+{{/if}}
+
+### Local Development
+
+Start the development server:
+
+```bash
+{{packageManager}} run dev
+```
+
+The API will be available at `http://localhost:8787`
+
+### Available Scripts
+
+- `{{packageManager}} run dev` - Start development server
+- `{{packageManager}} run build` - Build and validate
+- `{{packageManager}} run deploy` - Deploy to Cloudflare
+- `{{packageManager}} run deploy:production` - Deploy to production
+- `{{packageManager}} run tail` - View live logs
+{{#if (eq database "cloudflare-d1")}}
+- `{{packageManager}} run db:migrate` - Apply database migrations
+{{/if}}
+
+## 📡 API Endpoints
+
+### Health Check
+- `GET /` - API info and status
+- `GET /health` - Basic health check
+- `GET /health/detailed` - Detailed health with service status
+
+### API Routes
+- `GET /api/users` - List users
+- `GET /api/users/:id` - Get user by ID
+- `POST /api/users` - Create new user
+- `PUT /api/users/:id` - Update user
+- `DELETE /api/users/:id` - Delete user
+
+### Cache Routes
+- `GET /api/cache/:key` - Get cached value
+- `POST /api/cache/:key` - Set cache value
+
+{{#if authProvider}}
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/register` - User registration
+- `POST /auth/refresh` - Refresh token
+- `GET /auth/me` - Get current user
+{{/if}}
+
+## 🔒 Environment Variables
+
+Create KV namespaces for caching and sessions:
+
+```bash
+wrangler kv:namespace create CACHE
+wrangler kv:namespace create SESSIONS
+```
+
+Update `wrangler.toml` with the namespace IDs.
+
+### Required Secrets
+
+Set these in the Cloudflare dashboard or via CLI:
+
+```bash
+wrangler secret put JWT_SECRET
+wrangler secret put API_KEY
+{{#if (eq database "cloudflare-d1")}}
+wrangler secret put DATABASE_URL  # If using external database
+{{/if}}
+```
+
+## 🚀 Deployment
+
+### Deploy to Development
+
+```bash
+{{packageManager}} run deploy
+```
+
+### Deploy to Production
+
+```bash
+{{packageManager}} run deploy:production
+```
+
+### View Logs
+
+```bash
+{{packageManager}} run tail
+# or for production
+{{packageManager}} run tail:production
+```
+
+## 🔧 Configuration
+
+### CORS
+
+CORS is configured in `src/index.{{#if typescript}}ts{{else}}js{{/if}}`. Update the allowed origins:
+
+- Development: `localhost:3000`, `localhost:5173`
+- Production: Your domain
+
+### Rate Limiting
+
+Rate limiting is implemented using KV storage. Configure limits in `src/middleware/rate-limit.{{#if typescript}}ts{{else}}js{{/if}}`:
+
+- Default: 60 requests per minute
+- API keys: 1000 requests per minute
+- Sensitive endpoints: 5 requests per 15 minutes
+
+{{#if (eq database "cloudflare-d1")}}
+## 🗄️ Database
+
+This project uses Cloudflare D1 (SQLite at the edge).
+
+### Migrations
+
+Create a new migration:
+
+```bash
+wrangler d1 migrations create {{name}}-db "migration_name"
+```
+
+Apply migrations:
+
+```bash
+# Local development
+wrangler d1 migrations apply {{name}}-db --local
+
+# Production
+wrangler d1 migrations apply {{name}}-db --env production
+```
+
+### Execute SQL
+
+```bash
+# Local
+wrangler d1 execute {{name}}-db --local --command="SELECT * FROM users;"
+
+# Production
+wrangler d1 execute {{name}}-db --env production --command="SELECT * FROM users;"
+```
+{{/if}}
+
+## 📊 Monitoring
+
+### Analytics
+
+View analytics in the Cloudflare dashboard:
+- Request count
+- Response times
+- Error rates
+- Geographic distribution
+
+### Logs
+
+Stream live logs:
+
+```bash
+wrangler tail
+```
+
+Filter logs:
+
+```bash
+wrangler tail --format json | grep ERROR
+```
+
+## 🔐 Security
+
+- JWT authentication for protected routes
+- Rate limiting to prevent abuse
+- CORS configured for your frontend
+- Environment variables for secrets
+- Input validation with Zod
+
+## 📚 Resources
+
+- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
+- [Hono Documentation](https://hono.dev/)
+{{#if (eq database "cloudflare-d1")}}
+- [Cloudflare D1 Documentation](https://developers.cloudflare.com/d1/)
+{{/if}}
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
+
+## 🤝 Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Test locally with `{{packageManager}} run dev`
+4. Deploy to development environment
+5. Submit a pull request
+
+## 📄 License
+
+MIT

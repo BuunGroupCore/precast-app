@@ -1,0 +1,66 @@
+from fastapi import APIRouter
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+from fastapi import Depends
+{{#if (eq config.database "mongodb")}}
+from app.core.database import get_database
+{{else}}
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import get_db
+{{/if}}
+{{/unless}}
+{{/if}}
+from app.core.config import settings
+
+router = APIRouter()
+
+
+@router.get("/")
+async def health_check():
+    """Basic health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": settings.app_name,
+        "version": settings.app_version,
+        "environment": settings.environment,
+    }
+
+
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+@router.get("/detailed")
+async def detailed_health_check(
+    {{#if (eq config.database "mongodb")}}
+    db = Depends(get_database)
+    {{else}}
+    db: AsyncSession = Depends(get_db)
+    {{/if}}
+):
+    """Detailed health check including database connectivity"""
+    health_status = {
+        "status": "healthy",
+        "service": settings.app_name,
+        "version": settings.app_version,
+        "environment": settings.environment,
+        "checks": {
+            "database": "healthy"
+        }
+    }
+    
+    try:
+        # Test database connection
+        {{#if (eq config.database "mongodb")}}
+        # MongoDB health check
+        await db.motor_client.admin.command('ping')
+        {{else}}
+        # SQL database health check
+        await db.execute("SELECT 1")
+        {{/if}}
+        health_status["checks"]["database"] = "healthy"
+    except Exception as e:
+        health_status["status"] = "unhealthy"
+        health_status["checks"]["database"] = f"error: {str(e)}"
+    
+    return health_status
+{{/unless}}
+{{/if}}

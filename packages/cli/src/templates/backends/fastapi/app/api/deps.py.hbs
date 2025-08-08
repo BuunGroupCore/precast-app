@@ -1,0 +1,103 @@
+{{#if config.auth}}
+from typing import AsyncGenerator
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+{{#if (eq config.database "mongodb")}}
+from app.core.database import get_database
+{{else}}
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import get_db
+{{/if}}
+{{/unless}}
+{{/if}}
+from app.core.security import decode_access_token
+from app.core.config import settings
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+from app.crud.user import user_crud
+{{/unless}}
+{{/if}}
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.api_v1_prefix}/auth/login")
+
+
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+async def get_current_user(
+    {{#if (eq config.database "mongodb")}}
+    db = Depends(get_database),
+    {{else}}
+    db: AsyncSession = Depends(get_db),
+    {{/if}}
+    token: str = Depends(oauth2_scheme)
+):
+    """Get current authenticated user"""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    payload = decode_access_token(token)
+    if payload is None:
+        raise credentials_exception
+    
+    user_id: str = payload.get("sub")
+    if user_id is None:
+        raise credentials_exception
+        
+    user = await user_crud.get(db, id=user_id)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+async def get_current_active_user(
+    current_user = Depends(get_current_user)
+):
+    """Get current active user"""
+    if not current_user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+{{else}}
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    """Get current authenticated user - placeholder implementation"""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    payload = decode_access_token(token)
+    if payload is None:
+        raise credentials_exception
+    
+    # TODO: Implement user retrieval logic
+    return {"id": payload.get("sub"), "username": "placeholder"}
+
+
+async def get_current_active_user(
+    current_user = Depends(get_current_user)
+):
+    """Get current active user - placeholder implementation"""
+    # TODO: Implement active user check
+    return current_user
+{{/unless}}
+{{/if}}
+{{else}}
+# Authentication not configured
+# Add your authentication dependencies here if needed later
+
+async def get_current_user():
+    """Get current authenticated user - placeholder"""
+    # TODO: Implement authentication
+    pass
+
+
+async def get_current_active_user():
+    """Get current active user - placeholder"""
+    # TODO: Implement authentication
+    pass
+{{/if}}

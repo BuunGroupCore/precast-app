@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React from "react";
+import React, { useEffect } from "react";
 import { FaUserShield } from "react-icons/fa";
 
 import { authProviders } from "@/lib/stack-config";
@@ -16,24 +16,23 @@ interface AuthSectionProps {
  * Authentication providers selection with dependency validation.
  */
 export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) => {
-  const availableAuthProviders = authProviders.filter((auth) => {
-    // Special handling for Cloudflare Workers
+  /**
+   * Checks if an auth provider is compatible with current configuration
+   * @param auth - The auth provider to check
+   * @returns true if the auth provider is compatible, false otherwise
+   */
+  const isAuthCompatible = (auth: (typeof authProviders)[0]) => {
     if (config.backend === "cloudflare-workers") {
-      // Better Auth has known compatibility issues with Workers
       if (auth.id === "better-auth") return false;
-
-      // Passport.js doesn't work well with edge runtime
       if (auth.id === "passport") return false;
     }
 
-    // Check if auth provider requires a database (self-hosted auth solutions)
     const requiresDatabase = ["auth.js", "better-auth", "passport", "lucia"].includes(auth.id);
     if (requiresDatabase && (!config.database || config.database === "none")) {
       return false;
     }
 
     if (auth.dependencies?.includes("react")) {
-      // When using Vite, check the UI framework instead of the build tool
       const frameworkToCheck =
         config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
 
@@ -54,7 +53,25 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
       return false;
     }
     return true;
-  });
+  };
+
+  const availableAuthProviders = authProviders.filter(isAuthCompatible);
+
+  /**
+   * Automatically resets auth selection when it becomes incompatible with configuration changes
+   */
+  useEffect(() => {
+    if (config.auth && config.auth !== "none") {
+      const selectedAuth = authProviders.find((auth) => auth.id === config.auth);
+      if (selectedAuth && !isAuthCompatible(selectedAuth)) {
+        setConfig((prev) => ({
+          ...prev,
+          auth: "none",
+        }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.framework, config.uiFramework, config.backend, config.database]);
 
   return (
     <motion.div

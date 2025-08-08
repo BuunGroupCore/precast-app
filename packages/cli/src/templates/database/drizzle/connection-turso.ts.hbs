@@ -1,0 +1,96 @@
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
+import * as schema from "./schema{{#if typescript}}.js{{/if}}";
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
+
+if (!process.env.DATABASE_AUTH_TOKEN) {
+  throw new Error("DATABASE_AUTH_TOKEN environment variable is required for Turso");
+}
+
+/**
+ * Turso (libSQL) client configuration
+ * @description Edge-hosted distributed SQLite database
+ */
+const client = createClient({
+  url: process.env.DATABASE_URL,
+  authToken: process.env.DATABASE_AUTH_TOKEN,
+  {{#if (eq runtime "deno")}}
+  // Deno-specific configuration
+  fetch: fetch,
+  {{/if}}
+});
+
+/**
+ * Drizzle database instance
+ * @description Pre-configured Drizzle client for Turso edge SQLite
+ */
+export const db = drizzle(client, { schema });
+
+/**
+ * Database health check
+ * @description Verifies Turso database connection is working
+ */
+export async function checkDatabaseConnection(): Promise<boolean> {
+  try {
+    const result = await client.execute("SELECT 1");
+    return result.rows.length > 0;
+  } catch (error) {
+    console.error("Turso database connection failed:", error);
+    return false;
+  }
+}
+
+/**
+ * Connection info
+ * @description Display connection information for debugging
+ */
+export async function getDatabaseInfo() {
+  try {
+    const result = await client.execute("SELECT sqlite_version() as version");
+    const version = result.rows[0]?.version as string;
+    return {
+      type: "turso-libsql",
+      version: version,
+      status: "connected",
+      edge: true
+    };
+  } catch (error) {
+    return {
+      type: "turso-libsql", 
+      status: "error",
+      error: error instanceof Error ? error.message : "Unknown error",
+      edge: true
+    };
+  }
+}
+
+/**
+ * Sync database changes (for embedded replicas)
+ * @description Manually sync changes when using embedded replicas
+ */
+export async function syncDatabase(): Promise<void> {
+  try {
+    await client.sync();
+    console.log("Database synced successfully");
+  } catch (error) {
+    console.error("Database sync failed:", error);
+    throw error;
+  }
+}
+
+/**
+ * Graceful shutdown
+ * @description Closes database connection properly
+ */
+process.on("SIGINT", async () => {
+  try {
+    client.close();
+    console.log("Turso database connection closed");
+  } catch (error) {
+    console.error("Error closing database connection:", error);
+  }
+  process.exit(0);
+});

@@ -11,11 +11,13 @@ Configuration and setup instructions for:
 - Repository secrets and environment variables
 
 ### [CLI Documentation](./cli/)
-*Coming soon*
-- Installation and usage
-- Command reference
-- Configuration options
-- Template customization
+Complete guide to the Precast CLI:
+- **[Main Guide](./cli/README.md)** - Installation, quick start, and overview
+- **[Command Reference](./cli/commands.md)** - Complete command documentation
+- **[Configuration Guide](./cli/configuration.md)** - Stack compatibility and setup
+- **[Templates Guide](./cli/templates.md)** - Understanding project templates
+- **[Examples](./cli/examples.md)** - Real-world usage examples and patterns
+- **[Troubleshooting](./cli/troubleshooting.md)** - Common issues and solutions
 
 ### [Website Documentation](./website/)
 *Coming soon*

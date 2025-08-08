@@ -1,0 +1,92 @@
+import { drizzle } from "drizzle-orm/d1";
+import * as schema from "./schema{{#if typescript}}.js{{/if}}";
+
+{{#if (eq runtime "deno")}}
+/**
+ * Cloudflare D1 database binding for Deno Deploy
+ * @description Access D1 database through Cloudflare Workers environment
+ */
+declare global {
+  interface Env {
+    DB: D1Database;
+  }
+}
+
+export function createDb(env: Env) {
+  if (!env.DB) {
+    throw new Error("D1 database binding not found. Make sure 'DB' is configured in your wrangler.toml");
+  }
+  return drizzle(env.DB, { schema });
+}
+{{else}}
+/**
+ * Cloudflare D1 database binding
+ * @description Access D1 database through Cloudflare Workers environment
+ */
+interface Env {
+  DB: D1Database;
+}
+
+/**
+ * Initialize Drizzle with D1 binding
+ * @param env - Cloudflare Workers environment with D1 binding
+ */
+export function createDb(env: Env) {
+  if (!env.DB) {
+    throw new Error("D1 database binding not found. Make sure 'DB' is configured in your wrangler.toml");
+  }
+  return drizzle(env.DB, { schema });
+}
+
+/**
+ * Database health check
+ * @description Verifies D1 database connection is working
+ */
+export async function checkDatabaseConnection(db: ReturnType<typeof createDb>): Promise<boolean> {
+  try {
+    const result = await db.run(sql`SELECT 1`);
+    return result.success;
+  } catch (error) {
+    console.error("Cloudflare D1 database connection failed:", error);
+    return false;
+  }
+}
+
+/**
+ * Connection info
+ * @description Display connection information for debugging
+ */
+export async function getDatabaseInfo(db: ReturnType<typeof createDb>) {
+  try {
+    const result = await db.run(sql`SELECT sqlite_version() as version`);
+    return {
+      type: "cloudflare-d1-sqlite",
+      version: result.results?.[0]?.version,
+      status: "connected",
+      edge: true
+    };
+  } catch (error) {
+    return {
+      type: "cloudflare-d1-sqlite",
+      status: "error",
+      error: error instanceof Error ? error.message : "Unknown error",
+      edge: true
+    };
+  }
+}
+{{/if}}
+
+/**
+ * Example usage in Cloudflare Workers:
+ * 
+ * export default {
+ *   async fetch(request: Request, env: Env): Promise<Response> {
+ *     const db = createDb(env);
+ *     
+ *     // Your database operations here
+ *     const users = await db.select().from(schema.users);
+ *     
+ *     return Response.json(users);
+ *   }
+ * };
+ */

@@ -1,0 +1,84 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  {{#if config.auth}}
+  // Users table for authentication
+  users: defineTable({
+    name: v.string(),
+    email: v.string(),
+    tokenIdentifier: v.string(),
+    avatar: v.optional(v.id("_storage")),
+    isActive: v.optional(v.boolean()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastSeen: v.optional(v.number()),
+  })
+    .index("by_token", ["tokenIdentifier"])
+    .index("by_email", ["email"])
+    .searchIndex("search_name", {
+      searchField: "name",
+    }),
+  {{/if}}
+
+  // Example: Posts table
+  posts: defineTable({
+    title: v.string(),
+    content: v.string(),
+    {{#if config.auth}}
+    authorId: v.id("users"),
+    {{else}}
+    author: v.string(),
+    {{/if}}
+    tags: v.array(v.string()),
+    published: v.boolean(),
+    publishedAt: v.optional(v.number()),
+    _creationTime: v.number(),
+  })
+    {{#if config.auth}}
+    .index("by_author", ["authorId"])
+    {{/if}}
+    .index("by_published", ["published", "_creationTime"])
+    .index("by_creation_time", ["_creationTime"])
+    .searchIndex("search_content", {
+      searchField: "content",
+      filterFields: ["published"{{#if config.auth}}, "authorId"{{/if}}]
+    }),
+
+  // Example: Comments table
+  comments: defineTable({
+    postId: v.id("posts"),
+    {{#if config.auth}}
+    authorId: v.id("users"),
+    {{else}}
+    authorName: v.string(),
+    authorEmail: v.optional(v.string()),
+    {{/if}}
+    content: v.string(),
+    parentId: v.optional(v.id("comments")), // For nested comments
+    _creationTime: v.number(),
+  })
+    .index("by_post", ["postId", "_creationTime"])
+    {{#if config.auth}}
+    .index("by_author", ["authorId"])
+    {{/if}}
+    .index("by_parent", ["parentId"]),
+
+  // File storage metadata
+  files: defineTable({
+    storageId: v.id("_storage"),
+    name: v.string(),
+    type: v.string(),
+    size: v.number(),
+    {{#if config.auth}}
+    uploadedBy: v.id("users"),
+    {{else}}
+    uploaderName: v.string(),
+    {{/if}}
+  })
+    {{#if config.auth}}
+    .index("by_uploader", ["uploadedBy"]),
+    {{else}}
+    .index("by_uploader_name", ["uploaderName"]),
+    {{/if}}
+});

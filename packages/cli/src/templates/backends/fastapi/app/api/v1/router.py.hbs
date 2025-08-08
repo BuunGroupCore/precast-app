@@ -1,0 +1,25 @@
+from fastapi import APIRouter
+
+from app.api.v1.endpoints import health
+{{#if config.auth}}
+from app.api.v1.endpoints import auth
+{{/if}}
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+from app.api.v1.endpoints import users, items
+{{/unless}}
+{{/if}}
+
+api_router = APIRouter()
+
+# Include routers
+api_router.include_router(health.router, prefix="/health", tags=["health"])
+{{#if config.auth}}
+api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
+{{/if}}
+{{#if config.database}}
+{{#unless (eq config.database "none")}}
+api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(items.router, prefix="/items", tags=["items"])
+{{/unless}}
+{{/if}}

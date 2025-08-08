@@ -1,0 +1,61 @@
+import { createMiddleware } from 'hono/factory';
+{{#if authProvider}}
+import * as jose from 'jose';
+{{/if}}
+
+/**
+ * Authentication middleware for Cloudflare Workers
+ */
+export const authMiddleware = createMiddleware(async (c, next) => {
+  {{#if authProvider}}
+  const authorization = c.req.header('Authorization');
+  
+  if (!authorization) {
+    return c.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: 'No authorization header provided',
+      },
+      401
+    );
+  }
+
+  const token = authorization.replace('Bearer ', '');
+  
+  if (!token) {
+    return c.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: 'Invalid authorization format',
+      },
+      401
+    );
+  }
+
+  try {
+    // Verify JWT token
+    const secret = new TextEncoder().encode(c.env.JWT_SECRET || 'your-secret-key');
+    const { payload } = await jose.jwtVerify(token, secret);
+    
+    // Attach user to context
+    c.set('user', payload);
+    
+    await next();
+  } catch (error) {
+    console.error('Auth error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: 'Invalid or expired token',
+      },
+      401
+    );
+  }
+  {{else}}
+  // No authentication configured - pass through
+  await next();
+  {{/if}}
+});

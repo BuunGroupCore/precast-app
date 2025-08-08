@@ -1,0 +1,40 @@
+/**
+ * Application-wide type definitions (JSDoc format for JavaScript)
+ */
+
+/**
+ * @typedef {Object} User
+ * @property {string} id
+ * @property {string} email
+ * @property {string} [name]
+ * @property {Date} createdAt
+ * @property {Date} updatedAt
+ */
+
+/**
+ * @typedef {Object} ApiResponse
+ * @property {boolean} success
+ * @property {any} [data]
+ * @property {string} [error]
+ * @property {string} [message]
+ */
+
+/**
+ * @typedef {Object} PaginatedResponse
+ * @property {Array} items
+ * @property {number} total
+ * @property {number} page
+ * @property {number} pageSize
+ * @property {boolean} hasNext
+ * @property {boolean} hasPrevious
+ */
+
+/**
+ * @typedef {Object} RequestContext
+ * @property {Object} env
+ * @property {ExecutionContext} executionCtx
+ * @property {User} [user]
+ * @property {string} requestId
+ */
+
+export {};

@@ -1,0 +1,97 @@
+name: {{name}}
+
+# Neon development environment using PostgreSQL
+# This provides a local development setup that mimics Neon's PostgreSQL environment
+services:
+  neon-postgres:
+    image: postgres:16-alpine
+    container_name: {{name}}-neon-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: {{name}}
+      # Configure for Neon-like behavior
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - {{name}}_neon_postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d {{name}}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Connection pooler (similar to Neon's pooling)
+  pgbouncer:
+    image: pgbouncer/pgbouncer:latest
+    container_name: {{name}}-pgbouncer
+    environment:
+      DATABASES_HOST: neon-postgres
+      DATABASES_PORT: 5432
+      DATABASES_USER: postgres
+      DATABASES_PASSWORD: postgres
+      DATABASES_DBNAME: {{name}}
+      POOL_MODE: transaction
+      SERVER_RESET_QUERY: DISCARD ALL
+      MAX_CLIENT_CONN: 100
+      DEFAULT_POOL_SIZE: 25
+      SERVER_LIFETIME: 3600
+      SERVER_IDLE_TIMEOUT: 600
+    ports:
+      - "6432:5432"
+    depends_on:
+      neon-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Optional: Database administration
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: {{name}}-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@{{name}}.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      neon-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - {{name}}_network
+    volumes:
+      - {{name}}_pgadmin_data:/var/lib/pgadmin
+    profiles:
+      - admin
+
+volumes:
+  {{name}}_neon_postgres_data:
+    driver: local
+  {{name}}_pgadmin_data:
+    driver: local
+
+networks:
+  {{name}}_network:
+    driver: bridge

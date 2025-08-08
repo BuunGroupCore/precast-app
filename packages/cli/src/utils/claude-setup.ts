@@ -1,7 +1,9 @@
 import path from "path";
 
 import { consola } from "consola";
+// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
+
 // eslint-disable-next-line import/no-named-as-default-member
 const { ensureDir, writeJSON, writeFile, pathExists, readFile } = fsExtra;
 

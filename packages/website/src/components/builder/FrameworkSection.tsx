@@ -73,7 +73,6 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
   const handleFrameworkSelect = (frameworkId: string) => {
     setConfig({ ...config, framework: frameworkId });
 
-    // Show nested UI libraries when Vite is selected
     if (frameworkId === "vite") {
       setShowViteLibraries(true);
     } else {
@@ -85,7 +84,6 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
     setConfig({ ...config, framework: "vite", uiFramework: libraryId });
   };
 
-  // UI libraries that work well with Vite
   const viteCompatibleLibraries = uiLibraries_frontend.filter((lib) =>
     ["react", "vue", "svelte", "solid"].includes(lib.id)
   );
@@ -132,7 +130,6 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
         {/* Framework Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {categories[selectedCategory].items.map((framework) => {
-            // Find which category this framework belongs to for badge
             const frameworkCategory = Object.entries(categories).find(
               ([key, category]) =>
                 key !== "all" && category.items.some((item) => item.id === framework.id)
@@ -151,7 +148,6 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                   data-active={config.framework === framework.id}
                   className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative"
                 >
-                  {/* Category Badge */}
                   {selectedCategory === "all" && CategoryIcon && (
                     <div
                       className={`absolute top-1 right-1 w-5 h-5 rounded border border-comic-black flex items-center justify-center p-0.5 ${

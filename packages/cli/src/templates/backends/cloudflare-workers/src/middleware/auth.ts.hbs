@@ -1,0 +1,146 @@
+{{#if typescript}}import { MiddlewareHandler } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import { SignJWT, jwtVerify } from 'jose';
+
+import type { Env } from '../../worker-configuration';
+
+interface JWTPayload {
+  sub: string;
+  email?: string;
+  name?: string;
+  exp?: number;
+  iat?: number;
+}
+
+// JWT secret from environment
+const getJWTSecret = (env: Env): Uint8Array => {
+  const secret = env.JWT_SECRET || 'your-secret-key-change-in-production';
+  return new TextEncoder().encode(secret);
+};
+
+// Generate JWT token
+export const generateToken = async (
+  payload: Omit<JWTPayload, 'exp' | 'iat'>,
+  env: Env
+): Promise<string> => {
+  const secret = getJWTSecret(env);
+  
+  const jwt = await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('24h')
+    .sign(secret);
+  
+  return jwt;
+};
+
+// Verify JWT token
+export const verifyToken = async (
+  token: string,
+  env: Env
+): Promise<JWTPayload> => {
+  const secret = getJWTSecret(env);
+  
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return payload as JWTPayload;
+  } catch {
+    throw new HTTPException(401, { message: 'Invalid or expired token' });
+  }
+};
+
+// Auth middleware
+export const authMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
+  const authHeader = c.req.header('Authorization');
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new HTTPException(401, { message: 'Missing or invalid authorization header' });
+  }
+  
+  const token = authHeader.substring(7);
+  
+  try {
+    const payload = await verifyToken(token, c.env);
+    
+    // Check if token is expired
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      throw new HTTPException(401, { message: 'Token expired' });
+    }
+    
+    // Add user info to context
+    c.set('user', payload);
+    
+    await next();
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    throw new HTTPException(401, { message: 'Invalid token' });
+  }
+};
+
+// Optional auth middleware (doesn't fail if no token)
+export const optionalAuthMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
+  const authHeader = c.req.header('Authorization');
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    
+    try {
+      const payload = await verifyToken(token, c.env);
+      
+      if (!payload.exp || payload.exp * 1000 >= Date.now()) {
+        c.set('user', payload);
+      }
+    } catch {
+      // Ignore errors for optional auth
+    }
+  }
+  
+  await next();
+};
+
+// Role-based access control
+export const requireRole = (roles: string[]): MiddlewareHandler => {
+  return async (c, next) => {
+    const user = c.get('user') as JWTPayload & { roles?: string[] };
+    
+    if (!user) {
+      throw new HTTPException(401, { message: 'Authentication required' });
+    }
+    
+    if (!user.roles || !roles.some(role => user.roles?.includes(role))) {
+      throw new HTTPException(403, { message: 'Insufficient permissions' });
+    }
+    
+    await next();
+  };
+};{{else}}import { HTTPException } from 'hono/http-exception';
+
+// Simple auth middleware - replace with your implementation
+export const authMiddleware = async (c, next) => {
+  const authHeader = c.req.header('Authorization');
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new HTTPException(401, { message: 'Missing or invalid authorization header' });
+  }
+  
+  // Add your token verification logic here
+  const token = authHeader.substring(7);
+  
+  // Example: set user in context
+  c.set('user', { id: '123', email: 'user@example.com' });
+  
+  await next();
+};
+
+export const optionalAuthMiddleware = async (c, next) => {
+  const authHeader = c.req.header('Authorization');
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    // Add your token verification logic here
+    c.set('user', { id: '123', email: 'user@example.com' });
+  }
+  
+  await next();
+};{{/if}}

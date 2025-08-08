@@ -1,0 +1,41 @@
+import { createMiddleware } from 'hono/factory';
+
+/**
+ * Rate limiting middleware using Cloudflare KV
+ */
+export const rateLimitMiddleware = createMiddleware(async (c, next) => {
+  const ip = c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || 'unknown';
+  const key = `rate-limit:${ip}`;
+  
+  // Get current request count from KV
+  const currentCount = await c.env.CACHE.get(key);
+  const count = currentCount ? parseInt(currentCount, 10) : 0;
+  
+  // Rate limit configuration
+  const limit = 100; // requests per window
+  const windowMs = 60 * 1000; // 1 minute window
+  
+  if (count >= limit) {
+    return c.json(
+      {
+        success: false,
+        error: 'Too Many Requests',
+        message: 'Rate limit exceeded. Please try again later.',
+        retryAfter: windowMs / 1000,
+      },
+      429
+    );
+  }
+  
+  // Increment counter
+  await c.env.CACHE.put(key, String(count + 1), {
+    expirationTtl: windowMs / 1000,
+  });
+  
+  // Add rate limit headers
+  c.header('X-RateLimit-Limit', String(limit));
+  c.header('X-RateLimit-Remaining', String(limit - count - 1));
+  c.header('X-RateLimit-Reset', String(Date.now() + windowMs));
+  
+  await next();
+});

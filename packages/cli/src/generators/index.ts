@@ -8,6 +8,8 @@ import { getTemplateRoot } from "../utils/template-path.js";
 
 import { generateAngularTemplate } from "./angular-template.js";
 import { generateAstroTemplate } from "./astro-template.js";
+import { generateConvexTemplate } from "./convex-template.js";
+import { generateFastApiTemplate } from "./fastapi-template.js";
 import { generateNextTemplate } from "./next-template.js";
 import { generateNoneTemplate } from "./none-template.js";
 import { generateNuxtTemplate } from "./nuxt-template.js";

@@ -320,15 +320,24 @@ export async function installAllDependencies(options: {
 
   // Format all generated code with Prettier after installation
   if (!options.skipFormatting) {
-    await formatGeneratedCode(options.projectPath);
+    await formatGeneratedCode(options.projectPath, true);
   }
 }
 
 /**
  * Format all generated code with Prettier for consistency
  * @param projectPath - Path to the project
+ * @param usePrettier - Whether to use prettier formatting (respects --no-prettier flag)
  */
-export async function formatGeneratedCode(projectPath: string): Promise<void> {
+export async function formatGeneratedCode(
+  projectPath: string,
+  usePrettier: boolean = true
+): Promise<void> {
+  if (!usePrettier) {
+    consola.info("⏭️  Skipping code formatting (--no-prettier flag)");
+    return;
+  }
+
   consola.info("🎨 Formatting generated code with Prettier...");
 
   try {

@@ -280,7 +280,7 @@ export async function installAllDependencies(options: {
           installArgs.push("--ignore-workspace");
           consola.info("💡 Using --ignore-workspace flag as project is inside a pnpm workspace");
         }
-      } catch (error) {
+      } catch (_error) {
         // Ignore errors when checking for workspace file
       }
     }

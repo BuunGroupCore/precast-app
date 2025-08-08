@@ -1,14 +1,17 @@
 import path from "path";
+
 import { consola } from "consola";
+// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
 
-// eslint-disable-next-line import/no-named-as-default-member
-const { pathExists, ensureDir, writeFile } = fsExtra;
-
 import type { ProjectConfig } from "../../../shared/stack-config.js";
-import { createTemplateEngine, type TemplateEngine } from "../core/template-engine.js";
-import { getTemplateRoot } from "./template-path.js";
+import { createTemplateEngine } from "../core/template-engine.js";
+
 import { installDependencies } from "./package-manager.js";
+import { getTemplateRoot } from "./template-path.js";
+
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, ensureDir, writeFile, readFile } = fsExtra;
 
 /**
  * API client configuration
@@ -283,7 +286,7 @@ export async function setupApiClient(config: ProjectConfig, projectPath: string)
     );
 
     if (await pathExists(serverIndexPath)) {
-      let serverContent = await fsExtra.readFile(serverIndexPath, "utf-8");
+      let serverContent = await readFile(serverIndexPath, "utf-8");
 
       // Add import for RPC routes
       const importStatement = config.typescript

@@ -114,7 +114,9 @@
       "Bash(npx prettier:*)",
       "Bash(npm run lint)",
       "WebFetch(domain:better-t3-stack.dev)",
-      "WebFetch(domain:docs.convex.dev)"
+      "WebFetch(domain:docs.convex.dev)",
+      "Bash(./convert-key.sh:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": []
   }

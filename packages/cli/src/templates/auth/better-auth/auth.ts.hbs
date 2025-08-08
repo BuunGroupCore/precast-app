@@ -1,0 +1,44 @@
+import { betterAuth } from "better-auth";
+{{#if (eq orm "prisma")}}
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "./prisma";
+{{/if}}
+{{#if (eq orm "drizzle")}}
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "./db";
+{{/if}}
+
+export const auth = betterAuth({
+  {{#if (or (eq orm "prisma") (eq orm "drizzle"))}}
+  database: {{#if (eq orm "prisma")}}prismaAdapter(prisma, {
+    provider: "{{#if (eq database "postgres")}}postgresql{{else if (eq database "mysql")}}mysql{{else}}sqlite{{/if}}",
+  }){{else}}drizzleAdapter(db, {
+    provider: "{{#if (eq database "postgres")}}pg{{else if (eq database "mysql")}}mysql2{{else}}better-sqlite3{{/if}}",
+  }){{/if}},
+  {{/if}}
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: true,
+    requireEmailVerification: false,
+  },
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes
+    },
+  },
+});
+
+export type Auth = typeof auth;

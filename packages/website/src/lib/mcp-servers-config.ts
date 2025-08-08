@@ -61,7 +61,7 @@ export const mcpServers: MCPServer[] = [
   },
 
   {
-    id: "postgres",
+    id: "postgresql",
     name: "PostgreSQL",
     description: "Connect and query PostgreSQL databases",
     icon: SiPostgresql,

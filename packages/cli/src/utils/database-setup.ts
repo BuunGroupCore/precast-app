@@ -6,6 +6,7 @@ import fsExtra from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine, type TemplateEngine } from "../core/template-engine.js";
+
 import { installDependencies } from "./package-manager.js";
 import { getTemplateRoot } from "./template-path.js";
 

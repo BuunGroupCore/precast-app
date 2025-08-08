@@ -1,0 +1,220 @@
+# {{projectName}} - AI Assistant Context
+
+## Project Overview
+
+This is a {{techStack}} project created with Precast CLI.
+
+{{#if projectStructure}}
+## Project Structure
+
+{{projectStructure}}
+{{/if}}
+
+## Technology Stack
+
+{{techStack}}
+
+{{#if typescript}}
+- **Language**: TypeScript
+{{else}}
+- **Language**: JavaScript
+{{/if}}
+- **Package Manager**: {{packageManager}}
+{{#if runtime}}
+- **Runtime**: {{runtime}}
+{{/if}}
+
+## Key Commands
+
+{{#each keyCommands}}
+- `{{@key}}`: {{this}}
+{{/each}}
+
+{{#if hasDatabase}}
+## Database
+
+{{#if (eq database "postgres")}}
+This project uses PostgreSQL as its database.
+{{else if (eq database "mysql")}}
+This project uses MySQL as its database.
+{{else if (eq database "mongodb")}}
+This project uses MongoDB as its database.
+{{else if (eq database "sqlite")}}
+This project uses SQLite as its database.
+{{else if (eq database "neon")}}
+This project uses Neon (Serverless PostgreSQL) as its database.
+{{else if (eq database "planetscale")}}
+This project uses PlanetScale (Serverless MySQL) as its database.
+{{else if (eq database "turso")}}
+This project uses Turso (Edge SQLite) as its database.
+{{else if (eq database "cloudflare-d1")}}
+This project uses Cloudflare D1 (Edge SQLite) as its database.
+{{/if}}
+
+{{#if (eq orm "prisma")}}
+### Prisma ORM
+
+- Generate client: `npx prisma generate`
+- Run migrations: `npx prisma migrate dev`
+- Open Prisma Studio: `npx prisma studio`
+- Reset database: `npx prisma migrate reset`
+{{else if (eq orm "drizzle")}}
+### Drizzle ORM
+
+- Generate migrations: `npx drizzle-kit generate`
+- Run migrations: `npx drizzle-kit migrate`
+- Open Drizzle Studio: `npx drizzle-kit studio`
+- Push schema changes: `npx drizzle-kit push`
+{{else if (eq orm "typeorm")}}
+### TypeORM
+
+- Run migrations: `npx typeorm migration:run`
+- Generate migration: `npx typeorm migration:generate -n MigrationName`
+- Revert migration: `npx typeorm migration:revert`
+{{else if (eq orm "mongoose")}}
+### Mongoose ODM
+
+MongoDB with Mongoose ODM is configured. Models are defined in the appropriate directories.
+{{/if}}
+{{/if}}
+
+{{#if hasAuth}}
+## Authentication
+
+{{#if (eq authProvider "better-auth")}}
+This project uses Better Auth for authentication. The auth configuration is located in:
+- Frontend: `{{#if isMonorepo}}apps/web/{{/if}}src/lib/auth-client.ts`
+- Backend: `{{#if isMonorepo}}apps/web/{{/if}}src/lib/auth.ts`
+{{else if (eq authProvider "auth.js")}}
+This project uses Auth.js (NextAuth.js v5) for authentication. The auth configuration is located in:
+- Config: `{{#if isMonorepo}}apps/web/{{/if}}src/auth.config.ts`
+- Middleware: `{{#if isMonorepo}}apps/web/{{/if}}src/middleware.ts`
+{{else if (eq authProvider "clerk")}}
+This project uses Clerk for authentication. Configure your Clerk keys in the `.env.local` file.
+{{else if (eq authProvider "supabase-auth")}}
+This project uses Supabase Auth for authentication. Configure your Supabase credentials in the `.env.local` file.
+{{else if (eq authProvider "auth0")}}
+This project uses Auth0 for authentication. Configure your Auth0 credentials in the `.env.local` file.
+{{else if (eq authProvider "firebase-auth")}}
+This project uses Firebase Auth for authentication. Configure your Firebase credentials in the `.env.local` file.
+{{else if (eq authProvider "passport.js")}}
+This project uses Passport.js for authentication. The auth configuration is located in the auth directory.
+{{/if}}
+{{/if}}
+
+{{#if hasDocker}}
+## Docker
+
+This project includes Docker configuration for local development.
+
+- Start services: `{{packageManager}} run docker:up`
+- Stop services: `{{packageManager}} run docker:down`
+- View logs: `docker-compose logs -f`
+{{/if}}
+
+{{#if (eq styling "tailwind")}}
+## Styling
+
+This project uses Tailwind CSS for styling. The configuration file is `tailwind.config.{{#if typescript}}ts{{else}}js{{/if}}`.
+
+{{#if uiLibrary}}
+### UI Library: {{uiLibrary}}
+{{#if (eq uiLibrary "shadcn")}}
+Components are located in `{{#if isMonorepo}}apps/web/{{/if}}src/components/ui/`.
+To add new shadcn/ui components, use: `npx shadcn-ui@latest add [component-name]`
+{{else if (eq uiLibrary "daisyui")}}
+DaisyUI components are available through Tailwind CSS classes.
+{{else if (eq uiLibrary "mui")}}
+Material-UI components are configured and ready to use.
+{{else if (eq uiLibrary "chakra")}}
+Chakra UI is configured with the theme provider.
+{{else if (eq uiLibrary "antd")}}
+Ant Design components are configured and ready to use.
+{{else if (eq uiLibrary "mantine")}}
+Mantine components are configured with the theme provider.
+{{/if}}
+{{/if}}
+{{/if}}
+
+## Development Guidelines
+
+1. **Code Style**: {{#if eslint}}ESLint is configured for code linting. {{/if}}{{#if prettier}}Prettier is configured for code formatting.{{/if}}
+2. **Type Safety**: {{#if typescript}}TypeScript is configured for type checking. Run `{{packageManager}} run type-check` to check types.{{else}}This project uses JavaScript.{{/if}}
+3. **Testing**: {{#if vitest}}Vitest is configured for unit testing. Run `{{packageManager}} test` to run tests.{{else if playwright}}Playwright is configured for E2E testing.{{/if}}
+
+{{#if apiClient}}
+## API Client
+
+{{#if (eq apiClient "tanstack-query")}}
+This project uses TanStack Query (React Query) for data fetching and caching.
+API hooks are located in `{{#if isMonorepo}}apps/web/{{/if}}src/hooks/api/`.
+{{else if (eq apiClient "swr")}}
+This project uses SWR for data fetching and caching.
+API hooks are located in `{{#if isMonorepo}}apps/web/{{/if}}src/hooks/api/`.
+{{else if (eq apiClient "axios")}}
+This project uses Axios for HTTP requests.
+The API client is configured in `{{#if isMonorepo}}apps/web/{{/if}}src/lib/api-client.ts`.
+{{else if (eq apiClient "trpc")}}
+This project uses tRPC for type-safe API calls.
+- Client: `{{#if isMonorepo}}apps/web/{{/if}}src/lib/trpc.ts`
+- Server: `{{#if isMonorepo}}apps/api/{{/if}}src/trpc/`
+{{else if (eq apiClient "apollo-client")}}
+This project uses Apollo Client for GraphQL.
+The Apollo client is configured in `{{#if isMonorepo}}apps/web/{{/if}}src/lib/apollo-client.ts`.
+{{/if}}
+{{/if}}
+
+{{#if hasMcpServers}}
+## MCP Servers
+
+This project is configured with the following MCP (Model Context Protocol) servers:
+
+{{#each mcpServers}}
+- **{{this}}**: Configure the required environment variables in `.env`
+{{/each}}
+
+After configuring the environment variables, restart Claude Code to enable the MCP servers.
+{{/if}}
+
+## Environment Variables
+
+Key environment variables are defined in `.env.local` (not committed to git).
+Example variables are provided in `.env.example`.
+
+## Getting Started
+
+1. Install dependencies: `{{packageManager}} install`
+{{#if hasDatabase}}
+2. Set up the database: {{#if (eq orm "prisma")}}`npx prisma migrate dev`{{else if (eq orm "drizzle")}}`npx drizzle-kit migrate`{{else}}See database section above{{/if}}
+{{/if}}
+{{#if hasAuth}}
+{{#if hasDatabase}}3{{else}}2{{/if}}. Configure authentication credentials in `.env.local`
+{{/if}}
+{{#if hasDocker}}
+{{#if hasAuth}}4{{else if hasDatabase}}3{{else}}2{{/if}}. Start Docker services: `{{packageManager}} run docker:up`
+{{/if}}
+{{#if isMonorepo}}
+{{#if hasDocker}}5{{else if hasAuth}}4{{else if hasDatabase}}3{{else}}2{{/if}}. Start the development servers: `{{packageManager}} run dev`
+{{else}}
+{{#if hasDocker}}5{{else if hasAuth}}4{{else if hasDatabase}}3{{else}}2{{/if}}. Start the development server: `{{packageManager}} run dev`
+{{/if}}
+
+## Important Notes
+
+- Always check `.env.example` for required environment variables
+- Never commit sensitive data or credentials
+- Follow the existing code patterns and conventions
+- {{#if typescript}}Use TypeScript types for better code quality{{else}}Consider adding JSDoc comments for better code documentation{{/if}}
+{{#if isMonorepo}}- This is a monorepo project; packages are in the `apps/` and `packages/` directories{{/if}}
+
+## AI Assistant Instructions
+
+When working with this codebase:
+1. **Maintain consistency** with existing code patterns and styles
+2. **Test changes** before committing
+3. **Update types** when modifying data structures{{#if typescript}} (TypeScript){{/if}}
+4. **Follow security best practices** - never expose secrets or credentials
+5. **Respect the project structure** - place files in appropriate directories
+{{#if isMonorepo}}6. **Monorepo awareness** - ensure changes are made in the correct app or package{{/if}}
+
+Remember: The goal is to maintain clean, efficient, and maintainable code.

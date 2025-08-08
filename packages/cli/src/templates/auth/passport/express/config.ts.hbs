@@ -1,0 +1,94 @@
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import bcrypt from "bcryptjs";
+{{#if (eq orm "prisma")}}
+import { prisma } from "../lib/prisma";
+{{/if}}
+
+// Local Strategy for username/password authentication
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    async (email, password, done) => {
+      try {
+        {{#if (eq orm "prisma")}}
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
+        {{else}}
+        // TODO: Implement user lookup
+        const user = null;
+        {{/if}}
+
+        if (!user) {
+          return done(null, false, { message: "Invalid credentials" });
+        }
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+          return done(null, false, { message: "Invalid credentials" });
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    }
+  )
+);
+
+// JWT Strategy for token authentication
+passport.use(
+  new JwtStrategy(
+    {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET!,
+    },
+    async (payload, done) => {
+      try {
+        {{#if (eq orm "prisma")}}
+        const user = await prisma.user.findUnique({
+          where: { id: payload.id },
+        });
+        {{else}}
+        // TODO: Implement user lookup
+        const user = null;
+        {{/if}}
+
+        if (user) {
+          return done(null, user);
+        }
+        return done(null, false);
+      } catch (error) {
+        return done(error, false);
+      }
+    }
+  )
+);
+
+// Serialize/Deserialize user for session
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    {{#if (eq orm "prisma")}}
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    {{else}}
+    // TODO: Implement user lookup
+    const user = null;
+    {{/if}}
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
+});
+
+export default passport;

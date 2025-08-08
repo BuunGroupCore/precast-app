@@ -1,0 +1,17 @@
+# Copy this file to .dev.vars and fill in your GitHub App credentials
+# These are used for local development only
+
+# Your GitHub App ID (found in GitHub App settings)
+GITHUB_APP_ID=123456
+
+# Your GitHub App Private Key (download from GitHub App settings)
+# Make sure to include the full key with BEGIN/END markers
+GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA...
+...your full private key here...
+-----END RSA PRIVATE KEY-----"
+
+# Your GitHub Installation ID
+# Find this in the URL when viewing your app installation:
+# https://github.com/settings/installations/[INSTALLATION_ID]
+GITHUB_INSTALLATION_ID=12345678

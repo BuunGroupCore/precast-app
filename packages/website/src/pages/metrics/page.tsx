@@ -814,6 +814,18 @@ export function MetricsPage() {
         </div>
       </section>
 
+      {/* Comic Separator */}
+      <div className="max-w-7xl mx-auto px-4 mb-12">
+        <div className="relative">
+          <div className="h-2 bg-comic-black rounded-full"></div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+            <div className="action-text text-2xl text-comic-yellow bg-comic-black px-4 py-1 rounded-full border-4 border-comic-yellow">
+              COMMITS!
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* GitHub Activity Chart */}
       <section className="px-4 pb-12">
         <div className="max-w-7xl mx-auto">
@@ -905,6 +917,18 @@ export function MetricsPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Comic Separator */}
+      <div className="max-w-7xl mx-auto px-4 mb-12">
+        <div className="relative">
+          <div className="h-2 bg-comic-black rounded-full"></div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+            <div className="action-text text-2xl text-comic-orange bg-comic-black px-4 py-1 rounded-full border-4 border-comic-orange">
+              REPO STATS!
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* GitHub Stats Grid */}
       <section className="px-4 pb-12">
@@ -1087,6 +1111,18 @@ export function MetricsPage() {
         </div>
       </section>
 
+      {/* Comic Separator */}
+      <div className="max-w-7xl mx-auto px-4 mb-12">
+        <div className="relative">
+          <div className="h-2 bg-comic-black rounded-full"></div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+            <div className="action-text text-2xl text-comic-blue bg-comic-black px-4 py-1 rounded-full border-4 border-comic-blue">
+              ISSUES!
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Issue Breakdown Section */}
       <section className="px-4 pb-12">
         <div className="max-w-7xl mx-auto">
@@ -1258,6 +1294,18 @@ export function MetricsPage() {
           )}
         </div>
       </section>
+
+      {/* Comic Separator */}
+      <div className="max-w-7xl mx-auto px-4 mb-12">
+        <div className="relative">
+          <div className="h-2 bg-comic-black rounded-full"></div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+            <div className="action-text text-2xl text-comic-green bg-comic-black px-4 py-1 rounded-full border-4 border-comic-green">
+              CLI STATS!
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* CLI Usage Analytics */}
       <section className="px-4 pb-12">

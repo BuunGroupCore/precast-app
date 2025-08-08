@@ -1,0 +1,78 @@
+# =============================================================================
+# Authentication Configuration
+# =============================================================================
+{{#if (eq authProvider "auth.js")}}
+# Auth.js (NextAuth) Configuration
+AUTH_SECRET={{authSecret}}
+AUTH_URL=http://localhost:3000
+AUTH_TRUST_HOST=true
+
+# OAuth Providers
+GITHUB_ID=your-github-client-id
+GITHUB_SECRET=your-github-client-secret
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+{{/if}}
+{{#if (eq authProvider "better-auth")}}
+# Better Auth Configuration
+BETTER_AUTH_SECRET={{authSecret}}
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_DATABASE_URL={{databaseUrl}}
+
+# OAuth Providers
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+{{/if}}
+{{#if (eq authProvider "clerk")}}
+# Clerk Configuration
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-clerk-publishable-key
+CLERK_SECRET_KEY=your-clerk-secret-key
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
+{{/if}}
+{{#if (eq authProvider "auth0")}}
+# Auth0 Configuration
+AUTH0_SECRET={{authSecret}}
+AUTH0_BASE_URL=http://localhost:3000
+AUTH0_ISSUER_BASE_URL=https://your-tenant.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+AUTH0_AUDIENCE=your-api-identifier
+AUTH0_SCOPE=openid profile email
+{{/if}}
+{{#if (eq authProvider "supabase-auth")}}
+# Supabase Auth Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-key
+{{/if}}
+{{#if (eq authProvider "firebase-auth")}}
+# Firebase Auth Configuration
+FIREBASE_API_KEY=your-firebase-api-key
+FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+FIREBASE_APP_ID=your-app-id
+{{/if}}
+{{#if (eq authProvider "passport.js")}}
+# Passport.js Configuration
+JWT_SECRET={{authSecret}}
+JWT_EXPIRES_IN=7d
+SESSION_SECRET={{sessionSecret}}
+
+# OAuth Providers (optional)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+{{/if}}
+
+{{#if requiresDatabase}}
+# Database Configuration
+DATABASE_URL={{databaseUrl}}
+{{/if}}

@@ -285,7 +285,7 @@ export function BuilderPage() {
       config.mcpServers &&
       config.mcpServers.length > 0
     ) {
-      parts.push(`--mcp-servers=${config.mcpServers.join(",")}`);
+      parts.push(`--mcp-servers ${config.mcpServers.join(" ")}`);
     }
 
     /** Powerups */

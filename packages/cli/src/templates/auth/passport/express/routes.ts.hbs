@@ -1,0 +1,110 @@
+import { Router } from "express";
+import passport from "passport";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+{{#if (eq orm "prisma")}}
+import { prisma } from "../lib/prisma";
+{{/if}}
+
+const router = Router();
+
+// Register route
+router.post("/register", async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    {{#if (eq orm "prisma")}}
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+      },
+    });
+    {{else}}
+    // TODO: Implement user creation
+    const user = { id: "1", email, name };
+    {{/if}}
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    );
+
+    res.json({
+      message: "User created successfully",
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.status(500).json({ error: "Failed to register user" });
+  }
+});
+
+// Login route
+router.post("/login", (req, res, next) => {
+  passport.authenticate("local", { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(401).json({
+        error: info?.message || "Authentication failed",
+      });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  })(req, res, next);
+});
+
+// Protected route example
+router.get(
+  "/profile",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.json({
+      message: "Profile data",
+      user: req.user,
+    });
+  }
+);
+
+// Logout route (for session-based auth)
+router.post("/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Logout failed" });
+    }
+    res.json({ message: "Logged out successfully" });
+  });
+});
+
+export default router;

@@ -1,0 +1,36 @@
+name = "github-metrics-worker"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+
+# Scheduled trigger - every 30 minutes
+[triggers]
+crons = ["*/30 * * * *"]
+
+[observability.logs]
+enabled = true
+
+# Production environment
+[env.production]
+name = "github-metrics-worker"
+
+# R2 bucket binding
+[[env.production.r2_buckets]]
+binding = "METRICS_BUCKET"
+bucket_name = "precast-metrics-data"
+
+# Environment variables (secrets configured via dashboard)
+[env.production.vars]
+REPO_OWNER = "BuunGroupCore"
+REPO_NAME = "precast-app"
+
+# Development environment (for local testing)
+[env.development]
+name = "github-metrics-worker-dev"
+
+[[env.development.r2_buckets]]
+binding = "METRICS_BUCKET"
+bucket_name = "precast-metrics-data-dev"
+
+[env.development.vars]
+REPO_OWNER = "BuunGroupCore"
+REPO_NAME = "precast-app"

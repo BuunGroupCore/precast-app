@@ -153,6 +153,22 @@ export const backendDefs: StackOption[] = [
     recommended: ["typescript", "cloudflare-d1", "drizzle"],
   },
   {
+    id: "fastapi",
+    name: "FastAPI",
+    description: "Modern, fast web framework for building APIs with Python",
+    dependencies: ["python"],
+    recommended: ["postgres", "mysql"],
+    incompatible: ["typescript"],
+  },
+  {
+    id: "convex",
+    name: "Convex",
+    description: "Backend-as-a-Service with real-time sync",
+    dependencies: ["typescript"],
+    recommended: ["typescript"],
+    incompatible: ["database", "orm"],
+  },
+  {
     id: "none",
     name: "None",
     description: "Frontend only, no backend",

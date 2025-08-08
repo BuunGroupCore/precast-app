@@ -36,6 +36,9 @@ export interface ProjectConfig {
   mcpServers?: string[];
   powerups?: string[];
   uiFramework?: string; // UI framework when using Vite
+  includeAdminTools?: boolean; // Include admin tools like pgAdmin, phpMyAdmin, etc.
+  dbUser?: string; // Database user name
+  includeRedis?: boolean; // Include Redis in Docker setup
 }
 
 // Stack definitions without React Icons (for CLI usage)

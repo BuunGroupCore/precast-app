@@ -2,7 +2,11 @@ import * as crypto from "crypto";
 import * as path from "path";
 
 import { consola } from "consola";
-import { writeFile, pathExists, readFile, readdir } from "fs-extra";
+// eslint-disable-next-line import/default
+import fsExtra from "fs-extra";
+
+// eslint-disable-next-line import/no-named-as-default-member
+const { writeFile, pathExists, readFile, readdir } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";

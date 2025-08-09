@@ -1,0 +1,33 @@
+{
+  "id": "vitest",
+  "name": "Vitest",
+  "description": "Blazing fast unit test framework",
+  "dependencies": {},
+  "devDependencies": {
+    "react": [
+      "vitest",
+      "@vitest/ui",
+      "jsdom",
+      "@testing-library/react",
+      "@testing-library/jest-dom"
+    ],
+    "vue": ["vitest", "@vitest/ui", "jsdom", "@vue/test-utils"],
+    "svelte": ["vitest", "@vitest/ui", "jsdom", "@testing-library/svelte"],
+    "solid": ["vitest", "@vitest/ui", "jsdom", "@solidjs/testing-library"],
+    "*": ["vitest", "@vitest/ui", "jsdom"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest --coverage"
+  },
+  "setupFiles": {
+    "*": [
+      { "template": "vitest.config.js.hbs", "output": "vitest.config.js" },
+      { "template": "setup.ts.hbs", "output": "test/setup.ts" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

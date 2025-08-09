@@ -1,0 +1,18 @@
+{
+  "id": "filesystem",
+  "name": "Filesystem MCP Server",
+  "description": "Secure file operations with configurable access controls",
+  "category": "productivity",
+  "triggers": {
+    "any": true
+  },
+  "config": {
+    "server_name": "filesystem",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem"],
+    "env": {
+      "ALLOWED_DIRECTORIES": "${ALLOWED_DIRECTORIES:-/path/to/your/project}"
+    }
+  },
+  "repository": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+}

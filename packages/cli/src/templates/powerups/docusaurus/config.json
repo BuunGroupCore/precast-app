@@ -1,0 +1,17 @@
+{
+  "id": "docusaurus",
+  "name": "Docusaurus",
+  "description": "Documentation website generator",
+  "dependencies": {
+    "*": ["@docusaurus/core", "@docusaurus/preset-classic"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {
+    "docs:start": "docusaurus start",
+    "docs:build": "docusaurus build",
+    "docs:serve": "docusaurus serve"
+  },
+  "setupFiles": {},
+  "packageJsonConfig": {}
+}

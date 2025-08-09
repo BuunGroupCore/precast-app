@@ -1,0 +1,57 @@
+{{#if typescript}}
+import { PrismaClient } from '@prisma/client';
+import { PrismaLibSQL } from '@prisma/adapter-libsql';
+import { createClient } from '@libsql/client';
+
+// Create LibSQL client
+const libsql = createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+
+// Create Prisma adapter
+const adapter = new PrismaLibSQL(libsql);
+
+// Create Prisma client with adapter
+const prisma = new PrismaClient({
+  adapter,
+});
+
+export { prisma };
+
+/**
+ * Example usage:
+ * 
+ * const users = await prisma.user.findMany();
+ * 
+ * Learn more: https://www.prisma.io/docs/guides/database/turso
+ */
+{{else}}
+const { PrismaClient } = require('@prisma/client');
+const { PrismaLibSQL } = require('@prisma/adapter-libsql');
+const { createClient } = require('@libsql/client');
+
+// Create LibSQL client
+const libsql = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+
+// Create Prisma adapter
+const adapter = new PrismaLibSQL(libsql);
+
+// Create Prisma client with adapter
+const prisma = new PrismaClient({
+  adapter,
+});
+
+module.exports = { prisma };
+
+/**
+ * Example usage:
+ * 
+ * const users = await prisma.user.findMany();
+ * 
+ * Learn more: https://www.prisma.io/docs/guides/database/turso
+ */
+{{/if}}

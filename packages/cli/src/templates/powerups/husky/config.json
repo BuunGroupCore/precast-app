@@ -1,0 +1,22 @@
+{
+  "id": "husky",
+  "name": "Husky",
+  "description": "Git hooks made easy",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["husky", "lint-staged"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "setupFiles": {
+    "*": [{ "template": "pre-commit.hbs", "output": ".husky/pre-commit" }]
+  },
+  "packageJsonConfig": {
+    "lint-staged": {
+      "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+      "*.{json,css,md,yml,yaml}": ["prettier --write"]
+    }
+  }
+}

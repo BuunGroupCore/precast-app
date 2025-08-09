@@ -1,0 +1,20 @@
+{
+  "id": "turborepo",
+  "name": "Turborepo",
+  "description": "High-performance build system for JavaScript and TypeScript codebases",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["turbo"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
+  },
+  "setupFiles": {
+    "*": [{ "template": "turbo.json.hbs", "output": "turbo.json" }]
+  },
+  "packageJsonConfig": {}
+}

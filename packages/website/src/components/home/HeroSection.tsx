@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { FaTerminal, FaCopy, FaCheck } from "react-icons/fa";
+import { useState, useRef, useEffect } from "react";
+import { FaTerminal, FaCopy, FaCheck, FaChevronDown } from "react-icons/fa";
 import { SiNpm, SiYarn, SiBun } from "react-icons/si";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +14,8 @@ export function HeroSection() {
   const navigate = useNavigate();
   const [selectedPackageManager, setSelectedPackageManager] = useState("npx");
   const [copied, setCopied] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const packageManagerIcons = {
     npx: SiNpm,
@@ -31,6 +33,33 @@ export function HeroSection() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const getCurrentIcon = () => {
+    const Icon = packageManagerIcons[selectedPackageManager as keyof typeof packageManagerIcons];
+    return Icon;
+  };
+
+  const getCurrentColor = () => {
+    const pm = selectedPackageManager;
+    return pm === "npx" || pm === "npm"
+      ? "var(--comic-red)"
+      : pm === "yarn"
+        ? "var(--comic-blue)"
+        : pm === "bun"
+          ? "var(--comic-yellow)"
+          : "var(--comic-green)";
   };
 
   return (
@@ -104,7 +133,62 @@ export function HeroSection() {
             className="mt-16 max-w-4xl mx-auto"
           >
             <div className="flex justify-center mb-4">
-              <div className="flex gap-2 p-2 bg-comic-white rounded-lg border-4 border-comic-black comic-shadow">
+              {/* Mobile Dropdown */}
+              <div className="block sm:hidden relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 px-4 py-2 bg-comic-white rounded-lg border-4 border-comic-black comic-shadow font-comic font-bold text-sm"
+                  style={{
+                    backgroundColor: getCurrentColor(),
+                    color: "var(--comic-white)",
+                  }}
+                >
+                  {(() => {
+                    const Icon = getCurrentIcon();
+                    return <Icon className="text-lg" />;
+                  })()}
+                  <span>{selectedPackageManager.toUpperCase()}</span>
+                  <FaChevronDown
+                    className={`text-sm transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute top-full mt-2 left-0 right-0 bg-comic-white border-4 border-comic-black rounded-lg comic-shadow z-50">
+                    {PACKAGE_MANAGERS.map((pm) => {
+                      const Icon = packageManagerIcons[pm.id as keyof typeof packageManagerIcons];
+                      const pmColor =
+                        pm.id === "npx" || pm.id === "npm"
+                          ? "var(--comic-red)"
+                          : pm.id === "yarn"
+                            ? "var(--comic-blue)"
+                            : pm.id === "bun"
+                              ? "var(--comic-yellow)"
+                              : "var(--comic-green)";
+
+                      return (
+                        <button
+                          key={pm.id}
+                          onClick={() => {
+                            setSelectedPackageManager(pm.id);
+                            setDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-2 font-comic font-bold text-sm hover:bg-comic-yellow transition-colors border-b-2 border-comic-black last:border-b-0"
+                          style={{
+                            color: pmColor,
+                          }}
+                        >
+                          <Icon className="text-lg" />
+                          <span>{pm.id.toUpperCase()}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Tabs */}
+              <div className="hidden sm:flex gap-2 p-2 bg-comic-white rounded-lg border-4 border-comic-black comic-shadow">
                 {PACKAGE_MANAGERS.map((pm) => {
                   const Icon = packageManagerIcons[pm.id as keyof typeof packageManagerIcons];
                   const pmColor =

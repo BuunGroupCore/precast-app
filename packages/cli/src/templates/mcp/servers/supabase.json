@@ -1,0 +1,18 @@
+{
+  "id": "supabase",
+  "name": "Supabase MCP Server",
+  "description": "Official Supabase community MCP server for database and edge functions",
+  "category": "database",
+  "triggers": {
+    "databases": ["supabase"]
+  },
+  "config": {
+    "server_name": "supabase",
+    "command": "npx",
+    "args": ["-y", "@supabase/mcp-server-supabase@latest"],
+    "env": {
+      "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+    }
+  },
+  "repository": "https://github.com/supabase-community/supabase-mcp"
+}

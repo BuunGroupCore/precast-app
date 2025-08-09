@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FaStar,
   FaGithub,
@@ -11,6 +11,7 @@ import {
   FaGem,
   FaFire,
   FaRocket,
+  FaChevronDown,
 } from "react-icons/fa";
 
 type TabType = "heroes" | "sidekicks" | "legends" | "all";
@@ -57,6 +58,8 @@ export function ComicSponsorsSection() {
   const [activeTab, setActiveTab] = useState<TabType>("heroes");
   const [hoveredSponsor, setHoveredSponsor] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const itemsPerPage = 8;
 
   useEffect(() => {
@@ -227,6 +230,28 @@ export function ComicSponsorsSection() {
   useEffect(() => {
     setCurrentPage(0);
   }, [activeTab]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const tabs = [
+    { key: "heroes" as TabType, label: "HEROES", icon: <FaCrown /> },
+    { key: "sidekicks" as TabType, label: "SIDEKICKS", icon: <FaRocket /> },
+    { key: "legends" as TabType, label: "LEGENDS", icon: <FaStar /> },
+    { key: "all" as TabType, label: "ALL", icon: <FaFire /> },
+  ];
+
+  const getActiveTabData = () => {
+    return tabs.find((tab) => tab.key === activeTab) || tabs[0];
+  };
 
   /**
    * Renders individual sponsor card with comic book styling
@@ -407,15 +432,68 @@ export function ComicSponsorsSection() {
         </motion.div>
 
         <div className="flex justify-center mb-12">
-          <div className="comic-panel p-2 inline-flex gap-2">
-            {(
-              [
-                { key: "heroes", label: "HEROES", icon: <FaCrown /> },
-                { key: "sidekicks", label: "SIDEKICKS", icon: <FaRocket /> },
-                { key: "legends", label: "LEGENDS", icon: <FaStar /> },
-                { key: "all", label: "ALL", icon: <FaFire /> },
-              ] as const
-            ).map((tab) => (
+          {/* Mobile Dropdown */}
+          <div className="block sm:hidden relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="comic-panel px-4 py-2 font-comic font-bold text-sm flex items-center gap-2 bg-comic-red text-comic-white border-2 border-comic-black"
+              style={{
+                boxShadow: "2px 2px 0 var(--comic-black)",
+              }}
+            >
+              {getActiveTabData().icon}
+              {getActiveTabData().label}
+              {sponsors && (
+                <span className="badge-comic bg-comic-black text-comic-white text-xs ml-2">
+                  {activeTab === "heroes"
+                    ? sponsors.featured.length
+                    : activeTab === "sidekicks"
+                      ? sponsors.current.length
+                      : activeTab === "legends"
+                        ? sponsors.past.length
+                        : sponsors.featured.length + sponsors.current.length + sponsors.past.length}
+                </span>
+              )}
+              <FaChevronDown
+                className={`text-sm transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute top-full mt-2 left-0 right-0 bg-comic-white border-4 border-comic-black rounded-lg comic-shadow z-50 min-w-[200px]">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => {
+                      setActiveTab(tab.key);
+                      setDropdownOpen(false);
+                    }}
+                    className="w-full px-4 py-2 font-comic font-bold text-sm flex items-center gap-2 hover:bg-comic-yellow transition-colors border-b-2 border-comic-black last:border-b-0"
+                  >
+                    {tab.icon}
+                    {tab.label}
+                    {sponsors && (
+                      <span className="badge-comic bg-comic-black text-comic-white text-xs ml-auto">
+                        {tab.key === "heroes"
+                          ? sponsors.featured.length
+                          : tab.key === "sidekicks"
+                            ? sponsors.current.length
+                            : tab.key === "legends"
+                              ? sponsors.past.length
+                              : sponsors.featured.length +
+                                sponsors.current.length +
+                                sponsors.past.length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Tabs */}
+          <div className="hidden sm:flex comic-panel p-2 gap-2">
+            {tabs.map((tab) => (
               <motion.button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}

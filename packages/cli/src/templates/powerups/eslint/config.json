@@ -1,0 +1,48 @@
+{
+  "id": "eslint",
+  "name": "ESLint",
+  "description": "Find and fix problems in your JavaScript code",
+  "dependencies": {},
+  "devDependencies": {
+    "react": [
+      "eslint",
+      "eslint-config-prettier",
+      "eslint-plugin-prettier",
+      "eslint-plugin-react",
+      "eslint-plugin-react-hooks"
+    ],
+    "next": ["eslint", "eslint-config-next", "eslint-config-prettier"],
+    "vue": [
+      "eslint",
+      "eslint-plugin-vue",
+      "eslint-config-prettier",
+      "@vue/eslint-config-typescript"
+    ],
+    "angular": [
+      "@angular-eslint/eslint-plugin",
+      "@angular-eslint/template-parser",
+      "eslint-config-prettier"
+    ],
+    "svelte": ["eslint", "eslint-plugin-svelte", "eslint-config-prettier"],
+    "solid": ["eslint", "eslint-config-prettier", "eslint-plugin-solid"],
+    "*": [
+      "eslint",
+      "eslint-config-prettier",
+      "eslint-plugin-prettier",
+      "@typescript-eslint/parser",
+      "@typescript-eslint/eslint-plugin"
+    ]
+  },
+  "envVariables": {},
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "setupFiles": {
+    "*": [
+      { "template": ".eslintrc.js.hbs", "output": ".eslintrc.js" },
+      { "template": ".eslintignore.hbs", "output": ".eslintignore" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

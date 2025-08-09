@@ -1,141 +1,287 @@
-import path from "path";
+import * as path from "path";
+import { fileURLToPath } from "url";
 
 import { consola } from "consola";
-// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
+import Handlebars from "handlebars";
+
+const { copy, ensureDir, pathExists, readdir, readFile, stat, writeFile } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
-import { createTemplateEngine } from "../core/template-engine.js";
 
-import { getTemplateRoot } from "./template-path.js";
+import { installDependencies } from "./package-manager.js";
 
-// Database generators
-import { CloudflareD1Generator } from "@/generators/database/cloudflare-d1-generator.js";
-import type { DatabaseGenerator } from "@/generators/database/database-generator.interface.js";
-import { MongoDBGenerator } from "@/generators/database/mongodb-generator.js";
-import { MySQLGenerator } from "@/generators/database/mysql-generator.js";
-import { NeonGenerator } from "@/generators/database/neon-generator.js";
-import { PlanetScaleGenerator } from "@/generators/database/planetscale-generator.js";
-import { PostgreSQLGenerator } from "@/generators/database/postgres-generator.js";
-import { TursoGenerator } from "@/generators/database/turso-generator.js";
-// ORM generators
-import { DrizzleGenerator } from "@/generators/orm/drizzle-generator.js";
-import { MongooseGenerator } from "@/generators/orm/mongoose-generator.js";
-import type { ORMGenerator } from "@/generators/orm/orm-generator.interface.js";
-import { PrismaGenerator } from "@/generators/orm/prisma-generator.js";
-import { TypeORMGenerator } from "@/generators/orm/typeorm-generator.js";
-
-// eslint-disable-next-line import/no-named-as-default-member
-const { writeFile, ensureDir } = fsExtra;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
- * Setup database-specific files and configurations using the modular generator system
+ * Sets up database configuration using Handlebars templates
  * @param config - Project configuration
  * @param projectPath - Path to the project
  */
 export async function setupDatabase(config: ProjectConfig, projectPath: string): Promise<void> {
-  if (config.database === "none" || !config.orm || config.orm === "none") {
+  if (config.database === "none") {
     return;
   }
 
-  consola.info(`🗄️ Setting up ${config.database} database with ${config.orm}...`);
-
-  const templateRoot = getTemplateRoot();
-  const templateEngine = createTemplateEngine(templateRoot);
-
-  // Determine the correct path for database files
-  let targetPath = projectPath;
-  if (config.backend && config.backend !== "none") {
-    // Monorepo structure - database setup goes in apps/api
-    targetPath = path.join(projectPath, "apps", "api");
+  // For modern databases, we can set up connections even without an ORM
+  const modernDatabases = ["neon", "planetscale", "turso", "cloudflare-d1"];
+  if (!config.orm || config.orm === "none") {
+    if (!modernDatabases.includes(config.database || "")) {
+      return; // Traditional databases need an ORM
+    }
   }
 
-  // Get database generator
-  const databaseGenerator = getDatabaseGenerator(config.database);
-  if (!databaseGenerator) {
-    throw new Error(`Unsupported database: ${config.database}`);
-  }
-
-  // Get ORM generator
-  const ormGenerator = getORMGenerator(config.orm);
-  if (!ormGenerator) {
-    throw new Error(`Unsupported ORM: ${config.orm}`);
-  }
-
-  // Verify compatibility
-  if (!databaseGenerator.supportedORMs.includes(config.orm)) {
-    throw new Error(
-      `Database '${config.database}' is not compatible with ORM '${config.orm}'. Supported ORMs: ${databaseGenerator.supportedORMs.join(", ")}`
-    );
-  }
-
-  if (!ormGenerator.supportedDatabases.includes(config.database)) {
-    throw new Error(
-      `ORM '${config.orm}' is not compatible with database '${config.database}'. Supported databases: ${ormGenerator.supportedDatabases.join(", ")}`
-    );
-  }
+  consola.info(`🗄️ Setting up ${config.database} database with ${config.orm || "none"}...`);
 
   try {
-    // Setup database
-    await databaseGenerator.setup(config, targetPath, templateEngine);
-    await databaseGenerator.installDependencies(config, targetPath);
-    await databaseGenerator.setupEnvironment(config, targetPath);
+    const databaseProviderMap: Record<string, string> = {
+      postgres: "postgresql",
+      mysql: "mysql",
+      sqlite: "sqlite",
+      mongodb: "mongodb",
+      neon: "postgresql",
+      planetscale: "mysql",
+      turso: "sqlite",
+      "cloudflare-d1": "sqlite",
+    };
 
-    // Setup ORM
-    await ormGenerator.setup(config, targetPath, templateEngine);
-    await ormGenerator.installDependencies(config, targetPath);
+    const context = {
+      ...config,
+      database: config.database,
+      databaseProvider: databaseProviderMap[config.database || ""] || "postgresql",
+      orm: config.orm,
+      name: config.name.replace(/-/g, "_"),
+      projectName: config.name,
+      typescript: config.typescript ?? true,
+      kebabCase: (str: string) => str.replace(/_/g, "-"),
+      camelCase: (str: string) => str.replace(/-([a-z])/g, (g) => g[1].toUpperCase()),
+    };
 
-    // Add database connection test for frontend projects
+    const isMonorepo = config.backend && config.backend !== "none";
+    const targetPath = isMonorepo ? path.join(projectPath, "apps", "api") : projectPath;
+
+    consola.info(
+      `Setting up ${config.database === "postgres" ? "PostgreSQL" : config.database} configuration...`
+    );
+    await setupDatabasePackages(config, targetPath);
+
+    if (config.orm && config.orm !== "none") {
+      consola.info(`Setting up ${config.orm === "prisma" ? "Prisma" : config.orm} ORM...`);
+      await setupORM(config, targetPath, context);
+    } else if (["neon", "planetscale", "turso", "cloudflare-d1"].includes(config.database || "")) {
+      // Setup connection files for modern databases when no ORM is selected
+      await setupDatabaseConnection(config, targetPath, context);
+    }
+
     if (config.framework && config.framework !== "none") {
-      await setupDatabaseConnectionTest(config, projectPath);
+      await setupDatabaseConnectionTest(config, projectPath, context);
     }
 
     consola.success(`✅ Database setup completed for ${config.database} with ${config.orm}!`);
   } catch (error) {
-    consola.error("❌ Failed to setup database configuration:", error);
+    consola.error("Failed to setup database configuration:", error);
     throw error;
   }
 }
 
 /**
- * Get the appropriate database generator
+ * Setup ORM configuration from templates
  */
-function getDatabaseGenerator(database: string): DatabaseGenerator | null {
-  switch (database) {
-    case "postgres":
-      return new PostgreSQLGenerator();
-    case "mysql":
-      return new MySQLGenerator();
-    case "mongodb":
-      return new MongoDBGenerator();
-    case "neon":
-      return new NeonGenerator();
-    case "planetscale":
-      return new PlanetScaleGenerator();
-    case "turso":
-      return new TursoGenerator();
-    case "cloudflare-d1":
-      return new CloudflareD1Generator();
-    default:
-      return null;
+async function setupORM(
+  config: ProjectConfig,
+  targetPath: string,
+  context: Record<string, any>
+): Promise<void> {
+  if (!config.orm || config.orm === "none") return;
+
+  const ormTemplateDir = path.join(__dirname, "templates", "database", config.orm);
+  const srcOrmTemplateDir = path.join(
+    __dirname,
+    "..",
+    "..",
+    "src",
+    "templates",
+    "database",
+    config.orm
+  );
+
+  let templateDir = ormTemplateDir;
+  if (!(await pathExists(ormTemplateDir)) && (await pathExists(srcOrmTemplateDir))) {
+    templateDir = srcOrmTemplateDir;
+  }
+
+  if (!(await pathExists(templateDir))) {
+    consola.warn(`ORM templates not found for ${config.orm}`);
+    return;
+  }
+
+  await processTemplateDirectory(templateDir, targetPath, context);
+
+  if (config.orm === "prisma" && config.database) {
+    const prismaDir = path.join(targetPath, "prisma");
+    await ensureDir(prismaDir);
+
+    let schemaTemplate = "schema.prisma.hbs";
+    if (config.database === "neon") schemaTemplate = "schema-neon.prisma.hbs";
+    else if (config.database === "planetscale") schemaTemplate = "schema-planetscale.prisma.hbs";
+    else if (config.database === "turso") schemaTemplate = "schema-turso.prisma.hbs";
+
+    const schemaPath = path.join(templateDir, schemaTemplate);
+    if (await pathExists(schemaPath)) {
+      const content = await readFile(schemaPath, "utf-8");
+      const template = Handlebars.compile(content);
+      const rendered = template(context);
+      await writeFile(path.join(prismaDir, "schema.prisma"), rendered);
+      consola.success("Created Prisma schema");
+    }
+  }
+
+  if (config.orm === "drizzle" && config.database) {
+    const drizzleDir = path.join(targetPath, "src", "db");
+    await ensureDir(drizzleDir);
+
+    let schemaTemplate = "schema.ts.hbs";
+    let connectionTemplate = "connection.ts.hbs";
+
+    if (config.database === "neon") {
+      schemaTemplate = "schema-neon.ts.hbs";
+      connectionTemplate = "connection-neon.ts.hbs";
+    } else if (config.database === "planetscale") {
+      schemaTemplate = "schema-planetscale.ts.hbs";
+      connectionTemplate = "connection-planetscale.ts.hbs";
+    } else if (config.database === "turso") {
+      schemaTemplate = "schema-turso.ts.hbs";
+      connectionTemplate = "connection-turso.ts.hbs";
+    } else if (config.database === "cloudflare-d1") {
+      schemaTemplate = "schema-cloudflare-d1.ts.hbs";
+      connectionTemplate = "connection-cloudflare-d1.ts.hbs";
+    }
+
+    const schemaPath = path.join(templateDir, schemaTemplate);
+    if (await pathExists(schemaPath)) {
+      const content = await readFile(schemaPath, "utf-8");
+      const template = Handlebars.compile(content);
+      const rendered = template(context);
+      await writeFile(path.join(drizzleDir, "schema.ts"), rendered);
+      consola.success("Created Drizzle schema");
+    }
+
+    const connectionPath = path.join(templateDir, connectionTemplate);
+    if (await pathExists(connectionPath)) {
+      const content = await readFile(connectionPath, "utf-8");
+      const template = Handlebars.compile(content);
+      const rendered = template(context);
+      await writeFile(path.join(drizzleDir, "index.ts"), rendered);
+      consola.success("Created Drizzle connection");
+    }
   }
 }
 
 /**
- * Get the appropriate ORM generator
+ * Setup database connection for modern providers when no ORM is selected
  */
-function getORMGenerator(orm: string): ORMGenerator | null {
-  switch (orm) {
-    case "prisma":
-      return new PrismaGenerator();
-    case "drizzle":
-      return new DrizzleGenerator();
-    case "typeorm":
-      return new TypeORMGenerator();
-    case "mongoose":
-      return new MongooseGenerator();
-    default:
-      return null;
+async function setupDatabaseConnection(
+  config: ProjectConfig,
+  targetPath: string,
+  context: Record<string, any>
+): Promise<void> {
+  if (!config.database) return;
+
+  const dbTemplateDir = path.join(__dirname, "templates", "database", config.database);
+  const srcDbTemplateDir = path.join(
+    __dirname,
+    "..",
+    "..",
+    "src",
+    "templates",
+    "database",
+    config.database
+  );
+
+  let templateDir = dbTemplateDir;
+  if (!(await pathExists(dbTemplateDir)) && (await pathExists(srcDbTemplateDir))) {
+    templateDir = srcDbTemplateDir;
+  }
+
+  if (!(await pathExists(templateDir))) {
+    consola.warn(`Database templates not found for ${config.database}`);
+    return;
+  }
+
+  // Create lib directory for connection file
+  const libDir = path.join(targetPath, "src", "lib");
+  await ensureDir(libDir);
+
+  // Process connection template
+  const connectionTemplate = path.join(templateDir, "connection.ts.hbs");
+  if (await pathExists(connectionTemplate)) {
+    const content = await readFile(connectionTemplate, "utf-8");
+    const template = Handlebars.compile(content);
+    const rendered = template(context);
+    const ext = context.typescript ? "ts" : "js";
+    await writeFile(path.join(libDir, `db.${ext}`), rendered);
+    consola.success(`Created ${config.database} connection file`);
+  }
+
+  // Process env template
+  const envTemplate = path.join(templateDir, ".env.hbs");
+  if (await pathExists(envTemplate)) {
+    const content = await readFile(envTemplate, "utf-8");
+    const template = Handlebars.compile(content);
+    const rendered = template(context);
+
+    // Add to .env and .env.example
+    const envPath = path.join(targetPath, ".env");
+    const envExamplePath = path.join(targetPath, ".env.example");
+
+    for (const filePath of [envPath, envExamplePath]) {
+      let existingContent = "";
+      if (await pathExists(filePath)) {
+        existingContent = await readFile(filePath, "utf-8");
+      }
+
+      if (!existingContent.includes("DATABASE_URL") && !existingContent.includes("TURSO_")) {
+        await writeFile(filePath, existingContent + "\n" + rendered);
+      }
+    }
+    consola.success("Added environment variables");
+  }
+}
+
+/**
+ * Process a template directory recursively
+ */
+async function processTemplateDirectory(
+  templateDir: string,
+  targetPath: string,
+  context: Record<string, any>
+): Promise<void> {
+  const files = await readdir(templateDir);
+
+  for (const file of files) {
+    const filePath = path.join(templateDir, file);
+    const stats = await stat(filePath);
+
+    if (stats.isDirectory()) {
+      const targetDir = path.join(targetPath, file);
+      await ensureDir(targetDir);
+      await processTemplateDirectory(filePath, targetDir, context);
+    } else if (file.endsWith(".hbs")) {
+      const templateContent = await readFile(filePath, "utf-8");
+      const template = Handlebars.compile(templateContent);
+      const rendered = template(context);
+      const outputFileName = file.replace(".hbs", "");
+      const outputPath = path.join(targetPath, outputFileName);
+
+      const dir = path.dirname(outputPath);
+      await ensureDir(dir);
+
+      await writeFile(outputPath, rendered);
+    } else {
+      const outputPath = path.join(targetPath, file);
+      await copy(filePath, outputPath);
+    }
   }
 }
 
@@ -144,66 +290,126 @@ function getORMGenerator(orm: string): ORMGenerator | null {
  */
 async function setupDatabaseConnectionTest(
   config: ProjectConfig,
-  projectPath: string
+  projectPath: string,
+  context: Record<string, any>
 ): Promise<void> {
   consola.info("Adding database connection test utilities...");
 
-  // Determine frontend app path
-  const frontendPath =
-    config.backend && config.backend !== "none"
-      ? path.join(projectPath, "apps", "web")
-      : projectPath;
+  const templatePath = path.join(
+    __dirname,
+    "templates",
+    "database",
+    "connection",
+    "db-test.ts.hbs"
+  );
+  const srcTemplatePath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "src",
+    "templates",
+    "database",
+    "connection",
+    "db-test.ts.hbs"
+  );
 
-  const utilsPath = path.join(frontendPath, "src", "lib");
-
-  // Ensure the directory exists
-  await ensureDir(utilsPath);
-
-  const testUtilPath = path.join(utilsPath, `db-test.${config.typescript ? "ts" : "js"}`);
-
-  const testUtilContent = config.typescript
-    ? `
-import { toast } from 'react-hot-toast';
-
-export async function testDatabaseConnection(): Promise<boolean> {
-  try {
-    const response = await fetch('/api/health/db');
-    const data = await response.json();
-    
-    if (data.success) {
-      toast.success('Database connection successful!');
-      return true;
-    } else {
-      toast.error('Database connection failed!');
-      return false;
-    }
-  } catch (error) {
-    console.error('Database connection test failed:', error);
-    toast.error('Database connection test failed!');
-    return false;
+  let finalTemplatePath = templatePath;
+  if (!(await pathExists(templatePath)) && (await pathExists(srcTemplatePath))) {
+    finalTemplatePath = srcTemplatePath;
   }
-}
-`
-    : `
-export async function testDatabaseConnection() {
-  try {
-    const response = await fetch('/api/health/db');
-    const data = await response.json();
-    
-    if (data.success) {
-      console.log('Database connection successful!');
-      return true;
-    } else {
-      console.error('Database connection failed!');
-      return false;
-    }
-  } catch (error) {
-    console.error('Database connection test failed:', error);
-    return false;
-  }
-}
-`;
 
-  await writeFile(testUtilPath, testUtilContent.trim());
+  if (await pathExists(finalTemplatePath)) {
+    const content = await readFile(finalTemplatePath, "utf-8");
+    const template = Handlebars.compile(content);
+    const rendered = template(context);
+
+    const utilsPath = path.join(projectPath, "src", "utils");
+    await ensureDir(utilsPath);
+    await writeFile(path.join(utilsPath, "db-test.ts"), rendered);
+  }
+
   consola.success("✅ Database connection test utilities added!");
+}
+
+/**
+ * Install database and ORM packages
+ */
+async function setupDatabasePackages(config: ProjectConfig, targetPath: string): Promise<void> {
+  const packages: string[] = [];
+  const devPackages: string[] = [];
+
+  if (config.database === "postgres") {
+    consola.info("📦 Installing PostgreSQL packages...");
+    packages.push("pg");
+    devPackages.push("@types/pg");
+  } else if (config.database === "mysql") {
+    consola.info("📦 Installing MySQL packages...");
+    packages.push("mysql2");
+  } else if (config.database === "mongodb") {
+    consola.info("📦 Installing MongoDB packages...");
+    packages.push("mongodb");
+  } else if (config.database === "sqlite") {
+    packages.push("better-sqlite3");
+    devPackages.push("@types/better-sqlite3");
+  } else if (config.database === "neon") {
+    packages.push("@neondatabase/serverless");
+  } else if (config.database === "planetscale") {
+    packages.push("@planetscale/database");
+  } else if (config.database === "turso") {
+    packages.push("@libsql/client");
+  }
+
+  if (config.orm === "prisma") {
+    consola.info("📦 Installing Prisma packages...");
+    packages.push("@prisma/client");
+    devPackages.push("prisma");
+
+    // Add adapter packages for modern databases
+    if (config.database === "neon") {
+      packages.push("@prisma/adapter-neon", "ws");
+    } else if (config.database === "planetscale") {
+      packages.push("@prisma/adapter-planetscale");
+    } else if (config.database === "turso") {
+      packages.push("@prisma/adapter-libsql", "@libsql/client");
+    }
+  } else if (config.orm === "drizzle") {
+    consola.info("📦 Installing Drizzle packages...");
+    packages.push("drizzle-orm");
+    devPackages.push("drizzle-kit");
+
+    if (config.database === "postgres") {
+      packages.push("postgres");
+    } else if (config.database === "mysql") {
+      packages.push("mysql2");
+    } else if (config.database === "sqlite" || config.database === "turso") {
+      packages.push("@libsql/client");
+    } else if (config.database === "neon") {
+      packages.push("@neondatabase/serverless");
+    } else if (config.database === "planetscale") {
+      packages.push("@planetscale/database");
+    }
+  } else if (config.orm === "typeorm") {
+    consola.info("📦 Installing TypeORM packages...");
+    packages.push("typeorm", "reflect-metadata");
+  } else if (config.orm === "mongoose") {
+    consola.info("📦 Installing Mongoose packages...");
+    packages.push("mongoose");
+  }
+
+  if (packages.length > 0) {
+    await installDependencies(packages, {
+      packageManager: config.packageManager,
+      projectPath: targetPath,
+      dev: false,
+    });
+    consola.success("✅ Dependencies installed successfully with " + config.packageManager);
+  }
+
+  if (devPackages.length > 0) {
+    await installDependencies(devPackages, {
+      packageManager: config.packageManager,
+      projectPath: targetPath,
+      dev: true,
+    });
+  }
 }

@@ -96,7 +96,7 @@ export function TechStackSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="action-text text-5xl md:text-7xl text-comic-yellow mb-6">
+          <h2 className="action-text text-3xl sm:text-5xl md:text-7xl text-comic-yellow mb-6">
             CHOOSE YOUR ARSENAL
           </h2>
           <div
@@ -155,7 +155,7 @@ export function TechStackSection() {
                 >
                   <div className="relative z-10">
                     <Icon
-                      className={`text-6xl mx-auto mb-4 ${
+                      className={`text-4xl sm:text-5xl md:text-6xl mx-auto mb-4 ${
                         index === 0
                           ? "group-hover:animate-spin"
                           : index === 1
@@ -181,7 +181,7 @@ export function TechStackSection() {
                       })}
                     </div>
                   </div>
-                  <div className="absolute bottom-4 right-4 text-6xl opacity-10">
+                  <div className="absolute bottom-4 right-4 text-4xl sm:text-5xl md:text-6xl opacity-10">
                     <Icon />
                   </div>
                 </div>
@@ -195,17 +195,17 @@ export function TechStackSection() {
             onClick={() => navigate("/builder")}
             whileHover={{ scale: 1.1, rotate: 3 }}
             whileTap={{ scale: 0.95 }}
-            className="relative inline-flex items-center gap-4 px-10 py-5 text-2xl font-comic font-bold rounded-full border-6 border-comic-black transition-all"
+            className="relative inline-flex items-center gap-2 sm:gap-3 md:gap-4 px-4 sm:px-6 md:px-10 py-3 sm:py-4 md:py-5 text-sm sm:text-lg md:text-2xl font-comic font-bold rounded-full border-2 sm:border-4 md:border-6 border-comic-black transition-all"
             style={{
               backgroundColor: "var(--comic-yellow)",
               borderColor: "var(--comic-black)",
               color: "var(--comic-black)",
-              boxShadow: "8px 8px 0 var(--comic-black), 16px 16px 0 rgba(0, 0, 0, 0.3)",
+              boxShadow: "4px 4px 0 var(--comic-black), 8px 8px 0 rgba(0, 0, 0, 0.3)",
             }}
           >
-            <FaBolt className="text-3xl animate-pulse" />
-            <span>BUILD YOUR STACK NOW!</span>
-            <FaRocket className="text-3xl" />
+            <FaBolt className="text-base sm:text-xl md:text-3xl animate-pulse" />
+            <span className="whitespace-nowrap">BUILD YOUR STACK NOW!</span>
+            <FaRocket className="text-base sm:text-xl md:text-3xl" />
           </motion.button>
         </div>
       </div>

@@ -15,6 +15,8 @@ import {
   uiLibraries_frontend,
 } from "@/lib/stack-config";
 
+import { MobileSettingsDialog } from "./MobileSettingsDialog";
+
 interface SettingsDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,9 +24,33 @@ interface SettingsDialogProps {
 
 /**
  * Settings dialog component for managing user preferences and default configurations.
- * Allows users to customize their preferred tech stack and project defaults.
+ * Automatically switches between desktop and mobile layouts based on screen size.
  */
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Use mobile settings for small screens
+  if (isMobile) {
+    return <MobileSettingsDialog isOpen={isOpen} onClose={onClose} />;
+  }
+
+  // Desktop version continues below
+  return <DesktopSettingsDialog isOpen={isOpen} onClose={onClose} />;
+};
+
+/**
+ * Desktop version of the settings dialog
+ */
+const DesktopSettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [settings, setSettings] = useState<UserSettings>({
     preferredFramework: "react",
     preferredUIFramework: undefined,

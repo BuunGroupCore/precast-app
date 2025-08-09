@@ -1,0 +1,45 @@
+{
+  "id": "posthog",
+  "name": "PostHog",
+  "description": "Product analytics and feature flags",
+  "dependencies": {
+    "react": ["posthog-js"],
+    "next": ["posthog-js", "posthog-node"],
+    "vue": ["posthog-js"],
+    "nuxt": ["posthog-js"],
+    "angular": ["posthog-js"],
+    "svelte": ["posthog-js"],
+    "solid": ["posthog-js"],
+    "remix": ["posthog-js", "posthog-node"],
+    "astro": ["posthog-js"],
+    "vite": ["posthog-js"],
+    "vanilla": ["posthog-js"]
+  },
+  "devDependencies": {},
+  "envVariables": {
+    "NEXT_PUBLIC_POSTHOG_KEY": "",
+    "NEXT_PUBLIC_POSTHOG_HOST": "https://app.posthog.com",
+    "POSTHOG_PERSONAL_API_KEY": ""
+  },
+  "scripts": {},
+  "setupFiles": {
+    "react": [{ "template": "react/posthog.js.hbs", "output": "src/lib/posthog.js" }],
+    "next": [
+      { "template": "next/posthog.js.hbs", "output": "src/lib/posthog.js" },
+      { "template": "next/providers.js.hbs", "output": "src/providers.js" }
+    ],
+    "vue": [{ "template": "vue/posthog.js.hbs", "output": "src/lib/posthog.js" }],
+    "angular": [
+      {
+        "template": "angular/posthog.service.ts.hbs",
+        "output": "src/app/services/posthog.service.ts"
+      }
+    ],
+    "svelte": [{ "template": "svelte/posthog.js.hbs", "output": "src/lib/posthog.js" }],
+    "solid": [{ "template": "solid/posthog.js.hbs", "output": "src/lib/posthog.js" }],
+    "astro": [{ "template": "astro/posthog.js.hbs", "output": "src/lib/posthog.js" }],
+    "vite": [{ "template": "vite/posthog.js.hbs", "output": "src/lib/posthog.js" }],
+    "vanilla": [{ "template": "vanilla/posthog.js.hbs", "output": "src/lib/posthog.js" }]
+  },
+  "packageJsonConfig": {}
+}

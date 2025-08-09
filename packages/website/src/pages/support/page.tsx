@@ -68,7 +68,7 @@ export function SupportPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-16">
+          <h1 className="action-text text-5xl sm:text-6xl md:text-8xl text-comic-red mb-8 sm:mb-16">
             SUPPORT THE MISSION
           </h1>
 
@@ -81,7 +81,7 @@ export function SupportPage() {
                 className="relative"
               >
                 <div
-                  className="relative border-6 border-comic-black rounded-2xl p-6 bg-comic-white transform rotate-3"
+                  className="relative border-6 border-comic-black rounded-2xl p-4 sm:p-6 bg-comic-white transform rotate-3 w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px]"
                   style={{
                     backgroundColor: "var(--comic-white)",
                     borderColor: "var(--comic-black)",
@@ -96,8 +96,6 @@ export function SupportPage() {
                         rgba(0,0,0,0.03) 20px
                       )
                     `,
-                    width: "400px",
-                    height: "400px",
                   }}
                 >
                   <div className="absolute inset-2 border-2 border-comic-black rounded-xl opacity-30"></div>
@@ -109,8 +107,6 @@ export function SupportPage() {
                     style={{
                       filter: "contrast(1.2) saturate(1.3)",
                       imageRendering: "crisp-edges",
-                      maxWidth: "360px",
-                      maxHeight: "360px",
                     }}
                   />
 
@@ -143,9 +139,9 @@ export function SupportPage() {
             </div>
 
             {/* Speech Bubble */}
-            <div className="order-1 md:order-2">
-              <div className="speech-bubble max-w-2xl mx-auto">
-                <p className="font-comic text-xl md:text-2xl">
+            <div className="order-1 md:order-2 px-4 sm:px-0">
+              <div className="speech-bubble max-w-xl mx-auto">
+                <p className="font-comic text-lg sm:text-xl md:text-2xl">
                   <FaHeart className="inline text-comic-red mr-2" />
                   Help us keep Precast <strong>FREE and AWESOME</strong> for all developers! Your
                   support helps us maintain the project, add new features, and
@@ -246,7 +242,7 @@ export function SupportPage() {
           </h2>
 
           <div className="max-w-4xl mx-auto relative">
-            <div className="absolute -top-4 -right-4 action-text text-3xl text-comic-yellow z-10">
+            <div className="absolute -top-4 right-0 sm:-right-4 action-text text-2xl sm:text-3xl text-comic-yellow z-10">
               DONATE!
             </div>
 
@@ -350,8 +346,8 @@ export function SupportPage() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <div className="comic-panel p-12 bg-comic-black text-comic-white relative">
-            <div className="absolute -top-4 -left-4 action-text text-3xl text-comic-yellow z-10">
+          <div className="comic-panel p-8 sm:p-12 bg-comic-black text-comic-white relative">
+            <div className="absolute -top-4 left-0 sm:-left-4 action-text text-2xl sm:text-3xl text-comic-yellow z-10">
               WHY?
             </div>
 

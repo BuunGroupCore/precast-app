@@ -1,0 +1,21 @@
+{
+  "id": "prettier",
+  "name": "Prettier",
+  "description": "Opinionated code formatter",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["prettier"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "setupFiles": {
+    "*": [
+      { "template": ".prettierrc.hbs", "output": ".prettierrc" },
+      { "template": ".prettierignore.hbs", "output": ".prettierignore" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

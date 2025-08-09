@@ -1,0 +1,18 @@
+{
+  "id": "cloudflare",
+  "name": "Cloudflare MCP Server",
+  "description": "Official Cloudflare MCP servers for Workers, DNS, AI Gateway, and more",
+  "category": "deployment",
+  "triggers": {
+    "deployments": ["cloudflare"]
+  },
+  "config": {
+    "server_name": "cloudflare",
+    "command": "git",
+    "args": ["clone", "https://github.com/cloudflare/mcp-server-cloudflare.git"],
+    "env": {
+      "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
+    }
+  },
+  "repository": "https://github.com/cloudflare/mcp-server-cloudflare"
+}

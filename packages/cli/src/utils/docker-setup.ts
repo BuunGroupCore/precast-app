@@ -3,18 +3,11 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 
 import { consola } from "consola";
-import {
-  copy,
-  ensureDir,
-  pathExists,
-  readdir,
-  readFile,
-  readJson,
-  stat,
-  writeFile,
-  writeJson,
-} from "fs-extra";
+import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
+
+const { copy, ensureDir, pathExists, readdir, readFile, readJson, stat, writeFile, writeJson } =
+  fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 

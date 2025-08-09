@@ -1,0 +1,16 @@
+{
+  "id": "vue-i18n",
+  "name": "Vue i18n",
+  "description": "Internationalization plugin for Vue.js",
+  "dependencies": {
+    "vue": ["vue-i18n"],
+    "nuxt": ["@nuxtjs/i18n"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "vue": [{ "template": "i18n.js.hbs", "output": "src/i18n.js" }]
+  },
+  "packageJsonConfig": {}
+}

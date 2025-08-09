@@ -123,7 +123,7 @@ export const footerNavigation: FooterSection[] = [
   {
     title: "RESOURCES",
     links: [
-      { label: "Getting Started", href: "/docs/getting-started", icon: FaCode },
+      { label: "Getting Started", href: "/docs", icon: FaCode },
       { label: "Showcase", href: "/showcase", icon: FaStar },
       { label: "UI Library", href: "https://brutalist.precast.dev", external: true, icon: FaGlobe },
     ],

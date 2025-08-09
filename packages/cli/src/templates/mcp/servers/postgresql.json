@@ -1,0 +1,18 @@
+{
+  "id": "postgresql",
+  "name": "PostgreSQL MCP Server",
+  "description": "Connect and query PostgreSQL databases",
+  "category": "database",
+  "triggers": {
+    "databases": ["postgres", "postgresql"]
+  },
+  "config": {
+    "server_name": "postgresql",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-postgres"],
+    "env": {
+      "POSTGRES_CONNECTION_STRING": "postgresql://user:password@localhost:5432/database"
+    }
+  },
+  "repository": "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres"
+}

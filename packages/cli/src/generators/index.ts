@@ -97,7 +97,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   }
 
   // Setup database-specific files and configurations
-  if (config.orm && config.orm !== "none") {
+  if (config.database && config.database !== "none") {
     try {
       const { setupDatabase } = await import("../utils/database-setup.js");
       await setupDatabase(config, projectPath);

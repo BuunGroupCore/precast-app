@@ -1,0 +1,13 @@
+{
+  "id": "fumadocs",
+  "name": "Fumadocs",
+  "description": "Beautiful documentation framework for Next.js",
+  "dependencies": {
+    "next": ["fumadocs-core", "fumadocs-ui", "fumadocs-mdx"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {},
+  "packageJsonConfig": {}
+}

@@ -1,0 +1,9 @@
+# =============================================================================
+# MCP (Model Context Protocol) Configuration
+# =============================================================================
+# Configure these environment variables to use MCP servers with Claude Code
+
+{{#each envVars}}
+# {{this.comment}}
+{{this.key}}={{this.defaultValue}}
+{{/each}}

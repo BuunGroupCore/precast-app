@@ -1,0 +1,15 @@
+{
+  "id": "sequential-thinking",
+  "name": "Sequential Thinking MCP Server",
+  "description": "Dynamic problem-solving through thought sequences",
+  "category": "ai",
+  "triggers": {
+    "any": false
+  },
+  "config": {
+    "server_name": "sequential-thinking",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+  },
+  "repository": "https://github.com/modelcontextprotocol/servers/tree/main/src/sequential-thinking"
+}

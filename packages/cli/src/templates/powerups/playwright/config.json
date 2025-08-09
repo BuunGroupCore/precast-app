@@ -1,0 +1,22 @@
+{
+  "id": "playwright",
+  "name": "Playwright",
+  "description": "End-to-end testing for modern web apps",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["@playwright/test"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug"
+  },
+  "setupFiles": {
+    "*": [
+      { "template": "playwright.config.ts.hbs", "output": "playwright.config.ts" },
+      { "template": "example.spec.ts.hbs", "output": "tests/example.spec.ts" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

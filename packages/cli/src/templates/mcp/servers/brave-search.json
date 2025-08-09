@@ -1,0 +1,18 @@
+{
+  "id": "brave-search",
+  "name": "Brave Search MCP Server",
+  "description": "Search the web using Brave Search API",
+  "category": "productivity",
+  "triggers": {
+    "any": false
+  },
+  "config": {
+    "server_name": "brave-search",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+    "env": {
+      "BRAVE_API_KEY": "your-brave-api-key"
+    }
+  },
+  "repository": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "bundle-analyzer",
+  "name": "Bundle Analyzer",
+  "description": "Visualize size of webpack/vite output files",
+  "dependencies": {},
+  "devDependencies": {
+    "react": ["webpack-bundle-analyzer", "rollup-plugin-visualizer"],
+    "next": ["@next/bundle-analyzer"],
+    "vue": ["rollup-plugin-visualizer"],
+    "vite": ["rollup-plugin-visualizer"],
+    "*": ["webpack-bundle-analyzer"]
+  },
+  "envVariables": {
+    "ANALYZE": "false"
+  },
+  "scripts": {
+    "analyze": "ANALYZE=true npm run build",
+    "analyze:bundle": "webpack-bundle-analyzer dist/stats.json"
+  },
+  "setupFiles": {
+    "*": [
+      {
+        "template": "webpack-bundle-analyzer.config.js.hbs",
+        "output": "webpack-bundle-analyzer.config.js"
+      }
+    ]
+  },
+  "packageJsonConfig": {}
+}

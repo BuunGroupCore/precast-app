@@ -4,7 +4,6 @@ import { consola } from "consola";
 import fsExtra from "fs-extra";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
-
 import { createTemplateEngine } from "../core/template-engine.js";
 import { getTemplateRoot } from "../utils/template-path.js";
 

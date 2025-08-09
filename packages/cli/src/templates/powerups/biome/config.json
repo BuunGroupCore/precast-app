@@ -1,0 +1,21 @@
+{
+  "id": "biome",
+  "name": "Biome",
+  "description": "Fast formatter and linter written in Rust",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["@biomejs/biome"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --apply .",
+    "check": "biome check --apply ."
+  },
+  "setupFiles": {
+    "*": [{ "template": "biome.json.hbs", "output": "biome.json" }]
+  },
+  "packageJsonConfig": {}
+}

@@ -2,15 +2,15 @@ import { motion } from "framer-motion";
 import { FaStar, FaDownload, FaUsers, FaCodeBranch, FaGithub } from "react-icons/fa";
 
 import { EXTERNAL_LINKS } from "@/config/constants";
-import { useGitHubStats } from "@/hooks/useGitHubStats";
 import { useNpmStats } from "@/hooks/useNpmStats";
+import { usePrecastAPI } from "@/hooks/usePrecastAPI";
 
 /**
  * Community section component displaying GitHub and NPM statistics.
- * Shows real-time community metrics and engagement data.
+ * Shows real-time community metrics from Precast API and NPM.
  */
 export function CommunitySection() {
-  const githubStats = useGitHubStats();
+  const { metrics: precastMetrics, loading: precastLoading, error: precastError } = usePrecastAPI();
   const { stats: npmStats } = useNpmStats();
 
   const formatNumber = (num: number): string => {
@@ -49,7 +49,7 @@ export function CommunitySection() {
               </div>
               <FaStar className="text-5xl mx-auto mb-3 text-comic-black" />
               <div className="action-text text-4xl mb-2 text-comic-black">
-                {githubStats.loading ? "..." : githubStats.stars}
+                {precastLoading ? "..." : precastError ? "!" : precastMetrics?.stars || 0}
               </div>
               <div className="font-display text-xl text-comic-black">GITHUB STARS</div>
             </div>
@@ -72,7 +72,7 @@ export function CommunitySection() {
             <div className="relative border-6 border-comic-black rounded-2xl p-6 text-center bg-comic-blue h-full">
               <FaUsers className="text-5xl mx-auto mb-3 text-comic-white" />
               <div className="action-text text-4xl mb-2 text-comic-white">
-                {githubStats.loading ? "..." : githubStats.contributors}
+                {precastLoading ? "..." : precastError ? "!" : precastMetrics?.contributors || 0}
               </div>
               <div className="font-display text-xl text-comic-white">CONTRIBUTORS</div>
             </div>
@@ -82,7 +82,7 @@ export function CommunitySection() {
             <div className="relative border-6 border-comic-black rounded-2xl p-6 text-center bg-comic-green h-full">
               <FaCodeBranch className="text-5xl mx-auto mb-3 text-comic-white" />
               <div className="action-text text-4xl mb-2 text-comic-white">
-                {githubStats.loading ? "..." : githubStats.forks}
+                {precastLoading ? "..." : precastError ? "!" : precastMetrics?.forks || 0}
               </div>
               <div className="font-display text-xl text-comic-white">FORKS</div>
             </div>

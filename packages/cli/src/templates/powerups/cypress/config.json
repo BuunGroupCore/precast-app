@@ -1,0 +1,19 @@
+{
+  "id": "cypress",
+  "name": "Cypress",
+  "description": "End-to-end testing framework",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["cypress", "@cypress/react", "@cypress/vue"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:e2e": "cypress run"
+  },
+  "setupFiles": {
+    "*": [{ "template": "cypress.config.js.hbs", "output": "cypress.config.js" }]
+  },
+  "packageJsonConfig": {}
+}

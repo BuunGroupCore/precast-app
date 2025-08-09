@@ -1,0 +1,37 @@
+{{#if typescript}}
+import { connect } from '@planetscale/database';
+
+const config = {
+  url: process.env.DATABASE_URL,
+};
+
+const conn = connect(config);
+
+export { conn };
+
+/**
+ * Example usage:
+ * 
+ * const results = await conn.execute('SELECT * FROM users WHERE id = ?', [userId]);
+ * 
+ * Learn more: https://github.com/planetscale/database-js
+ */
+{{else}}
+const { connect } = require('@planetscale/database');
+
+const config = {
+  url: process.env.DATABASE_URL,
+};
+
+const conn = connect(config);
+
+module.exports = { conn };
+
+/**
+ * Example usage:
+ * 
+ * const results = await conn.execute('SELECT * FROM users WHERE id = ?', [userId]);
+ * 
+ * Learn more: https://github.com/planetscale/database-js
+ */
+{{/if}}

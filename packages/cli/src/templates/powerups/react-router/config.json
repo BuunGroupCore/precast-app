@@ -1,0 +1,15 @@
+{
+  "id": "react-router",
+  "name": "React Router",
+  "description": "Declarative routing for React",
+  "dependencies": {
+    "react": ["react-router-dom"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "react": [{ "template": "router.tsx.hbs", "output": "src/router.tsx" }]
+  },
+  "packageJsonConfig": {}
+}

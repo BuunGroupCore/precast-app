@@ -42,10 +42,10 @@ export function OriginStoryPage() {
       <div className="max-w-7xl mx-auto px-4 mb-8">
         <button
           onClick={() => navigate("/")}
-          className="btn-comic bg-comic-white text-comic-black hover:bg-comic-yellow flex items-center gap-2"
+          className="btn-comic bg-comic-white text-comic-black hover:bg-comic-yellow flex items-center gap-2 text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-3"
         >
-          <FaArrowLeft />
-          BACK TO HOME
+          <FaArrowLeft className="text-sm sm:text-base" />
+          <span>BACK TO HOME</span>
         </button>
       </div>
 
@@ -53,14 +53,14 @@ export function OriginStoryPage() {
       <div className="max-w-7xl mx-auto px-4 mb-12">
         <div className="relative">
           <div className="h-2 bg-comic-black rounded-full border-2 border-comic-black shadow-lg"></div>
-          <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
-            <div className="action-text text-xl text-comic-white bg-comic-red px-4 py-1 rounded-full border-4 border-comic-black shadow-lg transform rotate-2">
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-3 sm:-top-4">
+            <div className="action-text text-base sm:text-xl text-comic-white bg-comic-red px-3 sm:px-4 py-1 rounded-full border-2 sm:border-4 border-comic-black shadow-lg transform rotate-2">
               STORY TIME!
             </div>
           </div>
           {/* Comic dots decoration */}
-          <div className="absolute -left-3 -top-1 w-4 h-4 bg-comic-yellow rounded-full border-2 border-comic-black"></div>
-          <div className="absolute -right-3 -top-1 w-4 h-4 bg-comic-blue rounded-full border-2 border-comic-black"></div>
+          <div className="absolute left-0 sm:-left-3 -top-1 w-3 sm:w-4 h-3 sm:h-4 bg-comic-yellow rounded-full border-2 border-comic-black"></div>
+          <div className="absolute right-0 sm:-right-3 -top-1 w-3 sm:w-4 h-3 sm:h-4 bg-comic-blue rounded-full border-2 border-comic-black"></div>
         </div>
       </div>
 
@@ -71,9 +71,11 @@ export function OriginStoryPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="action-text text-6xl md:text-8xl text-comic-red mb-8">ORIGIN STORY</h1>
-          <div className="speech-bubble max-w-4xl mx-auto mb-12">
-            <p className="font-comic text-xl md:text-2xl">
+          <h1 className="action-text text-5xl sm:text-6xl md:text-8xl text-comic-red mb-8">
+            ORIGIN STORY
+          </h1>
+          <div className="speech-bubble max-w-2xl sm:max-w-3xl md:max-w-4xl mx-auto mb-12 mx-4 sm:mx-auto">
+            <p className="font-comic text-lg sm:text-xl md:text-2xl">
               <FaRocket className="inline text-comic-red mr-2" />
               Every superhero has an origin story. Here&apos;s how <strong>PRECAST</strong> was born
               from the frustration of repetitive development setup and the dream of
@@ -110,7 +112,7 @@ export function OriginStoryPage() {
               >
                 {/* Comic Book Panel Frame */}
                 <div
-                  className="relative border-6 border-comic-black rounded-2xl p-6 bg-comic-white transform rotate-3"
+                  className="relative border-4 sm:border-6 border-comic-black rounded-2xl p-4 sm:p-6 bg-comic-white transform rotate-3 w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px]"
                   style={{
                     backgroundColor: "var(--comic-white)",
                     borderColor: "var(--comic-black)",
@@ -125,8 +127,6 @@ export function OriginStoryPage() {
                         rgba(0,0,0,0.03) 20px
                       )
                     `,
-                    width: "400px",
-                    height: "400px",
                   }}
                 >
                   {/* Comic panel border effect */}
@@ -140,8 +140,6 @@ export function OriginStoryPage() {
                     style={{
                       filter: "contrast(1.2) saturate(1.3)",
                       imageRendering: "crisp-edges",
-                      maxWidth: "360px",
-                      maxHeight: "360px",
                     }}
                   />
 
@@ -202,7 +200,7 @@ export function OriginStoryPage() {
 
                   {/* Header section */}
                   <div className="text-center mb-8">
-                    <FaClock className="text-7xl mb-4 mx-auto" />
+                    <FaClock className="text-5xl sm:text-6xl md:text-7xl mb-4 mx-auto" />
                     <h3 className="font-display text-3xl md:text-4xl mb-4 text-comic-white">
                       TIME WASTED
                     </h3>
@@ -295,8 +293,8 @@ export function OriginStoryPage() {
 
               {/* Header section */}
               <div className="mb-8">
-                <FaLightbulb className="text-9xl text-comic-red mx-auto mb-6 animate-pulse" />
-                <h2 className="action-text text-4xl md:text-6xl text-comic-black mb-4">
+                <FaLightbulb className="text-6xl sm:text-8xl md:text-9xl text-comic-red mx-auto mb-6 animate-pulse" />
+                <h2 className="action-text text-3xl sm:text-4xl md:text-6xl text-comic-black mb-4">
                   THE LIGHTBULB MOMENT
                 </h2>
                 <div
@@ -307,14 +305,16 @@ export function OriginStoryPage() {
 
               {/* Description with better formatting */}
               <div className="max-w-4xl mx-auto">
-                <p className="font-comic text-xl md:text-2xl text-comic-black leading-relaxed mb-6">
+                <p className="font-comic text-lg sm:text-xl md:text-2xl text-comic-black leading-relaxed mb-6">
                   What if we could create a{" "}
-                  <span className="text-comic-red font-bold text-3xl">SUPERHERO CLI</span> that
-                  handles all the boring setup stuff, follows best practices, and gets developers
-                  straight to the fun part...
+                  <span className="text-comic-red font-bold text-xl sm:text-2xl md:text-3xl">
+                    SUPERHERO CLI
+                  </span>{" "}
+                  that handles all the boring setup stuff, follows best practices, and gets
+                  developers straight to the fun part...
                 </p>
                 <div
-                  className="inline-block px-6 py-3 rounded-full border-4 border-comic-black transform -rotate-2"
+                  className="inline-block px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-full border-2 sm:border-4 border-comic-black transform -rotate-2"
                   style={{
                     backgroundColor: "var(--comic-red)",
                     color: "var(--comic-white)",
@@ -322,15 +322,15 @@ export function OriginStoryPage() {
                     boxShadow: "4px 4px 0 var(--comic-black)",
                   }}
                 >
-                  <span className="action-text text-2xl">BUILDING AWESOME STUFF!</span>
+                  <span className="action-text text-lg sm:text-2xl">BUILDING AWESOME STUFF!</span>
                 </div>
               </div>
             </div>
 
             {/* Action text bubble - positioned outside */}
-            <div className="absolute -top-6 -right-6 z-30">
+            <div className="absolute -top-4 sm:-top-6 right-0 sm:-right-6 z-30">
               <div
-                className="action-text text-3xl px-5 py-3 rounded-full border-4 border-comic-black transform rotate-12"
+                className="action-text text-xl sm:text-3xl px-3 sm:px-5 py-2 sm:py-3 rounded-full border-3 sm:border-4 border-comic-black transform rotate-12"
                 style={{
                   backgroundColor: "var(--comic-red)",
                   color: "var(--comic-white)",
@@ -360,7 +360,7 @@ export function OriginStoryPage() {
               >
                 {/* Comic Book Panel Frame - Success Version */}
                 <div
-                  className="relative border-6 border-comic-black rounded-2xl p-6 bg-comic-white transform -rotate-2"
+                  className="relative border-4 sm:border-6 border-comic-black rounded-2xl p-4 sm:p-6 bg-comic-white transform -rotate-2 w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px]"
                   style={{
                     backgroundColor: "var(--comic-white)",
                     borderColor: "var(--comic-black)",
@@ -375,8 +375,6 @@ export function OriginStoryPage() {
                         rgba(0,128,0,0.05) 20px
                       )
                     `,
-                    width: "400px",
-                    height: "400px",
                   }}
                 >
                   {/* Comic panel border effect */}
@@ -390,8 +388,6 @@ export function OriginStoryPage() {
                     style={{
                       filter: "contrast(1.3) saturate(1.4)",
                       imageRendering: "crisp-edges",
-                      maxWidth: "360px",
-                      maxHeight: "360px",
                     }}
                   />
 
@@ -458,7 +454,7 @@ export function OriginStoryPage() {
 
                   {/* Header section */}
                   <div className="text-center mb-8">
-                    <FaBolt className="text-7xl mb-4 mx-auto text-comic-green" />
+                    <FaBolt className="text-5xl sm:text-6xl md:text-7xl mb-4 mx-auto text-comic-green" />
                     <h3 className="font-display text-3xl md:text-4xl mb-4 text-comic-black">
                       PRECAST POWER
                     </h3>
@@ -553,7 +549,7 @@ export function OriginStoryPage() {
 
               {/* Header section */}
               <div className="mb-10">
-                <FaUsers className="text-9xl mx-auto mb-6 text-comic-red" />
+                <FaUsers className="text-6xl sm:text-8xl md:text-9xl mx-auto mb-6 text-comic-red" />
                 <h2 className="action-text text-4xl md:text-6xl mb-4 text-comic-black">
                   OUR MISSION
                 </h2>
@@ -571,7 +567,7 @@ export function OriginStoryPage() {
                   by eliminating setup friction and promoting best practices.
                 </p>
                 <div
-                  className="inline-block px-8 py-4 rounded-full border-4 border-comic-black transform rotate-1 mb-8"
+                  className="inline-block px-4 sm:px-8 py-2 sm:py-4 rounded-lg sm:rounded-full border-2 sm:border-4 border-comic-black transform rotate-1 mb-8"
                   style={{
                     backgroundColor: "var(--comic-red)",
                     color: "var(--comic-white)",
@@ -579,15 +575,17 @@ export function OriginStoryPage() {
                     boxShadow: "4px 4px 0 var(--comic-black)",
                   }}
                 >
-                  <span className="action-text text-2xl">CREATING, NOT CONFIGURING!</span>
+                  <span className="action-text text-lg sm:text-2xl">
+                    CREATING, NOT CONFIGURING!
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Action text bubble - positioned outside */}
-            <div className="absolute -top-6 -left-6 z-30">
+            <div className="absolute -top-4 sm:-top-6 left-0 sm:-left-6 z-30">
               <div
-                className="action-text text-3xl px-5 py-3 rounded-full border-4 border-comic-black transform -rotate-12"
+                className="action-text text-xl sm:text-3xl px-3 sm:px-5 py-2 sm:py-3 rounded-full border-3 sm:border-4 border-comic-black transform -rotate-12"
                 style={{
                   backgroundColor: "var(--comic-red)",
                   color: "var(--comic-white)",
@@ -615,7 +613,7 @@ export function OriginStoryPage() {
             }}
             whileHover={{ scale: 1.1, rotate: 2 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-4 px-12 py-6 rounded-full border-4 border-comic-black font-comic font-bold text-2xl transition-all"
+            className="inline-flex items-center gap-2 sm:gap-4 px-6 sm:px-12 py-3 sm:py-6 rounded-lg sm:rounded-full border-2 sm:border-4 border-comic-black font-comic font-bold text-lg sm:text-2xl transition-all"
             style={{
               backgroundColor: "var(--comic-red)",
               borderColor: "var(--comic-black)",
@@ -623,8 +621,8 @@ export function OriginStoryPage() {
               boxShadow: "6px 6px 0 var(--comic-black)",
             }}
           >
-            <FaRocket className="text-3xl" />
-            JOIN THE MISSION!
+            <FaRocket className="text-xl sm:text-3xl" />
+            <span>JOIN THE MISSION!</span>
           </motion.button>
         </motion.div>
       </section>

@@ -1,0 +1,15 @@
+{
+  "id": "puppeteer",
+  "name": "Puppeteer MCP Server",
+  "description": "Browser automation using Puppeteer for web scraping and testing",
+  "category": "productivity",
+  "triggers": {
+    "any": false
+  },
+  "config": {
+    "server_name": "puppeteer",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+  },
+  "repository": "https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer"
+}

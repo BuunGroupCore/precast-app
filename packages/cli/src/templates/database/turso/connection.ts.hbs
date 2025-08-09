@@ -1,0 +1,41 @@
+{{#if typescript}}
+import { createClient } from '@libsql/client';
+
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+
+export { client };
+
+/**
+ * Example usage:
+ * 
+ * const result = await client.execute({
+ *   sql: 'SELECT * FROM users WHERE id = ?',
+ *   args: [userId]
+ * });
+ * 
+ * Learn more: https://github.com/libsql/libsql-client-ts
+ */
+{{else}}
+const { createClient } = require('@libsql/client');
+
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+
+module.exports = { client };
+
+/**
+ * Example usage:
+ * 
+ * const result = await client.execute({
+ *   sql: 'SELECT * FROM users WHERE id = ?',
+ *   args: [userId]
+ * });
+ * 
+ * Learn more: https://github.com/libsql/libsql-client-ts
+ */
+{{/if}}

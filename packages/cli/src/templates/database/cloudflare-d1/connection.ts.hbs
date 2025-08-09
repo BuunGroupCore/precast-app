@@ -1,0 +1,70 @@
+{{#if typescript}}
+/**
+ * Cloudflare D1 Database Connection
+ * 
+ * D1 is accessed through the Cloudflare Workers runtime environment.
+ * The database binding is injected into your worker's env object.
+ */
+
+export interface Env {
+  DB: D1Database;
+  // Add other bindings here
+}
+
+/**
+ * Example usage in a Cloudflare Worker:
+ * 
+ * export default {
+ *   async fetch(request: Request, env: Env): Promise<Response> {
+ *     const result = await env.DB.prepare(
+ *       'SELECT * FROM users WHERE id = ?'
+ *     ).bind(userId).all();
+ *     
+ *     return Response.json(result);
+ *   }
+ * }
+ * 
+ * Learn more: https://developers.cloudflare.com/d1/
+ */
+
+// For local development with Miniflare
+export async function getDatabase(): Promise<D1Database | null> {
+  if (typeof globalThis.env !== 'undefined' && globalThis.env.DB) {
+    return globalThis.env.DB;
+  }
+  return null;
+}
+{{else}}
+/**
+ * Cloudflare D1 Database Connection
+ * 
+ * D1 is accessed through the Cloudflare Workers runtime environment.
+ * The database binding is injected into your worker's env object.
+ */
+
+/**
+ * Example usage in a Cloudflare Worker:
+ * 
+ * export default {
+ *   async fetch(request, env) {
+ *     const result = await env.DB.prepare(
+ *       'SELECT * FROM users WHERE id = ?'
+ *     ).bind(userId).all();
+ *     
+ *     return Response.json(result);
+ *   }
+ * }
+ * 
+ * Learn more: https://developers.cloudflare.com/d1/
+ */
+
+// For local development with Miniflare
+async function getDatabase() {
+  if (typeof globalThis.env !== 'undefined' && globalThis.env.DB) {
+    return globalThis.env.DB;
+  }
+  return null;
+}
+
+module.exports = { getDatabase };
+{{/if}}

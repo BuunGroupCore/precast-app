@@ -1,0 +1,20 @@
+{
+  "id": "mongodb",
+  "name": "MongoDB MCP Server",
+  "description": "Official MongoDB MCP server for database and Atlas management",
+  "category": "database",
+  "triggers": {
+    "databases": ["mongodb", "mongo"]
+  },
+  "config": {
+    "server_name": "mongodb",
+    "command": "npx",
+    "args": ["-y", "mongodb-mcp-server@latest"],
+    "env": {
+      "MDB_MCP_CONNECTION_STRING": "${MDB_MCP_CONNECTION_STRING}",
+      "MDB_MCP_API_CLIENT_ID": "${MDB_MCP_API_CLIENT_ID}",
+      "MDB_MCP_API_CLIENT_SECRET": "${MDB_MCP_API_CLIENT_SECRET}"
+    }
+  },
+  "repository": "https://github.com/mongodb-js/mongodb-mcp-server"
+}

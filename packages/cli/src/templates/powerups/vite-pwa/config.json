@@ -1,0 +1,19 @@
+{
+  "id": "vite-pwa",
+  "name": "Vite PWA",
+  "description": "Zero-config PWA for Vite",
+  "dependencies": {},
+  "devDependencies": {
+    "vite": ["vite-plugin-pwa", "workbox-window"],
+    "react": ["vite-plugin-pwa", "workbox-window"],
+    "vue": ["vite-plugin-pwa", "workbox-window"],
+    "svelte": ["vite-plugin-pwa", "workbox-window"],
+    "solid": ["vite-plugin-pwa", "workbox-window"]
+  },
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "*": [{ "template": "vite-pwa.config.js.hbs", "output": "vite-pwa.config.js" }]
+  },
+  "packageJsonConfig": {}
+}

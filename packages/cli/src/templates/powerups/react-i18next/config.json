@@ -1,0 +1,21 @@
+{
+  "id": "react-i18next",
+  "name": "React i18next",
+  "description": "Internationalization for React apps",
+  "dependencies": {
+    "react": [
+      "i18next",
+      "react-i18next",
+      "i18next-browser-languagedetector",
+      "i18next-http-backend"
+    ],
+    "next": ["i18next", "react-i18next", "next-i18next"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "react": [{ "template": "i18n.js.hbs", "output": "src/i18n.js" }]
+  },
+  "packageJsonConfig": {}
+}

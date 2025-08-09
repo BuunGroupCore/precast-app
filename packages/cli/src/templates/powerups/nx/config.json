@@ -1,0 +1,17 @@
+{
+  "id": "nx",
+  "name": "Nx",
+  "description": "Smart, fast and extensible build system",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["nx", "@nx/workspace", "@nx/devkit"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "nx": "nx",
+    "affected": "nx affected",
+    "graph": "nx graph"
+  },
+  "setupFiles": {},
+  "packageJsonConfig": {}
+}

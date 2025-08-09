@@ -1,0 +1,49 @@
+{
+  "id": "sentry",
+  "name": "Sentry",
+  "description": "Error tracking and performance monitoring",
+  "dependencies": {
+    "react": ["@sentry/react"],
+    "next": ["@sentry/nextjs"],
+    "vue": ["@sentry/vue"],
+    "nuxt": ["@sentry/nuxt"],
+    "angular": ["@sentry/angular"],
+    "svelte": ["@sentry/svelte"],
+    "solid": ["@sentry/browser"],
+    "remix": ["@sentry/remix"],
+    "astro": ["@sentry/astro"],
+    "vite": ["@sentry/react", "@sentry/vite-plugin"],
+    "vanilla": ["@sentry/browser"]
+  },
+  "devDependencies": {
+    "next": ["@sentry/cli"],
+    "vite": ["@sentry/vite-plugin"]
+  },
+  "envVariables": {
+    "SENTRY_DSN": "",
+    "SENTRY_ORG": "",
+    "SENTRY_PROJECT": "",
+    "SENTRY_AUTH_TOKEN": "",
+    "SENTRY_ENVIRONMENT": "development"
+  },
+  "scripts": {},
+  "setupFiles": {
+    "react": [
+      { "template": "instrument.js.hbs", "output": "src/instrument.js" },
+      { "template": "sentry.js.hbs", "output": "src/sentry.js" }
+    ],
+    "next": [
+      { "template": "sentry.base.config.js.hbs", "output": "sentry.base.config.js" },
+      { "template": "sentry.client.config.js.hbs", "output": "sentry.client.config.js" },
+      { "template": "sentry.server.config.js.hbs", "output": "sentry.server.config.js" },
+      { "template": "sentry.edge.config.js.hbs", "output": "sentry.edge.config.js" }
+    ],
+    "vue": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }],
+    "angular": [{ "template": "sentry.service.ts.hbs", "output": "src/app/sentry.service.ts" }],
+    "svelte": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }],
+    "solid": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }],
+    "remix": [{ "template": "sentry.js.hbs", "output": "app/sentry.js" }],
+    "astro": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }],
+    "vite": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }]
+  }
+}

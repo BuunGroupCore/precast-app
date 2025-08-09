@@ -13,3 +13,4 @@ export { useGitHubApi } from "./useGitHubApi";
 export { useNpmData } from "./useNpmData";
 export { useFormatters } from "./useFormatters";
 export { useMetricsCache } from "./useMetricsCache";
+export { usePrecastAPI } from "./usePrecastAPI";

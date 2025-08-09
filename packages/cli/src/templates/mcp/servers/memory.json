@@ -1,0 +1,15 @@
+{
+  "id": "memory",
+  "name": "Memory MCP Server",
+  "description": "Knowledge graph-based persistent memory system",
+  "category": "ai",
+  "triggers": {
+    "any": false
+  },
+  "config": {
+    "server_name": "memory",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-memory"]
+  },
+  "repository": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory"
+}

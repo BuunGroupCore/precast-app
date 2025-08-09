@@ -2,44 +2,26 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaGithub, FaHeart, FaCodeBranch, FaExclamationCircle, FaEye } from "react-icons/fa";
 
+import { usePrecastAPI, formatNumber } from "@/hooks/usePrecastAPI";
 import { trackOutboundLink } from "@/utils/analytics";
 
-interface GitHubRepoData {
-  stargazers_count: number;
-  forks_count: number;
-  watchers_count: number;
-  open_issues_count: number;
-}
-
 /**
- * GitHub stars component that displays repository statistics from the GitHub API.
+ * GitHub stars component that displays repository statistics from the Precast API worker.
  * Shows stars count with a tooltip displaying forks, watchers, and open issues.
  */
 export function GitHubStars() {
-  const [stars, setStars] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { metrics, loading, error } = usePrecastAPI();
   const [showTooltip, setShowTooltip] = useState(false);
-  const [repoData, setRepoData] = useState<GitHubRepoData | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    fetch("https://api.github.com/repos/BuunGroupCore/precast-app")
-      .then((res) => res.json())
-      .then((data) => {
-        setStars(data.stargazers_count);
-        setRepoData(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
-  const formatStars = (count: number) => {
-    if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`;
-    }
-    return count.toString();
-  };
 
   return (
     <div className="relative">
@@ -61,22 +43,22 @@ export function GitHubStars() {
         <div className="flex items-center gap-1">
           <FaHeart className="text-comic-red text-sm animate-pulse" />
           <span className="font-comic font-bold text-sm">
-            {loading ? "..." : stars ? formatStars(stars) : "Star"}
+            {loading ? "..." : metrics ? formatNumber(metrics.stars) : error ? "Error" : "Star"}
           </span>
         </div>
       </motion.a>
 
       <AnimatePresence>
-        {showTooltip && repoData && (
+        {showTooltip && metrics && (
           <motion.div
             initial={{ opacity: 0, y: -10, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.8 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full mt-2 right-0 z-50"
+            className={`absolute top-full mt-2 z-50 ${isMobile ? "right-0" : "right-0"}`}
           >
             <div
-              className="relative border-4 border-comic-black rounded-xl p-4 bg-comic-white min-w-[200px]"
+              className={`relative border-4 border-comic-black rounded-xl p-4 bg-comic-white ${isMobile ? "min-w-[150px]" : "min-w-[200px]"}`}
               style={{
                 boxShadow: "6px 6px 0 var(--comic-black)",
                 background: `
@@ -98,26 +80,26 @@ export function GitHubStars() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FaHeart className="text-comic-red" />
-                  <span className="font-comic font-bold">{repoData.stargazers_count}</span>
+                  <span className="font-comic font-bold">{metrics.stars}</span>
                   <span className="font-comic text-sm">Stars</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <FaCodeBranch className="text-comic-green" />
-                  <span className="font-comic font-bold">{repoData.forks_count}</span>
+                  <span className="font-comic font-bold">{metrics.forks}</span>
                   <span className="font-comic text-sm">Forks</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <FaEye className="text-comic-blue" />
-                  <span className="font-comic font-bold">{repoData.watchers_count}</span>
+                  <span className="font-comic font-bold">{metrics.watchers}</span>
                   <span className="font-comic text-sm">Watchers</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <FaExclamationCircle className="text-comic-purple" />
-                  <span className="font-comic font-bold">{repoData.open_issues_count}</span>
-                  <span className="font-comic text-sm">Issues</span>
+                  <span className="font-comic font-bold">{metrics.openIssues}</span>
+                  <span className="font-comic text-sm">Open Issues</span>
                 </div>
               </div>
 

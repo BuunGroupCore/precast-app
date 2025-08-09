@@ -105,3 +105,14 @@ export const ANALYTICS = {
   POSTHOG_HOST: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
   GOOGLE_ANALYTICS_ID: import.meta.env.VITE_GA_MEASUREMENT_ID || "",
 } as const;
+
+export const FEATURES = {
+  // Set to true to show the beta disclaimer, false to hide it
+  SHOW_BETA_DISCLAIMER: true,
+} as const;
+
+// Keyboard shortcuts
+export const KEYBOARD_SHORTCUTS = {
+  // Press Ctrl/Cmd + Shift + B to reset beta disclaimer
+  RESET_BETA_DISCLAIMER: "ctrl+shift+b",
+} as const;

@@ -1,0 +1,26 @@
+{
+  "servers": [
+    "filesystem",
+    "memory",
+    "sequential-thinking",
+    "puppeteer",
+    "brave-search",
+    "postgresql",
+    "github-official",
+    "github-api",
+    "gitlab",
+    "aws-mcp",
+    "azure-mcp",
+    "azure-devops",
+    "postgresql-community",
+    "multi-database",
+    "universal-database",
+    "postgres-ssl",
+    "filesystem-go",
+    "filesystem-secure",
+    "git-remote",
+    "supabase",
+    "mongodb",
+    "cloudflare"
+  ]
+}

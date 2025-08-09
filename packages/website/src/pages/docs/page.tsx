@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import {
   FaRocket,
   FaCode,
@@ -68,12 +68,31 @@ export function DocsPage() {
   const [expandedSections, setExpandedSections] = useState<string[]>(["getting-started"]);
   const [activeTocItem, setActiveTocItem] = useState("");
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) =>
       prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId]
     );
+  };
+
+  // Close mobile nav when clicking outside or on escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMobileNavOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  // Auto-close mobile nav when selecting an item
+  const handleSectionClick = (sectionId: string) => {
+    setActiveSection(sectionId);
+    // Auto-close on mobile
+    if (window.innerWidth < 1280) {
+      setIsMobileNavOpen(false);
+    }
   };
 
   const currentSection = docSections.find((s) => s.id === activeSection);
@@ -92,39 +111,122 @@ export function DocsPage() {
   return (
     <>
       <DocsPageSEO />
-      <div className="xl:hidden fixed top-36 left-4 z-40">
+
+      {/* Mobile Navigation Button */}
+      <div className="xl:hidden fixed top-24 left-4 z-50">
         <button
           onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-          className="p-3 rounded-lg border-2 font-comic"
+          className="px-3 py-2 rounded-lg border-3 font-comic flex items-center gap-2 transition-all"
           style={{
-            backgroundColor: "var(--comic-yellow)",
+            backgroundColor: isMobileNavOpen ? "var(--comic-red)" : "var(--comic-yellow)",
             borderColor: "var(--comic-black)",
-            boxShadow: "2px 2px 0 var(--comic-black)",
+            color: isMobileNavOpen ? "var(--comic-white)" : "var(--comic-black)",
+            boxShadow: "3px 3px 0 var(--comic-black)",
           }}
         >
-          {isMobileNavOpen ? <FaTimes /> : <FaBars />}
+          <FaBars size={16} />
+          <span className="text-sm font-bold">DOCS</span>
         </button>
       </div>
 
-      <div className="xl:hidden fixed top-36 right-4 z-40">
-        <button
-          onClick={() => setIsMobileTocOpen(!isMobileTocOpen)}
-          className="p-3 rounded-lg border-2 font-comic"
-          style={{
-            backgroundColor: "var(--comic-blue)",
-            borderColor: "var(--comic-black)",
-            color: "var(--comic-white)",
-            boxShadow: "2px 2px 0 var(--comic-black)",
-          }}
-        >
-          <FaHashtag />
-        </button>
-      </div>
+      {/* Mobile Bottom Sheet Overlay */}
+      <AnimatePresence>
+        {isMobileNavOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="xl:hidden fixed inset-0 bg-black/50"
+              style={{ zIndex: 40 }}
+              onClick={() => setIsMobileNavOpen(false)}
+            />
+
+            {/* Mobile Bottom Sheet Navigation */}
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="xl:hidden fixed bottom-0 left-0 right-0 bg-comic-white border-t-4 border-comic-black max-h-[70vh] overflow-hidden"
+              style={{ zIndex: 50 }}
+            >
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="font-comic text-2xl text-comic-purple">DOCUMENTATION</h2>
+                  <button
+                    onClick={() => setIsMobileNavOpen(false)}
+                    className="p-2 rounded-lg border-2 border-comic-black bg-comic-red text-comic-white"
+                  >
+                    <FaTimes size={20} />
+                  </button>
+                </div>
+                <nav className="space-y-2 overflow-y-auto max-h-[50vh]">
+                  {docSections.map((section) => (
+                    <div key={section.id}>
+                      <button
+                        onClick={() => {
+                          if (section.subsections) {
+                            // For sections with subsections, just toggle expansion
+                            setActiveSection(section.id);
+                            toggleSection(section.id);
+                            // Don't close the mobile nav when expanding/collapsing
+                          } else {
+                            // For sections without subsections, navigate and close
+                            handleSectionClick(section.id);
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between p-3 rounded-lg font-comic text-sm transition-all ${
+                          activeSection === section.id
+                            ? "bg-comic-yellow text-comic-black border-2 border-comic-black shadow-comic"
+                            : "hover:bg-comic-yellow/20"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <section.icon className="text-lg" />
+                          <span>{section.title}</span>
+                        </div>
+                        {section.subsections &&
+                          (expandedSections.includes(section.id) ? (
+                            <FaChevronDown className="text-xs" />
+                          ) : (
+                            <FaChevronRight className="text-xs" />
+                          ))}
+                      </button>
+                      {section.subsections && expandedSections.includes(section.id) && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="ml-6 mt-1 space-y-1"
+                        >
+                          {section.subsections.map((sub) => (
+                            <button
+                              key={sub.id}
+                              onClick={() => handleSectionClick(`${section.id}-${sub.id}`)}
+                              className={`w-full text-left p-2 rounded font-comic text-xs transition-all ${
+                                activeSection === `${section.id}-${sub.id}`
+                                  ? "bg-comic-blue text-comic-white"
+                                  : "hover:bg-comic-blue/20"
+                              }`}
+                            >
+                              {sub.title}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
+                  ))}
+                </nav>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <div className="flex min-h-[calc(100vh-8rem)]">
-        <aside
-          className={`w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0 xl:block ${isMobileNavOpen ? "fixed inset-0 z-30 bg-white" : "hidden"}`}
-        >
+        {/* Desktop Sidebar */}
+        <aside className="hidden xl:block w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0">
           <div
             className="relative border-4 rounded-lg p-4 h-full overflow-y-auto"
             style={{
@@ -239,9 +341,8 @@ export function DocsPage() {
           </motion.div>
         </main>
 
-        <aside
-          className={`w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0 xl:block ${isMobileTocOpen ? "fixed inset-0 z-30 bg-white" : "hidden"}`}
-        >
+        {/* Desktop TOC - Hidden on mobile */}
+        <aside className="hidden xl:block w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0">
           <div
             className="relative border-4 rounded-lg p-4 h-full"
             style={{

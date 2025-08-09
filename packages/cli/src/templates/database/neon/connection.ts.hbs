@@ -1,0 +1,29 @@
+{{#if typescript}}
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL!);
+
+export { sql };
+
+/**
+ * Example usage:
+ * 
+ * const result = await sql`SELECT * FROM users WHERE id = ${userId}`;
+ * 
+ * Learn more: https://github.com/neondatabase/serverless
+ */
+{{else}}
+const { neon } = require('@neondatabase/serverless');
+
+const sql = neon(process.env.DATABASE_URL);
+
+module.exports = { sql };
+
+/**
+ * Example usage:
+ * 
+ * const result = await sql`SELECT * FROM users WHERE id = ${userId}`;
+ * 
+ * Learn more: https://github.com/neondatabase/serverless
+ */
+{{/if}}

@@ -1,0 +1,21 @@
+{
+  "id": "commitizen",
+  "name": "Commitizen",
+  "description": "Conventional commit messages",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["commitizen", "cz-conventional-changelog"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "commit": "cz"
+  },
+  "setupFiles": {},
+  "packageJsonConfig": {
+    "config": {
+      "commitizen": {
+        "path": "cz-conventional-changelog"
+      }
+    }
+  }
+}

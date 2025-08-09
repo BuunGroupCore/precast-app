@@ -1,0 +1,33 @@
+{
+  "id": "semantic-release",
+  "name": "Semantic Release",
+  "description": "Automated version management and package publishing",
+  "dependencies": {},
+  "devDependencies": {
+    "*": [
+      "semantic-release",
+      "@semantic-release/changelog",
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/git",
+      "@semantic-release/npm",
+      "@semantic-release/release-notes-generator"
+    ]
+  },
+  "envVariables": {},
+  "scripts": {
+    "release": "semantic-release"
+  },
+  "setupFiles": {},
+  "packageJsonConfig": {
+    "release": {
+      "branches": ["main", "master"],
+      "plugins": [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        "@semantic-release/changelog",
+        "@semantic-release/npm",
+        "@semantic-release/git"
+      ]
+    }
+  }
+}

@@ -35,7 +35,7 @@ export function ComicPageSeparator({
   };
 
   return (
-    <div className="relative w-full h-32" style={{ marginBottom: "-1px" }}>
+    <div className="relative w-full h-24 sm:h-32" style={{ marginBottom: "-1px" }}>
       {/* Torn edge transition */}
       <svg
         className="absolute top-0 w-full h-full"
@@ -59,7 +59,7 @@ export function ComicPageSeparator({
           whileInView={{ scale: 1, rotate: 0 }}
           viewport={{ once: true }}
           transition={{ type: "spring", duration: 0.6 }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
+          className="absolute top-1/2 left-4 sm:left-1/2 transform -translate-y-1/2 sm:-translate-x-1/2 z-20"
         >
           <motion.button
             onClick={handleClick}
@@ -69,22 +69,29 @@ export function ComicPageSeparator({
               boxShadow: "6px 6px 0 var(--comic-black), 12px 12px 0 rgba(0,0,0,0.3)",
             }}
             whileTap={{ scale: 0.95 }}
-            className="action-text text-2xl md:text-3xl px-6 py-3 rounded-full border-4 border-comic-black shadow-2xl transform rotate-2 flex items-center gap-3 cursor-pointer transition-all"
+            className="inline-block font-display uppercase px-2 sm:px-4 md:px-6 py-1 sm:py-2 md:py-3 rounded-full border-2 sm:border-4 border-comic-black shadow-2xl transform rotate-2 cursor-pointer transition-all"
             style={{
               backgroundColor: textBgColor,
               color: textColor,
               boxShadow: "4px 4px 0 var(--comic-black), 8px 8px 0 rgba(0,0,0,0.3)",
+              fontSize: "clamp(0.875rem, 3vw, 1.875rem)",
+              textShadow:
+                "2px 2px 0 var(--comic-black), -1px -1px 0 var(--comic-black), 1px -1px 0 var(--comic-black), -1px 1px 0 var(--comic-black), 1px 1px 0 var(--comic-black)",
             }}
           >
-            {icon && <span className="text-3xl">{icon}</span>}
-            {text}
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+              {icon && <span style={{ fontSize: "1.2em" }}>{icon}</span>}
+              <span className="whitespace-nowrap">{text}</span>
+            </div>
           </motion.button>
         </motion.div>
       )}
 
-      {/* Page number style element */}
-      <div className="absolute bottom-4 right-6 bg-comic-white border-2 border-comic-black px-3 py-1 transform rotate-2">
-        <span className="font-comic text-xs text-comic-black font-bold">PAGE {pageNumber}</span>
+      {/* Page number style element - positioned to avoid overlap on mobile */}
+      <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-6 bg-comic-white border border-comic-black sm:border-2 px-2 sm:px-3 py-0.5 sm:py-1 transform rotate-2 z-10">
+        <span className="font-comic text-[10px] sm:text-xs text-comic-black font-bold">
+          PAGE {pageNumber}
+        </span>
       </div>
     </div>
   );

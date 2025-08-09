@@ -1,0 +1,57 @@
+{
+  "id": "storybook",
+  "name": "Storybook",
+  "description": "Build UI components and pages in isolation",
+  "dependencies": {},
+  "devDependencies": {
+    "react": [
+      "@storybook/react",
+      "@storybook/react-vite",
+      "@storybook/addon-essentials",
+      "@storybook/addon-interactions",
+      "@storybook/addon-links"
+    ],
+    "next": [
+      "@storybook/nextjs",
+      "@storybook/addon-essentials",
+      "@storybook/addon-interactions",
+      "@storybook/addon-links"
+    ],
+    "vue": [
+      "@storybook/vue3-vite",
+      "@storybook/addon-essentials",
+      "@storybook/addon-interactions",
+      "@storybook/addon-links"
+    ],
+    "angular": [
+      "@storybook/angular",
+      "@storybook/addon-essentials",
+      "@storybook/addon-interactions",
+      "@storybook/addon-links"
+    ],
+    "svelte": [
+      "@storybook/svelte-vite",
+      "@storybook/addon-essentials",
+      "@storybook/addon-interactions",
+      "@storybook/addon-links"
+    ],
+    "solid": [
+      "@storybook/html-vite",
+      "@storybook/addon-essentials",
+      "@storybook/addon-interactions",
+      "@storybook/addon-links"
+    ]
+  },
+  "envVariables": {},
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "setupFiles": {
+    "*": [
+      { "template": "main.js.hbs", "output": ".storybook/main.js" },
+      { "template": "preview.js.hbs", "output": ".storybook/preview.js" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

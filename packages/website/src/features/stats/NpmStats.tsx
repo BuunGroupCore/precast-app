@@ -35,6 +35,16 @@ export function NpmStats() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [npmData, setNpmData] = useState<NpmPackageData | null>(null);
   const [downloads, setDownloads] = useState<NpmDownloadData | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -125,10 +135,10 @@ export function NpmStats() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.8 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full mt-2 right-0 z-50"
+            className={`absolute top-full mt-2 z-50 ${isMobile ? "left-0" : "right-0"}`}
           >
             <div
-              className="relative border-4 border-comic-black rounded-xl p-4 bg-comic-white min-w-[250px]"
+              className={`relative border-4 border-comic-black rounded-xl ${isMobile ? "p-3" : "p-4"} bg-comic-white ${isMobile ? "min-w-[180px]" : "min-w-[250px]"}`}
               style={{
                 boxShadow: "6px 6px 0 var(--comic-black)",
                 background: `
@@ -143,45 +153,61 @@ export function NpmStats() {
                 `,
               }}
             >
-              <div className="absolute -top-3 -left-3 action-text text-sm text-comic-white bg-comic-red px-2 py-1 rounded-full border-2 border-comic-black">
-                NPM!
+              {!isMobile && (
+                <div className="absolute -top-3 -left-3 action-text text-sm text-comic-white bg-comic-red px-2 py-1 rounded-full border-2 border-comic-black">
+                  NPM!
+                </div>
+              )}
+
+              <div
+                className={`font-display ${isMobile ? "text-sm" : "text-lg"} mb-3 text-comic-black`}
+              >
+                create-precast-app
               </div>
 
-              <div className="font-display text-lg mb-3 text-comic-black">create-precast-app</div>
-
-              <div className="space-y-2">
+              <div className={`space-y-${isMobile ? "1" : "2"}`}>
                 <div className="flex items-center gap-2">
-                  <FaTag className="text-comic-red" />
-                  <span className="font-comic font-bold">v{getLatestVersion()}</span>
-                  <span className="font-comic text-sm">Latest</span>
+                  <FaTag className={`text-comic-red ${isMobile ? "text-sm" : ""}`} />
+                  <span className={`font-comic font-bold ${isMobile ? "text-xs" : ""}`}>
+                    v{getLatestVersion()}
+                  </span>
+                  <span className={`font-comic ${isMobile ? "text-xs" : "text-sm"}`}>Latest</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <FaDownload className="text-comic-blue" />
-                  <span className="font-comic font-bold">
+                  <FaDownload className={`text-comic-blue ${isMobile ? "text-sm" : ""}`} />
+                  <span className={`font-comic font-bold ${isMobile ? "text-xs" : ""}`}>
                     {downloads?.downloads ? formatDownloads(downloads.downloads) : "..."}
                   </span>
-                  <span className="font-comic text-sm">Weekly Downloads</span>
+                  <span className={`font-comic ${isMobile ? "text-xs" : "text-sm"}`}>
+                    {isMobile ? "Weekly" : "Weekly Downloads"}
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <FaChartLine className="text-comic-green" />
-                  <span className="font-comic font-bold">
+                  <FaChartLine className={`text-comic-green ${isMobile ? "text-sm" : ""}`} />
+                  <span className={`font-comic font-bold ${isMobile ? "text-xs" : ""}`}>
                     {npmData?.versions ? Object.keys(npmData.versions).length : "..."}
                   </span>
-                  <span className="font-comic text-sm">Versions</span>
+                  <span className={`font-comic ${isMobile ? "text-xs" : "text-sm"}`}>Versions</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <FaClock className="text-comic-purple" />
-                  <span className="font-comic font-bold">{getLastPublished() || "..."}</span>
-                  <span className="font-comic text-sm">Published</span>
+                  <FaClock className={`text-comic-purple ${isMobile ? "text-sm" : ""}`} />
+                  <span className={`font-comic font-bold ${isMobile ? "text-xs" : ""}`}>
+                    {getLastPublished() || "..."}
+                  </span>
+                  <span className={`font-comic ${isMobile ? "text-xs" : "text-sm"}`}>
+                    Published
+                  </span>
                 </div>
               </div>
 
-              <div className="absolute bottom-2 right-2">
-                <div className="action-text text-xs text-comic-red opacity-50">INSTALL NOW!</div>
-              </div>
+              {!isMobile && (
+                <div className="absolute bottom-2 right-2">
+                  <div className="action-text text-xs text-comic-red opacity-50">INSTALL NOW!</div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

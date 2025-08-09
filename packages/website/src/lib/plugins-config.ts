@@ -7,8 +7,7 @@ import {
   FaSms,
   FaChartBar,
 } from "react-icons/fa";
-import { MdEmail, MdSend } from "react-icons/md";
-import { SiStripe, SiSocketdotio } from "react-icons/si";
+import { SiStripe, SiSocketdotio, SiResend, SiSendgrid } from "react-icons/si";
 
 /**
  * Plugin definition for UI display
@@ -59,7 +58,7 @@ export const plugins: Plugin[] = [
     name: "Resend",
     category: "email",
     description: "Modern email API built for developers",
-    icon: MdEmail,
+    icon: SiResend,
     pricing: "freemium",
     frameworks: ["*"],
     requiresBackend: true,
@@ -78,7 +77,7 @@ export const plugins: Plugin[] = [
     name: "SendGrid",
     category: "email",
     description: "Trusted email delivery at scale",
-    icon: MdSend,
+    icon: SiSendgrid,
     pricing: "freemium",
     frameworks: ["*"],
     requiresBackend: true,

@@ -272,6 +272,22 @@ export class TemplateEngine {
     ) {
       return true;
     }
+
+    // Skip PrecastBanner variants based on styling
+    if (fileName.startsWith("PrecastBanner-tailwind") && context.styling !== "tailwind") {
+      return true;
+    }
+    if (
+      fileName.startsWith("PrecastBanner.") &&
+      !fileName.includes("-tailwind") &&
+      context.styling === "tailwind" &&
+      (fileName.endsWith(".jsx.hbs") || fileName.endsWith(".tsx.hbs"))
+    ) {
+      return true;
+    }
+    if (fileName === "PrecastBanner.css.hbs" && context.styling === "tailwind") {
+      return true;
+    }
     if (
       !context.typescript &&
       (fileName === "tsconfig.json.hbs" ||

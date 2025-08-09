@@ -1,0 +1,31 @@
+/**
+ * Application Constants for Vite + React
+ * Central configuration for the entire application
+ */
+
+// App Information
+export const APP_CONFIG = {
+  name: '{{name}}',
+  description: 'A modern web application built with React and Vite',
+  version: '1.0.0',
+  url: 'https://{{name}}.com',
+};
+
+// SEO & Meta
+export const SEO_CONFIG = {
+  title: `${APP_CONFIG.name} - Modern Web Application`,
+  description: APP_CONFIG.description,
+  keywords: ['{{name}}', 'React', 'Vite', 'JavaScript'],
+  ogImage: '/og-image.png',
+};
+
+// Social Media
+export const SOCIAL_LINKS = {
+  github: 'https://github.com/{{name}}',
+  twitter: 'https://twitter.com/{{name}}',
+  linkedin: 'https://linkedin.com/company/{{name}}',
+  discord: 'https://discord.gg/{{name}}',
+};
+
+// API Configuration - Vite uses import.meta.env
+export const API_URL = (typeof import !== 'undefined' && import.meta?.env?.VITE_API_URL) || 'http://localhost:3001';

@@ -48,6 +48,12 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     case "nuxt":
       await generateNuxtTemplate(config, projectPath);
       break;
+    case "fastapi":
+      await generateFastApiTemplate(config, projectPath);
+      break;
+    case "convex":
+      await generateConvexTemplate(config, projectPath);
+      break;
     case "solid":
       await generateSolidTemplate(config, projectPath);
       break;
@@ -117,6 +123,16 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await setupPowerUps(projectPath, config.framework, config.powerups, config.typescript);
     } catch (error) {
       logger.warn(`Failed to setup powerups: ${error}`);
+    }
+  }
+
+  // Setup plugins
+  if (config.plugins && config.plugins.length > 0) {
+    try {
+      const { setupPlugins } = await import("../utils/plugins-setup.js");
+      await setupPlugins(config, projectPath, config.plugins);
+    } catch (error) {
+      logger.warn(`Failed to setup plugins: ${error}`);
     }
   }
 

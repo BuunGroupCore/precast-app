@@ -1,0 +1,31 @@
+/**
+ * Application Constants for Next.js
+ * Central configuration for the entire application
+ */
+
+// App Information
+export const APP_CONFIG = {
+  name: '{{name}}',
+  description: 'A modern web application built with Next.js',
+  version: '1.0.0',
+  url: 'https://{{name}}.com',
+};
+
+// SEO & Meta
+export const SEO_CONFIG = {
+  title: `${APP_CONFIG.name} - Modern Web Application`,
+  description: APP_CONFIG.description,
+  keywords: ['{{name}}', 'React', 'Next.js', 'JavaScript'],
+  ogImage: '/og-image.png',
+};
+
+// Social Media
+export const SOCIAL_LINKS = {
+  github: 'https://github.com/{{name}}',
+  twitter: 'https://twitter.com/{{name}}',
+  linkedin: 'https://linkedin.com/company/{{name}}',
+  discord: 'https://discord.gg/{{name}}',
+};
+
+// API Configuration - Next.js uses process.env (server) and NEXT_PUBLIC_ (client)
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';

@@ -330,5 +330,3 @@ export const runtimeDefs: StackOption[] = [
     recommended: ["typescript"],
   },
 ];
-
-// Validation function

@@ -1,0 +1,40 @@
+{
+  "id": "sendgrid",
+  "name": "SendGrid",
+  "description": "Trusted email delivery service",
+  "category": "email",
+  "pricing": "freemium",
+  "dependencies": {
+    "*": ["@sendgrid/mail@^8.0.0"]
+  },
+  "envVariables": {
+    "SENDGRID_API_KEY": "SG....",
+    "SENDGRID_FROM_EMAIL": "noreply@yourdomain.com"
+  },
+  "setupFiles": {
+    "*": [
+      {
+        "template": "email-service.ts.hbs",
+        "output": "src/services/email.ts"
+      }
+    ]
+  },
+  "backendSetupFiles": {
+    "express": [
+      {
+        "template": "express/email-route.ts.hbs",
+        "output": "src/api/routes/email.ts"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Sign up at https://sendgrid.com and get your API key",
+      "2. Add your API key to the .env file",
+      "3. Verify your sender identity",
+      "4. Configure your DNS records for better deliverability"
+    ]
+  },
+  "documentationUrl": "https://docs.sendgrid.com",
+  "setupUrl": "https://app.sendgrid.com"
+}

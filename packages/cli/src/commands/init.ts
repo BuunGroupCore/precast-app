@@ -80,6 +80,8 @@ export interface InitOptions {
   mcpServers?: string[];
   /** Powerups to include (monitoring, testing, linting tools) */
   powerups?: string[];
+  /** Business feature plugins to include (stripe, resend, etc.) */
+  plugins?: string[];
 }
 
 /**

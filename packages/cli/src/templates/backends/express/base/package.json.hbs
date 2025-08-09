@@ -1,10 +1,11 @@
 {
-  "name": "{{config.name}}-api",
+  "name": "{{name}}-api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "dev:node": "tsx watch src/index.ts",
     "build": "tsup",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts,.tsx",
@@ -14,12 +15,13 @@
     "express": "^4.19.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "dotenv": "^16.4.5"{{#if config.typescript}},
-    "@types/express": "^4.17.21",
-    "@types/cors": "^2.8.17"{{/if}}
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    {{#if config.typescript}}"tsx": "^4.7.1",
+    {{#if config.typescript}}"@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^20.11.20",
+    "tsx": "^4.7.1",
     "tsup": "^8.0.2",
     "typescript": "^5.4.2",{{/if}}
     "nodemon": "^3.1.0"

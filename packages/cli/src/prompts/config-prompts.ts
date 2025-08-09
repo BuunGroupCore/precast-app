@@ -369,6 +369,7 @@ export async function gatherProjectConfig(
     language: typescript ? "typescript" : "javascript",
     mcpServers: options.mcpServers,
     powerups: options.powerups,
+    plugins: options.plugins,
     uiFramework,
   };
 }

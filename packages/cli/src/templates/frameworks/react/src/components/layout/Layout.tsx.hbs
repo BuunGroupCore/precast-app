@@ -1,0 +1,23 @@
+{{#if typescript}}import { ReactNode } from "react";{{else}}import React from "react";{{/if}}
+
+import { Footer } from "./Footer";
+
+{{#if typescript}}
+interface LayoutProps {
+  children: ReactNode;
+}
+{{/if}}
+
+/**
+ * Main application layout component
+ */
+export function Layout({ children }{{#if typescript}}: LayoutProps{{/if}}) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
+      <main className="flex-1">
+        {children}
+      </main>
+      <Footer />
+    </div>
+  );
+}

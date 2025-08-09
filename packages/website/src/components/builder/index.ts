@@ -18,6 +18,7 @@ export * from "./StackSummarySection";
 export * from "./RuntimeSection";
 export * from "./AuthSection";
 export * from "./PowerUpsSection";
+export * from "./PluginsSection";
 export * from "./MCPServersSection";
 export * from "./FeatureTogglesSection";
 export * from "./FolderStructureDialog";

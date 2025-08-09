@@ -17,6 +17,7 @@ export interface ExtendedProjectConfig
   runtime?: string;
   auth?: string;
   powerups?: string[];
+  plugins?: string[];
   mcpServers?: string[];
   apiClient?: string;
   databaseDeployment?: "local" | "cloud";

@@ -1,32 +1,40 @@
 import cors from "cors";
-import dotenv from "dotenv";
+import { config } from "dotenv";
 import express, { Request, Response } from "express";
 import helmet from "helmet";
 
-dotenv.config();
+import { 
+  APP_CONFIG, 
+  SERVER_CONFIG, 
+  CORS_CONFIG, 
+  HEALTH_CHECK_CONFIG 
+} from "./config/constants{{#if config.typescript}}.js{{/if}}";
+
+config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors(CORS_CONFIG));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.get("/api/health", (req: Request, res: Response) => {
+app.get(HEALTH_CHECK_CONFIG.path, (req: Request, res: Response) => {
   res.json({ 
     status: "ok", 
-    message: "{{config.name}} API is running",
-    timestamp: new Date().toISOString()
+    message: HEALTH_CHECK_CONFIG.message,
+    timestamp: new Date().toISOString(),
+    version: APP_CONFIG.version,
+    environment: APP_CONFIG.environment
   });
 });
 
-app.get("/api/hello", (req: Request, res: Response) => {
+app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (req: Request, res: Response) => {
   res.json({ 
-    message: "Hello from {{config.name}} API!",
-    version: "1.0.0"
+    message: `Hello from ${APP_CONFIG.name}!`,
+    version: APP_CONFIG.version
   });
 });
 
@@ -39,15 +47,23 @@ app.use("*", (req: Request, res: Response) => {
 });
 
 // Error handler
-app.use((err: Error, req: Request, res: Response, next: any) => {
-  console.error(err.stack);
+app.use((err: Error, req: Request, res: Response) => {
+  // Log error in development only
+  if (process.env.NODE_ENV === "development") {
+    // eslint-disable-next-line no-console
+    console.error(err.stack);
+  }
   res.status(500).json({ 
     error: "Internal server error",
     message: process.env.NODE_ENV === "development" ? err.message : "Something went wrong"
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
+app.listen(SERVER_CONFIG.port, () => {
+  // eslint-disable-next-line no-console
+  console.log(`🚀 Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
+  // eslint-disable-next-line no-console
+  console.log(`📋 Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`);
+  // eslint-disable-next-line no-console
+  console.log(`🌍 Environment: ${APP_CONFIG.environment}`);
 });

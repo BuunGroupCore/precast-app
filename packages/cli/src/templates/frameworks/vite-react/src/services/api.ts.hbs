@@ -1,0 +1,230 @@
+{{#if typescript}}import { API_CONFIG } from '@/config/constants';
+import type { ApiResponse, PaginatedResponse } from '@/types';
+
+/**
+ * API Service
+ * Centralized API communication layer
+ */
+
+class ApiService {
+  private baseUrl: string;
+  private headers: HeadersInit;
+
+  constructor() {
+    this.baseUrl = API_CONFIG.baseUrl;
+    this.headers = API_CONFIG.headers;
+  }
+
+  /**
+   * Generic fetch wrapper with error handling
+   */
+  private async request<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<ApiResponse<T>> {
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...this.headers,
+          ...options?.headers,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return {
+        data,
+        status: 'success',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('API Request failed:', error);
+      
+      return {
+        data: null as any,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        status: 'error',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  /**
+   * GET request
+   */
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'GET',
+    });
+  }
+
+  /**
+   * POST request
+   */
+  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * PUT request
+   */
+  async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * DELETE request
+   */
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * PATCH request
+   */
+  async patch<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+}
+
+// Export singleton instance
+export const apiService = new ApiService();
+
+// Export convenience methods
+export const api = {
+  get: apiService.get.bind(apiService),
+  post: apiService.post.bind(apiService),
+  put: apiService.put.bind(apiService),
+  delete: apiService.delete.bind(apiService),
+  patch: apiService.patch.bind(apiService),
+};
+{{else}}import { API_CONFIG } from '@/config/constants';
+
+/**
+ * API Service
+ * Centralized API communication layer
+ */
+
+class ApiService {
+  constructor() {
+    this.baseUrl = API_CONFIG.baseUrl;
+    this.headers = API_CONFIG.headers;
+  }
+
+  /**
+   * Generic fetch wrapper with error handling
+   */
+  async request(endpoint, options = {}) {
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...this.headers,
+          ...options.headers,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return {
+        data,
+        status: 'success',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('API Request failed:', error);
+      
+      return {
+        data: null,
+        message: error.message || 'Unknown error',
+        status: 'error',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  /**
+   * GET request
+   */
+  async get(endpoint) {
+    return this.request(endpoint, {
+      method: 'GET',
+    });
+  }
+
+  /**
+   * POST request
+   */
+  async post(endpoint, data) {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * PUT request
+   */
+  async put(endpoint, data) {
+    return this.request(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * DELETE request
+   */
+  async delete(endpoint) {
+    return this.request(endpoint, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * PATCH request
+   */
+  async patch(endpoint, data) {
+    return this.request(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+}
+
+// Export singleton instance
+export const apiService = new ApiService();
+
+// Export convenience methods
+export const api = {
+  get: apiService.get.bind(apiService),
+  post: apiService.post.bind(apiService),
+  put: apiService.put.bind(apiService),
+  delete: apiService.delete.bind(apiService),
+  patch: apiService.patch.bind(apiService),
+};
+{{/if}}

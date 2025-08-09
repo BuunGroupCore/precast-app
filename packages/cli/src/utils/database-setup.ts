@@ -2,6 +2,7 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 
 import { consola } from "consola";
+// eslint-disable-next-line no-restricted-imports
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
 
@@ -122,6 +123,7 @@ async function setupORM(
     const prismaDir = path.join(targetPath, "prisma");
     await ensureDir(prismaDir);
 
+    // Handle schema file selection
     let schemaTemplate = "schema.prisma.hbs";
     if (config.database === "neon") schemaTemplate = "schema-neon.prisma.hbs";
     else if (config.database === "planetscale") schemaTemplate = "schema-planetscale.prisma.hbs";
@@ -134,6 +136,37 @@ async function setupORM(
       const rendered = template(context);
       await writeFile(path.join(prismaDir, "schema.prisma"), rendered);
       consola.success("Created Prisma schema");
+    }
+
+    // Handle client file selection based on database type
+    const modernDatabases = ["neon", "planetscale", "turso"];
+    let clientTemplate = "client.ts.hbs";
+
+    // Check if we should use a database-specific client template
+    if (modernDatabases.includes(config.database)) {
+      const specificClientTemplate = `client-${config.database}.ts.hbs`;
+      const specificClientPath = path.join(templateDir, specificClientTemplate);
+
+      // Use specific client template if it exists, otherwise fall back to default
+      if (await pathExists(specificClientPath)) {
+        clientTemplate = specificClientTemplate;
+      }
+    }
+
+    const clientPath = path.join(templateDir, clientTemplate);
+    if (await pathExists(clientPath)) {
+      const content = await readFile(clientPath, "utf-8");
+      const template = Handlebars.compile(content);
+      const rendered = template(context);
+
+      // Create the lib directory for the client file
+      const libDir = path.join(targetPath, "src", "lib");
+      await ensureDir(libDir);
+
+      // Write the client file to the lib directory
+      const ext = context.typescript ? "ts" : "js";
+      await writeFile(path.join(libDir, `prisma.${ext}`), rendered);
+      consola.success(`Created Prisma client (${config.database} configuration)`);
     }
   }
 
@@ -268,6 +301,19 @@ async function processTemplateDirectory(
       await ensureDir(targetDir);
       await processTemplateDirectory(filePath, targetDir, context);
     } else if (file.endsWith(".hbs")) {
+      // Skip ALL client, schema, and connection files - they're handled separately
+      if (
+        file.startsWith("client-") ||
+        file === "client.ts.hbs" ||
+        file.startsWith("schema-") ||
+        file === "schema.prisma.hbs" ||
+        file === "schema.ts.hbs" ||
+        file.startsWith("connection-") ||
+        file === "connection.ts.hbs"
+      ) {
+        continue; // Skip these files as they're handled specially in setupORM
+      }
+
       const templateContent = await readFile(filePath, "utf-8");
       const template = Handlebars.compile(templateContent);
       const rendered = template(context);

@@ -1,0 +1,303 @@
+{{#if typescript}}import React from 'react';{{else}}import React from 'react';{{/if}}
+{{#if (eq styling "styled-components")}}import styled from 'styled-components';{{/if}}
+
+{{#if typescript}}
+/**
+ * Call-to-action section encouraging users to get started
+ * Features gradient backgrounds and prominent action buttons
+ * 
+ * @component
+ * @returns {JSX.Element} The CTA section
+ */
+export const CTA: React.FC = () => {
+{{else}}
+/**
+ * Call-to-action section component
+ */
+export function CTA() {
+{{/if}}
+  return (
+    {{#if (eq styling "tailwind")}}
+    <section id="cta" className="relative py-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="relative bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm rounded-3xl p-12 border border-purple-500/20 overflow-hidden">
+          {/* Animated background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-transparent to-pink-600/10 animate-pulse" />
+          
+          {/* Content */}
+          <div className="relative text-center">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+              Ready to Build Something Amazing?
+            </h2>
+            <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+              Join thousands of developers who are building the future with {{name}}. 
+              Start your journey today and experience the difference.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="group relative px-8 py-4 bg-white text-purple-900 font-bold rounded-xl overflow-hidden transition-all hover:scale-105 shadow-2xl">
+                <span className="relative z-10">Start Building Now</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-100 to-pink-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+              
+              <button className="px-8 py-4 bg-transparent text-white font-bold rounded-xl border-2 border-white/30 hover:bg-white/10 transition-all hover:scale-105">
+                View Examples
+              </button>
+            </div>
+            
+            {/* Trust indicators */}
+            <div className="mt-12 flex flex-wrap justify-center items-center gap-6 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                No credit card required
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Free forever for personal use
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Setup in under 5 minutes
+              </div>
+            </div>
+          </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
+        </div>
+      </div>
+    </section>
+    {{else if (eq styling "styled-components")}}
+    <CTASection id="cta">
+      <CTAContainer>
+        <CTACard>
+          <AnimatedBackground />
+          
+          <CTAContent>
+            <CTATitle>Ready to Build Something Amazing?</CTATitle>
+            <CTASubtitle>
+              Join thousands of developers who are building the future with {{name}}. 
+              Start your journey today and experience the difference.
+            </CTASubtitle>
+            
+            <CTAButtons>
+              <PrimaryButton>Start Building Now</PrimaryButton>
+              <SecondaryButton>View Examples</SecondaryButton>
+            </CTAButtons>
+            
+            <TrustIndicators>
+              <TrustItem>
+                <CheckIcon />
+                No credit card required
+              </TrustItem>
+              <TrustItem>
+                <CheckIcon />
+                Free forever for personal use
+              </TrustItem>
+              <TrustItem>
+                <CheckIcon />
+                Setup in under 5 minutes
+              </TrustItem>
+            </TrustIndicators>
+          </CTAContent>
+          
+          <DecorativeBlob1 />
+          <DecorativeBlob2 />
+        </CTACard>
+      </CTAContainer>
+    </CTASection>
+    {{else}}
+    <section id="cta" className="cta-section">
+      <div className="cta-container">
+        <div className="cta-card">
+          <div className="cta-content">
+            <h2 className="cta-title">Ready to Build Something Amazing?</h2>
+            <p className="cta-subtitle">
+              Join thousands of developers who are building the future with {{name}}. 
+              Start your journey today and experience the difference.
+            </p>
+            
+            <div className="cta-buttons">
+              <button className="btn-primary">Start Building Now</button>
+              <button className="btn-secondary">View Examples</button>
+            </div>
+            
+            <div className="trust-indicators">
+              <div className="trust-item">
+                <span className="check-icon">✓</span>
+                No credit card required
+              </div>
+              <div className="trust-item">
+                <span className="check-icon">✓</span>
+                Free forever for personal use
+              </div>
+              <div className="trust-item">
+                <span className="check-icon">✓</span>
+                Setup in under 5 minutes
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    {{/if}}
+  );
+}{{#if typescript}};{{/if}}
+
+{{#if (eq styling "styled-components")}}
+const CTASection = styled.section`
+  position: relative;
+  padding: 6rem 1rem;
+`;
+
+const CTAContainer = styled.div`
+  max-width: 56rem;
+  margin: 0 auto;
+`;
+
+const CTACard = styled.div`
+  position: relative;
+  background: linear-gradient(to right, rgba(147, 51, 234, 0.2), rgba(236, 72, 153, 0.2));
+  backdrop-filter: blur(4px);
+  border-radius: 1.5rem;
+  padding: 3rem;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  overflow: hidden;
+`;
+
+const AnimatedBackground = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(147, 51, 234, 0.1), transparent, rgba(236, 72, 153, 0.1));
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+`;
+
+const CTAContent = styled.div`
+  position: relative;
+  text-align: center;
+`;
+
+const CTATitle = styled.h2`
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1.5rem;
+  
+  @media (min-width: 640px) {
+    font-size: 3rem;
+  }
+`;
+
+const CTASubtitle = styled.p`
+  font-size: 1.25rem;
+  color: #d1d5db;
+  margin-bottom: 2.5rem;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const CTAButtons = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  
+  @media (min-width: 640px) {
+    flex-direction: row;
+  }
+`;
+
+const PrimaryButton = styled.button`
+  position: relative;
+  padding: 1rem 2rem;
+  background: white;
+  color: #581c87;
+  font-weight: bold;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: transform 0.2s;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  &:hover {
+    transform: scale(1.05);
+    background: linear-gradient(to right, #faf5ff, #fce7f3);
+  }
+`;
+
+const SecondaryButton = styled.button`
+  padding: 1rem 2rem;
+  background: transparent;
+  color: white;
+  font-weight: bold;
+  border-radius: 0.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+  }
+`;
+
+const TrustIndicators = styled.div`
+  margin-top: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+`;
+
+const TrustItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const CheckIcon = () => (
+  <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+  </svg>
+);
+
+const DecorativeBlob1 = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8rem;
+  height: 8rem;
+  background: #9333ea;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(48px);
+  opacity: 0.2;
+`;
+
+const DecorativeBlob2 = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8rem;
+  height: 8rem;
+  background: #ec4899;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(48px);
+  opacity: 0.2;
+`;
+{{/if}}

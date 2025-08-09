@@ -68,6 +68,10 @@ program
     "--powerups <powerups>",
     "Comma-separated list of powerups (sentry, posthog, storybook, prettier, eslint, husky, vitest, playwright)"
   )
+  .option(
+    "--plugins <plugins>",
+    "Comma-separated list of plugins (stripe, resend, sendgrid, socketio)"
+  )
   .action(async (projectName, options) => {
     await initCommand(projectName, {
       yes: options.yes,
@@ -93,6 +97,7 @@ program
       ai: options.ai,
       mcpServers: options.mcpServers,
       powerups: options.powerups ? options.powerups.split(",") : undefined,
+      plugins: options.plugins ? options.plugins.split(",") : undefined,
     });
   });
 program

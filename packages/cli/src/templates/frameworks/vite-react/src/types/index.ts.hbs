@@ -1,0 +1,65 @@
+{{#if typescript}}/**
+ * Type Definitions
+ * Centralized type definitions for the application
+ */
+
+// User types
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: 'admin' | 'user' | 'guest';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// API Response types
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  status: 'success' | 'error';
+  timestamp: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+// Form types
+export interface FormError {
+  field: string;
+  message: string;
+}
+
+export interface FormState<T> {
+  values: T;
+  errors: FormError[];
+  isSubmitting: boolean;
+  isValid: boolean;
+}
+
+// Component Props types
+export interface BaseComponentProps {
+  className?: string;
+  children?: React.ReactNode;
+  id?: string;
+  style?: React.CSSProperties;
+}
+
+// Re-export common types
+export type { AppConfig, NavLink, Feature, Stat, ThemeConfig } from '@/config/constants';
+{{else}}/**
+ * Type Definitions
+ * Centralized type definitions for the application
+ * Note: This is a JavaScript project, but we can still use JSDoc for type hints
+ */
+
+// This file can be used for JSDoc type definitions in JavaScript projects
+// For TypeScript projects, actual interfaces and types would be defined here
+{{/if}}

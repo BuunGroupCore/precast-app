@@ -1,26 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 
 /**
- * Global Prisma client instance to prevent multiple connections in development
+ * Global type for Prisma client instance
+ * @description Prevents multiple instances in development with hot reloading
  */
-declare global {
-  {{#if typescript}}
-  var prisma: PrismaClient | undefined;
-  {{else}}
-  var prisma;
-  {{/if}}
-}
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
 /**
  * Prisma client singleton
  * @description Reuses the same client instance across hot reloads in development
  */
-export const prisma = globalThis.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-});
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+  });
 
 if (process.env.NODE_ENV !== "production") {
-  globalThis.prisma = prisma;
+  globalForPrisma.prisma = prisma;
 }
 
 /**

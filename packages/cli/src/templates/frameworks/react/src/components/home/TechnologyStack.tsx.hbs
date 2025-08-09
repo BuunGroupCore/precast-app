@@ -1,0 +1,158 @@
+import { ExternalLink } from "lucide-react";
+import { FaReact{{#if (eq runtime "node")}}, FaNode{{/if}} } from "react-icons/fa";
+import { SiVite, SiTailwindcss, SiTypescript{{#if (eq runtime "bun")}}, SiBun{{/if}} } from "react-icons/si";
+
+{{#if typescript}}/**
+ * Technology item interface
+ */
+interface TechnologyItem {
+  name: string;
+  icon: React.ReactNode;
+  url: string;
+  description: string;
+  color: {
+    gradient: string;
+    border: string;
+    bg: string;
+    text: string;
+  };
+}{{/if}}
+
+/**
+ * Technology Stack component showcasing the selected technologies
+ * Displays beautiful cards for each technology in the stack
+ */
+export function TechnologyStack() {
+  {{#if typescript}}const technologies: TechnologyItem[] = [{{else}}const technologies = [{{/if}}
+    {
+      name: "{{#if (eq framework "react")}}React{{else if (eq framework "vue")}}Vue.js{{else if (eq framework "angular")}}Angular{{else}}{{framework}}{{/if}}",
+      icon: {{#if typescript}}{{#if (eq framework "react")}}<FaReact className="w-12 h-12" />{{else if (eq framework "vue")}}<FaVuejs className="w-12 h-12" />{{else if (eq framework "angular")}}<FaAngular className="w-12 h-12" />{{else}}<FaReact className="w-12 h-12" />{{/if}}{{else}}<span className="text-4xl">⚛️</span>{{/if}},
+      url: "{{#if (eq framework "react")}}https://react.dev{{else if (eq framework "vue")}}https://vuejs.org{{else if (eq framework "angular")}}https://angular.io{{else}}https://react.dev{{/if}}",
+      description: "{{#if (eq framework "react")}}The library for web and native user interfaces. Learn about components, hooks, and the React ecosystem.{{else if (eq framework "vue")}}The progressive JavaScript framework for building user interfaces with an intuitive API.{{else if (eq framework "angular")}}Platform for building mobile and desktop web applications with TypeScript.{{else}}Modern JavaScript framework for building user interfaces.{{/if}}",
+      color: {
+        gradient: "{{#if (eq framework "react")}}from-blue-600 to-cyan-600{{else if (eq framework "vue")}}from-green-600 to-teal-600{{else if (eq framework "angular")}}from-red-600 to-pink-600{{else}}from-blue-600 to-cyan-600{{/if}}",
+        border: "{{#if (eq framework "react")}}hover:border-blue-500/50{{else if (eq framework "vue")}}hover:border-green-500/50{{else if (eq framework "angular")}}hover:border-red-500/50{{else}}hover:border-blue-500/50{{/if}}",
+        bg: "{{#if (eq framework "react")}}bg-blue-500/10 group-hover:bg-blue-500/20{{else if (eq framework "vue")}}bg-green-500/10 group-hover:bg-green-500/20{{else if (eq framework "angular")}}bg-red-500/10 group-hover:bg-red-500/20{{else}}bg-blue-500/10 group-hover:bg-blue-500/20{{/if}}",
+        text: "{{#if (eq framework "react")}}text-blue-400 group-hover:text-blue-300{{else if (eq framework "vue")}}text-green-400 group-hover:text-green-300{{else if (eq framework "angular")}}text-red-400 group-hover:text-red-300{{else}}text-blue-400 group-hover:text-blue-300{{/if}}"
+      }
+    },
+    {
+      name: "Vite",
+      icon: {{#if typescript}}<SiVite className="w-12 h-12" />{{else}}<span className="text-4xl">⚡</span>{{/if}},
+      url: "https://vitejs.dev",
+      description: "Next generation frontend tooling with lightning fast development server and optimized builds.",
+      color: {
+        gradient: "from-yellow-600 to-orange-600",
+        border: "hover:border-yellow-500/50",
+        bg: "bg-yellow-500/10 group-hover:bg-yellow-500/20",
+        text: "text-yellow-400 group-hover:text-yellow-300"
+      }
+    }{{#if (eq styling "tailwind")}},
+    {
+      name: "Tailwind CSS",
+      icon: {{#if typescript}}<SiTailwindcss className="w-12 h-12" />{{else}}<span className="text-4xl">🎨</span>{{/if}},
+      url: "https://tailwindcss.com",
+      description: "Utility-first CSS framework for building beautiful interfaces without leaving your HTML.",
+      color: {
+        gradient: "from-cyan-600 to-teal-600",
+        border: "hover:border-cyan-500/50",
+        bg: "bg-cyan-500/10 group-hover:bg-cyan-500/20",
+        text: "text-cyan-400 group-hover:text-cyan-300"
+      }
+    }{{/if}}{{#if typescript}},
+    {
+      name: "TypeScript",
+      icon: <SiTypescript className="w-12 h-12" />,
+      url: "https://www.typescriptlang.org",
+      description: "Strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.",
+      color: {
+        gradient: "from-blue-600 to-indigo-600",
+        border: "hover:border-blue-500/50",
+        bg: "bg-blue-500/10 group-hover:bg-blue-500/20",
+        text: "text-blue-400 group-hover:text-blue-300"
+      }
+    }{{#if (eq runtime "bun")}},
+    {
+      name: "Bun",
+      icon: {{#if typescript}}<SiBun className="w-12 h-12" />{{else}}<span className="text-4xl">🥟</span>{{/if}},
+      url: "https://bun.sh",
+      description: "Ultra-fast JavaScript runtime, bundler, test runner and package manager – all in one.",
+      color: {
+        gradient: "from-orange-600 to-red-600",
+        border: "hover:border-orange-500/50",
+        bg: "bg-orange-500/10 group-hover:bg-orange-500/20",
+        text: "text-orange-400 group-hover:text-orange-300"
+      }
+    }{{else if (eq runtime "node")}},
+    {
+      name: "Node.js",
+      icon: {{#if typescript}}<FaNode className="w-12 h-12" />{{else}}<span className="text-4xl">🟢</span>{{/if}},
+      url: "https://nodejs.org",
+      description: "JavaScript runtime built on Chrome's V8 JavaScript engine with a rich ecosystem of packages.",
+      color: {
+        gradient: "from-green-600 to-emerald-600",
+        border: "hover:border-green-500/50",
+        bg: "bg-green-500/10 group-hover:bg-green-500/20",
+        text: "text-green-400 group-hover:text-green-300"
+      }
+    }{{/if}}
+  ];
+
+  return (
+    {{#if (eq styling "tailwind")}}
+    <section className="mb-20">
+      <h3 className="text-3xl font-bold text-white text-center mb-12">
+        Explore Your Technology Stack
+      </h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {technologies.map((tech, index) => (
+          <div key={index} className="group relative">
+            <div className={`absolute -inset-0.5 bg-gradient-to-r ${tech.color.gradient} rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300`}></div>
+            <a
+              href={tech.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`relative flex flex-col h-full p-8 bg-slate-800/90 rounded-2xl border border-slate-700/50 ${tech.color.border} transition-all duration-300 group-hover:scale-105`}
+            >
+              <div className={`w-20 h-20 mb-6 p-4 ${tech.color.bg} rounded-2xl flex items-center justify-center transition-colors`}>
+                <div className={tech.color.text.replace('group-hover:', '')}>
+                  {tech.icon}
+                </div>
+              </div>
+              
+              <h4 className="text-2xl font-bold text-white mb-3 group-hover:text-white/90 transition-colors">
+                {tech.name}
+              </h4>
+              
+              <p className="text-gray-400 text-center mb-6 leading-relaxed flex-grow">
+                {tech.description}
+              </p>
+              
+              <div className={`flex items-center justify-center gap-2 font-medium ${tech.color.text} transition-colors`}>
+                <span>Learn {tech.name}</span>
+                {{#if typescript}}<ExternalLink className="w-4 h-4" />{{else}}↗{{/if}}
+              </div>
+            </a>
+          </div>
+        ))}
+      </div>
+    </section>
+    {{else}}
+    <section className="technology-stack">
+      <h3>Explore Your Technology Stack</h3>
+      
+      <div className="tech-grid">
+        {technologies.map((tech, index) => (
+          <a key={index} href={tech.url} target="_blank" rel="noopener noreferrer" className="tech-card">
+            <div className="tech-icon">{tech.icon}</div>
+            <h4>{tech.name}</h4>
+            <p>{tech.description}</p>
+            <span>Learn {tech.name} ↗</span>
+          </a>
+        ))}
+      </div>
+    </section>
+    {{/if}}
+  );
+}

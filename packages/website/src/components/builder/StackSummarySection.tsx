@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { FaDocker, FaGitAlt, FaPaintBrush, FaFolderOpen } from "react-icons/fa";
 import { SiTypescript } from "react-icons/si";
 
+import { plugins } from "@/lib/plugins-config";
 import { powerUps } from "@/lib/powerups-config";
 import {
   backends,
@@ -43,6 +44,7 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
     config.git ? 1 : 0,
     config.docker ? 1 : 0,
     ...(config.powerups || []).map(() => 1),
+    ...(config.plugins || []).map(() => 1),
   ].reduce((acc, val) => acc + val, 0);
   const getIcon = (type: string, id: string) => {
     switch (type) {
@@ -286,6 +288,32 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
               );
             })()}
         </div>
+
+        {/* Plugins */}
+        {config.plugins && config.plugins.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-comic-white/20">
+            <h4 className="font-comic text-sm mb-2 text-comic-purple text-center">
+              BUSINESS PLUGINS
+            </h4>
+            <div className="flex flex-wrap justify-center gap-3 max-h-20 overflow-y-auto pb-2">
+              {config.plugins.map((pluginId) => {
+                const plugin = plugins.find((p) => p.id === pluginId);
+                if (!plugin) return null;
+                const Icon = plugin.icon;
+                return (
+                  <div
+                    key={pluginId}
+                    className="comic-panel p-2 bg-comic-purple/20 hover:bg-comic-purple/30 transition-colors cursor-pointer flex flex-col items-center gap-1"
+                    title={plugin.description}
+                  >
+                    <Icon className="text-2xl text-white" />
+                    <span className="text-xs font-comic text-center">{plugin.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Power-ups */}
         {(config.typescript ||

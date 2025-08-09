@@ -1,0 +1,61 @@
+{
+  "id": "socketio",
+  "name": "Socket.io",
+  "description": "Real-time bidirectional event-based communication",
+  "category": "realtime",
+  "pricing": "free",
+  "dependencies": {
+    "*": ["socket.io-client@^4.7.0"]
+  },
+  "backendDependencies": {
+    "express": ["socket.io@^4.7.0"],
+    "fastify": ["socket.io@^4.7.0", "@fastify/cors@^8.0.0"]
+  },
+  "devDependencies": {
+    "*": ["@types/socket.io-client@^3.0.0"]
+  },
+  "backendDevDependencies": {
+    "express": ["@types/socket.io@^3.0.0"]
+  },
+  "envVariables": {
+    "SOCKET_IO_CORS_ORIGIN": "http://localhost:3000"
+  },
+  "setupFiles": {
+    "react": [
+      {
+        "template": "react/socket-provider.tsx.hbs",
+        "output": "src/providers/SocketProvider.tsx"
+      },
+      {
+        "template": "react/use-socket.ts.hbs",
+        "output": "src/hooks/useSocket.ts"
+      }
+    ],
+    "vue": [
+      {
+        "template": "vue/socket-plugin.ts.hbs",
+        "output": "src/plugins/socket.ts"
+      }
+    ]
+  },
+  "backendSetupFiles": {
+    "express": [
+      {
+        "template": "express/socket-server.ts.hbs",
+        "output": "src/socket/index.ts"
+      }
+    ]
+  },
+  "scripts": {
+    "dev:socket": "nodemon src/socket/index.ts"
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Socket.io server has been configured",
+      "2. Use the SocketProvider to wrap your app",
+      "3. Use the useSocket hook to access the socket instance",
+      "4. For production, consider using Redis adapter for scaling"
+    ]
+  },
+  "documentationUrl": "https://socket.io/docs/v4/"
+}

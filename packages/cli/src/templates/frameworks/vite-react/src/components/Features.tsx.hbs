@@ -1,0 +1,277 @@
+{{#if typescript}}import React from 'react';{{else}}import React from 'react';{{/if}}
+{{#if (eq styling "styled-components")}}import styled from 'styled-components';{{/if}}
+
+{{#if typescript}}
+interface Feature {
+  icon: JSX.Element;
+  title: string;
+  description: string;
+  gradient: string;
+}
+
+const features: Feature[] = [
+{{else}}
+const features = [
+{{/if}}
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    ),
+    title: "Lightning Fast",
+    description: "Powered by Vite for instant HMR and optimized builds. Experience development at the speed of thought.",
+    gradient: "from-yellow-400 to-orange-500"
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+    ),
+    title: "Secure by Default",
+    description: "Built with security best practices. HTTPS ready, CSP headers, and XSS protection out of the box.",
+    gradient: "from-green-400 to-blue-500"
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+      </svg>
+    ),
+    title: "Component-Based",
+    description: "Modular architecture with reusable components. Build complex UIs with simple, maintainable code.",
+    gradient: "from-purple-400 to-pink-500"
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      </svg>
+    ),
+    title: "Developer Experience",
+    description: "Hot module replacement, TypeScript support, and excellent debugging tools for productive development.",
+    gradient: "from-indigo-400 to-cyan-500"
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+      </svg>
+    ),
+    title: "Cloud Ready",
+    description: "Deploy anywhere - Vercel, Netlify, AWS, or your own infrastructure. Optimized for modern hosting.",
+    gradient: "from-blue-400 to-purple-500"
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+    title: "Production Ready",
+    description: "Battle-tested configuration with optimized builds, code splitting, and performance monitoring.",
+    gradient: "from-red-400 to-yellow-500"
+  }
+];
+
+{{#if typescript}}
+/**
+ * Features section showcasing application capabilities
+ * Displays a grid of feature cards with icons and descriptions
+ * 
+ * @component
+ * @returns {JSX.Element} The features section
+ */
+export const Features: React.FC = () => {
+{{else}}
+/**
+ * Features section component
+ */
+export function Features() {
+{{/if}}
+  return (
+    {{#if (eq styling "tailwind")}}
+    <section id="features" className="relative py-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Section header */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            Powerful Features
+          </h2>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Everything you need to build modern web applications with confidence
+          </p>
+        </div>
+        
+        {/* Features grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="group relative bg-slate-800/30 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50 hover:border-purple-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10"
+            >
+              {/* Gradient background on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-pink-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              {/* Icon */}
+              <div className={`relative inline-flex p-3 rounded-lg bg-gradient-to-br ${feature.gradient} text-white mb-4`}>
+                {feature.icon}
+              </div>
+              
+              {/* Content */}
+              <h3 className="relative text-xl font-semibold text-white mb-2">
+                {feature.title}
+              </h3>
+              <p className="relative text-gray-400 leading-relaxed">
+                {feature.description}
+              </p>
+              
+              {/* Decorative element */}
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    {{else if (eq styling "styled-components")}}
+    <FeaturesSection id="features">
+      <FeaturesContainer>
+        <SectionHeader>
+          <SectionTitle>Powerful Features</SectionTitle>
+          <SectionSubtitle>
+            Everything you need to build modern web applications with confidence
+          </SectionSubtitle>
+        </SectionHeader>
+        
+        <FeaturesGrid>
+          {features.map((feature, index) => (
+            <FeatureCard key={index}>
+              <FeatureIcon gradient={feature.gradient}>
+                {feature.icon}
+              </FeatureIcon>
+              <FeatureTitle>{feature.title}</FeatureTitle>
+              <FeatureDescription>{feature.description}</FeatureDescription>
+            </FeatureCard>
+          ))}
+        </FeaturesGrid>
+      </FeaturesContainer>
+    </FeaturesSection>
+    {{else}}
+    <section id="features" className="features-section">
+      <div className="features-container">
+        <div className="section-header">
+          <h2 className="section-title">Powerful Features</h2>
+          <p className="section-subtitle">
+            Everything you need to build modern web applications with confidence
+          </p>
+        </div>
+        
+        <div className="features-grid">
+          {features.map((feature, index) => (
+            <div key={index} className="feature-card">
+              <div className={`feature-icon ${feature.gradient}`}>
+                {feature.icon}
+              </div>
+              <h3 className="feature-title">{feature.title}</h3>
+              <p className="feature-description">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    {{/if}}
+  );
+}{{#if typescript}};{{/if}}
+
+{{#if (eq styling "styled-components")}}
+const FeaturesSection = styled.section`
+  position: relative;
+  padding: 6rem 1rem;
+`;
+
+const FeaturesContainer = styled.div`
+  max-width: 1280px;
+  margin: 0 auto;
+`;
+
+const SectionHeader = styled.div`
+  text-align: center;
+  margin-bottom: 4rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1rem;
+  
+  @media (min-width: 640px) {
+    font-size: 3rem;
+  }
+`;
+
+const SectionSubtitle = styled.p`
+  font-size: 1.25rem;
+  color: #9ca3af;
+  max-width: 42rem;
+  margin: 0 auto;
+`;
+
+const FeaturesGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+`;
+
+const FeatureCard = styled.div`
+  position: relative;
+  background: rgba(30, 41, 59, 0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  transition: all 0.3s;
+  
+  &:hover {
+    border-color: rgba(147, 51, 234, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(147, 51, 234, 0.1);
+  }
+`;
+
+const FeatureIcon = styled.div<{ gradient: string }>`
+  display: inline-flex;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(to bottom right, ${props => 
+    props.gradient === 'from-yellow-400 to-orange-500' ? '#facc15, #f97316' :
+    props.gradient === 'from-green-400 to-blue-500' ? '#4ade80, #3b82f6' :
+    props.gradient === 'from-purple-400 to-pink-500' ? '#c084fc, #ec4899' :
+    props.gradient === 'from-indigo-400 to-cyan-500' ? '#818cf8, #06b6d4' :
+    props.gradient === 'from-blue-400 to-purple-500' ? '#60a5fa, #a855f7' :
+    '#f87171, #facc15'
+  });
+  color: white;
+  margin-bottom: 1rem;
+`;
+
+const FeatureTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.5rem;
+`;
+
+const FeatureDescription = styled.p`
+  color: #9ca3af;
+  line-height: 1.75;
+`;
+{{/if}}

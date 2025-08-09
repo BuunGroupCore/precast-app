@@ -1,0 +1,47 @@
+{
+  "id": "resend",
+  "name": "Resend",
+  "description": "Modern email API for developers",
+  "category": "email",
+  "pricing": "freemium",
+  "dependencies": {
+    "*": ["resend@^3.0.0"],
+    "react": ["@react-email/components@^0.0.14"]
+  },
+  "envVariables": {
+    "RESEND_API_KEY": "re_...",
+    "RESEND_FROM_EMAIL": "noreply@yourdomain.com"
+  },
+  "setupFiles": {
+    "*": [
+      {
+        "template": "email-service.ts.hbs",
+        "output": "src/services/email.ts"
+      }
+    ],
+    "next": [
+      {
+        "template": "next/api-route.ts.hbs",
+        "output": "src/app/api/email/route.ts"
+      }
+    ]
+  },
+  "backendSetupFiles": {
+    "express": [
+      {
+        "template": "express/email-route.ts.hbs",
+        "output": "src/api/routes/email.ts"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Sign up at https://resend.com and get your API key",
+      "2. Add your API key to the .env file",
+      "3. Verify your domain at https://resend.com/domains",
+      "4. Update the FROM_EMAIL in your .env file"
+    ]
+  },
+  "documentationUrl": "https://resend.com/docs",
+  "setupUrl": "https://resend.com/signup"
+}

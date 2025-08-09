@@ -1,0 +1,90 @@
+/**
+ * Utility Functions
+ * Common utility functions used throughout the application
+ */
+
+/**
+ * Formats a number as currency
+ */
+export const formatCurrency = (amount{{#if typescript}}: number{{/if}}, currency = 'USD'){{#if typescript}}: string{{/if}} => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+};
+
+/**
+ * Formats a date to a readable string
+ */
+export const formatDate = (date{{#if typescript}}: Date | string{{/if}}, format = 'long'){{#if typescript}}: string{{/if}} => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const options{{#if typescript}}: Intl.DateTimeFormatOptions{{/if}} = 
+    format === 'short' 
+      ? { month: 'short', day: 'numeric', year: 'numeric' }
+      : { month: 'long', day: 'numeric', year: 'numeric' };
+  
+  return new Intl.DateTimeFormat('en-US', options).format(d);
+};
+
+/**
+ * Debounce function to limit function calls
+ */
+export const debounce = {{#if typescript}}<T extends (...args: any[]) => any>{{/if}}(
+  func{{#if typescript}}: T{{/if}},
+  delay{{#if typescript}}: number{{/if}}
+){{#if typescript}}: (...args: Parameters<T>) => void{{/if}} => {
+  let timeoutId{{#if typescript}}: NodeJS.Timeout | null = null{{/if}};
+  
+  return (...args{{#if typescript}}: Parameters<T>{{/if}}) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
+/**
+ * Classnames utility for conditional classes
+ */
+export const cn = (...classes{{#if typescript}}: (string | undefined | null | false)[]{{/if}}){{#if typescript}}: string{{/if}} => {
+  return classes.filter(Boolean).join(' ');
+};
+
+/**
+ * Sleep/delay function for async operations
+ */
+export const sleep = (ms{{#if typescript}}: number{{/if}}){{#if typescript}}: Promise<void>{{/if}} => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+/**
+ * Generate a random ID
+ */
+export const generateId = (){{#if typescript}}: string{{/if}} => {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
+
+/**
+ * Truncate text with ellipsis
+ */
+export const truncate = (text{{#if typescript}}: string{{/if}}, maxLength{{#if typescript}}: number{{/if}}){{#if typescript}}: string{{/if}} => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
+};
+
+/**
+ * Check if we're in a browser environment
+ */
+export const isBrowser = (){{#if typescript}}: boolean{{/if}} => {
+  return typeof window !== 'undefined';
+};
+
+/**
+ * Get initials from a name
+ */
+export const getInitials = (name{{#if typescript}}: string{{/if}}){{#if typescript}}: string{{/if}} => {
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};

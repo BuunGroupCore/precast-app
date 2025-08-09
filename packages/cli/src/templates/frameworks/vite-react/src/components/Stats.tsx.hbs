@@ -1,0 +1,216 @@
+{{#if typescript}}import React from 'react';{{else}}import React from 'react';{{/if}}
+{{#if (eq styling "styled-components")}}import styled from 'styled-components';{{/if}}
+
+{{#if typescript}}
+interface Stat {
+  value: string;
+  label: string;
+  suffix?: string;
+}
+
+const stats: Stat[] = [
+{{else}}
+const stats = [
+{{/if}}
+  { value: "99.9", label: "Uptime", suffix: "%" },
+  { value: "< 100", label: "Load Time", suffix: "ms" },
+  { value: "100", label: "Lighthouse Score", suffix: "/100" },
+  { value: "A+", label: "Security Rating" }
+];
+
+{{#if typescript}}
+/**
+ * Stats section displaying key performance metrics
+ * Shows impressive numbers with animated counters
+ * 
+ * @component
+ * @returns {JSX.Element} The stats section
+ */
+export const Stats: React.FC = () => {
+{{else}}
+/**
+ * Stats section component
+ */
+export function Stats() {
+{{/if}}
+  return (
+    {{#if (eq styling "tailwind")}}
+    <section id="stats" className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-transparent to-purple-900/10" />
+      
+      <div className="relative max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            Built for Performance
+          </h2>
+          <p className="text-xl text-gray-400">
+            Optimized for speed, reliability, and developer experience
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          {stats.map((stat, index) => (
+            <div key={index} className="text-center group">
+              <div className="relative inline-block">
+                <div className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                  {stat.value}
+                  {stat.suffix && (
+                    <span className="text-3xl sm:text-4xl ml-1">{stat.suffix}</span>
+                  )}
+                </div>
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <div className="text-gray-400 font-medium text-lg">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    {{else if (eq styling "styled-components")}}
+    <StatsSection id="stats">
+      <StatsContainer>
+        <SectionHeader>
+          <SectionTitle>Built for Performance</SectionTitle>
+          <SectionSubtitle>
+            Optimized for speed, reliability, and developer experience
+          </SectionSubtitle>
+        </SectionHeader>
+        
+        <StatsGrid>
+          {stats.map((stat, index) => (
+            <StatItem key={index}>
+              <StatValue>
+                {stat.value}
+                {stat.suffix && <StatSuffix>{stat.suffix}</StatSuffix>}
+              </StatValue>
+              <StatLabel>{stat.label}</StatLabel>
+            </StatItem>
+          ))}
+        </StatsGrid>
+      </StatsContainer>
+    </StatsSection>
+    {{else}}
+    <section id="stats" className="stats-section">
+      <div className="stats-container">
+        <div className="section-header">
+          <h2 className="section-title">Built for Performance</h2>
+          <p className="section-subtitle">
+            Optimized for speed, reliability, and developer experience
+          </p>
+        </div>
+        
+        <div className="stats-grid">
+          {stats.map((stat, index) => (
+            <div key={index} className="stat-item">
+              <div className="stat-value">
+                {stat.value}
+                {stat.suffix && <span className="stat-suffix">{stat.suffix}</span>}
+              </div>
+              <div className="stat-label">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    {{/if}}
+  );
+}{{#if typescript}};{{/if}}
+
+{{#if (eq styling "styled-components")}}
+const StatsSection = styled.section`
+  position: relative;
+  padding: 6rem 1rem;
+  overflow: hidden;
+`;
+
+const StatsContainer = styled.div`
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+`;
+
+const SectionHeader = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1rem;
+  
+  @media (min-width: 640px) {
+    font-size: 3rem;
+  }
+`;
+
+const SectionSubtitle = styled.p`
+  font-size: 1.25rem;
+  color: #9ca3af;
+`;
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+`;
+
+const StatItem = styled.div`
+  text-align: center;
+  
+  &:hover {
+    .stat-value {
+      &::after {
+        opacity: 1;
+      }
+    }
+  }
+`;
+
+const StatValue = styled.div`
+  position: relative;
+  display: inline-block;
+  font-size: 3rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #c084fc, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+  
+  @media (min-width: 640px) {
+    font-size: 3.75rem;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -1rem;
+    background: linear-gradient(to right, rgba(147, 51, 234, 0.2), rgba(236, 72, 153, 0.2));
+    border-radius: 0.5rem;
+    filter: blur(12px);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+`;
+
+const StatSuffix = styled.span`
+  font-size: 2rem;
+  margin-left: 0.25rem;
+  
+  @media (min-width: 640px) {
+    font-size: 2.25rem;
+  }
+`;
+
+const StatLabel = styled.div`
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 1.125rem;
+`;
+{{/if}}

@@ -15,6 +15,7 @@ import {
   FrameworkSection,
   InstallOptionsSection,
   MCPServersSection,
+  PluginsSection,
   PowerUpsSection,
   PreferredStacksDialog,
   PresetTemplatesSection,
@@ -293,6 +294,11 @@ export function BuilderPage() {
       parts.push(`--powerups=${config.powerups.join(",")}`);
     }
 
+    /** Plugins */
+    if (config.plugins && config.plugins.length > 0) {
+      parts.push(`--plugins=${config.plugins.join(",")}`);
+    }
+
     /** CLI Feature Toggles (add flags for disabled features) */
     if (config.prettier === false) {
       parts.push("--no-prettier");
@@ -405,7 +411,10 @@ export function BuilderPage() {
               {/* 8. Power-ups - Development tools and extensions */}
               <PowerUpsSection config={config} setConfig={setConfig} />
 
-              {/* 9. AI Assistance Section - Development assistance */}
+              {/* 9. Plugins - Business integrations */}
+              <PluginsSection config={config} setConfig={setConfig} />
+
+              {/* 10. AI Assistance Section - Development assistance */}
               <AIAssistanceSection config={config} setConfig={setConfig} />
 
               {/* 10. MCP Servers Section - AI-powered integrations (only for Claude Code) */}

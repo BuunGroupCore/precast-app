@@ -123,6 +123,27 @@ async function generateSingleAppProject(
     overwrite: true,
   });
 
+  // Copy common public assets first (for all frameworks)
+  const commonPublicDir = `common/public`;
+  const extendedConfig = {
+    ...config,
+    currentDate: new Date().toISOString().split("T")[0], // Add current date for sitemap
+  };
+  await templateEngine.copyTemplateDirectory(
+    commonPublicDir,
+    path.join(projectPath, "public"),
+    extendedConfig,
+    {
+      overwrite: false, // Don't overwrite framework-specific files
+    }
+  );
+
+  // Copy common src config (constants, etc.)
+  const commonSrcDir = `common/src`;
+  await templateEngine.copyTemplateDirectory(commonSrcDir, path.join(projectPath, "src"), config, {
+    overwrite: false, // Don't overwrite framework-specific files
+  });
+
   const srcDir = `frameworks/${framework}/src`;
   if (
     await templateEngine
@@ -132,6 +153,38 @@ async function generateSingleAppProject(
     await templateEngine.copyTemplateDirectory(srcDir, path.join(projectPath, "src"), config, {
       overwrite: true,
     });
+  }
+
+  // Copy common components (PrecastBanner, etc.) AFTER framework src
+  const commonComponentsDir = `common/components`;
+  try {
+    await templateEngine.copyTemplateDirectory(
+      commonComponentsDir,
+      path.join(projectPath, "src/components"),
+      config,
+      {
+        overwrite: false, // Don't overwrite framework-specific components
+      }
+    );
+  } catch (error) {
+    // Log but don't fail if common components don't exist
+    consola.debug(`Common components not found or error copying: ${error}`);
+  }
+
+  const publicDir = `frameworks/${framework}/public`;
+  if (
+    await templateEngine
+      .getAvailableTemplates(`frameworks/${framework}`)
+      .then((dirs: string[]) => dirs.includes("public"))
+  ) {
+    await templateEngine.copyTemplateDirectory(
+      publicDir,
+      path.join(projectPath, "public"),
+      config,
+      {
+        overwrite: true,
+      }
+    );
   }
 }
 
@@ -165,6 +218,21 @@ async function generateMonorepoProject(
     overwrite: true,
   });
 
+  // Copy common public assets first (for all frameworks)
+  const commonPublicDir = `common/public`;
+  const extendedConfig = {
+    ...config,
+    currentDate: new Date().toISOString().split("T")[0], // Add current date for sitemap
+  };
+  await templateEngine.copyTemplateDirectory(
+    commonPublicDir,
+    path.join(webDir, "public"),
+    extendedConfig,
+    {
+      overwrite: false, // Don't overwrite framework-specific files
+    }
+  );
+
   const srcDir = `frameworks/${framework}/src`;
   if (
     await templateEngine
@@ -172,6 +240,33 @@ async function generateMonorepoProject(
       .then((dirs: string[]) => dirs.includes("src"))
   ) {
     await templateEngine.copyTemplateDirectory(srcDir, path.join(webDir, "src"), config, {
+      overwrite: true,
+    });
+  }
+
+  // Copy common components (PrecastBanner, etc.) AFTER framework src
+  const commonComponentsDir = `common/components`;
+  try {
+    await templateEngine.copyTemplateDirectory(
+      commonComponentsDir,
+      path.join(webDir, "src/components"),
+      config,
+      {
+        overwrite: false, // Don't overwrite framework-specific components
+      }
+    );
+  } catch (error) {
+    // Log but don't fail if common components don't exist
+    consola.debug(`Common components not found or error copying: ${error}`);
+  }
+
+  const publicDir = `frameworks/${framework}/public`;
+  if (
+    await templateEngine
+      .getAvailableTemplates(`frameworks/${framework}`)
+      .then((dirs: string[]) => dirs.includes("public"))
+  ) {
+    await templateEngine.copyTemplateDirectory(publicDir, path.join(webDir, "public"), config, {
       overwrite: true,
     });
   }

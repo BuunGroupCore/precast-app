@@ -36,6 +36,7 @@ export interface ProjectConfig {
   apiClient?: string;
   mcpServers?: string[];
   powerups?: string[];
+  plugins?: string[]; // Business feature plugins (stripe, resend, etc.)
   uiFramework?: string; // UI framework when using Vite
   includeAdminTools?: boolean; // Include admin tools like pgAdmin, phpMyAdmin, etc.
   dbUser?: string; // Database user name

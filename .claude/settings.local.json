@@ -116,7 +116,14 @@
       "WebFetch(domain:better-t3-stack.dev)",
       "WebFetch(domain:docs.convex.dev)",
       "Bash(./convert-key.sh:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(for file in src/templates/frameworks/vite-react/src/components/*.tsx.hbs)",
+      "Bash(do)",
+      "Bash(packages/cli/dist/cli.js init test-plugin-react --framework react --backend express --database postgres --orm prisma --styling tailwind --plugins stripe --yes)",
+      "Bash(packages/cli/dist/cli.js init test-plugin-react --framework react --backend express --database postgres --orm prisma --styling tailwind --plugins stripe --yes --install)",
+      "Bash(packages/cli/dist/cli.js init test-plugin-react --framework react --backend express --database postgres --orm prisma --styling tailwind --plugins stripe,resend --yes)",
+      "Bash(./packages/cli/dist/cli.js init test-postgres-fixed --framework react --backend express --database postgres --orm prisma --styling tailwind --runtime node --yes)",
+      "Bash(./packages/cli/dist/cli.js init test-react-final --framework react --backend none --database none --orm none --styling tailwind --runtime node --install --yes)"
     ],
     "deny": []
   }

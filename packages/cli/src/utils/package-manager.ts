@@ -82,6 +82,17 @@ export async function detectPackageManager(): Promise<PackageManager> {
   if (await fs.pathExists("package-lock.json")) return "npm";
 
   // Check which package managers are available
+  return detectAvailablePackageManager();
+}
+
+/**
+ * Detect which package manager is available on the system (ignoring lock files)
+ * This is useful for initial project creation where we shouldn't be influenced
+ * by parent directory lock files
+ * @returns The detected package manager
+ */
+export async function detectAvailablePackageManager(): Promise<PackageManager> {
+  // Check which package managers are available, preferring bun
   try {
     await execa("bun", ["--version"], { stdio: "ignore" });
     return "bun";
@@ -237,6 +248,23 @@ export async function checkPackageManagerAvailable(packageManager: string): Prom
     return true;
   } catch {
     return false;
+  }
+}
+
+export async function getPackageManagerVersion(packageManager: string): Promise<string> {
+  try {
+    const { stdout } = await execa(packageManager, ["--version"], { stdio: "pipe" });
+    // Clean up the version string (remove 'v' prefix if present, trim whitespace)
+    return stdout.trim().replace(/^v/, "");
+  } catch {
+    // Return a fallback version if we can't detect it
+    const fallbackVersions: Record<string, string> = {
+      npm: "10.2.5",
+      yarn: "1.22.19",
+      pnpm: "8.15.5",
+      bun: "1.1.0",
+    };
+    return fallbackVersions[packageManager] || "latest";
   }
 }
 

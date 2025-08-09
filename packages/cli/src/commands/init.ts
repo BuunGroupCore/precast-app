@@ -152,6 +152,10 @@ export async function initCommand(projectName: string | undefined, options: Init
     const s = spinner();
     s.start("Creating project structure");
     try {
+      // Get the package manager version for the packageManager field in package.json
+      const { getPackageManagerVersion } = await import("../utils/package-manager.js");
+      config.packageManagerVersion = await getPackageManagerVersion(config.packageManager);
+
       const { generateTemplate } = await import("../generators/index.js");
       await generateTemplate(config, projectPath);
 
@@ -179,7 +183,8 @@ export async function initCommand(projectName: string | undefined, options: Init
       }
       if (options.install || config.autoInstall) {
         s.start("Installing dependencies");
-        const pm = options.packageManager || (await detectPackageManager());
+        // Use the package manager from config which was already determined
+        const pm = config.packageManager;
         if (!(await checkPackageManagerAvailable(pm))) {
           log.warning(`Package manager ${pm} not available, falling back to npm`);
         }
@@ -193,7 +198,7 @@ export async function initCommand(projectName: string | undefined, options: Init
         s.start("Running security audit");
         try {
           await runSecurityAudit({
-            packageManager: pm,
+            packageManager: config.packageManager,
             projectPath: projectPath,
             autoFix: true,
           });
@@ -252,12 +257,9 @@ export async function initCommand(projectName: string | undefined, options: Init
       log.message("Next steps:");
       log.message(`  ${pc.cyan(`cd ${config.name}`)}`);
       if (!options.install && !config.autoInstall) {
-        const pm = options.packageManager || (await detectPackageManager());
-        log.message(`  ${pc.cyan(`${pm} install`)}`);
+        log.message(`  ${pc.cyan(`${config.packageManager} install`)}`);
       }
-      log.message(
-        `  ${pc.cyan(`${options.packageManager || (await detectPackageManager())} run dev`)}`
-      );
+      log.message(`  ${pc.cyan(`${config.packageManager} run dev`)}`);
       log.message("");
       log.message("Happy coding! 🚀");
     } catch (error) {

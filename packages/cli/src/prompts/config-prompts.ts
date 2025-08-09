@@ -15,6 +15,7 @@ import type { InitOptions } from "../commands/init.js";
 import { getFilteredAuthOptions, isAuthProviderCompatibleWithStack } from "../utils/auth-setup.js";
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
 import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
+import { detectAvailablePackageManager } from "../utils/package-manager.js";
 
 import { promptAIAssistant, isValidAIAssistant } from "./ai-assistant.js";
 import { promptApiClient } from "./api-client.js";
@@ -331,7 +332,7 @@ export async function gatherProjectConfig(
     aiAssistant = "none";
   }
 
-  const packageManager = options.packageManager || "npm";
+  const packageManager = options.packageManager || (await detectAvailablePackageManager());
 
   let autoInstall = false;
   if (!options.yes) {

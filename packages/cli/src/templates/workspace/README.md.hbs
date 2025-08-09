@@ -1,15 +1,15 @@
-# {{config.name}}
+# {{name}}
 
-A modern full-stack application built with {{config.framework}} and {{config.backend}}.
+A modern full-stack application built with {{framework}} and {{backend}}.
 
 ## Project Structure
 
 ```
-{{config.name}}/
+{{name}}/
 ├── apps/
-│   ├── web/          # Frontend ({{config.framework}})
-{{#if (eq config.backend "cloudflare-workers")}}│   └── workers/      # Cloudflare Workers
-{{else}}│   └── api/          # Backend ({{config.backend}})
+│   ├── web/          # Frontend ({{framework}})
+{{#if (eq backend "cloudflare-workers")}}│   └── workers/      # Cloudflare Workers
+{{else}}│   └── api/          # Backend ({{backend}})
 {{/if}}├── packages/
 │   └── shared/       # Shared utilities and types
 ├── package.json      # Root workspace configuration
@@ -20,12 +20,12 @@ A modern full-stack application built with {{config.framework}} and {{config.bac
 
 1. Install dependencies:
    ```bash
-   {{config.packageManager}} install
+   {{packageManager}} install
    ```
 
 2. Start development servers:
    ```bash
-   {{config.packageManager}} run dev
+   {{packageManager}} run dev
    ```
 
    This will start:
@@ -34,32 +34,32 @@ A modern full-stack application built with {{config.framework}} and {{config.bac
 
 ## Available Scripts
 
-- `{{config.packageManager}} run dev` - Start development servers
-- `{{config.packageManager}} run build` - Build all applications
-- `{{config.packageManager}} run start` - Start production servers
-- `{{config.packageManager}} run lint` - Lint all packages
-- `{{config.packageManager}} run type-check` - Type check all packages
+- `{{packageManager}} run dev` - Start development servers
+- `{{packageManager}} run build` - Build all applications
+- `{{packageManager}} run start` - Start production servers
+- `{{packageManager}} run lint` - Lint all packages
+- `{{packageManager}} run type-check` - Type check all packages
 
 ## Tech Stack
 
 ### Frontend (apps/web)
-- **Framework**: {{config.framework}}
-- **Styling**: {{config.styling}}
-{{#if config.uiLibrary}}- **UI Library**: {{config.uiLibrary}}{{/if}}
-{{#if config.typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
+- **Framework**: {{framework}}
+- **Styling**: {{styling}}
+{{#if uiLibrary}}- **UI Library**: {{uiLibrary}}{{/if}}
+{{#if typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
 
-### Backend (apps/{{#if (eq config.backend "cloudflare-workers")}}workers{{else}}api{{/if}})
-- **Framework**: {{config.backend}}
-{{#if config.database}}- **Database**: {{config.database}}{{/if}}
-{{#if config.orm}}- **ORM**: {{config.orm}}{{/if}}
-{{#if config.typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
+### Backend (apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}})
+- **Framework**: {{backend}}
+{{#if database}}- **Database**: {{database}}{{/if}}
+{{#if orm}}- **ORM**: {{orm}}{{/if}}
+{{#if typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
 
 ## Deployment
 
 Each application can be deployed independently:
 
 - **Frontend**: Deploy `apps/web` to Vercel, Netlify, or similar
-{{#if (eq config.backend "cloudflare-workers")}}- **Workers**: Deploy `apps/workers` to Cloudflare Workers
+{{#if (eq backend "cloudflare-workers")}}- **Workers**: Deploy `apps/workers` to Cloudflare Workers
 {{else}}- **Backend**: Deploy `apps/api` to Railway, Render, or similar{{/if}}
 
 ## Contributing

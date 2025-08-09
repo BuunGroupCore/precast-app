@@ -1,0 +1,8 @@
+# Robots.txt for {{name}}
+# Allow all web crawlers
+
+User-agent: *
+Allow: /
+
+# Sitemap location (update this with your actual sitemap URL)
+Sitemap: https://{{name}}.com/sitemap.xml

@@ -24,6 +24,7 @@ export interface ProjectConfig {
   uiLibrary?: string;
   aiContext?: string[];
   packageManager: string;
+  packageManagerVersion?: string;
   projectPath: string;
   language: string;
   aiAssistant?: string;

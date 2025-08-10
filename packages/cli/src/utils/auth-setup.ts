@@ -20,18 +20,21 @@ const authProviders: Record<string, any> = {
     name: "Clerk",
     requiresDatabase: false,
     supportedFrameworks: ["next", "react", "remix"],
+    disabled: true,
   },
   auth0: {
     id: "auth0",
     name: "Auth0",
     requiresDatabase: false,
     supportedFrameworks: ["next", "react", "vue", "angular", "express"],
+    disabled: true,
   },
   "passport.js": {
     id: "passport.js",
     name: "Passport.js",
     requiresDatabase: true,
     supportedFrameworks: ["express", "node", "fastify"],
+    disabled: true,
   },
   "supabase-auth": {
     id: "supabase-auth",
@@ -86,6 +89,11 @@ export function getFilteredAuthOptions(config: {
 
   return Object.entries(authProviders)
     .filter(([_id, provider]) => {
+      // Skip disabled providers
+      if (provider.disabled) {
+        return false;
+      }
+
       // Check framework compatibility
       if (!provider.supportedFrameworks.includes(config.framework)) {
         return false;

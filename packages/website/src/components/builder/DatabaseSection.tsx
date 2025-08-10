@@ -100,61 +100,64 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
         <p className="font-comic text-sm mb-4 text-comic-white/90">
           Store your data - pick from SQL databases, NoSQL, or backend-as-a-service options
         </p>
-        <div className="grid grid-cols-3 gap-3">
-          {databases.map((db) => {
-            const isRecommendedForBackend =
-              config.backend === "cloudflare-workers" && db.id === "cloudflare-d1";
+        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+          {databases
+            .filter((db) => !db.disabled)
+            .map((db) => {
+              const isRecommendedForBackend =
+                config.backend === "cloudflare-workers" && db.id === "cloudflare-d1";
 
-            const isSelected = config.database === db.id;
-            const hasDeploymentOptions =
-              db.deploymentOptions && (db.deploymentOptions.local || db.deploymentOptions.cloud);
-            const deploymentBadge = isSelected && hasDeploymentOptions && config.databaseDeployment;
-            const isCloudOnly = !hasDeploymentOptions && db.id !== "none";
+              const isSelected = config.database === db.id;
+              const hasDeploymentOptions =
+                db.deploymentOptions && (db.deploymentOptions.local || db.deploymentOptions.cloud);
+              const deploymentBadge =
+                isSelected && hasDeploymentOptions && config.databaseDeployment;
+              const isCloudOnly = !hasDeploymentOptions && db.id !== "none";
 
-            return (
-              <Tooltip key={db.id} content={db.description || ""}>
-                <button
-                  onClick={() => handleDatabaseSelect(db)}
-                  data-active={isSelected}
-                  className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative ${
-                    isRecommendedForBackend ? "ring-2 ring-comic-yellow ring-offset-2" : ""
-                  }`}
-                >
-                  <div className="absolute -top-2 -right-2 flex flex-col gap-1">
-                    {isRecommendedForBackend && (
-                      <span className="bg-comic-yellow text-comic-black text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black z-10">
-                        RECOMMENDED
-                      </span>
-                    )}
-                    {deploymentBadge && (
-                      <span
-                        className={`text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black ${
-                          config.databaseDeployment === "local"
-                            ? "bg-comic-blue text-comic-white"
-                            : "bg-comic-green text-comic-white"
-                        }`}
-                      >
-                        {config.databaseDeployment?.toUpperCase()}
-                      </span>
-                    )}
-                    {isCloudOnly && (
-                      <span className="bg-comic-orange text-comic-white text-[8px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
-                        CLOUD ONLY
-                      </span>
-                    )}
-                  </div>
+              return (
+                <Tooltip key={db.id} content={db.description || ""}>
+                  <button
+                    onClick={() => handleDatabaseSelect(db)}
+                    data-active={isSelected}
+                    className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative ${
+                      isRecommendedForBackend ? "ring-2 ring-comic-yellow ring-offset-2" : ""
+                    }`}
+                  >
+                    <div className="absolute -top-2 -right-2 flex flex-col gap-1">
+                      {isRecommendedForBackend && (
+                        <span className="bg-comic-yellow text-comic-black text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black z-10">
+                          RECOMMENDED
+                        </span>
+                      )}
+                      {deploymentBadge && (
+                        <span
+                          className={`text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black ${
+                            config.databaseDeployment === "local"
+                              ? "bg-comic-blue text-comic-white"
+                              : "bg-comic-green text-comic-white"
+                          }`}
+                        >
+                          {config.databaseDeployment?.toUpperCase()}
+                        </span>
+                      )}
+                      {isCloudOnly && (
+                        <span className="bg-comic-orange text-comic-white text-[8px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
+                          CLOUD ONLY
+                        </span>
+                      )}
+                    </div>
 
-                  {db.icon &&
-                    (typeof db.icon === "string" ? (
-                      <PublicIcon name={db.icon} className="text-2xl" />
-                    ) : (
-                      <db.icon className="text-2xl" />
-                    ))}
-                  <span className="text-xs">{db.name}</span>
-                </button>
-              </Tooltip>
-            );
-          })}
+                    {db.icon &&
+                      (typeof db.icon === "string" ? (
+                        <PublicIcon name={db.icon} className="text-2xl" />
+                      ) : (
+                        <db.icon className="text-2xl" />
+                      ))}
+                    <span className="text-xs">{db.name}</span>
+                  </button>
+                </Tooltip>
+              );
+            })}
         </div>
         {config.database !== "none" &&
           config.database !== "supabase" &&
@@ -165,7 +168,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                 <h4 className="font-comic text-sm text-comic-yellow px-2">ORM/ODM</h4>
                 <div className="flex-1 border-t-2 border-comic-white/30"></div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                 {orms
                   .filter((orm) => {
                     if (orm.id === "none") return true;

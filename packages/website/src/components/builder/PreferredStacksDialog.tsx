@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { FaTimes, FaRocket, FaCheck } from "react-icons/fa";
 import {
   SiNextdotjs,
@@ -23,11 +23,15 @@ import {
 import { AuthJSIcon } from "@/components/icons/AuthJSIcon";
 import { BetterAuthIcon } from "@/components/icons/BetterAuthIcon";
 import { TanStackIcon } from "@/components/icons/TanStackIcon";
+import { preferredStacks, type PreferredStack } from "@/lib/preferred-stacks-config";
 import {
-  preferredStacks,
-  getStacksByCategory,
-  type PreferredStack,
-} from "@/lib/preferred-stacks-config";
+  frameworks,
+  backends,
+  databases,
+  orms,
+  authProviders,
+  type StackOption,
+} from "@/lib/stack-config";
 
 import type { ExtendedProjectConfig } from "./types";
 
@@ -66,8 +70,59 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
   const [selectedStack, setSelectedStack] = useState<string | null>(null);
 
   const categories = ["all", "fullstack", "frontend", "backend", "enterprise", "rapid"];
-  const filteredStacks =
-    selectedCategory === "all" ? preferredStacks : getStacksByCategory(selectedCategory);
+
+  // Check if a stack option is available (not disabled)
+  const isOptionAvailable = (optionId: string | undefined, optionType: string): boolean => {
+    if (!optionId || optionId === "none") return true;
+
+    let options: StackOption[] = [];
+    switch (optionType) {
+      case "framework":
+        options = frameworks;
+        break;
+      case "backend":
+        options = backends;
+        break;
+      case "database":
+        options = databases;
+        break;
+      case "orm":
+        options = orms;
+        break;
+      case "auth":
+        options = authProviders;
+        break;
+      default:
+        return true;
+    }
+
+    const option = options.find((o) => o.id === optionId);
+    return option ? !option.disabled : true;
+  };
+
+  // Filter out stacks that contain disabled options
+  const availableStacks = useMemo(() => {
+    return preferredStacks.filter((stack) => {
+      const config = stack.config;
+
+      // Check if any of the stack's options are disabled
+      if (!isOptionAvailable(config.framework, "framework")) return false;
+      if (!isOptionAvailable(config.backend, "backend")) return false;
+      if (!isOptionAvailable(config.database, "database")) return false;
+      if (!isOptionAvailable(config.orm, "orm")) return false;
+      if (!isOptionAvailable(config.auth, "auth")) return false;
+
+      return true;
+    });
+  }, []);
+
+  const filteredStacks = useMemo(() => {
+    const baseStacks =
+      selectedCategory === "all"
+        ? availableStacks
+        : availableStacks.filter((s) => s.category === selectedCategory);
+    return baseStacks;
+  }, [selectedCategory, availableStacks]);
 
   const getTechIcon = (tech: string) => {
     const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
@@ -170,101 +225,81 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
 
             {/* Stacks Grid */}
             <div className="p-6 overflow-y-auto max-h-[60vh]">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {filteredStacks.map((stack) => (
-                  <motion.div
-                    key={stack.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`relative comic-card cursor-pointer transition-all duration-300 hover:scale-105 ${
-                      selectedStack === stack.id ? "ring-4 ring-comic-yellow" : ""
-                    }`}
-                    onClick={() => handleSelectStack(stack)}
-                  >
-                    {/* Category Badge */}
-                    <div
-                      className={`absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-comic font-bold text-white ${
-                        categoryColors[stack.category]
-                      } border-2 border-comic-black`}
+              {filteredStacks.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="font-comic text-lg text-comic-gray mb-2">
+                    No stacks available in this category
+                  </p>
+                  <p className="font-comic text-sm text-comic-gray">
+                    Some stacks may be hidden because they contain features that are currently
+                    disabled or unavailable.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {filteredStacks.map((stack) => (
+                    <motion.div
+                      key={stack.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`relative comic-card cursor-pointer transition-all duration-300 hover:scale-105 ${
+                        selectedStack === stack.id ? "ring-4 ring-comic-yellow" : ""
+                      }`}
+                      onClick={() => handleSelectStack(stack)}
                     >
-                      {categoryLabels[stack.category]}
-                    </div>
-
-                    {/* Selected Indicator */}
-                    {selectedStack === stack.id && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute top-4 left-4 w-8 h-8 bg-comic-green rounded-full flex items-center justify-center border-2 border-comic-black z-10"
+                      {/* Category Badge */}
+                      <div
+                        className={`absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-comic font-bold text-white ${
+                          categoryColors[stack.category]
+                        } border-2 border-comic-black`}
                       >
-                        <FaCheck className="text-white text-sm" />
-                      </motion.div>
-                    )}
-
-                    {/* Stack Content */}
-                    <div className="p-6">
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className="text-4xl text-comic-blue">
-                          <stack.icon />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-display text-xl text-comic-black mb-2">
-                            {stack.name}
-                          </h3>
-                          <p className="font-comic text-sm text-comic-gray mb-3">
-                            {stack.description}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {stack.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-1 bg-comic-gray text-comic-black text-xs font-comic rounded-full"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
+                        {categoryLabels[stack.category]}
                       </div>
 
-                      {/* Tech Stack Preview */}
-                      <div className="border-t-2 border-comic-gray pt-4">
-                        <div className="grid grid-cols-2 gap-2 text-xs font-comic">
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const Icon = stack.config.framework
-                                ? getTechIcon(stack.config.framework)
-                                : null;
-                              return Icon ? (
-                                <span className="text-base">
-                                  <Icon />
-                                </span>
-                              ) : null;
-                            })()}
-                            <span>
-                              <strong>Framework:</strong> {stack.config.framework}
-                            </span>
+                      {/* Selected Indicator */}
+                      {selectedStack === stack.id && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute top-4 left-4 w-8 h-8 bg-comic-green rounded-full flex items-center justify-center border-2 border-comic-black z-10"
+                        >
+                          <FaCheck className="text-white text-sm" />
+                        </motion.div>
+                      )}
+
+                      {/* Stack Content */}
+                      <div className="p-6">
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="text-4xl text-comic-blue">
+                            <stack.icon />
                           </div>
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const Icon = stack.config.styling
-                                ? getTechIcon(stack.config.styling)
-                                : null;
-                              return Icon ? (
-                                <span className="text-base">
-                                  <Icon />
+                          <div className="flex-1">
+                            <h3 className="font-display text-xl text-comic-black mb-2">
+                              {stack.name}
+                            </h3>
+                            <p className="font-comic text-sm text-comic-gray mb-3">
+                              {stack.description}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {stack.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="px-2 py-1 bg-comic-gray text-comic-black text-xs font-comic rounded-full"
+                                >
+                                  {tag}
                                 </span>
-                              ) : null;
-                            })()}
-                            <span>
-                              <strong>Styling:</strong> {stack.config.styling}
-                            </span>
+                              ))}
+                            </div>
                           </div>
-                          {stack.config.database !== "none" && (
+                        </div>
+
+                        {/* Tech Stack Preview */}
+                        <div className="border-t-2 border-comic-gray pt-4">
+                          <div className="grid grid-cols-2 gap-2 text-xs font-comic">
                             <div className="flex items-center gap-2">
                               {(() => {
-                                const Icon = stack.config.database
-                                  ? getTechIcon(stack.config.database)
+                                const Icon = stack.config.framework
+                                  ? getTechIcon(stack.config.framework)
                                   : null;
                                 return Icon ? (
                                   <span className="text-base">
@@ -273,15 +308,13 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
                                 ) : null;
                               })()}
                               <span>
-                                <strong>Database:</strong> {stack.config.database}
+                                <strong>Framework:</strong> {stack.config.framework}
                               </span>
                             </div>
-                          )}
-                          {stack.config.auth !== "none" && (
                             <div className="flex items-center gap-2">
                               {(() => {
-                                const Icon = stack.config.auth
-                                  ? getTechIcon(stack.config.auth)
+                                const Icon = stack.config.styling
+                                  ? getTechIcon(stack.config.styling)
                                   : null;
                                 return Icon ? (
                                   <span className="text-base">
@@ -290,29 +323,64 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
                                 ) : null;
                               })()}
                               <span>
-                                <strong>Auth:</strong> {stack.config.auth}
+                                <strong>Styling:</strong> {stack.config.styling}
                               </span>
                             </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const Icon = getTechIcon("typescript");
-                              return stack.config.typescript && Icon ? (
-                                <span className="text-base">
-                                  <Icon />
+                            {stack.config.database !== "none" && (
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const Icon = stack.config.database
+                                    ? getTechIcon(stack.config.database)
+                                    : null;
+                                  return Icon ? (
+                                    <span className="text-base">
+                                      <Icon />
+                                    </span>
+                                  ) : null;
+                                })()}
+                                <span>
+                                  <strong>Database:</strong> {stack.config.database}
                                 </span>
-                              ) : null;
-                            })()}
-                            <span>
-                              <strong>TypeScript:</strong> {stack.config.typescript ? "Yes" : "No"}
-                            </span>
+                              </div>
+                            )}
+                            {stack.config.auth !== "none" && (
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const Icon = stack.config.auth
+                                    ? getTechIcon(stack.config.auth)
+                                    : null;
+                                  return Icon ? (
+                                    <span className="text-base">
+                                      <Icon />
+                                    </span>
+                                  ) : null;
+                                })()}
+                                <span>
+                                  <strong>Auth:</strong> {stack.config.auth}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                              {(() => {
+                                const Icon = getTechIcon("typescript");
+                                return stack.config.typescript && Icon ? (
+                                  <span className="text-base">
+                                    <Icon />
+                                  </span>
+                                ) : null;
+                              })()}
+                              <span>
+                                <strong>TypeScript:</strong>{" "}
+                                {stack.config.typescript ? "Yes" : "No"}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Footer */}

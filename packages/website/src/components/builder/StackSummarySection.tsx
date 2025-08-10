@@ -86,15 +86,17 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
     return (
       <div
         key={`${type}-${id}`}
-        className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1 relative"
+        className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-row min-[320px]:flex-col items-center justify-start min-[320px]:justify-center gap-2 min-[320px]:gap-1 relative overflow-hidden"
         title={item.description || displayName}
       >
-        {/* Category label */}
-        <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+        {/* Category label - positioned inside to prevent overflow */}
+        <span className="absolute top-0.5 right-0.5 text-[7px] min-[320px]:text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full z-10">
           {categoryLabels[type]}
         </span>
-        {Icon && <Icon className="text-2xl text-white" />}
-        <span className="text-xs font-comic text-center">{displayName}</span>
+        {Icon && <Icon className="text-xl min-[320px]:text-2xl text-white flex-shrink-0" />}
+        <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal">
+          {displayName}
+        </span>
       </div>
     );
   };
@@ -110,11 +112,24 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="comic-card bg-comic-darkBlue text-comic-white"
+        className="comic-card bg-comic-darkBlue text-comic-white overflow-hidden"
       >
         {/* Header Section */}
         <div className="relative mb-6">
-          <h3 className="font-display text-2xl text-center mb-3">YOUR EPIC STACK</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display text-xl sm:text-2xl">YOUR EPIC STACK</h3>
+            {/* Power count badge - moved to inline */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+              className="bg-comic-red text-comic-white px-2 sm:px-3 py-1 rounded-full shadow-lg"
+            >
+              <span className="font-comic font-bold text-[10px] sm:text-xs">
+                {totalCount} POWERS!
+              </span>
+            </motion.div>
+          </div>
           {/* Comic Style Separator with Preview Button */}
           <div className="relative flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
@@ -124,27 +139,18 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
               whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowFolderStructure(true)}
-              className="relative bg-comic-yellow text-comic-black px-4 py-2 comic-button transform -rotate-2 hover:rotate-0 transition-all duration-200 shadow-lg"
+              className="relative bg-comic-yellow text-comic-black px-3 sm:px-4 py-1.5 sm:py-2 comic-button transform -rotate-2 hover:rotate-0 transition-all duration-200 shadow-lg hidden sm:flex"
               title="Preview folder structure"
             >
               <div className="flex items-center gap-2">
-                <FaFolderOpen className="text-lg" />
-                <span className="font-comic font-bold text-sm">VIEW STRUCTURE</span>
+                <FaFolderOpen className="text-base sm:text-lg" />
+                <span className="font-comic font-bold text-xs sm:text-sm">VIEW STRUCTURE</span>
               </div>
             </motion.button>
           </div>
-          {/* Power count badge */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-            className="absolute -top-2 -right-2 bg-comic-red text-comic-white px-3 py-1 rounded-full transform rotate-12 shadow-lg"
-          >
-            <span className="font-comic font-bold text-xs">{totalCount} POWERS!</span>
-          </motion.div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[240px] overflow-y-auto pb-2">
+        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-h-[300px] sm:max-h-[240px] overflow-y-auto pb-2">
           {/* Framework */}
           {renderStackItem("framework", config.framework)}
 
@@ -171,8 +177,8 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
             (() => {
               const uiLib = uiLibraries.find((lib) => lib.id === config.uiLibrary);
               return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative">
-                  <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
                     UI Lib
                   </span>
                   {uiLib?.icon ? (
@@ -196,8 +202,8 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
             (() => {
               const uiFramework = frameworks.find((f) => f.id === config.uiFramework);
               return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative">
-                  <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
                     UI Framework
                   </span>
                   {uiFramework?.icon && <uiFramework.icon className="text-2xl text-white" />}
@@ -214,8 +220,8 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
             (() => {
               const aiAssistant = aiAssistants.find((ai) => ai.id === config.aiAssistant);
               return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative">
-                  <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
                     AI
                   </span>
                   {aiAssistant?.icon ? (
@@ -242,8 +248,8 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                 (dep) => dep.id === config.deploymentMethod
               );
               return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative">
-                  <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
                     Deploy
                   </span>
                   {deployment?.icon ? (
@@ -268,8 +274,8 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
             (() => {
               const auth = authProviders.find((a) => a.id === config.auth);
               return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative">
-                  <span className="absolute -top-1 -right-1 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
                     Auth
                   </span>
                   {auth?.icon ? (

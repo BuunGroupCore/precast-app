@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import React, { useState, useMemo, useEffect } from "react";
-import { FaRocket, FaServer, FaHtml5 } from "react-icons/fa";
+import { FaRocket, FaServer, FaHtml5, FaLightbulb, FaGlobe, FaCloud } from "react-icons/fa";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import { deploymentMethods } from "./constants";
@@ -29,6 +29,11 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
   // Filter deployment methods based on static/dynamic toggle and framework
   const filteredMethods = useMemo(() => {
     return deploymentMethods.filter((method) => {
+      // Filter out disabled methods
+      if (method.disabled) {
+        return false;
+      }
+
       // Show Vercel only for Next.js
       if (method.frameworkOnly && config.framework !== method.frameworkOnly) {
         return false;
@@ -95,30 +100,30 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
         </p>
 
         {/* Static/Dynamic Toggle */}
-        <div className="mb-4 flex items-center justify-center gap-4 p-3 bg-comic-gray/10 rounded-lg border-2 border-comic-gray">
+        <div className="mb-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 p-3 bg-comic-gray/10 rounded-lg border-2 border-comic-gray">
           <button
             onClick={() => setIsStatic(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-comic text-sm transition-all ${
+            className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-comic text-xs sm:text-sm transition-all w-full sm:w-auto ${
               isStatic
                 ? "bg-comic-yellow text-comic-black border-2 border-comic-black"
                 : "bg-comic-white text-comic-gray border-2 border-comic-gray hover:border-comic-black"
             }`}
           >
-            <FaHtml5 className="text-lg" />
+            <FaHtml5 className="text-base sm:text-lg" />
             <span>Static Sites</span>
           </button>
 
-          <span className="font-display text-comic-gray">OR</span>
+          <span className="font-display text-comic-gray hidden sm:inline">OR</span>
 
           <button
             onClick={() => setIsStatic(false)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-comic text-sm transition-all ${
+            className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-comic text-xs sm:text-sm transition-all w-full sm:w-auto ${
               !isStatic
                 ? "bg-comic-blue text-comic-white border-2 border-comic-black"
                 : "bg-comic-white text-comic-gray border-2 border-comic-gray hover:border-comic-black"
             }`}
           >
-            <FaServer className="text-lg" />
+            <FaServer className="text-base sm:text-lg" />
             <span>Full-Stack Apps</span>
           </button>
         </div>
@@ -130,15 +135,15 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
               key={deploy.id}
               onClick={() => setConfig({ ...config, deploymentMethod: deploy.id })}
               data-active={config.deploymentMethod === deploy.id}
-              className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 min-h-[80px] relative ${
+              className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 min-h-[80px] relative overflow-hidden ${
                 config.deploymentMethod === deploy.id
                   ? "bg-comic-yellow text-comic-black"
                   : "bg-comic-white text-comic-black hover:bg-comic-yellow"
               }`}
             >
-              {/* Badge for platform type */}
+              {/* Badge for platform type - positioned inside to prevent overflow */}
               {deploy.id !== "none" && (
-                <div className="absolute -top-2 -right-2">
+                <div className="absolute top-1 right-1">
                   {deploy.supportsStatic && deploy.supportsDynamic && (
                     <span className="bg-comic-purple text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
                       BOTH
@@ -170,8 +175,11 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
 
         {config.deploymentMethod && config.deploymentMethod !== "none" && (
           <div className="mt-3 p-3 bg-comic-purple/10 rounded-lg border border-comic-purple/20">
-            <p className="text-xs font-comic text-comic-purple">
-              💡 {deploymentMethods.find((d) => d.id === config.deploymentMethod)?.description}
+            <p className="text-xs font-comic text-comic-purple flex items-start gap-2">
+              <FaLightbulb className="text-sm flex-shrink-0 mt-0.5" />
+              <span>
+                {deploymentMethods.find((d) => d.id === config.deploymentMethod)?.description}
+              </span>
             </p>
           </div>
         )}
@@ -179,9 +187,15 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
         {/* Info message based on toggle */}
         <div className="mt-3 text-xs font-comic text-comic-gray">
           {isStatic ? (
-            <p>🌐 Showing platforms optimized for static sites and SPAs</p>
+            <p className="flex items-center gap-2">
+              <FaGlobe className="text-sm" />
+              <span>Showing platforms optimized for static sites and SPAs</span>
+            </p>
           ) : (
-            <p>🚀 Showing platforms that support server-side rendering and APIs</p>
+            <p className="flex items-center gap-2">
+              <FaCloud className="text-sm" />
+              <span>Showing platforms that support server-side rendering and APIs</span>
+            </p>
           )}
         </div>
       </CollapsibleSection>

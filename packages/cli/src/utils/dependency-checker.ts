@@ -5,6 +5,7 @@ export interface CompatibilityRule {
   incompatibleWith?: string[];
   setupCommand?: string;
   postInstallSteps?: string[];
+  disabled?: boolean;
 }
 
 /**
@@ -34,6 +35,7 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
     frameworks: ["react", "next", "remix", "vite"],
     requiredDeps: ["@mui/material", "@emotion/react", "@emotion/styled"],
     incompatibleWith: ["preact"],
+    disabled: true,
   },
   vuetify: {
     name: "Vuetify",
@@ -45,16 +47,19 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
     name: "Chakra UI",
     frameworks: ["react", "next", "remix", "vite"],
     requiredDeps: ["@chakra-ui/react", "@emotion/react", "@emotion/styled", "framer-motion"],
+    disabled: true,
   },
   antd: {
     name: "Ant Design",
     frameworks: ["react", "next", "remix", "vite"],
     requiredDeps: ["antd"],
+    disabled: true,
   },
   mantine: {
     name: "Mantine",
     frameworks: ["react", "next", "remix", "vite"],
     requiredDeps: ["@mantine/core", "@mantine/hooks"],
+    disabled: true,
   },
   brutalist: {
     name: "Brutalist UI",

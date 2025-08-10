@@ -113,6 +113,7 @@ export const deploymentMethods: DeploymentMethod[] = [
     description: "Free SSL, custom domains, and serverless APIs",
     supportsStatic: true,
     supportsDynamic: false,
+    disabled: true,
   },
   {
     id: "aws-amplify",
@@ -122,6 +123,7 @@ export const deploymentMethods: DeploymentMethod[] = [
     description: "Full-stack development platform with CI/CD",
     supportsStatic: true,
     supportsDynamic: true,
+    disabled: true,
   },
   {
     id: "github-pages",
@@ -131,6 +133,7 @@ export const deploymentMethods: DeploymentMethod[] = [
     description: "Free static site hosting from GitHub",
     supportsStatic: true,
     supportsDynamic: false,
+    disabled: true,
   },
   {
     id: "vercel",
@@ -191,6 +194,7 @@ export const uiLibraries: UILibrary[] = [
     description: "React components implementing Google's Material Design system",
     frameworks: ["react", "next", "remix"],
     incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
+    disabled: true,
   },
   {
     id: "chakra",
@@ -200,6 +204,7 @@ export const uiLibraries: UILibrary[] = [
     description: "Simple, modular and accessible component library for React",
     frameworks: ["react", "next", "remix"],
     incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
+    disabled: true,
   },
   {
     id: "antd",
@@ -209,6 +214,7 @@ export const uiLibraries: UILibrary[] = [
     description: "Enterprise-class UI design language and React components",
     frameworks: ["react", "next", "remix"],
     incompatible: ["tailwind"], // Has its own design system, not compatible with Tailwind
+    disabled: true,
   },
   {
     id: "mantine",
@@ -218,5 +224,6 @@ export const uiLibraries: UILibrary[] = [
     description: "Full-featured React components and hooks library with dark mode support",
     frameworks: ["react", "next", "remix"],
     incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
+    disabled: true,
   },
 ];

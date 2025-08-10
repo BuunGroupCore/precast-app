@@ -54,6 +54,7 @@ export interface UILibrary {
   requires?: string[];
   incompatible?: string[];
   beta?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -90,4 +91,5 @@ export interface DeploymentMethod {
   frameworkOnly?: string;
   supportsStatic?: boolean;
   supportsDynamic?: boolean;
+  disabled?: boolean;
 }

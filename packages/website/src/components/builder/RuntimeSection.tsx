@@ -54,7 +54,7 @@ export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfi
         <p className="font-comic text-sm mb-4 text-comic-black/90">
           Choose your JavaScript runtime - from classic Node.js to modern edge runtimes
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
           {runtimes.map((runtime) => {
             const isCompatible = isRuntimeCompatible(runtime);
             const isRecommended = runtime.recommendedFor?.frameworks?.includes(config.framework);

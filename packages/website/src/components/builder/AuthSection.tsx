@@ -55,7 +55,9 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
     return true;
   };
 
-  const availableAuthProviders = authProviders.filter(isAuthCompatible);
+  const availableAuthProviders = authProviders.filter(
+    (auth) => !auth.disabled && isAuthCompatible(auth)
+  );
 
   /**
    * Automatically resets auth selection when it becomes incompatible with configuration changes
@@ -87,7 +89,7 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
         <p className="font-comic text-sm mb-4 text-comic-white/90">
           Secure your app - add user authentication with popular auth providers
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
           {availableAuthProviders.map((auth) => {
             const isRecommended =
               auth.recommendedFor &&

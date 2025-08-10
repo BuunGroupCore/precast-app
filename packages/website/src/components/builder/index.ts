@@ -22,3 +22,4 @@ export * from "./PluginsSection";
 export * from "./MCPServersSection";
 export * from "./FeatureTogglesSection";
 export * from "./FolderStructureDialog";
+export * from "./PackageManagerSelector";

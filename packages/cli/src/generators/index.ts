@@ -136,6 +136,17 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
+  // Generate environment files based on all configured features
+  try {
+    const { generateEnvFiles } = await import("../utils/env-setup.js");
+    await generateEnvFiles(config);
+    logger.success(
+      "✅ Environment files generated (.env.development, .env.production, .env.example)"
+    );
+  } catch (error) {
+    logger.warn(`Failed to generate environment files: ${error}`);
+  }
+
   // Setup Docker configuration if requested
   if (config.docker && config.database && config.database !== "none") {
     logger.info(`🐳 Setting up Docker compose for ${config.database}...`);

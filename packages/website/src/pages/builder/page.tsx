@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { FaCheck, FaCopy, FaHistory, FaMagic, FaNpm, FaYarn } from "react-icons/fa";
-import { SiBun, SiPnpm } from "react-icons/si";
+import { FaCheck, FaCopy, FaHistory, FaMagic } from "react-icons/fa";
 
 import {
   AIAssistanceSection,
@@ -15,6 +14,7 @@ import {
   FrameworkSection,
   InstallOptionsSection,
   MCPServersSection,
+  PackageManagerSelector,
   PluginsSection,
   PowerUpsSection,
   PreferredStacksDialog,
@@ -62,6 +62,7 @@ export function BuilderPage() {
   const [terminalCopied, setTerminalCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showPreferredStacks, setShowPreferredStacks] = useState(false);
+  const [showPmDropdown, setShowPmDropdown] = useState(false);
 
   const defaultConfig: ExtendedProjectConfig = {
     name: "my-awesome-project",
@@ -359,7 +360,7 @@ export function BuilderPage() {
             <p className="font-comic text-xl">Build your super project with style!</p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-[1fr_400px] gap-8 px-4 max-w-[1600px] mx-auto">
+          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(300px,400px)] gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 max-w-[1600px] mx-auto">
             {/* Left Column - Configuration */}
             <div className="space-y-6">
               {/* Preset Templates - First to offer quick starts */}
@@ -433,7 +434,7 @@ export function BuilderPage() {
             </div>
 
             {/* Right Column - Terminal & Actions */}
-            <div className="lg:sticky lg:top-28 h-fit space-y-4">
+            <div className="w-full lg:sticky lg:top-28 h-fit space-y-4">
               {/* Project Name */}
               <ProjectNameSection config={config} setConfig={setConfig} />
 
@@ -447,21 +448,23 @@ export function BuilderPage() {
                 {/* Preferred Stacks Button */}
                 <button
                   onClick={() => setShowPreferredStacks(true)}
-                  className="py-3 bg-comic-blue text-comic-white font-display text-sm rounded-lg border-3 border-comic-black hover:bg-comic-darkBlue transition-colors flex items-center justify-center gap-2"
+                  className="py-2 sm:py-3 bg-comic-blue text-comic-white font-display text-xs sm:text-sm rounded-lg border-2 sm:border-3 border-comic-black hover:bg-comic-darkBlue transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
                   title="Choose from pre-configured popular stacks"
                 >
-                  <FaHistory className="text-lg" />
-                  PREFERRED STACKS
+                  <FaHistory className="text-base sm:text-lg" />
+                  <span className="hidden sm:inline">PREFERRED STACKS</span>
+                  <span className="sm:hidden">STACKS</span>
                 </button>
 
                 {/* Reset Button */}
                 <button
                   onClick={resetToDefaults}
-                  className="py-3 bg-comic-orange text-comic-white font-display text-sm rounded-lg border-3 border-comic-black hover:bg-comic-red transition-colors flex items-center justify-center gap-2"
+                  className="py-2 sm:py-3 bg-comic-orange text-comic-white font-display text-xs sm:text-sm rounded-lg border-2 sm:border-3 border-comic-black hover:bg-comic-red transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
                   title="Reset all options to default values"
                 >
-                  <FaMagic className="text-lg" />
-                  RESET TO DEFAULTS
+                  <FaMagic className="text-base sm:text-lg" />
+                  <span className="hidden sm:inline">RESET TO DEFAULTS</span>
+                  <span className="sm:hidden">RESET</span>
                 </button>
               </motion.div>
 
@@ -489,34 +492,13 @@ export function BuilderPage() {
                     <div className="font-comic text-xs text-comic-white/60">TERMINAL</div>
                   </div>
 
-                  {/* Package Manager Tabs */}
-                  <div className="flex bg-gradient-to-r from-comic-darkGray to-comic-black border-b-2 border-comic-black">
-                    {[
-                      { id: "npx", icon: FaNpm, name: "npx", color: "bg-red-600" },
-                      { id: "npm", icon: FaNpm, name: "npm", color: "bg-red-600" },
-                      { id: "yarn", icon: FaYarn, name: "yarn", color: "bg-blue-600" },
-                      { id: "pnpm", icon: SiPnpm, name: "pnpm", color: "bg-yellow-600" },
-                      { id: "bun", icon: SiBun, name: "bun", color: "bg-pink-600" },
-                    ].map((pm, index) => (
-                      <button
-                        key={pm.id}
-                        onClick={() => setPackageManager(pm.id)}
-                        className={`flex-1 px-3 py-2 font-comic text-xs transition-all relative ${
-                          index < 4 ? "border-r-2 border-comic-black" : ""
-                        } ${
-                          packageManager === pm.id
-                            ? `${pm.color} text-white font-bold shadow-inner`
-                            : "bg-comic-darkGray/70 text-comic-white/70 hover:text-comic-white hover:bg-comic-darkGray"
-                        }`}
-                      >
-                        {packageManager === pm.id && (
-                          <div className="absolute inset-x-0 bottom-0 h-0.5 bg-comic-yellow"></div>
-                        )}
-                        <pm.icon className="inline mr-1" />
-                        {pm.name}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Package Manager Selection */}
+                  <PackageManagerSelector
+                    packageManager={packageManager}
+                    setPackageManager={setPackageManager}
+                    showDropdown={showPmDropdown}
+                    setShowDropdown={setShowPmDropdown}
+                  />
 
                   {/* Command Display */}
                   <div

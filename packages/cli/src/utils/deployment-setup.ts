@@ -18,6 +18,7 @@ export interface DeploymentConfig {
   envVars?: string[];
   buildCommand?: string;
   outputDir?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -41,6 +42,7 @@ export const DEPLOYMENT_CONFIGS: Record<string, DeploymentConfig> = {
     configFiles: [".github/workflows/azure-static-web-apps.yml"],
     buildCommand: "npm run build",
     outputDir: "dist",
+    disabled: true,
   },
   vercel: {
     id: "vercel",
@@ -68,6 +70,7 @@ export const DEPLOYMENT_CONFIGS: Record<string, DeploymentConfig> = {
     configFiles: [".github/workflows/deploy.yml"],
     buildCommand: "npm run build",
     outputDir: "dist",
+    disabled: true,
   },
 };
 

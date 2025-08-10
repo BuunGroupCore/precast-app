@@ -77,43 +77,45 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
           Pre-built component libraries - speed up development with ready-made UI components
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {uiLibraries.map((lib) => {
-            const isCompatible = isUILibraryCompatible(lib);
-            const isStyleCompatible = isUILibraryStyleCompatible(lib);
-            const isFullyCompatible = isCompatible && isStyleCompatible;
+          {uiLibraries
+            .filter((lib) => !lib.disabled)
+            .map((lib) => {
+              const isCompatible = isUILibraryCompatible(lib);
+              const isStyleCompatible = isUILibraryStyleCompatible(lib);
+              const isFullyCompatible = isCompatible && isStyleCompatible;
 
-            let tooltipContent = lib.description || "";
-            if (!isCompatible) {
-              tooltipContent += ` (Requires: ${lib.frameworks.join(", ")})`;
-            } else if (!isStyleCompatible) {
-              if (lib.incompatible && lib.incompatible.includes(config.styling)) {
-                tooltipContent += ` (Incompatible with ${config.styling})`;
-              } else if (lib.requires) {
-                tooltipContent += ` (Requires: ${lib.requires.join(", ")})`;
+              let tooltipContent = lib.description || "";
+              if (!isCompatible) {
+                tooltipContent += ` (Requires: ${lib.frameworks.join(", ")})`;
+              } else if (!isStyleCompatible) {
+                if (lib.incompatible && lib.incompatible.includes(config.styling)) {
+                  tooltipContent += ` (Incompatible with ${config.styling})`;
+                } else if (lib.requires) {
+                  tooltipContent += ` (Requires: ${lib.requires.join(", ")})`;
+                }
               }
-            }
 
-            return (
-              <Tooltip key={lib.id} content={tooltipContent}>
-                <button
-                  onClick={() => isFullyCompatible && setConfig({ ...config, uiLibrary: lib.id })}
-                  data-active={config.uiLibrary === lib.id}
-                  disabled={!isFullyCompatible}
-                  className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full ${
-                    !isFullyCompatible ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {lib.icon &&
-                    (typeof lib.icon === "string" ? (
-                      <PublicIcon name={lib.icon} className={`text-2xl ${lib.color}`} />
-                    ) : (
-                      <lib.icon className={`text-2xl ${lib.color}`} />
-                    ))}
-                  <span className="text-xs">{lib.name}</span>
-                </button>
-              </Tooltip>
-            );
-          })}
+              return (
+                <Tooltip key={lib.id} content={tooltipContent}>
+                  <button
+                    onClick={() => isFullyCompatible && setConfig({ ...config, uiLibrary: lib.id })}
+                    data-active={config.uiLibrary === lib.id}
+                    disabled={!isFullyCompatible}
+                    className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full ${
+                      !isFullyCompatible ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {lib.icon &&
+                      (typeof lib.icon === "string" ? (
+                        <PublicIcon name={lib.icon} className={`text-2xl ${lib.color}`} />
+                      ) : (
+                        <lib.icon className={`text-2xl ${lib.color}`} />
+                      ))}
+                    <span className="text-xs">{lib.name}</span>
+                  </button>
+                </Tooltip>
+              );
+            })}
         </div>
       </CollapsibleSection>
     </motion.div>

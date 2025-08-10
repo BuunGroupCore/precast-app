@@ -48,6 +48,7 @@ export interface StackOption {
   incompatible?: string[];
   recommended?: string[];
   beta?: boolean;
+  disabled?: boolean; // Hide from web builder until fully tested
   serverless?: boolean;
   uvBadge?: boolean;
   language?: string;
@@ -123,6 +124,7 @@ export const uiLibraries_frontend: StackOption[] = [
     category: "ui-library",
     dependencies: ["typescript"], // Angular requires TypeScript
     recommended: ["scss"],
+    disabled: true,
   },
   {
     id: "solid",
@@ -132,6 +134,7 @@ export const uiLibraries_frontend: StackOption[] = [
     description: "Simple and performant reactivity for building user interfaces",
     category: "ui-library",
     recommended: ["typescript", "tailwind"],
+    disabled: true,
   },
   {
     id: "svelte",
@@ -167,6 +170,7 @@ export const metaFrameworks: StackOption[] = [
     category: "meta-framework",
     dependencies: ["vue"], // Nuxt is built on Vue
     recommended: ["typescript", "tailwind"],
+    disabled: true,
   },
   {
     id: "astro",
@@ -186,6 +190,7 @@ export const metaFrameworks: StackOption[] = [
     category: "meta-framework",
     dependencies: ["react"],
     recommended: ["typescript", "tailwind", "prisma"],
+    disabled: true,
   },
   {
     id: "tanstack-start",
@@ -353,6 +358,7 @@ export const backends: StackOption[] = [
     languageIcon: "js",
     dependencies: ["node"],
     recommended: ["typescript"],
+    disabled: true,
     apiClientCompatibility: {
       recommended: ["axios", "tanstack-query"],
       compatible: ["swr", "trpc"],
@@ -368,6 +374,7 @@ export const backends: StackOption[] = [
     languageIcon: "ts",
     serverless: true,
     recommended: ["typescript"],
+    disabled: true,
     apiClientCompatibility: {
       recommended: ["convex-client"],
       incompatible: ["axios", "tanstack-query", "swr", "trpc"],
@@ -476,6 +483,7 @@ export const databases: StackOption[] = [
     description: "The open source Firebase alternative",
     dependencies: ["postgres"],
     incompatible: ["prisma", "drizzle", "typeorm"],
+    disabled: true,
     deploymentOptions: {
       local: {
         name: "Local Development",
@@ -496,6 +504,7 @@ export const databases: StackOption[] = [
     color: "text-comic-orange",
     description: "Google's mobile and web app development platform",
     incompatible: ["prisma", "drizzle", "typeorm"], // Has its own SDK
+    disabled: true,
   },
   {
     id: "cloudflare-d1",
@@ -516,6 +525,7 @@ export const databases: StackOption[] = [
     color: "text-comic-black",
     description: "Serverless MySQL platform with branching",
     recommended: ["prisma", "drizzle"],
+    disabled: true,
     recommendedFor: {
       backends: ["cloudflare-workers"],
       reason: "Serverless MySQL with edge connections and branching",
@@ -528,6 +538,7 @@ export const databases: StackOption[] = [
     color: "text-comic-green",
     description: "Serverless Postgres with branching and autoscaling",
     recommended: ["prisma", "drizzle"],
+    disabled: true,
     recommendedFor: {
       backends: ["cloudflare-workers"],
       reason: "Serverless Postgres optimized for edge functions",
@@ -540,6 +551,7 @@ export const databases: StackOption[] = [
     color: "text-comic-teal",
     description: "Edge-hosted distributed SQLite database",
     recommended: ["drizzle"],
+    disabled: true,
     recommendedFor: {
       backends: ["cloudflare-workers"],
       reason: "SQLite at the edge with global replication",
@@ -738,6 +750,7 @@ export const authProviders: StackOption[] = [
       backends: ["express", "node"],
       reason: "The de facto standard for Node.js authentication middleware",
     },
+    disabled: true,
   },
   {
     id: "clerk",
@@ -751,6 +764,7 @@ export const authProviders: StackOption[] = [
       frameworks: ["next", "react", "remix"],
       reason: "Provides complete user management with excellent React integration",
     },
+    disabled: true,
   },
   {
     id: "auth0",
@@ -759,6 +773,7 @@ export const authProviders: StackOption[] = [
     color: "text-comic-orange",
     description: "Universal authentication & authorization platform",
     recommended: ["typescript"],
+    disabled: true,
   },
   {
     id: "supabase-auth",
@@ -791,6 +806,7 @@ export const authProviders: StackOption[] = [
       databases: ["cloudflare-d1", "postgres", "mysql"],
       reason: "Type-safe authentication with D1 adapter and edge runtime support",
     },
+    disabled: true,
   },
   {
     id: "none",

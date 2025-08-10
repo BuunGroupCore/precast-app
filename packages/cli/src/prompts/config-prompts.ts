@@ -47,11 +47,13 @@ export async function gatherProjectConfig(
     options.framework ||
     ((await select({
       message: "Choose your frontend framework:",
-      options: frameworkDefs.map((f) => ({
-        value: f.id,
-        label: f.name,
-        hint: f.description,
-      })),
+      options: frameworkDefs
+        .filter((f) => !f.disabled)
+        .map((f) => ({
+          value: f.id,
+          label: f.name,
+          hint: f.description,
+        })),
     })) as string);
 
   // If Vite is selected, prompt for UI framework
@@ -59,11 +61,13 @@ export async function gatherProjectConfig(
   if (framework === "vite" && !options.uiFramework && !options.yes) {
     uiFramework = (await select({
       message: "Choose your UI framework for Vite:",
-      options: uiFrameworkDefs.map((f) => ({
-        value: f.id,
-        label: f.name,
-        hint: f.description,
-      })),
+      options: uiFrameworkDefs
+        .filter((f) => !f.disabled)
+        .map((f) => ({
+          value: f.id,
+          label: f.name,
+          hint: f.description,
+        })),
     })) as string;
   }
 
@@ -71,11 +75,13 @@ export async function gatherProjectConfig(
     options.backend ||
     ((await select({
       message: "Choose your backend:",
-      options: backendDefs.map((b) => ({
-        value: b.id,
-        label: b.name,
-        hint: b.description,
-      })),
+      options: backendDefs
+        .filter((b) => !b.disabled)
+        .map((b) => ({
+          value: b.id,
+          label: b.name,
+          hint: b.description,
+        })),
     })) as string);
   const database =
     backend === "none"
@@ -83,11 +89,13 @@ export async function gatherProjectConfig(
       : options.database ||
         ((await select({
           message: "Choose your database:",
-          options: databaseDefs.map((d) => ({
-            value: d.id,
-            label: d.name,
-            hint: d.description,
-          })),
+          options: databaseDefs
+            .filter((d) => !d.disabled)
+            .map((d) => ({
+              value: d.id,
+              label: d.name,
+              hint: d.description,
+            })),
         })) as string);
   const orm =
     database === "none"
@@ -98,7 +106,7 @@ export async function gatherProjectConfig(
           : ((await select({
               message: "Choose your ORM:",
               options: ormDefs
-                .filter((o) => !o.incompatible?.includes(database))
+                .filter((o) => !o.disabled && !o.incompatible?.includes(database))
                 .map((o) => ({
                   value: o.id,
                   label: o.name,
@@ -184,7 +192,8 @@ export async function gatherProjectConfig(
 
   if (styling === "tailwind" && !options.yes && !options.uiLibrary) {
     const compatibleLibraries = Object.entries(UI_LIBRARY_COMPATIBILITY)
-      .filter(([lib]) => {
+      .filter(([lib, rule]) => {
+        if (rule.disabled) return false;
         const { compatible } = checkCompatibility(framework, lib, UI_LIBRARY_COMPATIBILITY);
         return compatible;
       })
@@ -240,11 +249,13 @@ export async function gatherProjectConfig(
 
   let deploymentMethod: string | undefined;
   if (!options.yes) {
-    const deploymentOptions = Object.values(DEPLOYMENT_CONFIGS).map((config) => ({
-      value: config.id,
-      label: config.name,
-      hint: config.description,
-    }));
+    const deploymentOptions = Object.values(DEPLOYMENT_CONFIGS)
+      .filter((config) => !config.disabled)
+      .map((config) => ({
+        value: config.id,
+        label: config.name,
+        hint: config.description,
+      }));
 
     deploymentMethod = (await select({
       message: "Choose deployment method (optional):",

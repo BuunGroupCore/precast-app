@@ -98,7 +98,7 @@ export function useNpmStats() {
         };
 
         const history =
-          downloadData.downloads?.slice(-14).map((item: { day: string; downloads: number }) => ({
+          downloadData.downloads?.slice(-30).map((item: { day: string; downloads: number }) => ({
             day: new Date(item.day).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",

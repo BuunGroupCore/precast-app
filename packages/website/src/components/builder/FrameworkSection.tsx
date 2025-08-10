@@ -38,31 +38,33 @@ const categories: Record<FrameworkCategory, CategoryInfo> = {
     name: "All Options",
     icon: FaCode,
     description: "All available frontend options - frameworks, libraries, and tools",
-    items: [...uiLibraries_frontend, ...metaFrameworks, ...buildTools, ...specialFrameworks],
+    items: [...uiLibraries_frontend, ...metaFrameworks, ...buildTools, ...specialFrameworks].filter(
+      (item) => !item.disabled
+    ),
   },
   "ui-library": {
     name: "UI Libraries",
     icon: FaCube,
     description: "Core libraries for building user interfaces",
-    items: uiLibraries_frontend,
+    items: uiLibraries_frontend.filter((item) => !item.disabled),
   },
   "meta-framework": {
     name: "Meta-Frameworks",
     icon: FaCode,
     description: "Full-stack frameworks with routing, SSR, and more",
-    items: metaFrameworks,
+    items: metaFrameworks.filter((item) => !item.disabled),
   },
   "build-tool": {
     name: "Build Tools",
     icon: FaWrench,
     description: "Development and build tooling",
-    items: buildTools,
+    items: buildTools.filter((item) => !item.disabled),
   },
   special: {
     name: "Other Options",
     icon: FaJsSquare,
     description: "Mobile, vanilla, and custom options",
-    items: specialFrameworks,
+    items: specialFrameworks.filter((item) => !item.disabled),
   },
 };
 
@@ -128,7 +130,7 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
         </p>
 
         {/* Framework Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2">
           {categories[selectedCategory].items.map((framework) => {
             const frameworkCategory = Object.entries(categories).find(
               ([key, category]) =>
@@ -146,7 +148,7 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                 <button
                   onClick={() => handleFrameworkSelect(framework.id)}
                   data-active={config.framework === framework.id}
-                  className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative"
+                  className="filter-btn-comic flex flex-col items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 h-16 sm:h-20 w-full relative"
                 >
                   {selectedCategory === "all" && CategoryIcon && (
                     <div
@@ -160,8 +162,8 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                     </div>
                   )}
 
-                  {framework.icon && <framework.icon className="text-2xl" />}
-                  <span className="text-xs">{framework.name}</span>
+                  {framework.icon && <framework.icon className="text-lg sm:text-2xl" />}
+                  <span className="text-[10px] sm:text-xs">{framework.name}</span>
                 </button>
               </ServiceTooltip>
             );

@@ -106,54 +106,51 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
   };
 
   const getFileContent = (fileName: string, aiId: string) => {
-    /** Real CLI templates */
+    /** Match actual CLI generation structure */
+    const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
     const templates: { [key: string]: { [key: string]: string } } = {
       claude: {
         "CLAUDE.md": `# {{name}} - AI Assistant Context
 
 ## Project Overview
-This is a {{framework}} application{{#if uiLibrary}} using {{uiLibrary}} for UI components{{/if}}.
+
+This is a {{framework}} project created with Precast CLI.
+
+## Project Structure
+
+${
+  isMonorepo
+    ? `Monorepo structure with:
+- apps/web: ${config.framework} frontend application
+- apps/api: ${config.backend} backend application  
+- packages/shared: Shared types and utilities`
+    : config.framework === "next" && config.backend === "next-api"
+      ? `Next.js full-stack application with API routes`
+      : `Single ${config.framework} frontend application`
+}
 
 ## Technology Stack
+
 - **Framework**: {{framework}}
-- **Language**: {{language}}
-- **Package Manager**: {{packageManager}}
-{{#if styling}}
-- **Styling**: {{styling}}
+{{#if (ne backend 'none')}}
+- **Backend**: {{backend}}
 {{/if}}
+{{#if (ne database 'none')}}
+- **Database**: {{database}}
+{{/if}}
+{{#if (ne orm 'none')}}
+- **ORM**: {{orm}}
+{{/if}}
+- **Styling**: {{styling}}
 {{#if uiLibrary}}
 - **UI Library**: {{uiLibrary}}
 {{/if}}
-{{#if database}}
-- **Database**: {{database}}
+- **Language**: {{language}}
+- **Package Manager**: {{packageManager}}
+{{#if runtime}}
+- **Runtime**: {{runtime}}
 {{/if}}
-{{#if orm}}
-- **ORM**: {{orm}}
-{{/if}}
-
-## Project Structure
-\`\`\`
-{{name}}/
-├── src/                 # Source code
-{{#if (eq framework "next")}}
-│   ├── app/            # Next.js App Router
-│   ├── components/     # React components
-│   └── lib/            # Utility functions
-{{else if (eq framework "react")}}
-│   ├── components/     # React components
-│   ├── hooks/          # Custom React hooks
-│   └── utils/          # Utility functions
-{{else if (eq framework "vue")}}
-│   ├── components/     # Vue components
-│   ├── composables/    # Vue composables
-│   └── utils/          # Utility functions
-{{else if (eq framework "svelte")}}
-│   ├── lib/            # Svelte components
-│   └── routes/         # SvelteKit routes
-{{/if}}
-├── public/             # Static assets
-└── package.json        # Dependencies
-\`\`\`
 
 ## Development Guidelines
 
@@ -393,7 +390,7 @@ This is a modern {{framework}} application with the following architecture:
         <p className="font-comic text-sm mb-4 text-comic-white/90">
           Supercharge your development - integrate AI coding assistants for smarter, faster coding
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 gap-2 sm:gap-3">
           {aiAssistants.map((ai) => (
             <button
               key={ai.id}

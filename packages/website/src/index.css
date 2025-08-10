@@ -4,6 +4,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent horizontal overflow on mobile */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Fix comic panels on mobile */
+  .comic-panel {
+    border-width: 2px !important;
+    box-shadow: 2px 2px 0 var(--comic-black) !important;
+    transform: none !important;
+    min-width: 0 !important;
+  }
+
+  /* Ensure grids don't overflow */
+  .grid {
+    max-width: 100%;
+  }
+
+  /* Fix button widths in grids */
+  .filter-btn-comic {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 0 !important;
+    box-shadow: 1px 1px 0 var(--comic-black) !important;
+  }
+
+  /* Fix comic cards on mobile */
+  .comic-card {
+    padding: 0.75rem !important;
+    min-width: 0 !important;
+  }
+
+  /* Ensure all buttons in grids are responsive */
+  button {
+    min-width: 0;
+  }
+
+  /* Fix text sizes on mobile */
+  .font-display {
+    font-size: 0.875rem !important;
+  }
+
+  .action-text {
+    font-size: 1.5rem !important;
+  }
+}
+
 /* Theme Variables */
 :root[data-theme="classic"] {
   --comic-red: #ff1744;
@@ -297,12 +345,12 @@
   /* Action Text */
   .action-text {
     @apply inline-block font-display text-4xl uppercase;
+    color: var(--comic-red);
     text-shadow:
-      3px 3px 0 var(--comic-black),
+      2px 2px 0 var(--comic-black),
       -1px -1px 0 var(--comic-black),
       1px -1px 0 var(--comic-black),
-      -1px 1px 0 var(--comic-black),
-      1px 1px 0 var(--comic-black);
+      -1px 1px 0 var(--comic-black);
     transform: rotate(-5deg);
   }
 

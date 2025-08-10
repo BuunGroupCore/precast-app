@@ -386,9 +386,7 @@ export function ComicSponsorsSection() {
           className="text-center mb-16"
         >
           <div className="inline-block relative">
-            <h2 className="action-text text-6xl md:text-8xl text-comic-black mb-6">
-              SPONSOR HEROES!
-            </h2>
+            <h2 className="action-text text-6xl md:text-8xl mb-6">SPONSOR HEROES!</h2>
             <motion.div
               className="absolute -top-8 -right-8"
               animate={{ rotate: [0, 10, -10, 0] }}
@@ -541,7 +539,7 @@ export function ComicSponsorsSection() {
             >
               <FaBolt className="text-6xl text-comic-black mx-auto mb-4" />
             </motion.div>
-            <p className="action-text text-3xl text-comic-black">LOADING HEROES...</p>
+            <p className="action-text text-3xl">LOADING HEROES...</p>
           </div>
         ) : sponsors && getSponsorsByTab().length > 0 ? (
           <>
@@ -636,7 +634,7 @@ export function ComicSponsorsSection() {
               >
                 <FaStar className="text-8xl text-comic-yellow mx-auto mb-4" />
               </motion.div>
-              <h3 className="action-text text-4xl text-comic-black mb-4">BE OUR FIRST HERO!</h3>
+              <h3 className="action-text text-4xl mb-4">BE OUR FIRST HERO!</h3>
               <p className="font-comic text-xl text-comic-black mb-6">
                 Join the league of legendary developers supporting our mission!
               </p>

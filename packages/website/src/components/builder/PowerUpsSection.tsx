@@ -277,7 +277,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
           </div>
 
           {/* Power-ups Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
             {filteredPowerUps.map((powerup) => {
               const Icon = powerup.icon;
               const isSelected = isPowerUpSelected(powerup.id);
@@ -297,7 +297,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
                   <button
                     onClick={() => isAvailable && togglePowerUp(powerup.id)}
                     disabled={!isAvailable}
-                    className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform relative w-full h-full min-h-[80px] flex flex-col ${
+                    className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform relative w-full h-full min-h-[80px] flex flex-col overflow-hidden ${
                       isAvailable ? "hover:scale-105" : "opacity-50 cursor-not-allowed"
                     } ${
                       isSelected
@@ -312,24 +312,26 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
                         : "1px 1px 0 var(--comic-gray)",
                     }}
                   >
-                    {/* Badges */}
-                    <div className="absolute -top-2 -right-2 flex gap-2">
+                    {/* Badges - positioned inside to prevent overflow */}
+                    <div className="absolute top-1 right-1 flex gap-1 flex-wrap justify-end">
                       {powerup.beta && (
-                        <span className="bg-comic-purple text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
+                        <span className="bg-comic-purple text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
                           BETA
                         </span>
                       )}
                       {isAvailable && powerup.isRecommended && (
-                        <span className="bg-comic-green text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
-                          RECOMMENDED
+                        <span className="bg-comic-green text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black hidden min-[320px]:inline">
+                          REC
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Icon className={`text-lg ${!isAvailable ? "opacity-50" : ""}`} />
-                      <span className="font-display text-sm">{powerup.name}</span>
+                    <div className="flex items-center gap-2 mb-1 flex-shrink-0">
+                      <Icon
+                        className={`text-lg flex-shrink-0 ${!isAvailable ? "opacity-50" : ""}`}
+                      />
+                      <span className="font-display text-sm truncate">{powerup.name}</span>
                     </div>
-                    <p className="font-comic text-xs text-left line-clamp-2">
+                    <p className="font-comic text-xs text-left line-clamp-2 overflow-hidden">
                       {isAvailable
                         ? powerup.description
                         : `Requires ${powerup.missingRequirements?.join(" and ")}`}

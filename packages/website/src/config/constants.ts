@@ -111,6 +111,11 @@ export const FEATURES = {
   SHOW_BETA_DISCLAIMER: true,
 } as const;
 
+export const COMMUNITY_GOALS = {
+  // Target total downloads for "World Domination" progress bar
+  WORLD_DOMINATION_TARGET: 1000000, // 1 million downloads
+} as const;
+
 // Keyboard shortcuts
 export const KEYBOARD_SHORTCUTS = {
   // Press Ctrl/Cmd + Shift + B to reset beta disclaimer

@@ -103,26 +103,26 @@ export const FeatureTogglesSection: React.FC<FeatureTogglesSectionProps> = ({
             return (
               <div
                 key={toggle.id}
-                className="flex items-center justify-between p-3 bg-comic-white rounded-lg border-2 border-comic-black"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-comic-white rounded-lg border-2 border-comic-black gap-3"
                 style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <toggle.icon className={`text-lg ${toggle.iconColor}`} />
+                    <toggle.icon className={`text-lg ${toggle.iconColor} flex-shrink-0`} />
                     <h4 className="font-comic font-bold text-sm text-comic-black">{toggle.name}</h4>
                   </div>
-                  <p className="font-comic text-xs text-comic-black/70 ml-6">
+                  <p className="font-comic text-xs text-comic-black/70 sm:ml-6">
                     {toggle.description}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <code className="text-xs bg-comic-gray px-3 py-2.5 rounded border border-comic-black h-10 flex items-center">
+                <div className="flex items-center gap-2 justify-between sm:justify-end">
+                  <code className="text-[10px] sm:text-xs bg-comic-gray px-2 sm:px-3 py-2 sm:py-2.5 rounded border border-comic-black h-8 sm:h-10 flex items-center">
                     {toggle.cliFlag}
                   </code>
                   <button
                     onClick={() => handleToggle(toggle.id, !isEnabled)}
-                    className={`p-2 rounded-lg border-2 border-comic-black transition-colors h-10 ${
+                    className={`p-1.5 sm:p-2 rounded-lg border-2 border-comic-black transition-colors h-8 sm:h-10 ${
                       isEnabled
                         ? "bg-comic-green hover:bg-comic-blue"
                         : "bg-comic-red hover:bg-comic-orange"
@@ -130,9 +130,9 @@ export const FeatureTogglesSection: React.FC<FeatureTogglesSectionProps> = ({
                     title={`${isEnabled ? "Disable" : "Enable"} ${toggle.name}`}
                   >
                     {isEnabled ? (
-                      <FaToggleOn className="text-2xl text-comic-white" />
+                      <FaToggleOn className="text-lg sm:text-2xl text-comic-white" />
                     ) : (
-                      <FaToggleOff className="text-2xl text-comic-white" />
+                      <FaToggleOff className="text-lg sm:text-2xl text-comic-white" />
                     )}
                   </button>
                 </div>

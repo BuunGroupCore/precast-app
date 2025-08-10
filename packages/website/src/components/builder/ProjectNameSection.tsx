@@ -75,21 +75,22 @@ export const ProjectNameSection: React.FC<ProjectNameSectionProps> = ({ config, 
       transition={{ delay: 0.1 }}
       className="comic-card"
     >
-      <h3 className="font-display text-2xl mb-4 text-comic-blue">PROJECT NAME</h3>
-      <div className="flex gap-2">
+      <h3 className="font-display text-xl sm:text-2xl mb-4 text-comic-blue">PROJECT NAME</h3>
+      <div className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
           value={config.name}
           onChange={(e) => setConfig({ ...config, name: e.target.value })}
-          className="flex-1 px-4 py-3 border-3 border-comic-black rounded-lg font-comic text-lg focus:outline-none focus:border-comic-red bg-comic-white"
+          className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 sm:border-3 border-comic-black rounded-lg font-comic text-base sm:text-lg focus:outline-none focus:border-comic-red bg-comic-white min-w-0"
           placeholder="my-awesome-project"
         />
         <button
           onClick={generateRandomName}
-          className="px-4 py-3 bg-comic-yellow border-3 border-comic-black rounded-lg hover:bg-comic-red hover:text-comic-white transition-colors"
+          className="px-3 sm:px-4 py-2 sm:py-3 bg-comic-yellow border-2 sm:border-3 border-comic-black rounded-lg hover:bg-comic-red hover:text-comic-white transition-colors flex items-center justify-center gap-2"
           title="Generate random name"
         >
-          <FaDice className="text-xl" />
+          <FaDice className="text-lg sm:text-xl" />
+          <span className="sm:hidden font-comic text-sm">RANDOM</span>
         </button>
       </div>
     </motion.div>

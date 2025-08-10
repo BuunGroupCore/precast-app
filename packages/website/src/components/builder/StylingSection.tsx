@@ -49,7 +49,7 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
         <p className="font-comic text-sm mb-4 text-comic-black/90">
           Choose your styling approach - from utility-first CSS to component libraries
         </p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
           {stylings.map((style) => {
             const frameworkToCheck =
               config.framework === "vite" && config.uiFramework
@@ -76,24 +76,24 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
                   onClick={() => isCompatible && setConfig({ ...config, styling: style.id })}
                   data-active={config.styling === style.id}
                   disabled={!isCompatible}
-                  className={`filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative ${
+                  className={`filter-btn-comic flex flex-row sm:flex-col items-center justify-start sm:justify-center gap-2 py-2 sm:py-3 px-3 sm:px-2 h-auto sm:h-20 w-full relative ${
                     !isCompatible ? "opacity-50 cursor-not-allowed" : ""
                   } ${
                     isRecommended && isCompatible ? "ring-2 ring-comic-green ring-offset-2" : ""
                   }`}
                 >
                   {isRecommended && isCompatible && (
-                    <span className="absolute -top-2 -right-2 bg-comic-green text-comic-white text-[10px] font-comic font-bold px-2 py-0.5 rounded-full border-2 border-comic-black">
-                      RECOMMENDED
+                    <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-comic-green text-comic-white text-[8px] sm:text-[10px] font-comic font-bold px-1 sm:px-2 py-0.5 rounded-full border sm:border-2 border-comic-black z-10">
+                      REC
                     </span>
                   )}
                   {style.icon &&
                     (typeof style.icon === "string" ? (
-                      <PublicIcon name={style.icon} className="text-2xl" />
+                      <PublicIcon name={style.icon} className="text-xl sm:text-2xl flex-shrink-0" />
                     ) : (
-                      <style.icon className="text-2xl" />
+                      <style.icon className="text-xl sm:text-2xl flex-shrink-0" />
                     ))}
-                  <span className="text-xs">{style.name}</span>
+                  <span className="text-xs truncate">{style.name}</span>
                 </button>
               </Tooltip>
             );

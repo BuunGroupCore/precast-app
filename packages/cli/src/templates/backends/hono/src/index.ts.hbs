@@ -5,11 +5,11 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { config } from "dotenv";
 
-{{#if (eq config.database "postgres")}}import { prisma } from "@/lib/prisma";{{/if}}
-{{#if (eq config.database "mongodb")}}import { connectDB } from "@/lib/mongoose";{{/if}}
-{{#if (eq config.apiClient "hono-rpc")}}import rpcApp from "@/routes/rpc";{{/if}}
+{{#if (eq database "postgres" && eq orm "prisma")}}import { prisma } from "@/lib/prisma";{{/if}}
+{{#if (eq database "mongodb" && eq orm "mongoose")}}import { connectDB } from "@/lib/mongoose";{{/if}}
+{{#if (eq apiClient "hono-rpc")}}import rpcApp from "@/routes/rpc";{{/if}}
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
-import healthApp from "./api/routes/health{{#if typescript}}.js{{/if}}";
+import healthApp from "@/api/routes/health{{#if typescript}}.js{{/if}}";
 {{/if}}
 
 config();
@@ -31,12 +31,12 @@ app.route("/api", healthApp);
 {{else}}
 // Health check
 app.get("/api/health", async (c) => {
-  {{#if (eq config.database "postgres")}}
+  {{#if (and (eq database "postgres") (eq orm "prisma"))}}
   try {
     await prisma.$queryRaw`SELECT 1`;
     return c.json({ 
       status: "ok", 
-      message: "{{config.name}} API is running",
+      message: "{{name}} API is running",
       database: "connected",
       timestamp: new Date().toISOString()
     });
@@ -47,12 +47,12 @@ app.get("/api/health", async (c) => {
       timestamp: new Date().toISOString()
     }, 500);
   }
-  {{else if (eq config.database "mongodb")}}
+  {{else if (and (eq database "mongodb") (eq orm "mongoose"))}}
   try {
     await connectDB();
     return c.json({ 
       status: "ok", 
-      message: "{{config.name}} API is running",
+      message: "{{name}} API is running",
       database: "connected",
       timestamp: new Date().toISOString()
     });
@@ -66,7 +66,7 @@ app.get("/api/health", async (c) => {
   {{else}}
   return c.json({ 
     status: "ok", 
-    message: "{{config.name}} API is running",
+    message: "{{name}} API is running",
     timestamp: new Date().toISOString()
   });
   {{/if}}
@@ -76,7 +76,7 @@ app.get("/api/health", async (c) => {
 // Example API route
 app.get("/api/hello", (c) => {
   return c.json({ 
-    message: "Hello from {{config.name}} API!",
+    message: "Hello from {{name}} API!",
     version: "1.0.0"
   });
 });

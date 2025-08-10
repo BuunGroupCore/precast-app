@@ -1,20 +1,24 @@
 {{#if (eq backend 'express')}}
+import { Router, Request, Response } from 'express';
+
 {{#if database}}
 {{#if (eq orm 'prisma')}}
 import { PrismaClient } from '@prisma/client';
 {{/if}}
 {{#if (eq orm 'typeorm')}}
-import { AppDataSource } from '../../data-source.js';
+import { AppDataSource } from '@/data-source.js';
+{{/if}}
+{{#if (eq orm 'drizzle')}}
+import { db } from '@/db';
+{{/if}}
+{{#if (and (eq database 'mongodb') (eq orm 'mongoose'))}}
+import mongoose from 'mongoose';
 {{/if}}
 {{/if}}
-import { Router, Request, Response } from 'express';
 
 {{#if database}}
 {{#if (eq orm 'prisma')}}
 const prisma = new PrismaClient();
-{{/if}}
-{{#if (eq orm 'drizzle')}}
-import { db } from '../../db';
 {{/if}}
 {{/if}}
 
@@ -48,7 +52,7 @@ router.get('/health/database', async (req: Request, res: Response) => {
     
     {{#if (eq orm 'drizzle')}}
     // Test database connection with Drizzle
-    const result = await db.execute('SELECT 1');
+    await db.execute('SELECT 1');
     
     res.json({
       status: 'connected',
@@ -68,6 +72,21 @@ router.get('/health/database', async (req: Request, res: Response) => {
       orm: 'typeorm',
       timestamp: new Date().toISOString()
     });
+    {{/if}}
+    
+    {{#if (and (eq database 'mongodb') (eq orm 'mongoose'))}}
+    // Test database connection with Mongoose
+    const dbState = mongoose.connection.readyState;
+    if (dbState === 1) {
+      res.json({
+        status: 'connected',
+        database: 'mongodb',
+        orm: 'mongoose',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      throw new Error('MongoDB connection not established');
+    }
     {{/if}}
     
     {{#if (eq orm 'none')}}
@@ -141,15 +160,22 @@ export default router;
 {{/if}}
 
 {{#if (eq backend 'fastify')}}
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+
 {{#if database}}
 {{#if (eq orm 'prisma')}}
 import { PrismaClient } from '@prisma/client';
 {{/if}}
+{{#if (eq orm 'drizzle')}}
+import { db } from '@/db';
+{{/if}}
 {{#if (eq orm 'typeorm')}}
-import { AppDataSource } from '../../data-source.js';
+import { AppDataSource } from '@/data-source.js';
+{{/if}}
+{{#if (and (eq database 'mongodb') (eq orm 'mongoose'))}}
+import mongoose from 'mongoose';
 {{/if}}
 {{/if}}
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 
 {{#if database}}
 {{#if (eq orm 'prisma')}}
@@ -183,6 +209,18 @@ export async function healthRoutes(fastify: FastifyInstance) {
       };
       {{/if}}
       
+      {{#if (eq orm 'drizzle')}}
+      // Test database connection with Drizzle
+      await db.execute('SELECT 1');
+      
+      return {
+        status: 'connected',
+        database: '{{database}}',
+        orm: 'drizzle',
+        timestamp: new Date().toISOString()
+      };
+      {{/if}}
+      
       {{#if (eq orm 'typeorm')}}
       await AppDataSource.query('SELECT 1');
       
@@ -190,6 +228,16 @@ export async function healthRoutes(fastify: FastifyInstance) {
         status: 'connected',
         database: '{{database}}',
         orm: 'typeorm',
+        timestamp: new Date().toISOString()
+      };
+      {{/if}}
+      
+      {{#if (eq orm 'none')}}
+      // Add your custom database connection test here
+      return {
+        status: 'not-implemented',
+        message: 'Database health check not implemented',
+        database: '{{database}}',
         timestamp: new Date().toISOString()
       };
       {{/if}}
@@ -207,15 +255,22 @@ export async function healthRoutes(fastify: FastifyInstance) {
 {{/if}}
 
 {{#if (eq backend 'hono')}}
+import { Hono } from 'hono';
+
 {{#if database}}
 {{#if (eq orm 'prisma')}}
 import { PrismaClient } from '@prisma/client';
 {{/if}}
+{{#if (eq orm 'drizzle')}}
+import { db } from '@/db';
+{{/if}}
 {{#if (eq orm 'typeorm')}}
-import { AppDataSource } from '../../data-source.js';
+import { AppDataSource } from '@/data-source.js';
+{{/if}}
+{{#if (and (eq database 'mongodb') (eq orm 'mongoose'))}}
+import mongoose from 'mongoose';
 {{/if}}
 {{/if}}
-import { Hono } from 'hono';
 
 {{#if database}}
 {{#if (eq orm 'prisma')}}
@@ -250,6 +305,18 @@ app.get('/health/database', async (c) => {
     });
     {{/if}}
     
+    {{#if (eq orm 'drizzle')}}
+    // Test database connection with Drizzle
+    await db.execute('SELECT 1');
+    
+    return c.json({
+      status: 'connected',
+      database: '{{database}}',
+      orm: 'drizzle',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+    
     {{#if (eq orm 'typeorm')}}
     await AppDataSource.query('SELECT 1');
     
@@ -257,6 +324,16 @@ app.get('/health/database', async (c) => {
       status: 'connected',
       database: '{{database}}',
       orm: 'typeorm',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+    
+    {{#if (eq orm 'none')}}
+    // Add your custom database connection test here
+    return c.json({
+      status: 'not-implemented',
+      message: 'Database health check not implemented',
+      database: '{{database}}',
       timestamp: new Date().toISOString()
     });
     {{/if}}

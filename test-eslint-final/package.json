@@ -1,0 +1,22 @@
+{
+  "name": "test-eslint-final",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "turbo": "^1.12.4",
+    "typescript": "^5.4.2",
+    "eslint": "^8.57.0"
+  },
+  "packageManager": "bun@1.2.18"
+}

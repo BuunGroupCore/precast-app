@@ -1,0 +1,78 @@
+import { Heart, ExternalLink, BookOpen } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
+import { SiPreact } from "react-icons/si";
+
+/**
+ * Footer component with Precast branding and useful links
+ */
+export function Footer() {
+  return (
+    <footer className="mt-auto border-t border-white/10">
+      <div className="bg-slate-900/50 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Branding */}
+            <div className="flex items-center gap-4 group">
+              <div className="relative">
+                <SiPreact className="h-8 w-8 text-purple-400 group-hover:text-purple-300 transition-colors duration-300" />
+                <div className="absolute -inset-1 bg-purple-500/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="text-center md:text-left">
+                <p className="text-white font-semibold group-hover:text-purple-100 transition-colors duration-300">test-eslint-final</p>
+                <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors duration-300">Powered by Precast</p>
+              </div>
+            </div>
+
+            {/* Links */}
+            <div className="flex items-center gap-8">
+              <a 
+                href="https://precast.dev" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 font-medium hover:scale-105"
+              >
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300">Precast.dev</span>
+                <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300" />
+              </a>
+              <a 
+                href="https://precast.dev/docs" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
+              >
+                <BookOpen className="w-4 h-4 group-hover:text-blue-400 transition-colors duration-300" />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300">Documentation</span>
+              </a>
+              <a 
+                href="https://github.com/BuunGroupCore/precast-app" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
+              >
+                <FaGithub className="w-4 h-4 group-hover:text-gray-100 transition-colors duration-300" />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300">GitHub</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Bottom section */}
+          <div className="mt-8 pt-6 border-t border-slate-700/50 text-center">
+            <p className="text-gray-500 text-sm flex items-center justify-center gap-2 group hover:text-gray-400 transition-colors duration-300">
+              <span>Made with</span>
+              <Heart className="w-4 h-4 text-red-500 animate-pulse group-hover:scale-110 transition-transform duration-300" />
+              <span>using</span>
+              <a 
+                href="https://precast.dev" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 transition-colors duration-300 font-semibold"
+              >
+                precast.dev
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}

@@ -5,6 +5,7 @@ import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 {{/if}}
+
 import * as schema from "./schema{{#if typescript}}.js{{/if}}";
 
 if (!process.env.DATABASE_URL) {
@@ -50,9 +51,9 @@ export const db = drizzle(connection, { schema, mode: "default" });
 export async function checkDatabaseConnection(): Promise<boolean> {
   try {
     {{#if (eq database "postgres")}}
-    const result = await db.execute("SELECT 1" as any);
+    await db.execute("SELECT 1" as any);
     {{else if (eq database "mysql")}}
-    const result = await db.execute("SELECT 1" as any);
+    await db.execute("SELECT 1" as any);
     {{/if}}
     return true;
   } catch (error) {

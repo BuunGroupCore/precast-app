@@ -3,15 +3,13 @@ import { config } from "dotenv";
 import express, { Request, Response, json, urlencoded } from "express";
 import helmet from "helmet";
 
-{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
-import healthRoutes from "@/api/routes/health{{#if typescript}}.js{{/if}}";
-{{/if}}
+import healthRoutes from "@/api/routes/health.js";
 import { 
   APP_CONFIG, 
   SERVER_CONFIG, 
   CORS_CONFIG, 
   HEALTH_CHECK_CONFIG 
-} from "@/config/constants{{#if typescript}}.js{{/if}}";
+} from "@/config/constants.js";
 
 config();
 
@@ -24,9 +22,7 @@ app.use(json());
 app.use(urlencoded({ extended: true }));
 
 // Routes
-{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
 app.use("/api", healthRoutes);
-{{/if}}
 
 app.get(HEALTH_CHECK_CONFIG.path, (req: Request, res: Response) => {
   res.json({ 

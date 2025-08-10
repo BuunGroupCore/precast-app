@@ -1,0 +1,83 @@
+import React, { useState, useEffect } from 'react';
+{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+import { AdminWidget } from '@/components/admin/AdminWidget';
+{{/if}}
+{{#if (includes plugins 'stripe')}}
+import { StripeWidget } from '@/components/widgets/StripeWidget';
+{{/if}}
+{{#if (includes plugins 'analytics')}}
+import { AnalyticsWidget } from '@/components/widgets/AnalyticsWidget';
+{{/if}}
+{{#if (includes plugins 'monitoring')}}
+import { MonitoringWidget } from '@/components/widgets/MonitoringWidget';
+{{/if}}
+
+/**
+ * Widget Manager - Manages multiple floating widgets
+ * Handles positioning, stacking, and collision detection
+ */
+export function WidgetManager() {
+  const [widgetPositions, setWidgetPositions] = useState<Record<string, { bottom: number; right: number }>>({});
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  // Calculate positions to avoid overlapping
+  useEffect(() => {
+    const positions: Record<string, { bottom: number; right: number }> = {};
+    let currentBottom = 24; // Start at 24px from bottom
+    const spacing = 72; // Space between widgets
+    
+    {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+    positions.admin = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    {{#if (includes plugins 'stripe')}}
+    positions.stripe = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    {{#if (includes plugins 'analytics')}}
+    positions.analytics = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    {{#if (includes plugins 'monitoring')}}
+    positions.monitoring = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    setWidgetPositions(positions);
+  }, []);
+
+  if (!isDevelopment) {
+    return null;
+  }
+
+  return (
+    <>
+      {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+      <div style={{ position: 'fixed', bottom: `${widgetPositions.admin?.bottom}px`, right: `${widgetPositions.admin?.right}px`, zIndex: 50 }}>
+        <AdminWidget />
+      </div>
+      {{/if}}
+      
+      {{#if (includes plugins 'stripe')}}
+      <div style={{ position: 'fixed', bottom: `${widgetPositions.stripe?.bottom}px`, right: `${widgetPositions.stripe?.right}px`, zIndex: 50 }}>
+        <StripeWidget />
+      </div>
+      {{/if}}
+      
+      {{#if (includes plugins 'analytics')}}
+      <div style={{ position: 'fixed', bottom: `${widgetPositions.analytics?.bottom}px`, right: `${widgetPositions.analytics?.right}px`, zIndex: 50 }}>
+        <AnalyticsWidget />
+      </div>
+      {{/if}}
+      
+      {{#if (includes plugins 'monitoring')}}
+      <div style={{ position: 'fixed', bottom: `${widgetPositions.monitoring?.bottom}px`, right: `${widgetPositions.monitoring?.right}px`, zIndex: 50 }}>
+        <MonitoringWidget />
+      </div>
+      {{/if}}
+    </>
+  );
+}

@@ -32,6 +32,10 @@ export interface PluginConfig {
   scripts?: Record<string, string>;
   setupFiles?: Record<string, Array<{ template: string; output: string }>>;
   backendSetupFiles?: Record<string, Array<{ template: string; output: string }>>;
+  widgets?: {
+    adminPanel?: boolean;
+    files?: Record<string, Array<{ from: string; to: string }>>;
+  };
   postInstall?: {
     instructions?: string[];
   };
@@ -133,6 +137,11 @@ export async function setupPlugins(
         );
       }
 
+      // Setup Precast widget if requested
+      if (pluginConfig.widgets?.adminPanel) {
+        await setupPrecastWidget(config, projectPath);
+      }
+
       // Show post-install instructions
       if (pluginConfig.postInstall?.instructions) {
         consola.info(`\n📝 ${pluginConfig.name} Setup Instructions:`);
@@ -142,42 +151,38 @@ export async function setupPlugins(
       }
     }
 
-    // Install frontend dependencies
-    if (frontendDeps.size > 0) {
-      consola.info("📦 Installing plugin frontend dependencies...");
-      await installDependencies(Array.from(frontendDeps), {
-        packageManager: config.packageManager,
-        projectPath: frontendPath,
-        dev: false,
-      });
+    // Update package.json with plugin dependencies
+    if (frontendDeps.size > 0 || frontendDevDeps.size > 0) {
+      consola.info("📦 Adding plugin dependencies to frontend package.json...");
+      await updatePackageJsonDependencies(frontendPath, frontendDeps, frontendDevDeps);
     }
 
-    if (frontendDevDeps.size > 0) {
-      consola.info("📦 Installing plugin frontend dev dependencies...");
-      await installDependencies(Array.from(frontendDevDeps), {
-        packageManager: config.packageManager,
-        projectPath: frontendPath,
-        dev: true,
-      });
+    if (isMonorepo && (backendDeps.size > 0 || backendDevDeps.size > 0)) {
+      consola.info("📦 Adding plugin dependencies to backend package.json...");
+      await updatePackageJsonDependencies(backendPath, backendDeps, backendDevDeps);
     }
 
-    // Install backend dependencies if in monorepo
-    if (isMonorepo && backendDeps.size > 0) {
-      consola.info("📦 Installing plugin backend dependencies...");
-      await installDependencies(Array.from(backendDeps), {
-        packageManager: config.packageManager,
-        projectPath: backendPath,
-        dev: false,
-      });
-    }
+    // Install all dependencies if install flag is set
+    if (config.autoInstall) {
+      // Install frontend dependencies
+      if (frontendDeps.size > 0 || frontendDevDeps.size > 0) {
+        consola.info("📦 Installing plugin frontend dependencies...");
+        await installDependencies([], {
+          packageManager: config.packageManager,
+          projectPath: frontendPath,
+          dev: false,
+        });
+      }
 
-    if (isMonorepo && backendDevDeps.size > 0) {
-      consola.info("📦 Installing plugin backend dev dependencies...");
-      await installDependencies(Array.from(backendDevDeps), {
-        packageManager: config.packageManager,
-        projectPath: backendPath,
-        dev: true,
-      });
+      // Install backend dependencies if in monorepo
+      if (isMonorepo && (backendDeps.size > 0 || backendDevDeps.size > 0)) {
+        consola.info("📦 Installing plugin backend dependencies...");
+        await installDependencies([], {
+          packageManager: config.packageManager,
+          projectPath: backendPath,
+          dev: false,
+        });
+      }
     }
 
     // Update environment variables
@@ -223,6 +228,72 @@ async function loadPluginConfig(pluginId: string): Promise<PluginConfig | null> 
   }
 
   return null;
+}
+
+/**
+ * Setup Precast validation widget for testing services
+ */
+export async function setupPrecastWidget(
+  config: ProjectConfig,
+  projectPath: string
+): Promise<void> {
+  try {
+    const isMonorepo = config.backend && config.backend !== "none";
+    const frontendPath = isMonorepo ? path.join(projectPath, "apps", "web") : projectPath;
+    const backendPath = isMonorepo ? path.join(projectPath, "apps", "api") : projectPath;
+
+    const templateRoot = getTemplateRoot();
+    const widgetPath = path.join(templateRoot, "widgets", "precast-widget");
+
+    // Check if widget templates exist
+    if (!(await pathExists(widgetPath))) {
+      consola.warn("Precast widget templates not found");
+      return;
+    }
+
+    // Process PrecastWidget floating component
+    const widgetTemplatePath = path.join(widgetPath, "PrecastWidget.tsx.hbs");
+    if (await pathExists(widgetTemplatePath)) {
+      const widgetTemplate = await readFile(widgetTemplatePath, "utf-8");
+      const widgetContent = Handlebars.compile(widgetTemplate)({
+        ...config,
+        plugins: config.plugins || [],
+        database: config.database || "none",
+      });
+
+      const componentDir = path.join(frontendPath, "src", "components", "precast");
+      await ensureDir(componentDir);
+      await writeFile(path.join(componentDir, "PrecastWidget.tsx"), widgetContent);
+    } else {
+      consola.warn("PrecastWidget template not found");
+      return;
+    }
+
+    // Process API health routes if backend exists
+    if (config.backend && config.backend !== "none") {
+      const routesTemplate = await readFile(
+        path.join(widgetPath, "api", "health-routes.ts.hbs"),
+        "utf-8"
+      );
+
+      const routesContent = Handlebars.compile(routesTemplate)({
+        ...config,
+        plugins: config.plugins || [],
+      });
+
+      const routesDir = path.join(backendPath, "src", "api", "routes");
+      await ensureDir(routesDir);
+      await writeFile(path.join(routesDir, "health.ts"), routesContent);
+    }
+
+    // Note: App.tsx integration is now handled by the template itself using Handlebars conditions
+    // The PrecastWidget is conditionally included when plugins or database are configured
+
+    consola.success("✅ Precast validation widget installed");
+    consola.info("   Look for the floating button in the bottom-right corner");
+  } catch (error) {
+    consola.warn("Failed to setup admin panel widget:", error);
+  }
 }
 
 /**
@@ -309,46 +380,72 @@ async function updateEnvFile(
   const envExamplePath = path.join(targetPath, ".env.example");
   const envPath = path.join(targetPath, ".env");
 
-  // Create .env.example if it doesn't exist
-  if (!(await pathExists(envExamplePath))) {
-    await writeFile(envExamplePath, "");
+  // Read existing content or create empty
+  let envExampleContent = "";
+  if (await pathExists(envExamplePath)) {
+    envExampleContent = await readFile(envExamplePath, "utf-8");
   }
 
-  // Read existing content
-  let envContent = await readFile(envExamplePath, "utf-8");
+  let envContent = "";
+  if (await pathExists(envPath)) {
+    envContent = await readFile(envPath, "utf-8");
+  }
 
-  // Add plugin environment variables
-  envContent += "\n# Plugin Configuration\n";
+  // Check if we need to add plugin section
+  let addedToExample = false;
+  let addedToEnv = false;
+
+  // Add plugin environment variables to .env.example
+  for (const [key, value] of Object.entries(envVariables)) {
+    if (!envExampleContent.includes(key)) {
+      if (!addedToExample) {
+        // Add section header if not already present
+        if (!envExampleContent.includes("# Plugin Configuration")) {
+          envExampleContent =
+            envExampleContent.trimEnd() +
+            "\n\n# Plugin Configuration\n# ==================================================\n";
+        }
+        addedToExample = true;
+      }
+      // Add comment for the key
+      if (key === "RESEND_API_KEY") {
+        envExampleContent += "# Resend API key - Get from https://resend.com/api-keys\n";
+      } else if (key === "RESEND_FROM_EMAIL") {
+        envExampleContent += "# Resend sender email - Must be verified domain\n";
+      }
+      envExampleContent += `${key}=${value}\n`;
+    }
+  }
+
+  // Add plugin environment variables to .env
   for (const [key, value] of Object.entries(envVariables)) {
     if (!envContent.includes(key)) {
+      if (!addedToEnv) {
+        // Add section header if not already present
+        if (!envContent.includes("# Plugin Configuration")) {
+          envContent =
+            envContent.trimEnd() +
+            "\n\n# Plugin Configuration\n# ==================================================\n";
+        }
+        addedToEnv = true;
+      }
+      // Add comment for the key
+      if (key === "RESEND_API_KEY") {
+        envContent += "# Resend API key - Get from https://resend.com/api-keys\n";
+      } else if (key === "RESEND_FROM_EMAIL") {
+        envContent += "# Resend sender email - Must be verified domain\n";
+      }
       envContent += `${key}=${value}\n`;
     }
   }
 
-  // Write back to .env.example
-  await writeFile(envExamplePath, envContent);
+  // Write back files if updated
+  if (addedToExample) {
+    await writeFile(envExamplePath, envExampleContent);
+  }
 
-  // Create/update .env file with plugin environment variables
-  if (!(await pathExists(envPath))) {
-    await writeFile(envPath, envContent);
-  } else {
-    // If .env exists, append plugin variables if they don't exist
-    let existingEnvContent = await readFile(envPath, "utf-8");
-    let needsUpdate = false;
-
-    for (const [key, value] of Object.entries(envVariables)) {
-      if (!existingEnvContent.includes(key)) {
-        if (!needsUpdate) {
-          existingEnvContent += "\n# Plugin Configuration\n";
-          needsUpdate = true;
-        }
-        existingEnvContent += `${key}=${value}\n`;
-      }
-    }
-
-    if (needsUpdate) {
-      await writeFile(envPath, existingEnvContent);
-    }
+  if (addedToEnv || !(await pathExists(envPath))) {
+    await writeFile(envPath, envContent || envExampleContent);
   }
 }
 
@@ -373,6 +470,55 @@ async function updatePackageJsonScripts(
   }
 
   Object.assign(packageJson.scripts, scripts);
+
+  await writeJson(packageJsonPath, packageJson, { spaces: 2 });
+}
+
+/**
+ * Update package.json dependencies
+ */
+async function updatePackageJsonDependencies(
+  targetPath: string,
+  dependencies: Set<string>,
+  devDependencies: Set<string>
+): Promise<void> {
+  const packageJsonPath = path.join(targetPath, "package.json");
+
+  if (!(await pathExists(packageJsonPath))) {
+    consola.warn("package.json not found, skipping dependency updates");
+    return;
+  }
+
+  const packageJson = await readJson(packageJsonPath);
+
+  if (!packageJson.dependencies) {
+    packageJson.dependencies = {};
+  }
+
+  if (!packageJson.devDependencies) {
+    packageJson.devDependencies = {};
+  }
+
+  // Parse dependency strings and add to package.json
+  for (const dep of dependencies) {
+    const [name, version] = dep.includes("@", 1)
+      ? [dep.substring(0, dep.lastIndexOf("@")), dep.substring(dep.lastIndexOf("@") + 1)]
+      : dep.split("@");
+
+    if (name && version) {
+      packageJson.dependencies[name] = version;
+    }
+  }
+
+  for (const dep of devDependencies) {
+    const [name, version] = dep.includes("@", 1)
+      ? [dep.substring(0, dep.lastIndexOf("@")), dep.substring(dep.lastIndexOf("@") + 1)]
+      : dep.split("@");
+
+    if (name && version) {
+      packageJson.devDependencies[name] = version;
+    }
+  }
 
   await writeJson(packageJsonPath, packageJson, { spaces: 2 });
 }

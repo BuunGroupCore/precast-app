@@ -20,9 +20,25 @@ export interface EnvConfig {
 }
 
 /**
+ * Generate a secure random password
+ */
+function generateSecurePassword(length: number = 20): string {
+  // Use characters that are safe for database URLs and environment variables
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#%^&*";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
+/**
  * Get environment variables based on project configuration
  */
-export function getEnvironmentVariables(config: ProjectConfig): EnvConfig {
+export function getEnvironmentVariables(
+  config: ProjectConfig,
+  dockerPasswords?: Record<string, string>
+): EnvConfig {
   const variables: EnvVariable[] = [];
   const notes: string[] = [];
 
@@ -53,44 +69,62 @@ export function getEnvironmentVariables(config: ProjectConfig): EnvConfig {
   if (config.database !== "none") {
     switch (config.database) {
       case "postgres":
-        variables.push({
-          key: "DATABASE_URL",
-          description: "PostgreSQL connection string",
-          value: "", // Will be overridden by development/production values
-          development: "postgresql://postgres:password@localhost:5432/myapp_dev",
-          production: "postgresql://user:password@host:5432/myapp_prod",
-          required: true,
-        });
-        if (config.orm === "prisma") {
+        {
+          const dbName = config.name.replace(/-/g, "_");
+          const password = dockerPasswords?.POSTGRES_PASSWORD || generateSecurePassword();
+          // URL-encode the password to handle special characters
+          const encodedPassword = encodeURIComponent(password);
           variables.push({
-            key: "DIRECT_URL",
-            description: "Direct database URL for migrations (Prisma)",
+            key: "DATABASE_URL",
+            description: "PostgreSQL connection string",
             value: "", // Will be overridden by development/production values
-            development: "postgresql://postgres:password@localhost:5432/myapp_dev",
+            development: `postgresql://postgres:${encodedPassword}@localhost:5432/${dbName}`,
             production: "postgresql://user:password@host:5432/myapp_prod",
-            required: false,
+            required: true,
           });
+          if (config.orm === "prisma") {
+            variables.push({
+              key: "DIRECT_URL",
+              description: "Direct database URL for migrations (Prisma)",
+              value: "", // Will be overridden by development/production values
+              development: `postgresql://postgres:${encodedPassword}@localhost:5432/${dbName}`,
+              production: "postgresql://user:password@host:5432/myapp_prod",
+              required: false,
+            });
+          }
         }
         break;
       case "mysql":
-        variables.push({
-          key: "DATABASE_URL",
-          description: "MySQL connection string",
-          value: "", // Will be overridden by development/production values
-          development: "mysql://root:password@localhost:3306/myapp_dev",
-          production: "mysql://user:password@host:3306/myapp_prod",
-          required: true,
-        });
+        {
+          const dbName = config.name.replace(/-/g, "_");
+          const password = dockerPasswords?.MYSQL_ROOT_PASSWORD || generateSecurePassword();
+          // URL-encode the password to handle special characters
+          const encodedPassword = encodeURIComponent(password);
+          variables.push({
+            key: "DATABASE_URL",
+            description: "MySQL connection string",
+            value: "", // Will be overridden by development/production values
+            development: `mysql://root:${encodedPassword}@localhost:3306/${dbName}`,
+            production: "mysql://user:password@host:3306/myapp_prod",
+            required: true,
+          });
+        }
         break;
       case "mongodb":
-        variables.push({
-          key: "MONGODB_URI",
-          description: "MongoDB connection string",
-          value: "", // Will be overridden by development/production values
-          development: "mongodb://localhost:27017/myapp_dev",
-          production: "mongodb+srv://user:password@cluster.mongodb.net/myapp_prod",
-          required: true,
-        });
+        {
+          const dbName = config.name.replace(/-/g, "_");
+          const password = dockerPasswords?.MONGO_ROOT_PASSWORD || generateSecurePassword();
+          // URL-encode the password to handle special characters
+          const encodedPassword = encodeURIComponent(password);
+          variables.push({
+            key: "MONGODB_URI",
+            description: "MongoDB connection string",
+            value: "", // Will be overridden by development/production values
+            development: `mongodb://root:${encodedPassword}@localhost:27017/${dbName}?authSource=admin`,
+            production: "mongodb+srv://user:password@cluster.mongodb.net/myapp_prod",
+            required: true,
+          });
+        }
         break;
       case "supabase":
         variables.push(
@@ -347,13 +381,22 @@ export function getEnvironmentVariables(config: ProjectConfig): EnvConfig {
           notes.push("Get your Stripe keys from: https://dashboard.stripe.com/test/apikeys");
           break;
         case "resend":
-          variables.push({
-            key: "RESEND_API_KEY",
-            description: "Resend API key",
-            value: "re_",
-            required: true,
-          });
+          variables.push(
+            {
+              key: "RESEND_API_KEY",
+              description: "Resend API key",
+              value: "re_",
+              required: true,
+            },
+            {
+              key: "RESEND_FROM_EMAIL",
+              description: "Default sender email address",
+              value: "noreply@yourdomain.com",
+              required: true,
+            }
+          );
           notes.push("Get your Resend API key from: https://resend.com/api-keys");
+          notes.push("Configure a verified domain in Resend to use custom sender addresses");
           break;
         case "sendgrid":
           variables.push({
@@ -746,9 +789,12 @@ function separateVariablesByScope(variables: EnvVariable[]): {
 /**
  * Generate .env files for a monorepo project with proper scoping
  */
-export async function generateEnvFiles(config: ProjectConfig): Promise<void> {
+export async function generateEnvFiles(
+  config: ProjectConfig,
+  dockerPasswords?: Record<string, string>
+): Promise<void> {
   try {
-    const envConfig = getEnvironmentVariables(config);
+    const envConfig = getEnvironmentVariables(config, dockerPasswords);
     const { frontend, backend, shared } = separateVariablesByScope(envConfig.variables);
 
     // Determine if this is a monorepo structure

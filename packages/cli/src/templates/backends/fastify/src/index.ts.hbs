@@ -2,6 +2,9 @@ import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import dotenv from 'dotenv';
+{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+import { healthRoutes } from './api/routes/health{{#if typescript}}.js{{/if}}';
+{{/if}}
 
 dotenv.config();
 
@@ -19,6 +22,9 @@ await fastify.register(helmet);
 await fastify.register(cors);
 
 // Routes
+{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+await fastify.register(healthRoutes, { prefix: '/api' });
+{{else}}
 fastify.get('/api/health', async (request, reply) => {
   return {
     status: 'ok',
@@ -26,6 +32,7 @@ fastify.get('/api/health', async (request, reply) => {
     timestamp: new Date().toISOString()
   };
 });
+{{/if}}
 
 fastify.get('/api/hello', async (request, reply) => {
   return {

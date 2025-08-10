@@ -1,0 +1,130 @@
+import React, { useState } from 'react';
+
+/**
+ * Stripe Payment Testing Widget
+ * Standalone widget for testing Stripe integration
+ */
+export function StripeWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const testStripeConnection = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/stripe/health', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const data = await response.json();
+      setTestResult({
+        success: response.ok,
+        message: response.ok ? 'Stripe connected successfully!' : 'Failed to connect to Stripe'
+      });
+    } catch (error) {
+      setTestResult({
+        success: false,
+        message: 'Network error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  if (!isDevelopment) return null;
+
+  return (
+    <>
+      {/* Floating Button - Stripe Theme */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+          title="Stripe Testing"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+        </button>
+      )}
+
+      {/* Floating Panel */}
+      {isOpen && (
+        <div className={`bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl transition-all duration-300 ${
+          isMinimized ? 'w-48 h-12' : 'w-80 max-h-96'
+        }`}>
+          {/* Header */}
+          <div className="flex items-center justify-between p-3 border-b border-white/10">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded flex items-center justify-center">
+                <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium text-white">Stripe</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setIsMinimized(!isMinimized)}
+                className="p-1 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-white"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMinimized ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  )}
+                </svg>
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-white"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Content */}
+          {!isMinimized && (
+            <div className="p-4">
+              <button
+                onClick={testStripeConnection}
+                disabled={loading}
+                className="w-full px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-all"
+              >
+                {loading ? 'Testing...' : 'Test Connection'}
+              </button>
+              
+              {testResult && (
+                <div className={`mt-3 p-2 rounded-lg text-xs ${
+                  testResult.success 
+                    ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                }`}>
+                  {testResult.message}
+                </div>
+              )}
+              
+              <div className="mt-3 space-y-2">
+                <button className="w-full px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-xs rounded transition-all">
+                  Test Payment
+                </button>
+                <button className="w-full px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-xs rounded transition-all">
+                  View Webhooks
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}

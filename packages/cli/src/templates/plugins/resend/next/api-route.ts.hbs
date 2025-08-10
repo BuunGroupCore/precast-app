@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { sendEmail } from '@/services/email';
 
 export async function POST(request: NextRequest) {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Send email based on type
     let result;
     switch (type) {
-      case 'welcome':
+      case 'welcome': {
         const { name } = body;
         if (!name) {
           return NextResponse.json(
@@ -40,8 +41,9 @@ export async function POST(request: NextRequest) {
         const { sendWelcomeEmail } = await import('@/services/email');
         result = await sendWelcomeEmail(to, name);
         break;
+      }
 
-      case 'password-reset':
+      case 'password-reset': {
         const { resetToken, resetUrl } = body;
         if (!resetToken || !resetUrl) {
           return NextResponse.json(
@@ -52,8 +54,9 @@ export async function POST(request: NextRequest) {
         const { sendPasswordResetEmail } = await import('@/services/email');
         result = await sendPasswordResetEmail(to, resetToken, resetUrl);
         break;
+      }
 
-      case 'notification':
+      case 'notification': {
         const { title, message } = body;
         if (!title || !message) {
           return NextResponse.json(
@@ -64,6 +67,7 @@ export async function POST(request: NextRequest) {
         const { sendNotificationEmail } = await import('@/services/email');
         result = await sendNotificationEmail(to, title, message);
         break;
+      }
 
       default:
         // Custom email

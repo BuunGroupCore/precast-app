@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    {{#if config.orm}}{{#if (eq config.orm "prisma")}}"postinstall": "prisma generate",
+    {{/if}}{{/if}}"dev": "tsx watch src/index.ts",
     "build": "tsup",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts,.tsx",
@@ -13,11 +14,11 @@
   "dependencies": {
     "hono": "^4.1.4",
     "@hono/node-server": "^1.8.2",
-    "dotenv": "^16.4.5"{{#if config.typescript}},
+    "dotenv": "^16.4.5"{{#if typescript}},
     "@types/node": "^20.11.30"{{/if}}
   },
   "devDependencies": {
-    {{#if config.typescript}}"tsx": "^4.7.1",
+    {{#if typescript}}"tsx": "^4.7.1",
     "tsup": "^8.0.2",
     "typescript": "^5.4.2",{{/if}}
     "nodemon": "^3.1.0"

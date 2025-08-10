@@ -136,21 +136,28 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Generate environment files based on all configured features
-  try {
-    const { generateEnvFiles } = await import("../utils/env-setup.js");
-    await generateEnvFiles(config);
-    logger.success("✅ Environment files generated (.env, .env.example)");
-  } catch (error) {
-    logger.warn(`Failed to generate environment files: ${error}`);
+  // Automatically setup admin panel if project has plugins or database
+  const shouldSetupAdminPanel =
+    (config.plugins && config.plugins.length > 0) ||
+    (config.database && config.database !== "none");
+
+  if (shouldSetupAdminPanel) {
+    try {
+      const { setupPrecastWidget } = await import("../utils/plugins-setup.js");
+      await setupPrecastWidget(config, projectPath);
+    } catch (error) {
+      logger.warn(`Failed to setup admin panel: ${error}`);
+    }
   }
 
-  // Setup Docker configuration if requested
+  // Setup Docker configuration first if requested (to get generated passwords)
+  let dockerPasswords: Record<string, string> | undefined;
   if (config.docker && config.database && config.database !== "none") {
     logger.info(`🐳 Setting up Docker compose for ${config.database}...`);
     try {
       const { setupDockerCompose } = await import("../utils/docker-setup.js");
-      await setupDockerCompose(config, projectPath);
+      const result = await setupDockerCompose(config, projectPath);
+      dockerPasswords = result.passwords;
       logger.success("✅ Docker setup completed!");
     } catch (error) {
       logger.warn(`Failed to setup Docker configuration: ${error}`);
@@ -158,5 +165,14 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   } else {
     logger.debug(`Docker setup skipped - docker: ${config.docker}, database: ${config.database}`);
+  }
+
+  // Generate environment files based on all configured features
+  try {
+    const { generateEnvFiles } = await import("../utils/env-setup.js");
+    await generateEnvFiles(config, dockerPasswords);
+    logger.success("✅ Environment files generated (.env, .env.example)");
+  } catch (error) {
+    logger.warn(`Failed to generate environment files: ${error}`);
   }
 }

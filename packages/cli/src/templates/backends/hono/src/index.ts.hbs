@@ -8,6 +8,9 @@ import { config } from "dotenv";
 {{#if (eq config.database "postgres")}}import { prisma } from "@/lib/prisma";{{/if}}
 {{#if (eq config.database "mongodb")}}import { connectDB } from "@/lib/mongoose";{{/if}}
 {{#if (eq config.apiClient "hono-rpc")}}import rpcApp from "@/routes/rpc";{{/if}}
+{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+import healthApp from "./api/routes/health{{#if typescript}}.js{{/if}}";
+{{/if}}
 
 config();
 
@@ -22,6 +25,10 @@ app.use("*", cors({
 }));
 app.use("*", prettyJSON());
 
+{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+// Mount health routes
+app.route("/api", healthApp);
+{{else}}
 // Health check
 app.get("/api/health", async (c) => {
   {{#if (eq config.database "postgres")}}
@@ -64,6 +71,7 @@ app.get("/api/health", async (c) => {
   });
   {{/if}}
 });
+{{/if}}
 
 // Example API route
 app.get("/api/hello", (c) => {

@@ -20,7 +20,8 @@ const __dirname = path.dirname(__filename);
  * @returns A random password string containing alphanumeric and special characters
  */
 function generatePassword(length: number = 20): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+  // Use Docker-safe characters (no $ which causes variable substitution issues)
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#%^&*";
   let password = "";
   for (let i = 0; i < length; i++) {
     password += chars.charAt(crypto.randomInt(0, chars.length));
@@ -39,24 +40,24 @@ function generatePassword(length: number = 20): string {
 export async function setupDockerCompose(
   config: ProjectConfig,
   projectPath: string
-): Promise<void> {
+): Promise<{ passwords?: Record<string, string> }> {
   const database = config.database;
 
   if (!database || database === "none" || database === "firebase" || database === "supabase") {
     consola.info("Skipping Docker setup - no local database needed");
-    return;
+    return {};
   }
 
   if (database === "turso") {
     consola.info("ℹ️ Turso uses SQLite locally, Docker setup not needed");
     consola.info("   Run 'turso dev' to start a local libSQL server");
-    return;
+    return {};
   }
 
   if (database === "cloudflare-d1") {
     consola.info("ℹ️ Cloudflare D1 uses Wrangler locally, Docker setup not needed");
     consola.info("   Run 'wrangler d1 execute' to interact with your local database");
-    return;
+    return {};
   }
 
   consola.info(`🐳 Setting up Docker Compose for ${database}...`);
@@ -117,7 +118,7 @@ export async function setupDockerCompose(
         }
       } else {
         consola.warn(`Docker templates not found for ${database}`);
-        return;
+        return {};
       }
     } else {
       const files = await readdir(templateDir);
@@ -247,6 +248,9 @@ Use the connection string from the \`.env\` file in your application.
     consola.info("   4. Stop services: npm run docker:down");
     consola.info("");
     consola.info("📖 See docker/README.md for detailed instructions");
+
+    // Return the generated passwords to be used in env files
+    return { passwords };
   } catch (error) {
     consola.error("❌ Failed to setup Docker configuration:", error);
     throw error;

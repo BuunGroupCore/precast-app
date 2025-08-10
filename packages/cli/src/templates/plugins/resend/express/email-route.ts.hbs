@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendNotificationEmail } from '../services/email';
+
+import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendNotificationEmail } from '../../services/email';
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.post('/email', async (req: Request, res: Response) => {
     // Send email based on type
     let result;
     switch (type) {
-      case 'welcome':
+      case 'welcome': {
         const { name } = req.body;
         if (!name) {
           return res.status(400).json({
@@ -43,8 +44,9 @@ router.post('/email', async (req: Request, res: Response) => {
         }
         result = await sendWelcomeEmail(to, name);
         break;
+      }
 
-      case 'password-reset':
+      case 'password-reset': {
         const { resetToken, resetUrl } = req.body;
         if (!resetToken || !resetUrl) {
           return res.status(400).json({
@@ -53,8 +55,9 @@ router.post('/email', async (req: Request, res: Response) => {
         }
         result = await sendPasswordResetEmail(to, resetToken, resetUrl);
         break;
+      }
 
-      case 'notification':
+      case 'notification': {
         const { title, message } = req.body;
         if (!title || !message) {
           return res.status(400).json({
@@ -63,6 +66,7 @@ router.post('/email', async (req: Request, res: Response) => {
         }
         result = await sendNotificationEmail(to, title, message);
         break;
+      }
 
       default:
         // Custom email

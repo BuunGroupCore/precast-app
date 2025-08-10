@@ -1,10 +1,10 @@
 import { Resend } from 'resend';
 
 // Initialize Resend client
-const resend = new Resend({{#if (eq framework 'next')}}process.env.RESEND_API_KEY{{else}}process.env.RESEND_API_KEY{{/if}});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email configuration
-const FROM_EMAIL = {{#if (eq framework 'next')}}process.env.RESEND_FROM_EMAIL{{else}}process.env.RESEND_FROM_EMAIL{{/if}} || 'noreply@yourdomain.com';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@yourdomain.com';
 
 export interface EmailOptions {
   to: string | string[];

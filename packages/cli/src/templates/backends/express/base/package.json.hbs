@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
+    {{#if orm}}{{#if (eq orm "prisma")}}"postinstall": "prisma generate",
+    {{/if}}{{/if}}"dev": "bun run --watch src/index.ts",
     "dev:node": "tsx watch src/index.ts",
     "build": "tsup",
     "start": "node dist/index.js",
@@ -18,7 +19,7 @@
     "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    {{#if config.typescript}}"@types/express": "^4.17.21",
+    {{#if typescript}}"@types/express": "^4.17.21",
     "@types/cors": "^2.8.17",
     "@types/node": "^20.11.20",
     "tsx": "^4.7.1",

@@ -126,7 +126,13 @@
       "Bash(./packages/cli/dist/cli.js init test-react-final --framework react --backend none --database none --orm none --styling tailwind --runtime node --install --yes)",
       "Bash(./packages/cli/dist/cli.js init test-env-gen --framework react --backend express --database postgres --orm prisma --styling tailwind --auth better-auth --plugins stripe,resend --yes)",
       "Bash(echo \"CI environment: $CI\")",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(./packages/cli/dist/cli.js init test-resend-plugin --framework=react --backend=express --database=none --orm=none --styling=tailwind --runtime=bun --plugins=resend --yes --no-install)",
+      "Bash(./packages/cli/dist/cli.js init test-resend-plugin --framework=react --backend=express --database=none --orm=none --styling=tailwind --runtime=bun --plugins=resend --yes)",
+      "Bash(packages/cli/dist/cli.js init test-resend-plugin-2 --framework=react --backend=express --database=none --orm=none --styling=tailwind --runtime=bun --plugins=resend --yes)",
+      "Bash(docker compose:*)",
+      "Bash(./packages/cli/dist/cli.js init test-db-no-orm --framework react --backend express --database postgres --orm none --styling tailwind --runtime node --docker --install --yes)",
+      "Bash(./packages/cli/dist/cli.js init test-import-fix --framework react --backend express --database postgres --orm none --styling tailwind --runtime node --install --yes)"
     ],
     "deny": []
   }

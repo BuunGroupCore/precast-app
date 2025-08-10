@@ -1,0 +1,12 @@
+{
+  "widget": {
+    "enabled": true,
+    "standalone": true,
+    "component": "StripeWidget",
+    "icon": "payment",
+    "color": "indigo",
+    "position": "bottom-right",
+    "priority": 2,
+    "features": ["connection-test", "payment-test", "webhook-viewer", "customer-management"]
+  }
+}

@@ -2,6 +2,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { HomePage } from "@/pages/home";
 import { NotFoundPage } from "@/pages/not-found";
+{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+import { PrecastWidget } from "@/components/precast/PrecastWidget";
+{{/if}}
 
 /**
  * Main application component
@@ -16,6 +19,9 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>
+      {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+      <PrecastWidget />
+      {{/if}}
     </Router>
   );
 }

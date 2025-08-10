@@ -1,0 +1,275 @@
+{{#if (eq backend 'express')}}
+{{#if database}}
+{{#if (eq orm 'prisma')}}
+import { PrismaClient } from '@prisma/client';
+{{/if}}
+{{#if (eq orm 'typeorm')}}
+import { AppDataSource } from '../../data-source.js';
+{{/if}}
+{{/if}}
+import { Router, Request, Response } from 'express';
+
+{{#if database}}
+{{#if (eq orm 'prisma')}}
+const prisma = new PrismaClient();
+{{/if}}
+{{#if (eq orm 'drizzle')}}
+import { db } from '../../db';
+{{/if}}
+{{/if}}
+
+const router = Router();
+
+// GET /api/health - General health check
+router.get('/health', (req: Request, res: Response) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+{{#if database}}
+// GET /api/health/database - Database connection check
+router.get('/health/database', async (req: Request, res: Response) => {
+  try {
+    {{#if (eq orm 'prisma')}}
+    // Test database connection with Prisma
+    await prisma.$queryRaw`SELECT 1`;
+    
+    res.json({
+      status: 'connected',
+      database: '{{database}}',
+      orm: 'prisma',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+    
+    {{#if (eq orm 'drizzle')}}
+    // Test database connection with Drizzle
+    const result = await db.execute('SELECT 1');
+    
+    res.json({
+      status: 'connected',
+      database: '{{database}}',
+      orm: 'drizzle',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+    
+    {{#if (eq orm 'typeorm')}}
+    // Test database connection with TypeORM
+    await AppDataSource.query('SELECT 1');
+    
+    res.json({
+      status: 'connected',
+      database: '{{database}}',
+      orm: 'typeorm',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+    
+    {{#if (eq orm 'none')}}
+    // Add your custom database connection test here
+    res.json({
+      status: 'not-implemented',
+      message: 'Database health check not implemented',
+      database: '{{database}}',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+  } catch (error) {
+    console.error('Database health check failed:', error);
+    res.status(503).json({
+      status: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+{{/if}}
+
+{{#if (includes plugins 'stripe')}}
+// GET /api/stripe/health - Stripe connection check
+router.get('/stripe/health', async (req: Request, res: Response) => {
+  try {
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    
+    // Test Stripe connection by fetching account details
+    const account = await stripe.accounts.retrieve();
+    
+    res.json({
+      status: 'connected',
+      provider: 'Stripe',
+      accountId: account.id,
+      livemode: account.livemode,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Stripe health check failed:', error);
+    res.status(503).json({
+      status: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+{{/if}}
+
+{{#if (includes plugins 'sentry')}}
+// POST /api/test/sentry-error - Send test error to Sentry
+router.post('/test/sentry-error', (req: Request, res: Response) => {
+  try {
+    // This will be caught by Sentry if configured
+    throw new Error('Test error from Admin Panel - Please ignore');
+  } catch (error) {
+    // Log to Sentry
+    if (typeof (global as any).Sentry !== 'undefined') {
+      (global as any).Sentry.captureException(error);
+    }
+    
+    res.json({
+      message: 'Test error sent to Sentry',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+{{/if}}
+
+export default router;
+{{/if}}
+
+{{#if (eq backend 'fastify')}}
+{{#if database}}
+{{#if (eq orm 'prisma')}}
+import { PrismaClient } from '@prisma/client';
+{{/if}}
+{{#if (eq orm 'typeorm')}}
+import { AppDataSource } from '../../data-source.js';
+{{/if}}
+{{/if}}
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+
+{{#if database}}
+{{#if (eq orm 'prisma')}}
+const prisma = new PrismaClient();
+{{/if}}
+{{/if}}
+
+export async function healthRoutes(fastify: FastifyInstance) {
+  // GET /api/health - General health check
+  fastify.get('/health', async (request: FastifyRequest, reply: FastifyReply) => {
+    return {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development'
+    };
+  });
+
+  {{#if database}}
+  // GET /api/health/database - Database connection check
+  fastify.get('/health/database', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      {{#if (eq orm 'prisma')}}
+      await prisma.$queryRaw`SELECT 1`;
+      
+      return {
+        status: 'connected',
+        database: '{{database}}',
+        orm: 'prisma',
+        timestamp: new Date().toISOString()
+      };
+      {{/if}}
+      
+      {{#if (eq orm 'typeorm')}}
+      await AppDataSource.query('SELECT 1');
+      
+      return {
+        status: 'connected',
+        database: '{{database}}',
+        orm: 'typeorm',
+        timestamp: new Date().toISOString()
+      };
+      {{/if}}
+    } catch (error) {
+      reply.code(503);
+      return {
+        status: 'disconnected',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      };
+    }
+  });
+  {{/if}}
+}
+{{/if}}
+
+{{#if (eq backend 'hono')}}
+{{#if database}}
+{{#if (eq orm 'prisma')}}
+import { PrismaClient } from '@prisma/client';
+{{/if}}
+{{#if (eq orm 'typeorm')}}
+import { AppDataSource } from '../../data-source.js';
+{{/if}}
+{{/if}}
+import { Hono } from 'hono';
+
+{{#if database}}
+{{#if (eq orm 'prisma')}}
+const prisma = new PrismaClient();
+{{/if}}
+{{/if}}
+
+const app = new Hono();
+
+// GET /api/health - General health check
+app.get('/health', (c) => {
+  return c.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+{{#if database}}
+// GET /api/health/database - Database connection check
+app.get('/health/database', async (c) => {
+  try {
+    {{#if (eq orm 'prisma')}}
+    await prisma.$queryRaw`SELECT 1`;
+    
+    return c.json({
+      status: 'connected',
+      database: '{{database}}',
+      orm: 'prisma',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+    
+    {{#if (eq orm 'typeorm')}}
+    await AppDataSource.query('SELECT 1');
+    
+    return c.json({
+      status: 'connected',
+      database: '{{database}}',
+      orm: 'typeorm',
+      timestamp: new Date().toISOString()
+    });
+    {{/if}}
+  } catch (error) {
+    c.status(503);
+    return c.json({
+      status: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+{{/if}}
+
+export default app;
+{{/if}}

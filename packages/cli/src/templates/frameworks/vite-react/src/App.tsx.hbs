@@ -1,6 +1,9 @@
 {{#if typescript}}import React from 'react';{{else}}import React from 'react';{{/if}}
 import { Hero } from '@/components/Hero';
 import { APP_CONFIG } from '@/config/constants';
+{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+import { AdminWidget } from '@/components/admin/AdminWidget';
+{{/if}}
 
 {{#if typescript}}
 /**
@@ -19,6 +22,7 @@ function App() {
 {{/if}}
   return (
     {{#if (eq styling "tailwind")}}
+    <>
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-900/10 to-slate-900 flex flex-col">
       {/* Main content */}
       <main className="flex-grow">
@@ -46,7 +50,12 @@ function App() {
         </div>
       </footer>
     </div>
+    {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+    <AdminWidget />
+    {{/if}}
+    </>
     {{else if (eq styling "styled-components")}}
+    <>
     <AppContainer>
       <MainContent>
         <Hero />
@@ -63,7 +72,12 @@ function App() {
         </FooterContent>
       </Footer>
     </AppContainer>
+    {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+    <AdminWidget />
+    {{/if}}
+    </>
     {{else}}
+    <>
     <div className="app-container">
       <main className="main-content">
         <Hero />
@@ -85,6 +99,10 @@ function App() {
         </div>
       </footer>
     </div>
+    {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+    <AdminWidget />
+    {{/if}}
+    </>
     {{/if}}
   );
 }{{#if typescript}};{{else}}}{{/if}}

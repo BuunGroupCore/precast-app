@@ -6,6 +6,20 @@
     "apps/*"
   ],
   "scripts": {
+    {{#if (and orm (eq orm "prisma"))}}
+    "predev": "cd apps/api && prisma generate",
+    "prebuild": "cd apps/api && prisma generate",
+    "db:generate": "cd apps/api && prisma generate",
+    "db:push": "cd apps/api && prisma db push",
+    "db:migrate": "cd apps/api && prisma migrate dev",
+    "db:studio": "cd apps/api && prisma studio",
+    {{/if}}
+    {{#if docker}}
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "docker:reset": "docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d",
+    {{/if}}
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",

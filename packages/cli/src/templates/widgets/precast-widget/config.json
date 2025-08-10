@@ -1,0 +1,74 @@
+{
+  "name": "precast-widget",
+  "displayName": "Precast Validation Widget",
+  "description": "Service validation widget that tests Docker containers, databases, and API endpoints",
+  "category": "development",
+  "widget": true,
+  "files": {
+    "react": [
+      {
+        "from": "PrecastWidget.tsx.hbs",
+        "to": "src/components/precast/PrecastWidget.tsx"
+      }
+    ],
+    "vue": [
+      {
+        "from": "PrecastWidget.vue.hbs",
+        "to": "src/components/precast/PrecastWidget.vue"
+      }
+    ],
+    "express": [
+      {
+        "from": "api/health-routes.ts.hbs",
+        "to": "src/api/routes/health.ts"
+      }
+    ],
+    "fastify": [
+      {
+        "from": "api/health-routes.ts.hbs",
+        "to": "src/api/routes/health.ts"
+      }
+    ],
+    "hono": [
+      {
+        "from": "api/health-routes.ts.hbs",
+        "to": "src/api/routes/health.ts"
+      }
+    ]
+  },
+  "dependencies": {
+    "react": [],
+    "vue": []
+  },
+  "devDependencies": {},
+  "apiEndpoints": [
+    "/api/health",
+    "/api/health/database",
+    "/api/email",
+    "/api/stripe/health",
+    "/api/test/sentry-error"
+  ],
+  "requiredEnvVars": [],
+  "documentation": {
+    "setup": [
+      "1. The PrecastWidget is automatically added to your App component",
+      "2. Ensure API routes are registered in your backend",
+      "3. If using Docker, ensure services are running: docker-compose up",
+      "4. Configure VITE_API_URL if API is on a different port",
+      "5. The widget only appears in development mode"
+    ],
+    "usage": [
+      "Look for the floating button in the bottom-right corner",
+      "Click to open the Precast validation widget",
+      "Test Docker containers and services with one click",
+      "Validates database connections, email services, and more",
+      "View detailed results and error messages"
+    ],
+    "docker": [
+      "The widget communicates with Docker services via your API",
+      "Ensure CORS is configured in your backend",
+      "Database tests go through API endpoints, not direct connections",
+      "Set VITE_API_URL=http://localhost:3001 if API is in Docker"
+    ]
+  }
+}

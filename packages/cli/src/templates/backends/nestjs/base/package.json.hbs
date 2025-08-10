@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "nest start --watch",
+    {{#if config.orm}}{{#if (eq config.orm "prisma")}}"postinstall": "prisma generate",
+    {{/if}}{{/if}}"dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main",
     "start:prod": "node dist/main",

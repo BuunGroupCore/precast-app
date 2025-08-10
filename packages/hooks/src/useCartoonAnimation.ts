@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
 import { useAnimation, AnimationControls } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 export type AnimationType = "bounce" | "wiggle" | "float" | "wave" | "blob";
 

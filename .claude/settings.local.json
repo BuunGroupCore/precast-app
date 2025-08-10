@@ -124,7 +124,9 @@
       "Bash(packages/cli/dist/cli.js init test-plugin-react --framework react --backend express --database postgres --orm prisma --styling tailwind --plugins stripe,resend --yes)",
       "Bash(./packages/cli/dist/cli.js init test-postgres-fixed --framework react --backend express --database postgres --orm prisma --styling tailwind --runtime node --yes)",
       "Bash(./packages/cli/dist/cli.js init test-react-final --framework react --backend none --database none --orm none --styling tailwind --runtime node --install --yes)",
-      "Bash(./packages/cli/dist/cli.js init test-env-gen --framework react --backend express --database postgres --orm prisma --styling tailwind --auth better-auth --plugins stripe,resend --yes)"
+      "Bash(./packages/cli/dist/cli.js init test-env-gen --framework react --backend express --database postgres --orm prisma --styling tailwind --auth better-auth --plugins stripe,resend --yes)",
+      "Bash(echo \"CI environment: $CI\")",
+      "Bash(echo:*)"
     ],
     "deny": []
   }

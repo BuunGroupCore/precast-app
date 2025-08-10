@@ -1,6 +1,6 @@
-import { ButtonHTMLAttributes, forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
+import { ButtonHTMLAttributes, forwardRef } from "react";
 
 const comicButtonVariants = cva(
   "font-comic uppercase transition-all duration-200 active:translate-y-0",

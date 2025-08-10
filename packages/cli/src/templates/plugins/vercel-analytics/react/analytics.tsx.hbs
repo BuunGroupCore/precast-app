@@ -1,0 +1,477 @@
+{{#if typescript}}
+import React, { useEffect } from 'react';
+import { inject } from '@vercel/analytics';
+
+interface AnalyticsConfig {
+  enabled?: boolean;
+  debug?: boolean;
+}
+
+/**
+ * Vercel Analytics Provider Component
+ * Initializes Vercel Analytics for the entire application
+ */
+interface AnalyticsProviderProps {
+  children: React.ReactNode;
+  config?: AnalyticsConfig;
+}
+
+export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ 
+  children, 
+  config = {} 
+}) => {
+  const { enabled = true, debug = false } = config;
+
+  useEffect(() => {
+    // Only inject analytics in production or if explicitly enabled
+    const shouldInject = enabled && (process.env.NODE_ENV === 'production' || debug);
+    
+    if (shouldInject) {
+      inject({ debug });
+      
+      if (debug) {
+        console.log('Vercel Analytics initialized with debug mode');
+      }
+    }
+  }, [enabled, debug]);
+
+  return <>{children}</>;
+};
+
+/**
+ * Hook for tracking custom events with Vercel Analytics
+ */
+export const useAnalytics = () => {
+  const track = (eventName: string, properties?: Record<string, any>) => {
+    // Check if analytics is available
+    if (typeof window !== 'undefined' && (window as any).va) {
+      try {
+        (window as any).va('track', eventName, properties);
+        console.log(`Event tracked: ${eventName}`, properties);
+      } catch (error) {
+        console.error('Error tracking event:', error);
+      }
+    } else if (process.env.NODE_ENV === 'development') {
+      console.log(`[Dev] Would track event: ${eventName}`, properties);
+    }
+  };
+
+  const trackPageView = (url?: string) => {
+    const pageUrl = url || (typeof window !== 'undefined' ? window.location.pathname : '');
+    track('pageview', { url: pageUrl });
+  };
+
+  const trackClick = (element: string, properties?: Record<string, any>) => {
+    track('click', { element, ...properties });
+  };
+
+  const trackConversion = (type: string, value?: number, properties?: Record<string, any>) => {
+    track('conversion', { type, value, ...properties });
+  };
+
+  const trackSearch = (query: string, results?: number) => {
+    track('search', { query, results });
+  };
+
+  const trackError = (error: string | Error, context?: string) => {
+    const errorMessage = error instanceof Error ? error.message : error;
+    track('error', { error: errorMessage, context });
+  };
+
+  return {
+    track,
+    trackPageView,
+    trackClick,
+    trackConversion,
+    trackSearch,
+    trackError,
+  };
+};
+
+/**
+ * Higher-order component for automatic page view tracking
+ */
+export function withAnalytics<P extends object>(
+  WrappedComponent: React.ComponentType<P>
+) {
+  const WithAnalyticsComponent = (props: P) => {
+    const { trackPageView } = useAnalytics();
+
+    useEffect(() => {
+      trackPageView();
+    }, [trackPageView]);
+
+    return <WrappedComponent {...props} />;
+  };
+
+  WithAnalyticsComponent.displayName = `withAnalytics(${
+    WrappedComponent.displayName || WrappedComponent.name
+  })`;
+
+  return WithAnalyticsComponent;
+}
+
+/**
+ * Component for tracking clicks on specific elements
+ */
+interface TrackClickProps {
+  children: React.ReactElement;
+  eventName: string;
+  properties?: Record<string, any>;
+}
+
+export const TrackClick: React.FC<TrackClickProps> = ({ 
+  children, 
+  eventName, 
+  properties 
+}) => {
+  const { track } = useAnalytics();
+
+  const handleClick = (originalOnClick?: () => void) => {
+    return (event: React.MouseEvent) => {
+      track(eventName, properties);
+      
+      // Call original onClick handler if it exists
+      if (originalOnClick) {
+        originalOnClick();
+      }
+    };
+  };
+
+  // Clone the child element and add our click handler
+  const child = React.Children.only(children);
+  return React.cloneElement(child, {
+    onClick: handleClick(child.props.onClick),
+  });
+};
+
+/**
+ * Custom hook for tracking form submissions
+ */
+export const useFormAnalytics = (formName: string) => {
+  const { track } = useAnalytics();
+
+  const trackFormStart = () => {
+    track('form_start', { form_name: formName });
+  };
+
+  const trackFormSubmit = (success: boolean, errorMessage?: string) => {
+    track('form_submit', { 
+      form_name: formName, 
+      success,
+      error_message: errorMessage 
+    });
+  };
+
+  const trackFieldFocus = (fieldName: string) => {
+    track('form_field_focus', { 
+      form_name: formName, 
+      field_name: fieldName 
+    });
+  };
+
+  const trackFormAbandoned = (fieldsCompleted: number, totalFields: number) => {
+    track('form_abandoned', { 
+      form_name: formName,
+      fields_completed: fieldsCompleted,
+      total_fields: totalFields,
+      completion_rate: (fieldsCompleted / totalFields) * 100
+    });
+  };
+
+  return {
+    trackFormStart,
+    trackFormSubmit,
+    trackFieldFocus,
+    trackFormAbandoned,
+  };
+};
+
+/**
+ * Utility functions for common tracking scenarios
+ */
+export const analytics = {
+  // E-commerce tracking
+  trackPurchase: (orderId: string, amount: number, currency = 'USD') => {
+    if (typeof window !== 'undefined' && (window as any).va) {
+      (window as any).va('track', 'purchase', {
+        order_id: orderId,
+        amount,
+        currency
+      });
+    }
+  },
+
+  // User engagement tracking
+  trackVideoPlay: (videoId: string, duration?: number) => {
+    if (typeof window !== 'undefined' && (window as any).va) {
+      (window as any).va('track', 'video_play', {
+        video_id: videoId,
+        duration
+      });
+    }
+  },
+
+  // Content tracking
+  trackDownload: (fileName: string, fileType: string) => {
+    if (typeof window !== 'undefined' && (window as any).va) {
+      (window as any).va('track', 'download', {
+        file_name: fileName,
+        file_type: fileType
+      });
+    }
+  },
+
+  // Newsletter/signup tracking
+  trackSignup: (method: string, source?: string) => {
+    if (typeof window !== 'undefined' && (window as any).va) {
+      (window as any).va('track', 'signup', {
+        method,
+        source
+      });
+    }
+  },
+};
+
+// Default export for easy import
+export default AnalyticsProvider;
+
+// Example usage:
+//
+// 1. Wrap your app with AnalyticsProvider:
+// import { AnalyticsProvider } from './analytics';
+//
+// function App() {
+//   return (
+//     <AnalyticsProvider config={{ enabled: true, debug: false }}>
+//       <YourAppContent />
+//     </AnalyticsProvider>
+//   );
+// }
+//
+// 2. Use the hook in components:
+// import { useAnalytics } from './analytics';
+//
+// function MyComponent() {
+//   const { track, trackClick } = useAnalytics();
+//   
+//   const handleButtonClick = () => {
+//     trackClick('hero-cta-button', { page: 'home' });
+//   };
+//   
+//   return <button onClick={handleButtonClick}>Get Started</button>;
+// }
+//
+// 3. Use TrackClick component for automatic tracking:
+// import { TrackClick } from './analytics';
+//
+// function MyComponent() {
+//   return (
+//     <TrackClick eventName="newsletter-signup" properties={{ source: 'header' }}>
+//       <button>Subscribe</button>
+//     </TrackClick>
+//   );
+// }
+{{else}}
+import React, { useEffect } from 'react';
+import { inject } from '@vercel/analytics';
+
+/**
+ * Vercel Analytics Provider Component
+ */
+export const AnalyticsProvider = ({ children, config = {} }) => {
+  const { enabled = true, debug = false } = config;
+
+  useEffect(() => {
+    const shouldInject = enabled && (process.env.NODE_ENV === 'production' || debug);
+    
+    if (shouldInject) {
+      inject({ debug });
+      
+      if (debug) {
+        console.log('Vercel Analytics initialized with debug mode');
+      }
+    }
+  }, [enabled, debug]);
+
+  return <>{children}</>;
+};
+
+/**
+ * Hook for tracking custom events
+ */
+export const useAnalytics = () => {
+  const track = (eventName, properties) => {
+    if (typeof window !== 'undefined' && window.va) {
+      try {
+        window.va('track', eventName, properties);
+        console.log(`Event tracked: ${eventName}`, properties);
+      } catch (error) {
+        console.error('Error tracking event:', error);
+      }
+    } else if (process.env.NODE_ENV === 'development') {
+      console.log(`[Dev] Would track event: ${eventName}`, properties);
+    }
+  };
+
+  const trackPageView = (url) => {
+    const pageUrl = url || (typeof window !== 'undefined' ? window.location.pathname : '');
+    track('pageview', { url: pageUrl });
+  };
+
+  const trackClick = (element, properties) => {
+    track('click', { element, ...properties });
+  };
+
+  const trackConversion = (type, value, properties) => {
+    track('conversion', { type, value, ...properties });
+  };
+
+  const trackSearch = (query, results) => {
+    track('search', { query, results });
+  };
+
+  const trackError = (error, context) => {
+    const errorMessage = error instanceof Error ? error.message : error;
+    track('error', { error: errorMessage, context });
+  };
+
+  return {
+    track,
+    trackPageView,
+    trackClick,
+    trackConversion,
+    trackSearch,
+    trackError,
+  };
+};
+
+/**
+ * Higher-order component for automatic page view tracking
+ */
+export function withAnalytics(WrappedComponent) {
+  const WithAnalyticsComponent = (props) => {
+    const { trackPageView } = useAnalytics();
+
+    useEffect(() => {
+      trackPageView();
+    }, [trackPageView]);
+
+    return <WrappedComponent {...props} />;
+  };
+
+  WithAnalyticsComponent.displayName = `withAnalytics(${
+    WrappedComponent.displayName || WrappedComponent.name
+  })`;
+
+  return WithAnalyticsComponent;
+}
+
+/**
+ * Component for tracking clicks
+ */
+export const TrackClick = ({ children, eventName, properties }) => {
+  const { track } = useAnalytics();
+
+  const handleClick = (originalOnClick) => {
+    return (event) => {
+      track(eventName, properties);
+      
+      if (originalOnClick) {
+        originalOnClick(event);
+      }
+    };
+  };
+
+  const child = React.Children.only(children);
+  return React.cloneElement(child, {
+    onClick: handleClick(child.props.onClick),
+  });
+};
+
+/**
+ * Custom hook for tracking form submissions
+ */
+export const useFormAnalytics = (formName) => {
+  const { track } = useAnalytics();
+
+  const trackFormStart = () => {
+    track('form_start', { form_name: formName });
+  };
+
+  const trackFormSubmit = (success, errorMessage) => {
+    track('form_submit', { 
+      form_name: formName, 
+      success,
+      error_message: errorMessage 
+    });
+  };
+
+  const trackFieldFocus = (fieldName) => {
+    track('form_field_focus', { 
+      form_name: formName, 
+      field_name: fieldName 
+    });
+  };
+
+  const trackFormAbandoned = (fieldsCompleted, totalFields) => {
+    track('form_abandoned', { 
+      form_name: formName,
+      fields_completed: fieldsCompleted,
+      total_fields: totalFields,
+      completion_rate: (fieldsCompleted / totalFields) * 100
+    });
+  };
+
+  return {
+    trackFormStart,
+    trackFormSubmit,
+    trackFieldFocus,
+    trackFormAbandoned,
+  };
+};
+
+/**
+ * Utility functions for common tracking scenarios
+ */
+export const analytics = {
+  trackPurchase: (orderId, amount, currency = 'USD') => {
+    if (typeof window !== 'undefined' && window.va) {
+      window.va('track', 'purchase', {
+        order_id: orderId,
+        amount,
+        currency
+      });
+    }
+  },
+
+  trackVideoPlay: (videoId, duration) => {
+    if (typeof window !== 'undefined' && window.va) {
+      window.va('track', 'video_play', {
+        video_id: videoId,
+        duration
+      });
+    }
+  },
+
+  trackDownload: (fileName, fileType) => {
+    if (typeof window !== 'undefined' && window.va) {
+      window.va('track', 'download', {
+        file_name: fileName,
+        file_type: fileType
+      });
+    }
+  },
+
+  trackSignup: (method, source) => {
+    if (typeof window !== 'undefined' && window.va) {
+      window.va('track', 'signup', {
+        method,
+        source
+      });
+    }
+  },
+};
+
+export default AnalyticsProvider;
+{{/if}}

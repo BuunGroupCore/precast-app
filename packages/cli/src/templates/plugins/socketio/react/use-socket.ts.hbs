@@ -1,0 +1,174 @@
+import { useEffect, useCallback, useRef } from 'react';
+import { useSocketContext } from '../providers/SocketProvider';
+
+/**
+ * Hook for using Socket.io in React components
+ */
+export const useSocket = () => {
+  const { socket, isConnected } = useSocketContext();
+
+  /**
+   * Emit an event to the server
+   */
+  const emit = useCallback((event: string, data?: any) => {
+    if (socket && isConnected) {
+      socket.emit(event, data);
+    } else {
+      console.warn('Socket not connected. Cannot emit event:', event);
+    }
+  }, [socket, isConnected]);
+
+  /**
+   * Listen to an event from the server
+   */
+  const on = useCallback((event: string, handler: (...args: any[]) => void) => {
+    if (socket) {
+      socket.on(event, handler);
+      
+      // Return cleanup function
+      return () => {
+        socket.off(event, handler);
+      };
+    }
+    return () => {};
+  }, [socket]);
+
+  /**
+   * Listen to an event once
+   */
+  const once = useCallback((event: string, handler: (...args: any[]) => void) => {
+    if (socket) {
+      socket.once(event, handler);
+    }
+  }, [socket]);
+
+  /**
+   * Remove event listener
+   */
+  const off = useCallback((event: string, handler?: (...args: any[]) => void) => {
+    if (socket) {
+      if (handler) {
+        socket.off(event, handler);
+      } else {
+        socket.off(event);
+      }
+    }
+  }, [socket]);
+
+  return {
+    socket,
+    isConnected,
+    emit,
+    on,
+    once,
+    off,
+  };
+};
+
+/**
+ * Hook for listening to socket events with cleanup
+ */
+export const useSocketEvent = (event: string, handler: (...args: any[]) => void, deps: any[] = []) => {
+  const { socket } = useSocketContext();
+  const handlerRef = useRef(handler);
+
+  // Update handler ref when it changes
+  useEffect(() => {
+    handlerRef.current = handler;
+  }, [handler]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const wrappedHandler = (...args: any[]) => {
+      handlerRef.current(...args);
+    };
+
+    socket.on(event, wrappedHandler);
+
+    return () => {
+      socket.off(event, wrappedHandler);
+    };
+  }, [socket, event, ...deps]);
+};
+
+/**
+ * Hook for joining and leaving rooms
+ */
+export const useSocketRoom = (roomName: string) => {
+  const { emit } = useSocket();
+
+  const joinRoom = useCallback(() => {
+    emit('join-room', { room: roomName });
+  }, [emit, roomName]);
+
+  const leaveRoom = useCallback(() => {
+    emit('leave-room', { room: roomName });
+  }, [emit, roomName]);
+
+  useEffect(() => {
+    if (roomName) {
+      joinRoom();
+    }
+
+    return () => {
+      if (roomName) {
+        leaveRoom();
+      }
+    };
+  }, [roomName, joinRoom, leaveRoom]);
+
+  return { joinRoom, leaveRoom };
+};
+
+/**
+ * Hook for real-time chat functionality
+ */
+export const useChat = (roomId?: string) => {
+  const { emit, on, off } = useSocket();
+
+  const sendMessage = useCallback((message: string, metadata?: any) => {
+    const messageData = {
+      message,
+      room: roomId,
+      timestamp: new Date().toISOString(),
+      ...metadata,
+    };
+    emit('send-message', messageData);
+  }, [emit, roomId]);
+
+  const onMessage = useCallback((handler: (data: any) => void) => {
+    const cleanup = on('receive-message', handler);
+    return cleanup;
+  }, [on]);
+
+  const onTyping = useCallback((handler: (data: any) => void) => {
+    const cleanup = on('user-typing', handler);
+    return cleanup;
+  }, [on]);
+
+  const sendTyping = useCallback((isTyping: boolean) => {
+    emit('typing', { room: roomId, isTyping });
+  }, [emit, roomId]);
+
+  return {
+    sendMessage,
+    onMessage,
+    onTyping,
+    sendTyping,
+  };
+};
+
+/**
+ * Hook for real-time notifications
+ */
+export const useNotifications = () => {
+  const { on } = useSocket();
+
+  const onNotification = useCallback((handler: (notification: any) => void) => {
+    const cleanup = on('notification', handler);
+    return cleanup;
+  }, [on]);
+
+  return { onNotification };
+};

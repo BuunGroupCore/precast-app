@@ -1,0 +1,306 @@
+import { Server as HTTPServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import { Express } from 'express';
+
+interface User {
+  id: string;
+  name?: string;
+  room?: string;
+}
+
+interface ChatMessage {
+  id: string;
+  userId: string;
+  userName: string;
+  message: string;
+  room?: string;
+  timestamp: string;
+}
+
+interface TypingInfo {
+  userId: string;
+  userName: string;
+  room?: string;
+  isTyping: boolean;
+}
+
+export class SocketService {
+  private io: SocketIOServer;
+  private users: Map<string, User> = new Map();
+  private rooms: Map<string, Set<string>> = new Map();
+
+  constructor(httpServer: HTTPServer, app?: Express) {
+    this.io = new SocketIOServer(httpServer, {
+      cors: {
+        origin: process.env.SOCKET_IO_CORS_ORIGIN || "http://localhost:3000",
+        methods: ["GET", "POST"],
+        credentials: true,
+      },
+      transports: ['websocket', 'polling'],
+    });
+
+    this.setupEventHandlers();
+  }
+
+  private setupEventHandlers() {
+    this.io.on('connection', (socket) => {
+      console.log(`User connected: ${socket.id}`);
+
+      // Handle user authentication/identification
+      socket.on('identify', (userData: { name?: string; id?: string }) => {
+        const user: User = {
+          id: userData.id || socket.id,
+          name: userData.name || `User_${socket.id.substring(0, 6)}`,
+        };
+        this.users.set(socket.id, user);
+        console.log(`User identified: ${user.name} (${user.id})`);
+        
+        socket.emit('identified', { userId: user.id, userName: user.name });
+      });
+
+      // Handle joining rooms
+      socket.on('join-room', ({ room }: { room: string }) => {
+        if (!room) return;
+
+        socket.join(room);
+        const user = this.users.get(socket.id);
+        if (user) {
+          user.room = room;
+        }
+
+        // Add user to room tracking
+        if (!this.rooms.has(room)) {
+          this.rooms.set(room, new Set());
+        }
+        this.rooms.get(room)?.add(socket.id);
+
+        console.log(`User ${user?.name || socket.id} joined room: ${room}`);
+        
+        // Notify others in the room
+        socket.to(room).emit('user-joined', {
+          userId: user?.id || socket.id,
+          userName: user?.name || 'Anonymous',
+          room,
+        });
+
+        // Send room info to the user
+        const roomUsers = Array.from(this.rooms.get(room) || [])
+          .map(socketId => this.users.get(socketId))
+          .filter(Boolean);
+
+        socket.emit('room-joined', {
+          room,
+          users: roomUsers,
+          userCount: roomUsers.length,
+        });
+      });
+
+      // Handle leaving rooms
+      socket.on('leave-room', ({ room }: { room: string }) => {
+        if (!room) return;
+
+        socket.leave(room);
+        const user = this.users.get(socket.id);
+        
+        // Remove user from room tracking
+        this.rooms.get(room)?.delete(socket.id);
+        if (this.rooms.get(room)?.size === 0) {
+          this.rooms.delete(room);
+        }
+
+        console.log(`User ${user?.name || socket.id} left room: ${room}`);
+        
+        // Notify others in the room
+        socket.to(room).emit('user-left', {
+          userId: user?.id || socket.id,
+          userName: user?.name || 'Anonymous',
+          room,
+        });
+      });
+
+      // Handle chat messages
+      socket.on('send-message', (data: { 
+        message: string; 
+        room?: string; 
+        timestamp?: string;
+        metadata?: any;
+      }) => {
+        const user = this.users.get(socket.id);
+        if (!user || !data.message) return;
+
+        const chatMessage: ChatMessage = {
+          id: `msg_${Date.now()}_${socket.id}`,
+          userId: user.id,
+          userName: user.name || 'Anonymous',
+          message: data.message,
+          room: data.room,
+          timestamp: data.timestamp || new Date().toISOString(),
+        };
+
+        console.log(`Message from ${user.name}: ${data.message}${data.room ? ` in room ${data.room}` : ''}`);
+
+        // Send to room or broadcast to all
+        if (data.room) {
+          socket.to(data.room).emit('receive-message', chatMessage);
+        } else {
+          socket.broadcast.emit('receive-message', chatMessage);
+        }
+      });
+
+      // Handle typing indicators
+      socket.on('typing', ({ room, isTyping }: { room?: string; isTyping: boolean }) => {
+        const user = this.users.get(socket.id);
+        if (!user) return;
+
+        const typingInfo: TypingInfo = {
+          userId: user.id,
+          userName: user.name || 'Anonymous',
+          room,
+          isTyping,
+        };
+
+        // Send typing status to room or all users
+        if (room) {
+          socket.to(room).emit('user-typing', typingInfo);
+        } else {
+          socket.broadcast.emit('user-typing', typingInfo);
+        }
+      });
+
+      // Handle custom events
+      socket.on('custom-event', (data: any) => {
+        console.log('Custom event received:', data);
+        
+        // Echo the event to all other clients
+        socket.broadcast.emit('custom-event-response', {
+          from: this.users.get(socket.id)?.name || socket.id,
+          data,
+          timestamp: new Date().toISOString(),
+        });
+      });
+
+      // Handle notifications
+      socket.on('send-notification', ({ 
+        to, 
+        message, 
+        type = 'info' 
+      }: { 
+        to?: string; 
+        message: string; 
+        type?: 'info' | 'success' | 'warning' | 'error';
+      }) => {
+        const notification = {
+          id: `notif_${Date.now()}`,
+          message,
+          type,
+          from: this.users.get(socket.id)?.name || 'System',
+          timestamp: new Date().toISOString(),
+        };
+
+        if (to) {
+          // Send to specific user
+          this.io.to(to).emit('notification', notification);
+        } else {
+          // Broadcast to all users
+          socket.broadcast.emit('notification', notification);
+        }
+      });
+
+      // Handle disconnect
+      socket.on('disconnect', (reason) => {
+        console.log(`User disconnected: ${socket.id} (${reason})`);
+        
+        const user = this.users.get(socket.id);
+        
+        // Remove user from all rooms
+        for (const [room, userSet] of this.rooms) {
+          if (userSet.has(socket.id)) {
+            userSet.delete(socket.id);
+            socket.to(room).emit('user-left', {
+              userId: user?.id || socket.id,
+              userName: user?.name || 'Anonymous',
+              room,
+            });
+            
+            if (userSet.size === 0) {
+              this.rooms.delete(room);
+            }
+          }
+        }
+        
+        // Clean up user data
+        this.users.delete(socket.id);
+      });
+
+      // Handle errors
+      socket.on('error', (error) => {
+        console.error(`Socket error for ${socket.id}:`, error);
+      });
+    });
+
+    // Global error handling
+    this.io.engine.on("connection_error", (err) => {
+      console.error('Socket.io connection error:', err);
+    });
+  }
+
+  // Utility methods for server-side operations
+  public broadcast(event: string, data: any) {
+    this.io.emit(event, data);
+  }
+
+  public sendToRoom(room: string, event: string, data: any) {
+    this.io.to(room).emit(event, data);
+  }
+
+  public sendToUser(socketId: string, event: string, data: any) {
+    this.io.to(socketId).emit(event, data);
+  }
+
+  public getRoomUsers(room: string): User[] {
+    const roomSockets = this.rooms.get(room) || new Set();
+    return Array.from(roomSockets)
+      .map(socketId => this.users.get(socketId))
+      .filter(Boolean) as User[];
+  }
+
+  public getUserCount(): number {
+    return this.users.size;
+  }
+
+  public getRoomCount(): number {
+    return this.rooms.size;
+  }
+
+  public getStats() {
+    return {
+      connectedUsers: this.getUserCount(),
+      activeRooms: this.getRoomCount(),
+      rooms: Array.from(this.rooms.keys()),
+    };
+  }
+}
+
+// Export function to initialize Socket.io with Express server
+export function initializeSocket(httpServer: HTTPServer, app?: Express): SocketService {
+  const socketService = new SocketService(httpServer, app);
+  
+  console.log('✅ Socket.io server initialized');
+  console.log(`📡 CORS origin: ${process.env.SOCKET_IO_CORS_ORIGIN || "http://localhost:3000"}`);
+  
+  return socketService;
+}
+
+// Usage example in your main server file:
+// 
+// import express from 'express';
+// import { createServer } from 'http';
+// import { initializeSocket } from './socket';
+//
+// const app = express();
+// const httpServer = createServer(app);
+// const socketService = initializeSocket(httpServer, app);
+//
+// httpServer.listen(3001, () => {
+//   console.log('Server running on port 3001');
+// });

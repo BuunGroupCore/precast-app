@@ -9,7 +9,7 @@
     "react": ["@react-email/components@^0.0.14"]
   },
   "envVariables": {
-    "RESEND_API_KEY": "re_...",
+    "RESEND_API_KEY": "re_your_api_key_here",
     "RESEND_FROM_EMAIL": "noreply@yourdomain.com"
   },
   "setupFiles": {

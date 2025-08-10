@@ -1,0 +1,119 @@
+import { Resend } from 'resend';
+
+// Initialize Resend client
+const resend = new Resend({{#if (eq framework 'next')}}process.env.RESEND_API_KEY{{else}}process.env.RESEND_API_KEY{{/if}});
+
+// Email configuration
+const FROM_EMAIL = {{#if (eq framework 'next')}}process.env.RESEND_FROM_EMAIL{{else}}process.env.RESEND_FROM_EMAIL{{/if}} || 'noreply@yourdomain.com';
+
+export interface EmailOptions {
+  to: string | string[];
+  subject: string;
+  html?: string;
+  text?: string;
+  react?: React.ReactElement;
+  from?: string;
+  cc?: string | string[];
+  bcc?: string | string[];
+  replyTo?: string;
+}
+
+/**
+ * Send email using Resend
+ */
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+  react,
+  from = FROM_EMAIL,
+  cc,
+  bcc,
+  replyTo,
+}: EmailOptions) {
+  try {
+    const response = await resend.emails.send({
+      from,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+      text,
+      react,
+      cc: cc ? (Array.isArray(cc) ? cc : [cc]) : undefined,
+      bcc: bcc ? (Array.isArray(bcc) ? bcc : [bcc]) : undefined,
+      reply_to: replyTo ? [replyTo] : undefined,
+    });
+
+    console.log('Email sent successfully:', response.data?.id);
+    return { success: true, id: response.data?.id };
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send welcome email
+ */
+export async function sendWelcomeEmail(to: string, name: string) {
+  return sendEmail({
+    to,
+    subject: 'Welcome to {{pluginName}}!',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">Welcome, ${name}!</h1>
+        <p>Thank you for signing up. We're excited to have you on board.</p>
+        <p>If you have any questions, feel free to reply to this email.</p>
+        <br>
+        <p>Best regards,<br>The {{pluginName}} Team</p>
+      </div>
+    `,
+  });
+}
+
+/**
+ * Send password reset email
+ */
+export async function sendPasswordResetEmail(to: string, resetToken: string, resetUrl: string) {
+  return sendEmail({
+    to,
+    subject: 'Reset Your Password',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">Password Reset Request</h1>
+        <p>You requested a password reset for your account.</p>
+        <p>Click the button below to reset your password:</p>
+        <div style="margin: 30px 0;">
+          <a href="${resetUrl}?token=${resetToken}" 
+             style="background-color: #007bff; color: white; padding: 12px 30px; 
+                    text-decoration: none; border-radius: 5px; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        <p>If you didn't request this password reset, please ignore this email.</p>
+        <p><small>This link will expire in 1 hour.</small></p>
+      </div>
+    `,
+  });
+}
+
+/**
+ * Send notification email
+ */
+export async function sendNotificationEmail(to: string, title: string, message: string) {
+  return sendEmail({
+    to,
+    subject: title,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">${title}</h2>
+        <p>${message}</p>
+        <br>
+        <p>Best regards,<br>The {{pluginName}} Team</p>
+      </div>
+    `,
+  });
+}
+
+export { resend };

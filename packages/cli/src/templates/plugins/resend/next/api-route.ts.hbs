@@ -1,0 +1,125 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { sendEmail } from '@/services/email';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { to, subject, html, text, type } = body;
+
+    // Validate required fields
+    if (!to || !subject) {
+      return NextResponse.json(
+        { error: 'Missing required fields: to, subject' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format (basic validation)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emails = Array.isArray(to) ? to : [to];
+    const invalidEmails = emails.filter((email: string) => !emailRegex.test(email));
+    
+    if (invalidEmails.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid email addresses: ${invalidEmails.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Send email based on type
+    let result;
+    switch (type) {
+      case 'welcome':
+        const { name } = body;
+        if (!name) {
+          return NextResponse.json(
+            { error: 'Name is required for welcome emails' },
+            { status: 400 }
+          );
+        }
+        const { sendWelcomeEmail } = await import('@/services/email');
+        result = await sendWelcomeEmail(to, name);
+        break;
+
+      case 'password-reset':
+        const { resetToken, resetUrl } = body;
+        if (!resetToken || !resetUrl) {
+          return NextResponse.json(
+            { error: 'resetToken and resetUrl are required for password reset emails' },
+            { status: 400 }
+          );
+        }
+        const { sendPasswordResetEmail } = await import('@/services/email');
+        result = await sendPasswordResetEmail(to, resetToken, resetUrl);
+        break;
+
+      case 'notification':
+        const { title, message } = body;
+        if (!title || !message) {
+          return NextResponse.json(
+            { error: 'title and message are required for notification emails' },
+            { status: 400 }
+          );
+        }
+        const { sendNotificationEmail } = await import('@/services/email');
+        result = await sendNotificationEmail(to, title, message);
+        break;
+
+      default:
+        // Custom email
+        if (!html && !text) {
+          return NextResponse.json(
+            { error: 'Either html or text content is required' },
+            { status: 400 }
+          );
+        }
+        result = await sendEmail({ to, subject, html, text });
+        break;
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Email sent successfully',
+      id: result.id,
+    });
+
+  } catch (error) {
+    console.error('Email API error:', error);
+    return NextResponse.json(
+      { 
+        error: 'Failed to send email',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// Example usage:
+// POST /api/email
+// Content-Type: application/json
+//
+// Welcome email:
+// {
+//   "type": "welcome",
+//   "to": "user@example.com",
+//   "subject": "Welcome!",
+//   "name": "John Doe"
+// }
+//
+// Password reset email:
+// {
+//   "type": "password-reset",
+//   "to": "user@example.com", 
+//   "subject": "Reset Your Password",
+//   "resetToken": "abc123",
+//   "resetUrl": "https://example.com/reset-password"
+// }
+//
+// Custom email:
+// {
+//   "to": "user@example.com",
+//   "subject": "Custom Subject",
+//   "html": "<h1>Custom HTML Content</h1>",
+//   "text": "Custom text content"
+// }

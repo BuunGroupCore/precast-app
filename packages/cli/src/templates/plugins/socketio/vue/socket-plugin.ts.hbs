@@ -1,0 +1,175 @@
+import { App, ref, reactive } from 'vue';
+import { io, Socket } from 'socket.io-client';
+
+interface SocketState {
+  socket: Socket | null;
+  isConnected: boolean;
+}
+
+// Global socket state
+const socketState = reactive<SocketState>({
+  socket: null,
+  isConnected: false,
+});
+
+export default {
+  install(app: App, options: { serverUrl?: string } = {}) {
+    const serverUrl = options.serverUrl || import.meta.env.VITE_SOCKET_SERVER_URL || 'http://localhost:3001';
+
+    // Initialize socket connection
+    const socket = io(serverUrl, {
+      transports: ['websocket', 'polling'],
+      withCredentials: true,
+    });
+
+    // Connection event handlers
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+      socketState.isConnected = true;
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
+      socketState.isConnected = false;
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      socketState.isConnected = false;
+    });
+
+    socket.on('reconnect', (attemptNumber) => {
+      console.log('Socket reconnected after', attemptNumber, 'attempts');
+      socketState.isConnected = true;
+    });
+
+    socketState.socket = socket;
+
+    // Provide socket instance globally
+    app.provide('socket', socket);
+    app.provide('socketState', socketState);
+
+    // Global properties
+    app.config.globalProperties.$socket = socket;
+    app.config.globalProperties.$socketState = socketState;
+
+    // Cleanup on app unmount
+    app.config.errorHandler = (error, instance, info) => {
+      console.error('Vue app error:', error, info);
+    };
+
+    // Handle app unmount
+    const originalUnmount = app.unmount;
+    app.unmount = function() {
+      if (socketState.socket) {
+        socketState.socket.close();
+        socketState.socket = null;
+        socketState.isConnected = false;
+      }
+      return originalUnmount.call(this);
+    };
+  },
+};
+
+// Composable for using socket in components
+export function useSocket() {
+  const emit = (event: string, data?: any) => {
+    if (socketState.socket && socketState.isConnected) {
+      socketState.socket.emit(event, data);
+    } else {
+      console.warn('Socket not connected. Cannot emit event:', event);
+    }
+  };
+
+  const on = (event: string, handler: (...args: any[]) => void) => {
+    if (socketState.socket) {
+      socketState.socket.on(event, handler);
+      
+      // Return cleanup function
+      return () => {
+        socketState.socket?.off(event, handler);
+      };
+    }
+    return () => {};
+  };
+
+  const off = (event: string, handler?: (...args: any[]) => void) => {
+    if (socketState.socket) {
+      if (handler) {
+        socketState.socket.off(event, handler);
+      } else {
+        socketState.socket.off(event);
+      }
+    }
+  };
+
+  const once = (event: string, handler: (...args: any[]) => void) => {
+    if (socketState.socket) {
+      socketState.socket.once(event, handler);
+    }
+  };
+
+  return {
+    socket: socketState.socket,
+    isConnected: ref(socketState.isConnected),
+    emit,
+    on,
+    off,
+    once,
+  };
+}
+
+// Composable for room management
+export function useSocketRoom(roomName: string) {
+  const { emit } = useSocket();
+
+  const joinRoom = () => {
+    emit('join-room', { room: roomName });
+  };
+
+  const leaveRoom = () => {
+    emit('leave-room', { room: roomName });
+  };
+
+  return {
+    joinRoom,
+    leaveRoom,
+  };
+}
+
+// Composable for chat functionality
+export function useChat(roomId?: string) {
+  const { emit, on } = useSocket();
+
+  const sendMessage = (message: string, metadata?: any) => {
+    const messageData = {
+      message,
+      room: roomId,
+      timestamp: new Date().toISOString(),
+      ...metadata,
+    };
+    emit('send-message', messageData);
+  };
+
+  const onMessage = (handler: (data: any) => void) => {
+    return on('receive-message', handler);
+  };
+
+  const onTyping = (handler: (data: any) => void) => {
+    return on('user-typing', handler);
+  };
+
+  const sendTyping = (isTyping: boolean) => {
+    emit('typing', { room: roomId, isTyping });
+  };
+
+  return {
+    sendMessage,
+    onMessage,
+    onTyping,
+    sendTyping,
+  };
+}
+
+// Export socket state for direct access if needed
+export { socketState };

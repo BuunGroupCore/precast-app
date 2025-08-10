@@ -1,0 +1,194 @@
+import sgMail from '@sendgrid/mail';
+
+// Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
+// Email configuration
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@yourdomain.com';
+
+export interface EmailOptions {
+  to: string | string[];
+  subject: string;
+  html?: string;
+  text?: string;
+  from?: string;
+  cc?: string | string[];
+  bcc?: string | string[];
+  replyTo?: string;
+  attachments?: Array<{
+    content: string;
+    filename: string;
+    type?: string;
+    disposition?: string;
+  }>;
+}
+
+/**
+ * Send email using SendGrid
+ */
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+  from = FROM_EMAIL,
+  cc,
+  bcc,
+  replyTo,
+  attachments,
+}: EmailOptions) {
+  try {
+    const message = {
+      to: Array.isArray(to) ? to : to,
+      from,
+      subject,
+      text,
+      html,
+      cc: cc ? (Array.isArray(cc) ? cc : cc) : undefined,
+      bcc: bcc ? (Array.isArray(bcc) ? bcc : bcc) : undefined,
+      replyTo,
+      attachments,
+    };
+
+    const response = await sgMail.send(message);
+    console.log('Email sent successfully via SendGrid');
+    return { success: true, messageId: response[0].headers['x-message-id'] };
+  } catch (error) {
+    console.error('Failed to send email via SendGrid:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send multiple emails with personalization
+ */
+export async function sendBulkEmail(emails: Array<{
+  to: string;
+  subject: string;
+  html?: string;
+  text?: string;
+  personalizations?: Record<string, string>;
+}>) {
+  try {
+    const messages = emails.map(email => ({
+      ...email,
+      from: FROM_EMAIL,
+      personalizations: email.personalizations ? [
+        {
+          to: [{ email: email.to }],
+          substitutions: email.personalizations,
+        }
+      ] : undefined,
+    }));
+
+    const response = await sgMail.send(messages);
+    console.log(`Bulk email sent successfully: ${emails.length} emails`);
+    return { success: true, count: emails.length };
+  } catch (error) {
+    console.error('Failed to send bulk email:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send welcome email with SendGrid template
+ */
+export async function sendWelcomeEmail(to: string, name: string, templateId?: string) {
+  if (templateId) {
+    // Use SendGrid dynamic template
+    try {
+      const message = {
+        to,
+        from: FROM_EMAIL,
+        templateId,
+        dynamicTemplateData: {
+          name,
+          company: '{{pluginName}}',
+        },
+      };
+
+      const response = await sgMail.send(message);
+      console.log('Welcome email sent using template');
+      return { success: true, messageId: response[0].headers['x-message-id'] };
+    } catch (error) {
+      console.error('Failed to send template email:', error);
+      throw error;
+    }
+  } else {
+    // Use custom HTML
+    return sendEmail({
+      to,
+      subject: 'Welcome to {{pluginName}}!',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #333;">Welcome, ${name}!</h1>
+          <p>Thank you for signing up. We're excited to have you on board.</p>
+          <p>If you have any questions, feel free to reply to this email.</p>
+          <br>
+          <p>Best regards,<br>The {{pluginName}} Team</p>
+        </div>
+      `,
+    });
+  }
+}
+
+/**
+ * Send password reset email
+ */
+export async function sendPasswordResetEmail(to: string, resetToken: string, resetUrl: string) {
+  return sendEmail({
+    to,
+    subject: 'Reset Your Password',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">Password Reset Request</h1>
+        <p>You requested a password reset for your account.</p>
+        <p>Click the button below to reset your password:</p>
+        <div style="margin: 30px 0;">
+          <a href="${resetUrl}?token=${resetToken}" 
+             style="background-color: #007bff; color: white; padding: 12px 30px; 
+                    text-decoration: none; border-radius: 5px; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        <p>If you didn't request this password reset, please ignore this email.</p>
+        <p><small>This link will expire in 1 hour.</small></p>
+      </div>
+    `,
+  });
+}
+
+/**
+ * Send transactional email with tracking
+ */
+export async function sendTransactionalEmail(
+  to: string,
+  subject: string,
+  content: string,
+  options: {
+    trackingSettings?: {
+      clickTracking?: boolean;
+      openTracking?: boolean;
+    };
+    category?: string[];
+  } = {}
+) {
+  try {
+    const message = {
+      to,
+      from: FROM_EMAIL,
+      subject,
+      html: content,
+      trackingSettings: options.trackingSettings,
+      categories: options.category,
+    };
+
+    const response = await sgMail.send(message);
+    return { success: true, messageId: response[0].headers['x-message-id'] };
+  } catch (error) {
+    console.error('Failed to send transactional email:', error);
+    throw error;
+  }
+}
+
+export { sgMail };

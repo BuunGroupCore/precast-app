@@ -1,0 +1,533 @@
+'use client';
+
+{{#if typescript}}
+import React from 'react';
+import { AdvancedImage, lazyload, responsive, placeholder } from '@cloudinary/react';
+import { Cloudinary } from '@cloudinary/url-gen';
+import { auto } from '@cloudinary/url-gen/actions/resize';
+import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
+import { format, quality } from '@cloudinary/url-gen/actions/delivery';
+
+// Initialize Cloudinary instance
+const cld = new Cloudinary({
+  cloud: {
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '',
+  },
+});
+
+interface CloudinaryImageProps {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  priority?: boolean;
+  sizes?: string;
+  placeholder?: 'blur' | 'empty';
+  onLoad?: () => void;
+  onError?: () => void;
+}
+
+/**
+ * Optimized Cloudinary Image component for Next.js
+ * Automatically applies responsive transformations and optimizations
+ */
+export const CloudinaryImage: React.FC<CloudinaryImageProps> = ({
+  src,
+  alt,
+  width = 800,
+  height = 600,
+  className = '',
+  priority = false,
+  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
+  placeholder: placeholderType = 'blur',
+  onLoad,
+  onError,
+}) => {
+  // Build the Cloudinary image with transformations
+  const myImage = cld
+    .image(src)
+    .format('auto') // Automatically choose best format (WebP, AVIF, etc.)
+    .quality('auto') // Automatically optimize quality
+    .resize(auto().width(width).height(height)) // Auto-resize maintaining aspect ratio
+    .gravity(autoGravity()); // Smart cropping
+
+  // Create plugins array based on priority
+  const plugins = [];
+  
+  if (!priority) {
+    plugins.push(lazyload()); // Add lazy loading if not priority
+  }
+  
+  plugins.push(responsive({ steps: [200, 400, 800, 1200, 1600] })); // Responsive breakpoints
+  
+  if (placeholderType === 'blur') {
+    plugins.push(placeholder({ mode: 'blur' })); // Blur placeholder while loading
+  }
+
+  return (
+    <div className={`cloudinary-image-wrapper ${className}`}>
+      <AdvancedImage
+        cldImg={myImage}
+        plugins={plugins}
+        alt={alt}
+        sizes={sizes}
+        onLoad={onLoad}
+        onError={onError}
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+        }}
+      />
+    </div>
+  );
+};
+
+/**
+ * Cloudinary Avatar component with circular crop
+ */
+interface CloudinaryAvatarProps {
+  src: string;
+  alt: string;
+  size?: number;
+  className?: string;
+  priority?: boolean;
+}
+
+export const CloudinaryAvatar: React.FC<CloudinaryAvatarProps> = ({
+  src,
+  alt,
+  size = 100,
+  className = '',
+  priority = false,
+}) => {
+  const avatarImage = cld
+    .image(src)
+    .format('auto')
+    .quality('auto')
+    .resize(auto().width(size).height(size).gravity(autoGravity()))
+    .roundCorners('max'); // Makes it circular
+
+  const plugins = [];
+  if (!priority) {
+    plugins.push(lazyload());
+  }
+
+  return (
+    <div className={`cloudinary-avatar ${className}`}>
+      <AdvancedImage
+        cldImg={avatarImage}
+        plugins={plugins}
+        alt={alt}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+        }}
+      />
+    </div>
+  );
+};
+
+/**
+ * Cloudinary Video component
+ */
+interface CloudinaryVideoProps {
+  src: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  autoPlay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+  controls?: boolean;
+  poster?: string;
+}
+
+export const CloudinaryVideo: React.FC<CloudinaryVideoProps> = ({
+  src,
+  width = 800,
+  height = 450,
+  className = '',
+  autoPlay = false,
+  loop = false,
+  muted = false,
+  controls = true,
+  poster,
+}) => {
+  const videoUrl = cld
+    .video(src)
+    .format('auto')
+    .quality('auto')
+    .resize(auto().width(width).height(height))
+    .toURL();
+
+  const posterUrl = poster
+    ? cld.image(poster).format('auto').quality('auto').resize(auto().width(width).height(height)).toURL()
+    : undefined;
+
+  return (
+    <div className={`cloudinary-video-wrapper ${className}`}>
+      <video
+        src={videoUrl}
+        width={width}
+        height={height}
+        autoPlay={autoPlay}
+        loop={loop}
+        muted={muted}
+        controls={controls}
+        poster={posterUrl}
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+        }}
+      >
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  );
+};
+
+/**
+ * Hook for programmatic image transformations
+ */
+export const useCloudinary = () => {
+  const getOptimizedUrl = (
+    publicId: string,
+    options: {
+      width?: number;
+      height?: number;
+      crop?: string;
+      format?: string;
+      quality?: string;
+    } = {}
+  ): string => {
+    const image = cld.image(publicId);
+    
+    if (options.width || options.height) {
+      image.resize(auto().width(options.width).height(options.height));
+    }
+    
+    if (options.format) {
+      image.format(options.format as any);
+    } else {
+      image.format('auto');
+    }
+    
+    if (options.quality) {
+      image.quality(options.quality as any);
+    } else {
+      image.quality('auto');
+    }
+
+    return image.toURL();
+  };
+
+  const getVideoUrl = (publicId: string, options: { width?: number; height?: number } = {}): string => {
+    const video = cld.video(publicId);
+    
+    if (options.width || options.height) {
+      video.resize(auto().width(options.width).height(options.height));
+    }
+    
+    return video.format('auto').quality('auto').toURL();
+  };
+
+  return {
+    getOptimizedUrl,
+    getVideoUrl,
+    cloudinary: cld,
+  };
+};
+
+// Utility functions for direct URL generation
+export const getCloudinaryUrl = (
+  publicId: string,
+  transformations: {
+    width?: number;
+    height?: number;
+    crop?: 'auto' | 'fill' | 'scale' | 'fit' | 'limit';
+    format?: 'auto' | 'jpg' | 'png' | 'webp' | 'avif';
+    quality?: 'auto' | number;
+    gravity?: 'auto' | 'center' | 'face' | 'faces';
+  } = {}
+): string => {
+  const image = cld.image(publicId);
+  
+  // Apply transformations
+  if (transformations.width || transformations.height) {
+    let resize = auto();
+    if (transformations.width) resize = resize.width(transformations.width);
+    if (transformations.height) resize = resize.height(transformations.height);
+    image.resize(resize);
+  }
+  
+  image.format(transformations.format || 'auto');
+  image.quality(transformations.quality || 'auto');
+  
+  if (transformations.gravity) {
+    image.gravity(autoGravity());
+  }
+  
+  return image.toURL();
+};
+
+export default CloudinaryImage;
+
+// Example usage:
+// 
+// import { CloudinaryImage, CloudinaryAvatar, CloudinaryVideo, useCloudinary } from '@/components/cloudinary/CloudinaryImage';
+//
+// function MyComponent() {
+//   const { getOptimizedUrl } = useCloudinary();
+//   
+//   return (
+//     <div>
+//       {/* Basic responsive image */}
+//       <CloudinaryImage
+//         src="samples/landscapes/beach-boat"
+//         alt="Beach scene"
+//         width={800}
+//         height={600}
+//       />
+//       
+//       {/* Avatar with circular crop */}
+//       <CloudinaryAvatar
+//         src="samples/people/kitchen-bar"
+//         alt="User avatar"
+//         size={100}
+//       />
+//       
+//       {/* Video component */}
+//       <CloudinaryVideo
+//         src="samples/sea-turtle"
+//         width={640}
+//         height={360}
+//         controls
+//       />
+//       
+//       {/* Programmatic URL generation */}
+//       <img src={getOptimizedUrl('samples/cloudinary-icon', { width: 200, height: 200 })} alt="Icon" />
+//     </div>
+//   );
+// }
+{{else}}
+import React from 'react';
+import { AdvancedImage, lazyload, responsive, placeholder } from '@cloudinary/react';
+import { Cloudinary } from '@cloudinary/url-gen';
+import { auto } from '@cloudinary/url-gen/actions/resize';
+import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
+
+// Initialize Cloudinary instance
+const cld = new Cloudinary({
+  cloud: {
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '',
+  },
+});
+
+/**
+ * Optimized Cloudinary Image component for Next.js
+ */
+export const CloudinaryImage = ({
+  src,
+  alt,
+  width = 800,
+  height = 600,
+  className = '',
+  priority = false,
+  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
+  placeholder: placeholderType = 'blur',
+  onLoad,
+  onError,
+}) => {
+  // Build the Cloudinary image with transformations
+  const myImage = cld
+    .image(src)
+    .format('auto')
+    .quality('auto')
+    .resize(auto().width(width).height(height))
+    .gravity(autoGravity());
+
+  // Create plugins array based on priority
+  const plugins = [];
+  
+  if (!priority) {
+    plugins.push(lazyload());
+  }
+  
+  plugins.push(responsive({ steps: [200, 400, 800, 1200, 1600] }));
+  
+  if (placeholderType === 'blur') {
+    plugins.push(placeholder({ mode: 'blur' }));
+  }
+
+  return (
+    <div className={`cloudinary-image-wrapper ${className}`}>
+      <AdvancedImage
+        cldImg={myImage}
+        plugins={plugins}
+        alt={alt}
+        sizes={sizes}
+        onLoad={onLoad}
+        onError={onError}
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+        }}
+      />
+    </div>
+  );
+};
+
+/**
+ * Cloudinary Avatar component with circular crop
+ */
+export const CloudinaryAvatar = ({
+  src,
+  alt,
+  size = 100,
+  className = '',
+  priority = false,
+}) => {
+  const avatarImage = cld
+    .image(src)
+    .format('auto')
+    .quality('auto')
+    .resize(auto().width(size).height(size).gravity(autoGravity()))
+    .roundCorners('max');
+
+  const plugins = [];
+  if (!priority) {
+    plugins.push(lazyload());
+  }
+
+  return (
+    <div className={`cloudinary-avatar ${className}`}>
+      <AdvancedImage
+        cldImg={avatarImage}
+        plugins={plugins}
+        alt={alt}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+        }}
+      />
+    </div>
+  );
+};
+
+/**
+ * Cloudinary Video component
+ */
+export const CloudinaryVideo = ({
+  src,
+  width = 800,
+  height = 450,
+  className = '',
+  autoPlay = false,
+  loop = false,
+  muted = false,
+  controls = true,
+  poster,
+}) => {
+  const videoUrl = cld
+    .video(src)
+    .format('auto')
+    .quality('auto')
+    .resize(auto().width(width).height(height))
+    .toURL();
+
+  const posterUrl = poster
+    ? cld.image(poster).format('auto').quality('auto').resize(auto().width(width).height(height)).toURL()
+    : undefined;
+
+  return (
+    <div className={`cloudinary-video-wrapper ${className}`}>
+      <video
+        src={videoUrl}
+        width={width}
+        height={height}
+        autoPlay={autoPlay}
+        loop={loop}
+        muted={muted}
+        controls={controls}
+        poster={posterUrl}
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+        }}
+      >
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  );
+};
+
+/**
+ * Hook for programmatic image transformations
+ */
+export const useCloudinary = () => {
+  const getOptimizedUrl = (publicId, options = {}) => {
+    const image = cld.image(publicId);
+    
+    if (options.width || options.height) {
+      image.resize(auto().width(options.width).height(options.height));
+    }
+    
+    if (options.format) {
+      image.format(options.format);
+    } else {
+      image.format('auto');
+    }
+    
+    if (options.quality) {
+      image.quality(options.quality);
+    } else {
+      image.quality('auto');
+    }
+
+    return image.toURL();
+  };
+
+  const getVideoUrl = (publicId, options = {}) => {
+    const video = cld.video(publicId);
+    
+    if (options.width || options.height) {
+      video.resize(auto().width(options.width).height(options.height));
+    }
+    
+    return video.format('auto').quality('auto').toURL();
+  };
+
+  return {
+    getOptimizedUrl,
+    getVideoUrl,
+    cloudinary: cld,
+  };
+};
+
+// Utility functions for direct URL generation
+export const getCloudinaryUrl = (publicId, transformations = {}) => {
+  const image = cld.image(publicId);
+  
+  // Apply transformations
+  if (transformations.width || transformations.height) {
+    let resize = auto();
+    if (transformations.width) resize = resize.width(transformations.width);
+    if (transformations.height) resize = resize.height(transformations.height);
+    image.resize(resize);
+  }
+  
+  image.format(transformations.format || 'auto');
+  image.quality(transformations.quality || 'auto');
+  
+  if (transformations.gravity) {
+    image.gravity(autoGravity());
+  }
+  
+  return image.toURL();
+};
+
+export default CloudinaryImage;
+{{/if}}

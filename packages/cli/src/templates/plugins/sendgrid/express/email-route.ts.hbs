@@ -1,0 +1,204 @@
+import { Router, Request, Response } from 'express';
+import { 
+  sendEmail, 
+  sendBulkEmail, 
+  sendWelcomeEmail, 
+  sendPasswordResetEmail, 
+  sendTransactionalEmail 
+} from '../services/email';
+
+const router = Router();
+
+// Email validation helper
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// POST /api/email - Send single email
+router.post('/email', async (req: Request, res: Response) => {
+  try {
+    const { to, subject, html, text, type } = req.body;
+
+    // Validate required fields
+    if (!to || !subject) {
+      return res.status(400).json({
+        error: 'Missing required fields: to, subject'
+      });
+    }
+
+    // Validate email format
+    const emails = Array.isArray(to) ? to : [to];
+    const invalidEmails = emails.filter((email: string) => !validateEmail(email));
+    
+    if (invalidEmails.length > 0) {
+      return res.status(400).json({
+        error: `Invalid email addresses: ${invalidEmails.join(', ')}`
+      });
+    }
+
+    // Send email based on type
+    let result;
+    switch (type) {
+      case 'welcome':
+        const { name, templateId } = req.body;
+        if (!name) {
+          return res.status(400).json({
+            error: 'Name is required for welcome emails'
+          });
+        }
+        result = await sendWelcomeEmail(to, name, templateId);
+        break;
+
+      case 'password-reset':
+        const { resetToken, resetUrl } = req.body;
+        if (!resetToken || !resetUrl) {
+          return res.status(400).json({
+            error: 'resetToken and resetUrl are required for password reset emails'
+          });
+        }
+        result = await sendPasswordResetEmail(to, resetToken, resetUrl);
+        break;
+
+      case 'transactional':
+        const { content, trackingSettings, category } = req.body;
+        if (!content) {
+          return res.status(400).json({
+            error: 'content is required for transactional emails'
+          });
+        }
+        result = await sendTransactionalEmail(to, subject, content, {
+          trackingSettings,
+          category,
+        });
+        break;
+
+      default:
+        // Custom email
+        if (!html && !text) {
+          return res.status(400).json({
+            error: 'Either html or text content is required'
+          });
+        }
+        result = await sendEmail({ to, subject, html, text });
+        break;
+    }
+
+    res.json({
+      success: true,
+      message: 'Email sent successfully',
+      messageId: result.messageId,
+    });
+
+  } catch (error) {
+    console.error('Email API error:', error);
+    res.status(500).json({
+      error: 'Failed to send email',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// POST /api/email/bulk - Send bulk emails
+router.post('/email/bulk', async (req: Request, res: Response) => {
+  try {
+    const { emails } = req.body;
+
+    if (!emails || !Array.isArray(emails) || emails.length === 0) {
+      return res.status(400).json({
+        error: 'emails array is required and cannot be empty'
+      });
+    }
+
+    // Validate each email in the array
+    for (let i = 0; i < emails.length; i++) {
+      const email = emails[i];
+      if (!email.to || !email.subject) {
+        return res.status(400).json({
+          error: `Email at index ${i} is missing required fields: to, subject`
+        });
+      }
+      if (!validateEmail(email.to)) {
+        return res.status(400).json({
+          error: `Invalid email address at index ${i}: ${email.to}`
+        });
+      }
+    }
+
+    const result = await sendBulkEmail(emails);
+
+    res.json({
+      success: true,
+      message: 'Bulk emails sent successfully',
+      count: result.count,
+    });
+
+  } catch (error) {
+    console.error('Bulk email API error:', error);
+    res.status(500).json({
+      error: 'Failed to send bulk emails',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// GET /api/email/health - Health check
+router.get('/email/health', (req: Request, res: Response) => {
+  res.json({
+    service: 'Email Service',
+    status: 'healthy',
+    provider: 'SendGrid',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+export default router;
+
+// Usage in your main app file:
+// import emailRouter from './api/routes/email';
+// app.use('/api', emailRouter);
+
+// Example API calls:
+// 
+// Welcome email:
+// POST /api/email
+// {
+//   "type": "welcome",
+//   "to": "user@example.com",
+//   "subject": "Welcome!",
+//   "name": "John Doe",
+//   "templateId": "d-1234567890abcdef" // Optional SendGrid template ID
+// }
+//
+// Bulk emails:
+// POST /api/email/bulk
+// {
+//   "emails": [
+//     {
+//       "to": "user1@example.com",
+//       "subject": "Newsletter",
+//       "html": "<h1>Newsletter Content</h1>",
+//       "personalizations": { "name": "John", "company": "Acme Corp" }
+//     },
+//     {
+//       "to": "user2@example.com", 
+//       "subject": "Newsletter",
+//       "html": "<h1>Newsletter Content</h1>",
+//       "personalizations": { "name": "Jane", "company": "Tech Inc" }
+//     }
+//   ]
+// }
+//
+// Transactional email with tracking:
+// POST /api/email
+// {
+//   "type": "transactional",
+//   "to": "user@example.com",
+//   "subject": "Order Confirmation",
+//   "content": "<h1>Your order has been confirmed</h1>",
+//   "trackingSettings": {
+//     "clickTracking": true,
+//     "openTracking": true
+//   },
+//   "category": ["orders", "confirmations"]
+// }

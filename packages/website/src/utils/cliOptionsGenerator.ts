@@ -123,6 +123,32 @@ export function generateCliOptions(): CliOption[] {
       values: "-",
       description: "Skip .gitignore file generation",
     },
+    {
+      flag: "--api-client",
+      values: "tanstack-query, swr, axios, trpc, apollo-client",
+      description: "API client library",
+    },
+    {
+      flag: "--ai",
+      values: "claude, cursor, copilot, gemini",
+      description: "AI assistant integration",
+    },
+    {
+      flag: "--mcp-servers",
+      values:
+        "filesystem, memory, github-official, github-api, gitlab, postgresql, supabase, mongodb, cloudflare, aws-mcp, azure-mcp",
+      description: "MCP servers to include when using Claude AI",
+    },
+    {
+      flag: "--powerups",
+      values: "sentry, posthog, storybook, prettier, eslint, husky, vitest, playwright",
+      description: "Comma-separated list of powerups",
+    },
+    {
+      flag: "--plugins",
+      values: "stripe, resend, sendgrid, socketio",
+      description: "Comma-separated list of plugins",
+    },
   ];
 }
 

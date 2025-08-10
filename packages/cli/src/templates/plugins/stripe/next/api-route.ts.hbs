@@ -1,0 +1,617 @@
+{{#if typescript}}
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+// Initialize Stripe with secret key
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2024-06-20',
+});
+
+interface CreateIntentRequest {
+  amount: number;
+  currency?: string;
+  metadata?: Record<string, string>;
+  customer?: string;
+  payment_method_types?: string[];
+}
+
+interface WebhookEvent {
+  id: string;
+  type: string;
+  data: {
+    object: Stripe.PaymentIntent | Stripe.Subscription | any;
+  };
+}
+
+// POST /api/stripe/create-intent - Create payment intent
+export async function POST(request: NextRequest) {
+  try {
+    const body: CreateIntentRequest = await request.json();
+    const { amount, currency = 'usd', metadata, customer, payment_method_types } = body;
+
+    // Validate required fields
+    if (!amount || amount < 50) { // Minimum charge amount (50 cents)
+      return NextResponse.json(
+        { error: 'Amount must be at least 50 cents' },
+        { status: 400 }
+      );
+    }
+
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount), // Ensure it's an integer
+      currency: currency.toLowerCase(),
+      metadata: {
+        ...metadata,
+        created_at: new Date().toISOString(),
+      },
+      customer,
+      payment_method_types: payment_method_types || ['card'],
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    });
+
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    
+    if (error instanceof Stripe.errors.StripeError) {
+      return NextResponse.json(
+        { error: error.message, type: error.type },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// GET /api/stripe/payment-intent/[id] - Retrieve payment intent
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const paymentIntentId = params.id;
+
+    if (!paymentIntentId) {
+      return NextResponse.json(
+        { error: 'Payment intent ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    return NextResponse.json({
+      id: paymentIntent.id,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      metadata: paymentIntent.metadata,
+      created: paymentIntent.created,
+    });
+
+  } catch (error) {
+    console.error('Error retrieving payment intent:', error);
+    
+    if (error instanceof Stripe.errors.StripeError) {
+      return NextResponse.json(
+        { error: error.message, type: error.type },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// Webhook handler for Stripe events
+export async function handleWebhook(request: NextRequest) {
+  const body = await request.text();
+  const signature = request.headers.get('stripe-signature');
+
+  if (!signature) {
+    return NextResponse.json(
+      { error: 'Missing stripe-signature header' },
+      { status: 400 }
+    );
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET || ''
+    );
+  } catch (error) {
+    console.error('Webhook signature verification failed:', error);
+    return NextResponse.json(
+      { error: 'Invalid signature' },
+      { status: 400 }
+    );
+  }
+
+  // Handle the event
+  try {
+    switch (event.type) {
+      case 'payment_intent.succeeded': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.log('Payment succeeded:', paymentIntent.id);
+        
+        // Handle successful payment
+        // You can update your database, send confirmation emails, etc.
+        await handleSuccessfulPayment(paymentIntent);
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.log('Payment failed:', paymentIntent.id);
+        
+        // Handle failed payment
+        await handleFailedPayment(paymentIntent);
+        break;
+      }
+
+      case 'customer.subscription.created': {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log('Subscription created:', subscription.id);
+        
+        // Handle new subscription
+        await handleNewSubscription(subscription);
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log('Subscription updated:', subscription.id);
+        
+        // Handle subscription update
+        await handleSubscriptionUpdate(subscription);
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log('Subscription cancelled:', subscription.id);
+        
+        // Handle subscription cancellation
+        await handleSubscriptionCancellation(subscription);
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log('Invoice payment succeeded:', invoice.id);
+        
+        // Handle successful invoice payment
+        await handleInvoicePaymentSucceeded(invoice);
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log('Invoice payment failed:', invoice.id);
+        
+        // Handle failed invoice payment
+        await handleInvoicePaymentFailed(invoice);
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    return NextResponse.json({ received: true });
+
+  } catch (error) {
+    console.error('Error handling webhook:', error);
+    return NextResponse.json(
+      { error: 'Webhook handler failed' },
+      { status: 500 }
+    );
+  }
+}
+
+// Helper functions for handling different events
+async function handleSuccessfulPayment(paymentIntent: Stripe.PaymentIntent) {
+  // TODO: Implement your business logic here
+  // Examples:
+  // - Update order status in database
+  // - Send confirmation email to customer
+  // - Trigger fulfillment process
+  // - Update user account/subscription status
+  
+  console.log('Processing successful payment:', {
+    id: paymentIntent.id,
+    amount: paymentIntent.amount,
+    currency: paymentIntent.currency,
+    customer: paymentIntent.customer,
+    metadata: paymentIntent.metadata,
+  });
+}
+
+async function handleFailedPayment(paymentIntent: Stripe.PaymentIntent) {
+  // TODO: Implement your business logic here
+  // Examples:
+  // - Send failed payment notification email
+  // - Update order status
+  // - Log for retry attempts
+  
+  console.log('Processing failed payment:', {
+    id: paymentIntent.id,
+    last_payment_error: paymentIntent.last_payment_error,
+  });
+}
+
+async function handleNewSubscription(subscription: Stripe.Subscription) {
+  // TODO: Implement your business logic here
+  // Examples:
+  // - Update user's subscription status in database
+  // - Grant access to premium features
+  // - Send welcome email
+  
+  console.log('Processing new subscription:', {
+    id: subscription.id,
+    customer: subscription.customer,
+    status: subscription.status,
+  });
+}
+
+async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
+  // TODO: Implement your business logic here
+  // Examples:
+  // - Update subscription details in database
+  // - Adjust user access levels
+  // - Handle plan changes
+  
+  console.log('Processing subscription update:', {
+    id: subscription.id,
+    status: subscription.status,
+  });
+}
+
+async function handleSubscriptionCancellation(subscription: Stripe.Subscription) {
+  // TODO: Implement your business logic here
+  // Examples:
+  // - Update user's subscription status
+  // - Revoke premium access
+  // - Send cancellation confirmation
+  
+  console.log('Processing subscription cancellation:', {
+    id: subscription.id,
+    canceled_at: subscription.canceled_at,
+  });
+}
+
+async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
+  // TODO: Implement your business logic here
+  // Examples:
+  // - Update payment records
+  // - Send receipt
+  // - Extend subscription period
+  
+  console.log('Processing successful invoice payment:', {
+    id: invoice.id,
+    subscription: invoice.subscription,
+    amount_paid: invoice.amount_paid,
+  });
+}
+
+async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+  // TODO: Implement your business logic here
+  // Examples:
+  // - Send payment failure notification
+  // - Implement retry logic
+  // - Update subscription status
+  
+  console.log('Processing failed invoice payment:', {
+    id: invoice.id,
+    attempt_count: invoice.attempt_count,
+  });
+}
+
+// Export webhook handler if you're using a separate webhook endpoint
+// export { handleWebhook as POST };
+
+// Usage examples:
+//
+// Frontend usage:
+// const response = await fetch('/api/stripe/create-intent', {
+//   method: 'POST',
+//   headers: { 'Content-Type': 'application/json' },
+//   body: JSON.stringify({
+//     amount: 2000, // $20.00 in cents
+//     currency: 'usd',
+//     metadata: { orderId: '12345' }
+//   })
+// });
+//
+// Webhook endpoint (create separate file: app/api/stripe/webhook/route.ts):
+// import { handleWebhook } from '../route';
+// export { handleWebhook as POST };
+{{else}}
+import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+// Initialize Stripe with secret key
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2024-06-20',
+});
+
+// POST /api/stripe/create-intent - Create payment intent
+export async function POST(request) {
+  try {
+    const body = await request.json();
+    const { amount, currency = 'usd', metadata, customer, payment_method_types } = body;
+
+    // Validate required fields
+    if (!amount || amount < 50) { // Minimum charge amount (50 cents)
+      return NextResponse.json(
+        { error: 'Amount must be at least 50 cents' },
+        { status: 400 }
+      );
+    }
+
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount), // Ensure it's an integer
+      currency: currency.toLowerCase(),
+      metadata: {
+        ...metadata,
+        created_at: new Date().toISOString(),
+      },
+      customer,
+      payment_method_types: payment_method_types || ['card'],
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    });
+
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    
+    if (error instanceof Stripe.errors.StripeError) {
+      return NextResponse.json(
+        { error: error.message, type: error.type },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// GET /api/stripe/payment-intent/[id] - Retrieve payment intent
+export async function GET(request, { params }) {
+  try {
+    const paymentIntentId = params.id;
+
+    if (!paymentIntentId) {
+      return NextResponse.json(
+        { error: 'Payment intent ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    return NextResponse.json({
+      id: paymentIntent.id,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      metadata: paymentIntent.metadata,
+      created: paymentIntent.created,
+    });
+
+  } catch (error) {
+    console.error('Error retrieving payment intent:', error);
+    
+    if (error instanceof Stripe.errors.StripeError) {
+      return NextResponse.json(
+        { error: error.message, type: error.type },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// Webhook handler for Stripe events
+export async function handleWebhook(request) {
+  const body = await request.text();
+  const signature = request.headers.get('stripe-signature');
+
+  if (!signature) {
+    return NextResponse.json(
+      { error: 'Missing stripe-signature header' },
+      { status: 400 }
+    );
+  }
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET || ''
+    );
+  } catch (error) {
+    console.error('Webhook signature verification failed:', error);
+    return NextResponse.json(
+      { error: 'Invalid signature' },
+      { status: 400 }
+    );
+  }
+
+  // Handle the event
+  try {
+    switch (event.type) {
+      case 'payment_intent.succeeded': {
+        const paymentIntent = event.data.object;
+        console.log('Payment succeeded:', paymentIntent.id);
+        
+        // Handle successful payment
+        await handleSuccessfulPayment(paymentIntent);
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object;
+        console.log('Payment failed:', paymentIntent.id);
+        
+        // Handle failed payment
+        await handleFailedPayment(paymentIntent);
+        break;
+      }
+
+      case 'customer.subscription.created': {
+        const subscription = event.data.object;
+        console.log('Subscription created:', subscription.id);
+        
+        // Handle new subscription
+        await handleNewSubscription(subscription);
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object;
+        console.log('Subscription updated:', subscription.id);
+        
+        // Handle subscription update
+        await handleSubscriptionUpdate(subscription);
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object;
+        console.log('Subscription cancelled:', subscription.id);
+        
+        // Handle subscription cancellation
+        await handleSubscriptionCancellation(subscription);
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object;
+        console.log('Invoice payment succeeded:', invoice.id);
+        
+        // Handle successful invoice payment
+        await handleInvoicePaymentSucceeded(invoice);
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object;
+        console.log('Invoice payment failed:', invoice.id);
+        
+        // Handle failed invoice payment
+        await handleInvoicePaymentFailed(invoice);
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    return NextResponse.json({ received: true });
+
+  } catch (error) {
+    console.error('Error handling webhook:', error);
+    return NextResponse.json(
+      { error: 'Webhook handler failed' },
+      { status: 500 }
+    );
+  }
+}
+
+// Helper functions for handling different events
+async function handleSuccessfulPayment(paymentIntent) {
+  // TODO: Implement your business logic here
+  console.log('Processing successful payment:', {
+    id: paymentIntent.id,
+    amount: paymentIntent.amount,
+    currency: paymentIntent.currency,
+    customer: paymentIntent.customer,
+    metadata: paymentIntent.metadata,
+  });
+}
+
+async function handleFailedPayment(paymentIntent) {
+  // TODO: Implement your business logic here
+  console.log('Processing failed payment:', {
+    id: paymentIntent.id,
+    last_payment_error: paymentIntent.last_payment_error,
+  });
+}
+
+async function handleNewSubscription(subscription) {
+  // TODO: Implement your business logic here
+  console.log('Processing new subscription:', {
+    id: subscription.id,
+    customer: subscription.customer,
+    status: subscription.status,
+  });
+}
+
+async function handleSubscriptionUpdate(subscription) {
+  // TODO: Implement your business logic here
+  console.log('Processing subscription update:', {
+    id: subscription.id,
+    status: subscription.status,
+  });
+}
+
+async function handleSubscriptionCancellation(subscription) {
+  // TODO: Implement your business logic here
+  console.log('Processing subscription cancellation:', {
+    id: subscription.id,
+    canceled_at: subscription.canceled_at,
+  });
+}
+
+async function handleInvoicePaymentSucceeded(invoice) {
+  // TODO: Implement your business logic here
+  console.log('Processing successful invoice payment:', {
+    id: invoice.id,
+    subscription: invoice.subscription,
+    amount_paid: invoice.amount_paid,
+  });
+}
+
+async function handleInvoicePaymentFailed(invoice) {
+  // TODO: Implement your business logic here
+  console.log('Processing failed invoice payment:', {
+    id: invoice.id,
+    attempt_count: invoice.attempt_count,
+  });
+}
+{{/if}}

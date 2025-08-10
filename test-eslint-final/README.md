@@ -18,11 +18,13 @@ test-eslint-final/
 ## Getting Started
 
 1. Install dependencies:
+
    ```bash
    bun install
    ```
 
 2. Start development servers:
+
    ```bash
    bun run dev
    ```
@@ -42,12 +44,14 @@ test-eslint-final/
 ## Tech Stack
 
 ### Frontend (apps/web)
+
 - **Framework**: react
 - **Styling**: tailwind
 
 - **Language**: TypeScript
 
 ### Backend (apps/api)
+
 - **Framework**: express
 - **Database**: postgres
 - **ORM**: drizzle

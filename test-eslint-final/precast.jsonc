@@ -1,0 +1,16 @@
+{
+  "$schema": "https://precast.dev/precast.schema.json",
+  "version": "1.0.0",
+  "createdAt": "2025-08-10T14:29:04.522Z",
+  "framework": "react",
+  "language": "typescript",
+  "backend": "express",
+  "database": "postgres",
+  "orm": "drizzle",
+  "styling": "tailwind",
+  "aiAssistant": "none",
+  "typescript": true,
+  "git": true,
+  "docker": false,
+  "packageManager": "bun"
+}

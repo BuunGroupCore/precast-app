@@ -11,3 +11,8 @@ yarn-error.log*
 .DS_Store
 .vscode/
 .idea/
+# Environment variables
+.env.development
+.env.development.local
+.env.production.local
+!.env.example

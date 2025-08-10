@@ -18,9 +18,7 @@ export function NotFoundPage() {
             <h1 className="text-8xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-4 animate-pulse">
               404
             </h1>
-            <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
-              Page Not Found
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">Page Not Found</h2>
             <p className="text-gray-400 mb-8 text-lg leading-relaxed">
               The page you're looking for doesn't exist or has been moved.
             </p>
@@ -36,9 +34,9 @@ export function NotFoundPage() {
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Go Back
           </button>
-          
+
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
           >
             <Home className="w-4 h-4" />

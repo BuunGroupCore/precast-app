@@ -4,12 +4,7 @@ import express, { Request, Response, json, urlencoded } from "express";
 import helmet from "helmet";
 
 import healthRoutes from "@/api/routes/health.js";
-import { 
-  APP_CONFIG, 
-  SERVER_CONFIG, 
-  CORS_CONFIG, 
-  HEALTH_CHECK_CONFIG 
-} from "@/config/constants.js";
+import { APP_CONFIG, SERVER_CONFIG, CORS_CONFIG, HEALTH_CHECK_CONFIG } from "@/config/constants.js";
 
 config();
 
@@ -25,27 +20,27 @@ app.use(urlencoded({ extended: true }));
 app.use("/api", healthRoutes);
 
 app.get(HEALTH_CHECK_CONFIG.path, (req: Request, res: Response) => {
-  res.json({ 
-    status: "ok", 
+  res.json({
+    status: "ok",
     message: HEALTH_CHECK_CONFIG.message,
     timestamp: new Date().toISOString(),
     version: APP_CONFIG.version,
-    environment: APP_CONFIG.environment
+    environment: APP_CONFIG.environment,
   });
 });
 
 app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (req: Request, res: Response) => {
-  res.json({ 
+  res.json({
     message: `Hello from ${APP_CONFIG.name}!`,
-    version: APP_CONFIG.version
+    version: APP_CONFIG.version,
   });
 });
 
 // 404 handler
 app.use("*", (req: Request, res: Response) => {
-  res.status(404).json({ 
+  res.status(404).json({
     error: "Route not found",
-    path: req.originalUrl
+    path: req.originalUrl,
   });
 });
 
@@ -56,9 +51,9 @@ app.use((err: Error, req: Request, res: Response) => {
     // eslint-disable-next-line no-console
     console.error(err.stack);
   }
-  res.status(500).json({ 
+  res.status(500).json({
     error: "Internal server error",
-    message: process.env.NODE_ENV === "development" ? err.message : "Something went wrong"
+    message: process.env.NODE_ENV === "development" ? err.message : "Something went wrong",
   });
 });
 
@@ -66,7 +61,9 @@ app.listen(SERVER_CONFIG.port, () => {
   // eslint-disable-next-line no-console
   console.log(`🚀 Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
   // eslint-disable-next-line no-console
-  console.log(`📋 Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`);
+  console.log(
+    `📋 Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`
+  );
   // eslint-disable-next-line no-console
   console.log(`🌍 Environment: ${APP_CONFIG.environment}`);
 });

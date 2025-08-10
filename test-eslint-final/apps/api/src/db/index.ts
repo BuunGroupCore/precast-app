@@ -1,20 +1,12 @@
-{{#if (eq database "postgres")}}
 import { drizzle } from "drizzle-orm/node-postgres";
-import { sql } from "drizzle-orm";
 import { Pool } from "pg";
-{{else if (eq database "mysql")}}
-import { drizzle } from "drizzle-orm/mysql2";
-import { sql } from "drizzle-orm";
-import mysql from "mysql2/promise";
-{{/if}}
 
-import * as schema from "./schema{{#if typescript}}.js{{/if}}";
+import * as schema from "./schema.js";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
-{{#if (eq database "postgres")}}
 /**
  * PostgreSQL connection pool
  */
@@ -23,28 +15,13 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-})
+});
 
 /**
  * Drizzle database instance
  * @description Pre-configured Drizzle client for PostgreSQL
  */
 export const db = drizzle(pool, { schema });
-{{else if (eq database "mysql")}}
-/**
- * MySQL connection pool
- */
-const connection = mysql.createPool({
-  uri: process.env.DATABASE_URL,
-  connectionLimit: 20,
-});
-
-/**
- * Drizzle database instance  
- * @description Pre-configured Drizzle client for MySQL
- */
-export const db = drizzle(connection, { schema, mode: "default" });
-{{/if}}
 
 /**
  * Database health check
@@ -52,11 +29,7 @@ export const db = drizzle(connection, { schema, mode: "default" });
  */
 export async function checkDatabaseConnection(): Promise<boolean> {
   try {
-    {{#if (eq database "postgres")}}
-    await db.execute(sql`SELECT 1`);
-    {{else if (eq database "mysql")}}
-    await db.execute(sql`SELECT 1`);
-    {{/if}}
+    await db.execute("SELECT 1" as any);
     return true;
   } catch (error) {
     console.error("Database connection failed:", error);
@@ -69,10 +42,6 @@ export async function checkDatabaseConnection(): Promise<boolean> {
  * @description Closes database connections properly
  */
 process.on("SIGINT", async () => {
-  {{#if (eq database "postgres")}}
   await pool.end();
-  {{else if (eq database "mysql")}}
-  await connection.end();
-  {{/if}}
   process.exit(0);
 });

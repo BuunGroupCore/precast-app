@@ -18,5 +18,11 @@
     "typescript": "^5.4.2",
     "eslint": "^8.57.0"
   },
-  "packageManager": "bun@1.2.18"
+  "packageManager": "bun@1.2.18",
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "vite": {
+      "esbuild": "^0.25.0"
+    }
+  }
 }

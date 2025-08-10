@@ -20,10 +20,7 @@
       "@api/*": ["apps/api/src/*"]
     }
   },
-  "include": [
-    "apps/web/src/**/*",
-    "apps/api/src/**/*"
-  ],
+  "include": ["apps/web/src/**/*", "apps/api/src/**/*"],
   "references": [
     {
       "path": "./apps/web"

@@ -10,6 +10,7 @@ import { AppDataSource } from '@/data-source.js';
 {{/if}}
 {{#if (eq orm 'drizzle')}}
 import { db } from '@/db';
+import { sql } from 'drizzle-orm';
 {{/if}}
 {{#if (and (eq database 'mongodb') (eq orm 'mongoose'))}}
 import mongoose from 'mongoose';
@@ -52,7 +53,7 @@ router.get('/health/database', async (req: Request, res: Response) => {
     
     {{#if (eq orm 'drizzle')}}
     // Test database connection with Drizzle
-    await db.execute('SELECT 1');
+    await db.execute(sql`SELECT 1`);
     
     res.json({
       status: 'connected',
@@ -168,6 +169,7 @@ import { PrismaClient } from '@prisma/client';
 {{/if}}
 {{#if (eq orm 'drizzle')}}
 import { db } from '@/db';
+import { sql } from 'drizzle-orm';
 {{/if}}
 {{#if (eq orm 'typeorm')}}
 import { AppDataSource } from '@/data-source.js';
@@ -263,6 +265,7 @@ import { PrismaClient } from '@prisma/client';
 {{/if}}
 {{#if (eq orm 'drizzle')}}
 import { db } from '@/db';
+import { sql } from 'drizzle-orm';
 {{/if}}
 {{#if (eq orm 'typeorm')}}
 import { AppDataSource } from '@/data-source.js';
@@ -307,7 +310,7 @@ app.get('/health/database', async (c) => {
     
     {{#if (eq orm 'drizzle')}}
     // Test database connection with Drizzle
-    await db.execute('SELECT 1');
+    await db.execute(sql`SELECT 1`);
     
     return c.json({
       status: 'connected',

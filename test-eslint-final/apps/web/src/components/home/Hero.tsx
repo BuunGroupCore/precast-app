@@ -12,13 +12,13 @@ export function Hero() {
           React + Tailwind
         </h1>
       </div>
-      
+
       <p className="text-2xl md:text-3xl text-gray-300 mb-8 leading-relaxed max-w-4xl mx-auto">
-        Modern React application with 
-        <span className="text-cyan-400 font-semibold"> Tailwind CSS</span> and 
+        Modern React application with
+        <span className="text-cyan-400 font-semibold"> Tailwind CSS</span> and
         <span className="text-blue-400 font-semibold"> TypeScript</span>
       </p>
-      
+
       <div className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur-sm">
         <span className="text-gray-400">Project:</span>
         <span className="text-white font-semibold">{APP_CONFIG.displayName}</span>

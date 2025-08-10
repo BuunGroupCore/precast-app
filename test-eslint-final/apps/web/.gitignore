@@ -38,3 +38,9 @@ coverage
 # Misc
 .DS_Store
 .vite
+# Environment variables
+.env.development
+.env.development.local
+.env.production
+.env.production.local
+!.env.example

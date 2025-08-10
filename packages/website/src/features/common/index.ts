@@ -6,5 +6,14 @@ export { ComicDialog } from "./ComicDialog";
 export { ComicLoader } from "./ComicLoader";
 export { ComicSelect } from "./ComicSelect";
 export { GenericComicDialog } from "./GenericComicDialog";
-export { SEO, HomePageSEO, BuilderPageSEO, ComponentsPageSEO, DocsPageSEO } from "./SEO";
+export {
+  SEO,
+  HomePageSEO,
+  BuilderPageSEO,
+  ComponentsPageSEO,
+  DocsPageSEO,
+  TestimonialsPageSEO,
+  ProjectsPageSEO,
+  RoadmapPageSEO,
+} from "./SEO";
 export { ServiceTooltip, serviceInfo } from "./ServiceTooltip";

@@ -1,0 +1,40 @@
+{
+  "id": "vercel-analytics",
+  "name": "Vercel Analytics",
+  "description": "Privacy-friendly, real-time analytics optimized for Next.js",
+  "category": "analytics",
+  "pricing": "freemium",
+  "dependencies": {
+    "next": ["@vercel/analytics", "@vercel/speed-insights"],
+    "react": ["@vercel/analytics"],
+    "vue": ["@vercel/analytics"],
+    "svelte": ["@vercel/analytics"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "setupFiles": {
+    "next": [
+      {
+        "template": "next/analytics.tsx.hbs",
+        "output": "src/components/Analytics.tsx"
+      }
+    ],
+    "react": [
+      {
+        "template": "react/analytics.tsx.hbs",
+        "output": "src/components/Analytics.tsx"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Deploy your project to Vercel",
+      "2. Enable Analytics in your Vercel dashboard",
+      "3. Import and add the Analytics component to your app",
+      "4. Analytics will automatically track page views",
+      "5. View analytics at https://vercel.com/analytics"
+    ]
+  },
+  "documentationUrl": "https://vercel.com/docs/analytics",
+  "setupUrl": "https://vercel.com/analytics"
+}

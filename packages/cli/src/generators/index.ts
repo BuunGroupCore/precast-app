@@ -140,9 +140,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   try {
     const { generateEnvFiles } = await import("../utils/env-setup.js");
     await generateEnvFiles(config);
-    logger.success(
-      "✅ Environment files generated (.env.development, .env.production, .env.example)"
-    );
+    logger.success("✅ Environment files generated (.env, .env.example)");
   } catch (error) {
     logger.warn(`Failed to generate environment files: ${error}`);
   }

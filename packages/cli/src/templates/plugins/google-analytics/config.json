@@ -1,0 +1,53 @@
+{
+  "id": "google-analytics",
+  "name": "Google Analytics",
+  "description": "Industry-leading web analytics platform",
+  "category": "analytics",
+  "pricing": "free",
+  "dependencies": {
+    "react": [],
+    "next": ["@next/third-parties"],
+    "vue": ["vue-gtag-next"],
+    "*": []
+  },
+  "devDependencies": {
+    "react": ["@types/gtag.js"],
+    "vue": ["@types/gtag.js"],
+    "*": []
+  },
+  "envVariables": {
+    "NEXT_PUBLIC_GA_MEASUREMENT_ID": "G-XXXXXXXXXX",
+    "VITE_GA_MEASUREMENT_ID": "G-XXXXXXXXXX"
+  },
+  "setupFiles": {
+    "react": [
+      {
+        "template": "react/analytics.tsx.hbs",
+        "output": "src/lib/analytics.tsx"
+      }
+    ],
+    "next": [
+      {
+        "template": "next/analytics.tsx.hbs",
+        "output": "src/lib/analytics.tsx"
+      }
+    ],
+    "vue": [
+      {
+        "template": "vue/analytics.ts.hbs",
+        "output": "src/lib/analytics.ts"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Create a Google Analytics property at https://analytics.google.com",
+      "2. Get your Measurement ID (starts with G-)",
+      "3. Add the Measurement ID to your .env file",
+      "4. Import and initialize analytics in your app",
+      "5. Verify data collection in GA real-time view"
+    ]
+  },
+  "documentationUrl": "https://developers.google.com/analytics",
+  "setupUrl": "https://analytics.google.com"
+}

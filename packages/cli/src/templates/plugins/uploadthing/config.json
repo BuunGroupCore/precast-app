@@ -1,0 +1,51 @@
+{
+  "id": "uploadthing",
+  "name": "Uploadthing",
+  "description": "Simple file uploads for modern web apps",
+  "category": "storage",
+  "pricing": "freemium",
+  "dependencies": {
+    "react": ["uploadthing", "@uploadthing/react"],
+    "next": ["uploadthing", "@uploadthing/react"],
+    "solid": ["uploadthing", "@uploadthing/solid"],
+    "*": ["uploadthing"]
+  },
+  "devDependencies": {},
+  "envVariables": {
+    "UPLOADTHING_SECRET": "sk_live_",
+    "UPLOADTHING_APP_ID": "your-app-id"
+  },
+  "setupFiles": {
+    "react": [
+      {
+        "template": "react/uploadthing.tsx.hbs",
+        "output": "src/lib/uploadthing.tsx"
+      },
+      {
+        "template": "server/uploadthing.server.ts.hbs",
+        "output": "src/server/uploadthing.server.ts"
+      }
+    ],
+    "next": [
+      {
+        "template": "react/uploadthing.tsx.hbs",
+        "output": "src/lib/uploadthing.tsx"
+      },
+      {
+        "template": "server/uploadthing.server.ts.hbs",
+        "output": "src/server/uploadthing.ts"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Create an Uploadthing account at https://uploadthing.com",
+      "2. Create a new app in the dashboard",
+      "3. Get your secret key and app ID",
+      "4. Add credentials to your .env file",
+      "5. Import and use the upload components in your app"
+    ]
+  },
+  "documentationUrl": "https://docs.uploadthing.com",
+  "setupUrl": "https://uploadthing.com/dashboard"
+}

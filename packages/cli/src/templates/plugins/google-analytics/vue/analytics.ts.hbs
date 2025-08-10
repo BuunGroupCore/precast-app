@@ -1,0 +1,150 @@
+import VueGtag, { trackRouter } from 'vue-gtag-next';
+import { App } from 'vue';
+import { Router } from 'vue-router';
+
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || '';
+
+// Install Google Analytics plugin
+export function installGoogleAnalytics(app: App, router?: Router) {
+  if (!GA_MEASUREMENT_ID) {
+    console.warn('Google Analytics Measurement ID not found in environment variables');
+    return;
+  }
+
+  app.use(VueGtag, {
+    config: {
+      id: GA_MEASUREMENT_ID,
+      params: {
+        send_page_view: false, // We'll handle this manually for better control
+      },
+    },
+    appName: '{{pluginName}}',
+    enabled: true,
+    bootstrap: true,
+  });
+
+  // Track router changes if router is provided
+  if (router) {
+    trackRouter(router);
+  }
+}
+
+// Analytics composable for use in components
+export function useAnalytics() {
+  const { gtag } = VueGtag;
+
+  // Track page views
+  const pageview = (pagePath: string) => {
+    if (!GA_MEASUREMENT_ID) return;
+    
+    gtag('config', GA_MEASUREMENT_ID, {
+      page_path: pagePath,
+    });
+  };
+
+  // Track events
+  const trackEvent = ({
+    action,
+    category,
+    label,
+    value,
+  }: {
+    action: string;
+    category: string;
+    label?: string;
+    value?: number;
+  }) => {
+    if (!GA_MEASUREMENT_ID) return;
+    
+    gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+    });
+  };
+
+  // Convenience methods for common events
+  const trackClick = (label: string) => {
+    trackEvent({
+      action: 'click',
+      category: 'engagement',
+      label,
+    });
+  };
+
+  const trackFormSubmit = (formName: string) => {
+    trackEvent({
+      action: 'submit',
+      category: 'form',
+      label: formName,
+    });
+  };
+
+  const trackSearch = (searchTerm: string) => {
+    trackEvent({
+      action: 'search',
+      category: 'engagement',
+      label: searchTerm,
+    });
+  };
+
+  const trackPurchase = (value: number, currency = 'USD') => {
+    if (!GA_MEASUREMENT_ID) return;
+    
+    gtag('event', 'purchase', {
+      value: value,
+      currency: currency,
+    });
+  };
+
+  const trackSignUp = (method: string) => {
+    trackEvent({
+      action: 'sign_up',
+      category: 'engagement',
+      label: method,
+    });
+  };
+
+  const trackLogin = (method: string) => {
+    trackEvent({
+      action: 'login',
+      category: 'engagement',
+      label: method,
+    });
+  };
+
+  return {
+    pageview,
+    trackEvent,
+    trackClick,
+    trackFormSubmit,
+    trackSearch,
+    trackPurchase,
+    trackSignUp,
+    trackLogin,
+  };
+}
+
+// Example usage in main.ts:
+// import { createApp } from 'vue';
+// import { createRouter } from 'vue-router';
+// import { installGoogleAnalytics } from './lib/analytics';
+// import App from './App.vue';
+// 
+// const app = createApp(App);
+// const router = createRouter({ /* your routes */ });
+// 
+// installGoogleAnalytics(app, router);
+// 
+// app.use(router).mount('#app');
+
+// Example usage in a component:
+// <script setup lang="ts">
+// import { useAnalytics } from '@/lib/analytics';
+// 
+// const analytics = useAnalytics();
+// 
+// const handleButtonClick = () => {
+//   analytics.trackClick('hero-cta-button');
+// };
+// </script>

@@ -65,6 +65,16 @@ export const mainNavigation: NavItem[] = [
     dropdown: {
       items: [
         {
+          label: "OUR PROJECTS",
+          icon: FaRocket,
+          href: "/projects",
+        },
+        {
+          label: "ROADMAP",
+          icon: FaChartLine,
+          href: "/roadmap",
+        },
+        {
           label: "SHOWCASE",
           icon: FaStar,
           href: "/showcase",

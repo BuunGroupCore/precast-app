@@ -1,0 +1,68 @@
+import { MeiliSearch } from 'meilisearch';
+
+// Initialize Meilisearch client
+const client = new MeiliSearch({
+  host: {{#if (eq framework 'next')}}process.env.NEXT_PUBLIC_MEILISEARCH_HOST{{else}}import.meta.env.VITE_MEILISEARCH_HOST{{/if}} || 'http://localhost:7700',
+  apiKey: {{#if (eq framework 'next')}}process.env.NEXT_PUBLIC_MEILISEARCH_API_KEY{{else}}import.meta.env.VITE_MEILISEARCH_API_KEY{{/if}} || '',
+});
+
+// Search function
+export async function search(indexName: string, query: string, options = {}) {
+  try {
+    const index = client.index(indexName);
+    const searchResults = await index.search(query, options);
+    return searchResults;
+  } catch (error) {
+    console.error('Search error:', error);
+    throw error;
+  }
+}
+
+// Index documents
+export async function indexDocuments(indexName: string, documents: any[]) {
+  try {
+    const index = client.index(indexName);
+    const response = await index.addDocuments(documents);
+    return response;
+  } catch (error) {
+    console.error('Indexing error:', error);
+    throw error;
+  }
+}
+
+// Create or update index settings
+export async function configureIndex(indexName: string, settings: any) {
+  try {
+    const index = client.index(indexName);
+    await index.updateSettings(settings);
+    console.log(`Index ${indexName} configured successfully`);
+  } catch (error) {
+    console.error('Index configuration error:', error);
+    throw error;
+  }
+}
+
+// Delete index
+export async function deleteIndex(indexName: string) {
+  try {
+    await client.deleteIndex(indexName);
+    console.log(`Index ${indexName} deleted successfully`);
+  } catch (error) {
+    console.error('Index deletion error:', error);
+    throw error;
+  }
+}
+
+// Get index stats
+export async function getIndexStats(indexName: string) {
+  try {
+    const index = client.index(indexName);
+    const stats = await index.getStats();
+    return stats;
+  } catch (error) {
+    console.error('Error getting index stats:', error);
+    throw error;
+  }
+}
+
+export { client as meilisearchClient };

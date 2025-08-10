@@ -263,3 +263,63 @@ export function TestimonialsPageSEO({ testimonialsCount = 0 }: { testimonialsCou
     />
   );
 }
+
+/**
+ * Pre-configured SEO component for the Our Projects page.
+ * Includes Organization schema structured data.
+ */
+export function ProjectsPageSEO() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Buun Group Open Source Projects",
+    description: "Collection of open source projects from Buun Group",
+    url: `${INTERNAL_LINKS.PRECAST_URL}/projects`,
+    publisher: {
+      "@type": "Organization",
+      name: ORGANIZATIONS.BUUN_GROUP,
+      url: "https://buungroup.com",
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      name: "Open Source Projects",
+      description: "List of open source projects developed by Buun Group",
+    },
+  };
+
+  return (
+    <SEO
+      title="Our Projects - Buun Group | Open Source Projects"
+      description="Explore open source projects from Buun Group including Precast, Starfighters, Piixels.art, and more. Join our community of developers building amazing tools."
+      keywords="buun group projects, open source, precast, starfighters, piixels, brutalist ui, developer tools, open source projects"
+      image="https://precast.dev/og-projects.png"
+      jsonLd={jsonLd}
+    />
+  );
+}
+
+/**
+ * Pre-configured SEO component for the roadmap page.
+ */
+export function RoadmapPageSEO() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Precast Development Roadmap",
+    description: "Future support and testing for upcoming tools and frameworks in Precast",
+    url: `${INTERNAL_LINKS.PRECAST_URL}/roadmap`,
+    publisher: {
+      "@type": "Organization",
+      name: ORGANIZATIONS.BUUN_GROUP,
+    },
+  };
+
+  return (
+    <SEO
+      title="Roadmap - Precast | Upcoming Features & Framework Support"
+      description="See what's coming next to Precast. Track our progress on Angular, Nuxt, Remix, SolidJS, Fastify, Supabase, Firebase, Material UI, Clerk, and more."
+      keywords="precast roadmap, upcoming features, framework support, angular, nuxt, remix, solidjs, supabase, firebase, material ui, clerk"
+      jsonLd={jsonLd}
+    />
+  );
+}

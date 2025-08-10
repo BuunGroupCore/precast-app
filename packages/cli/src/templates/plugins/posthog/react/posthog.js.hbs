@@ -2,16 +2,16 @@ import posthog from 'posthog-js';
 
 // Initialize PostHog
 if (typeof window !== 'undefined') {
-  posthog.init(process.env.REACT_APP_POSTHOG_KEY, {
-    api_host: process.env.REACT_APP_POSTHOG_HOST || 'https://app.posthog.com',
+  posthog.init(import.meta.env.VITE_POSTHOG_KEY || '', {
+    api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
     person_profiles: 'identified_only',
     capture_pageview: false, // Disable automatic pageview capture, we'll do it manually
     capture_pageleave: true,
     // Privacy settings
-    property_blacklist: ['$ip'], // Don't capture IP
+    property_denylist: ['$ip'], // Don't capture IP address for privacy
     // Debug mode in development
     loaded: (posthog) => {
-      if (process.env.NODE_ENV === 'development') posthog.debug();
+      if (import.meta.env.DEV) posthog.debug();
     },
   });
 }

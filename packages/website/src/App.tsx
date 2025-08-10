@@ -24,6 +24,15 @@ const OriginStoryPage = lazy(() =>
 const ShowcasePage = lazy(() =>
   import("@/pages/showcase").then((module) => ({ default: module.ShowcasePage }))
 );
+const ProjectsPage = lazy(() =>
+  import("@/pages/projects").then((module) => ({ default: module.ProjectsPage }))
+);
+const RoadmapPage = lazy(() =>
+  import("@/pages/roadmap").then((module) => ({ default: module.RoadmapPage }))
+);
+const RequestFeaturePage = lazy(() =>
+  import("@/pages/request-feature").then((module) => ({ default: module.RequestFeaturePage }))
+);
 const SubmitProjectPage = lazy(() =>
   import("@/pages/submit-project").then((module) => ({ default: module.SubmitProjectPage }))
 );
@@ -90,6 +99,30 @@ function App() {
                 element={
                   <Suspense fallback={<PageLoader />}>
                     <ShowcasePage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/projects"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProjectsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/roadmap"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <RoadmapPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/request-feature"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <RequestFeaturePage />
                   </Suspense>
                 }
               />

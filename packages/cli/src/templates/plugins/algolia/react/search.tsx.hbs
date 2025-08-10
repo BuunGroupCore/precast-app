@@ -1,0 +1,147 @@
+import algoliasearch from 'algoliasearch/lite';
+import {
+  InstantSearch,
+  SearchBox,
+  Hits,
+  Highlight,
+  RefinementList,
+  Pagination,
+  Configure,
+  Stats,
+  ClearRefinements,
+} from 'react-instantsearch';
+
+const searchClient = algoliasearch(
+  import.meta.env.VITE_ALGOLIA_APP_ID || '',
+  import.meta.env.VITE_ALGOLIA_SEARCH_API_KEY || ''
+);
+
+const indexName = import.meta.env.VITE_ALGOLIA_INDEX_NAME || '';
+
+// Hit component to display search results
+function Hit({ hit }: { hit: any }) {
+  return (
+    <article className="hit bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+      <h3 className="text-lg font-semibold mb-2">
+        <Highlight attribute="title" hit={hit} />
+      </h3>
+      <p className="text-gray-600 mb-2">
+        <Highlight attribute="description" hit={hit} />
+      </p>
+      {hit.category && (
+        <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+          {hit.category}
+        </span>
+      )}
+    </article>
+  );
+}
+
+// Custom SearchBox component with better styling
+function CustomSearchBox(props: any) {
+  return (
+    <div className="search-box mb-6">
+      <SearchBox
+        {...props}
+        placeholder="Search for anything..."
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        autoFocus
+      />
+    </div>
+  );
+}
+
+// Main search component
+export function AlgoliaSearch() {
+  if (!import.meta.env.VITE_ALGOLIA_APP_ID || !import.meta.env.VITE_ALGOLIA_SEARCH_API_KEY) {
+    return (
+      <div className="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+        Please configure your Algolia credentials in your environment variables.
+      </div>
+    );
+  }
+
+  return (
+    <InstantSearch searchClient={searchClient} indexName={indexName}>
+      <Configure hitsPerPage={10} />
+      <div className="search-panel max-w-6xl mx-auto px-4 py-8">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+          {/* Filters sidebar */}
+          <div className="search-panel__filters lg:col-span-1">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-4">Filters</h3>
+              <div className="mb-4">
+                <h4 className="font-medium mb-2">Category</h4>
+                <RefinementList 
+                  attribute="category" 
+                  className="space-y-2"
+                />
+              </div>
+              <ClearRefinements 
+                className="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Search results */}
+          <div className="search-panel__results lg:col-span-3 mt-8 lg:mt-0">
+            <CustomSearchBox />
+            
+            <div className="flex justify-between items-center mb-4">
+              <Stats className="text-gray-600" />
+            </div>
+            
+            <div className="space-y-4 mb-8">
+              <Hits hitComponent={Hit} />
+            </div>
+            
+            <div className="flex justify-center">
+              <Pagination 
+                className="flex space-x-2"
+                showFirst={false}
+                showLast={false}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </InstantSearch>
+  );
+}
+
+// Client-side search function for programmatic use
+export async function searchAlgolia(query: string, options: any = {}) {
+  const index = searchClient.initIndex(indexName);
+  
+  try {
+    const searchResults = await index.search(query, {
+      hitsPerPage: options.hitsPerPage || 10,
+      page: options.page || 0,
+      filters: options.filters || '',
+      ...options,
+    });
+    return searchResults;
+  } catch (error) {
+    console.error('Algolia search error:', error);
+    throw error;
+  }
+}
+
+// Note: Admin operations should be moved to your backend
+// Example backend endpoint for indexing (DO NOT use admin key in frontend):
+//
+// // Backend endpoint (e.g., /api/algolia/index)
+// import algoliasearch from 'algoliasearch';
+// 
+// const adminClient = algoliasearch(
+//   process.env.ALGOLIA_APP_ID,
+//   process.env.ALGOLIA_ADMIN_API_KEY
+// );
+// 
+// export async function indexDocuments(documents: any[]) {
+//   const index = adminClient.initIndex(process.env.ALGOLIA_INDEX_NAME);
+//   const result = await index.saveObjects(documents, {
+//     autoGenerateObjectIDIfNotExist: true,
+//   });
+//   return result;
+// }

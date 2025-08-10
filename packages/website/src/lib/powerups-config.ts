@@ -1,12 +1,9 @@
 import { IconType } from "react-icons";
 import {
-  FaBook,
   FaCode,
-  FaFileAlt,
   FaGitAlt,
   FaRocket,
   FaCogs,
-  FaChartLine,
   FaCheckCircle,
   FaLanguage,
   FaSearch,
@@ -15,13 +12,13 @@ import {
   FaMobileAlt,
   FaBolt,
   FaRoute,
+  FaChartLine,
 } from "react-icons/fa";
 import {
   SiTurborepo,
   SiPrettier,
   SiEslint,
   SiStorybook,
-  SiSentry,
   SiCypress,
   SiReactrouter,
 } from "react-icons/si";
@@ -36,15 +33,12 @@ export interface PowerUp {
   description: string;
   icon: IconType;
   category:
-    | "docs"
     | "build"
     | "testing"
     | "linting"
-    | "monitoring"
     | "accessibility"
     | "optimization"
     | "workflow"
-    | "api"
     | "routing";
   /** Compatible frameworks, * for all */
   frameworks?: string[];
@@ -75,31 +69,11 @@ export interface PowerUp {
  */
 export const powerUps: PowerUp[] = [
   {
-    id: "fumadocs",
-    name: "Fumadocs",
-    description: "Beautiful documentation site generator for Next.js App Router",
-    icon: FaBook,
-    category: "docs",
-    frameworks: ["next"],
-    recommended: {
-      frameworks: ["next"],
-      reason: "Modern docs solution for App Router",
-    },
-  },
-  {
-    id: "docusaurus",
-    name: "Docusaurus",
-    description: "Easy to maintain open source documentation websites (React SPA)",
-    icon: FaFileAlt,
-    category: "docs",
-    frameworks: ["react"],
-  },
-  {
     id: "storybook",
     name: "Storybook",
     description: "Build UI components and pages in isolation",
     icon: SiStorybook,
-    category: "docs",
+    category: "testing",
     frameworks: ["react", "vue", "angular", "svelte", "solid", "next", "nuxt", "remix"],
     recommended: {
       frameworks: ["react", "vue", "angular"],
@@ -232,43 +206,6 @@ export const powerUps: PowerUp[] = [
     icon: SiCypress,
     category: "testing",
     frameworks: ["*"],
-  },
-
-  /** Monitoring & Analytics */
-  {
-    id: "sentry",
-    name: "Sentry",
-    description: "Application monitoring and error tracking",
-    icon: SiSentry,
-    category: "monitoring",
-    frameworks: ["*"],
-    recommended: {
-      frameworks: ["next", "remix", "nuxt"],
-      backends: ["hono", "express", "fastify"],
-      databases: ["postgres", "mysql"],
-      reason: "Essential for production error tracking",
-    },
-  },
-  {
-    id: "posthog",
-    name: "PostHog",
-    description: "Open-source product analytics",
-    icon: FaChartLine,
-    category: "monitoring",
-    frameworks: ["*"],
-    recommended: {
-      frameworks: ["next", "react", "vue", "nuxt"],
-      backends: ["hono", "express", "fastify"],
-      reason: "Privacy-focused analytics with full control",
-    },
-  },
-  {
-    id: "vercel-analytics",
-    name: "Vercel Analytics",
-    description: "Privacy-friendly analytics (best with Next.js)",
-    icon: FaChartLine,
-    category: "monitoring",
-    frameworks: ["next", "nuxt", "react", "svelte"],
   },
 
   /** Optimization */
@@ -463,11 +400,9 @@ export const powerUps: PowerUp[] = [
 ];
 
 export const powerUpCategories = [
-  { id: "docs", name: "Documentation", icon: FaBook },
   { id: "build", name: "Build Tools", icon: FaCogs },
   { id: "testing", name: "Testing", icon: FaCheckCircle },
   { id: "linting", name: "Linting", icon: FaCode },
-  { id: "monitoring", name: "Monitoring", icon: FaChartLine },
   { id: "accessibility", name: "Accessibility", icon: FaAccessibleIcon },
   { id: "optimization", name: "Optimization", icon: FaBolt },
   { id: "workflow", name: "Workflow", icon: FaGitAlt },

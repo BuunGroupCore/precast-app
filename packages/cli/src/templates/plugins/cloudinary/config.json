@@ -1,0 +1,45 @@
+{
+  "id": "cloudinary",
+  "name": "Cloudinary",
+  "description": "Image and video management platform",
+  "category": "storage",
+  "pricing": "freemium",
+  "dependencies": {
+    "react": ["@cloudinary/react", "@cloudinary/url-gen"],
+    "next": ["next-cloudinary"],
+    "vue": ["@cloudinary/vue", "@cloudinary/url-gen"],
+    "*": ["cloudinary"]
+  },
+  "devDependencies": {},
+  "envVariables": {
+    "VITE_CLOUDINARY_CLOUD_NAME": "your-cloud-name",
+    "CLOUDINARY_API_KEY": "your-api-key",
+    "CLOUDINARY_API_SECRET": "your-api-secret",
+    "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME": "your-cloud-name"
+  },
+  "setupFiles": {
+    "react": [
+      {
+        "template": "react/cloudinary.tsx.hbs",
+        "output": "src/lib/cloudinary.tsx"
+      }
+    ],
+    "next": [
+      {
+        "template": "next/cloudinary.tsx.hbs",
+        "output": "src/lib/cloudinary.tsx"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Create a Cloudinary account at https://cloudinary.com",
+      "2. Get your cloud name, API key, and API secret from the dashboard",
+      "3. Add credentials to your .env file",
+      "4. Configure upload presets in your Cloudinary dashboard",
+      "5. Import and use the Cloudinary components in your app"
+    ]
+  },
+  "documentationUrl": "https://cloudinary.com/documentation",
+  "setupUrl": "https://cloudinary.com/console"
+}

@@ -8,6 +8,7 @@ import Handlebars from "handlebars";
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { installDependencies } from "./package-manager.js";
+import { getTemplateRoot } from "./template-path.js";
 
 const { ensureDir, pathExists, readFile, writeFile, readJson, writeJson, readdir } = fsExtra;
 
@@ -203,7 +204,9 @@ export async function setupPlugins(
  * Load plugin configuration from config.json
  */
 async function loadPluginConfig(pluginId: string): Promise<PluginConfig | null> {
+  const templateRoot = getTemplateRoot();
   const configPaths = [
+    path.join(templateRoot, "plugins", pluginId, "config.json"),
     path.join(__dirname, "..", "templates", "plugins", pluginId, "config.json"),
     path.join(__dirname, "templates", "plugins", pluginId, "config.json"),
   ];
@@ -250,7 +253,10 @@ async function setupPluginFiles(
   const files = setupFiles[framework] || setupFiles["*"] || [];
 
   for (const file of files) {
+    const templateRoot = getTemplateRoot();
     const templatePaths = [
+      path.join(templateRoot, "plugins", pluginConfig.id, file.template),
+      path.join(templateRoot, "plugins", pluginConfig.id, framework, file.template),
       path.join(__dirname, "..", "templates", "plugins", pluginConfig.id, file.template),
       path.join(__dirname, "..", "templates", "plugins", pluginConfig.id, framework, file.template),
     ];
@@ -322,9 +328,27 @@ async function updateEnvFile(
   // Write back to .env.example
   await writeFile(envExamplePath, envContent);
 
-  // Also create/update .env if it doesn't exist
+  // Create/update .env file with plugin environment variables
   if (!(await pathExists(envPath))) {
     await writeFile(envPath, envContent);
+  } else {
+    // If .env exists, append plugin variables if they don't exist
+    let existingEnvContent = await readFile(envPath, "utf-8");
+    let needsUpdate = false;
+
+    for (const [key, value] of Object.entries(envVariables)) {
+      if (!existingEnvContent.includes(key)) {
+        if (!needsUpdate) {
+          existingEnvContent += "\n# Plugin Configuration\n";
+          needsUpdate = true;
+        }
+        existingEnvContent += `${key}=${value}\n`;
+      }
+    }
+
+    if (needsUpdate) {
+      await writeFile(envPath, existingEnvContent);
+    }
   }
 }
 
@@ -357,7 +381,8 @@ async function updatePackageJsonScripts(
  * Get all available plugins by scanning the templates directory
  */
 export async function getAvailablePlugins(): Promise<string[]> {
-  const pluginsDir = path.join(__dirname, "..", "templates", "plugins");
+  const templateRoot = getTemplateRoot();
+  const pluginsDir = path.join(templateRoot, "plugins");
 
   if (!(await pathExists(pluginsDir))) {
     return [];

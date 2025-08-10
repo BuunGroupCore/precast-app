@@ -1,0 +1,131 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+// Google Analytics Measurement ID
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || '';
+
+// Load Google Analytics script
+export const loadGoogleAnalytics = () => {
+  if (!GA_MEASUREMENT_ID || typeof window === 'undefined') return;
+
+  // Load the Global Site Tag (gtag) script
+  const script1 = document.createElement('script');
+  script1.async = true;
+  script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+  
+  const script2 = document.createElement('script');
+  script2.innerHTML = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${GA_MEASUREMENT_ID}', {
+      send_page_view: false
+    });
+  `;
+  
+  document.head.appendChild(script1);
+  document.head.appendChild(script2);
+};
+
+// Initialize GA on app load
+if (typeof window !== 'undefined' && GA_MEASUREMENT_ID) {
+  loadGoogleAnalytics();
+}
+
+// Track page views
+export const pageview = (url: string) => {
+  if (!GA_MEASUREMENT_ID || typeof window === 'undefined' || !(window as any).gtag) return;
+  
+  (window as any).gtag('config', GA_MEASUREMENT_ID, {
+    page_path: url,
+  });
+};
+
+// Track events
+export const event = ({
+  action,
+  category,
+  label,
+  value,
+}: {
+  action: string;
+  category: string;
+  label?: string;
+  value?: number;
+}) => {
+  if (!GA_MEASUREMENT_ID || typeof window === 'undefined' || !(window as any).gtag) return;
+  
+  (window as any).gtag('event', action, {
+    event_category: category,
+    event_label: label,
+    value: value,
+  });
+};
+
+// Custom hook for tracking page views with React Router
+export const useGoogleAnalytics = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    pageview(location.pathname + location.search);
+  }, [location]);
+};
+
+// Tracking functions for common events
+export const trackClick = (label: string) => {
+  event({
+    action: 'click',
+    category: 'engagement',
+    label,
+  });
+};
+
+export const trackFormSubmit = (formName: string) => {
+  event({
+    action: 'submit',
+    category: 'form',
+    label: formName,
+  });
+};
+
+export const trackSearch = (searchTerm: string) => {
+  event({
+    action: 'search',
+    category: 'engagement',
+    label: searchTerm,
+  });
+};
+
+export const trackPurchase = (value: number, currency = 'USD') => {
+  if (!GA_MEASUREMENT_ID || typeof window === 'undefined' || !(window as any).gtag) return;
+  
+  (window as any).gtag('event', 'purchase', {
+    value: value,
+    currency: currency,
+  });
+};
+
+export const trackSignUp = (method: string) => {
+  event({
+    action: 'sign_up',
+    category: 'engagement',
+    label: method,
+  });
+};
+
+export const trackLogin = (method: string) => {
+  event({
+    action: 'login',
+    category: 'engagement',
+    label: method,
+  });
+};
+
+// Example usage in your App component:
+// import { useGoogleAnalytics } from './lib/analytics';
+// 
+// function App() {
+//   useGoogleAnalytics(); // Automatically tracks page views
+//   
+//   return <YourAppContent />;
+// }

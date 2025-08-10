@@ -1,0 +1,36 @@
+{
+  "id": "meilisearch",
+  "name": "Meilisearch",
+  "description": "Open-source, lightning-fast search engine",
+  "category": "search",
+  "pricing": "free",
+  "dependencies": {
+    "*": ["meilisearch"]
+  },
+  "devDependencies": {},
+  "envVariables": {
+    "VITE_MEILISEARCH_HOST": "http://localhost:7700",
+    "VITE_MEILISEARCH_API_KEY": "your-master-key",
+    "NEXT_PUBLIC_MEILISEARCH_HOST": "http://localhost:7700",
+    "NEXT_PUBLIC_MEILISEARCH_API_KEY": "your-master-key"
+  },
+  "setupFiles": {
+    "*": [
+      {
+        "template": "meilisearch.ts.hbs",
+        "output": "src/lib/meilisearch.ts"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Install Meilisearch locally or use cloud hosting",
+      "2. Start Meilisearch: meilisearch --master-key=yourMasterKey",
+      "3. Add the host URL and API key to your .env file",
+      "4. Create indexes and configure searchable attributes",
+      "5. Import and use the search client in your app"
+    ]
+  },
+  "documentationUrl": "https://docs.meilisearch.com",
+  "setupUrl": "https://cloud.meilisearch.com"
+}

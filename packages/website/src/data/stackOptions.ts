@@ -8,6 +8,7 @@ export interface StackOption {
   dependencies?: string[];
   incompatible?: string[];
   recommended?: string[];
+  disabled?: boolean; // Hide from web builder and CLI until fully tested
 }
 
 export const frameworkDefs: StackOption[] = [
@@ -29,6 +30,7 @@ export const frameworkDefs: StackOption[] = [
     description: "Platform for building mobile and desktop web applications",
     dependencies: ["typescript"],
     recommended: ["scss"],
+    disabled: true,
   },
   {
     id: "next",
@@ -43,6 +45,7 @@ export const frameworkDefs: StackOption[] = [
     description: "The Intuitive Vue Framework",
     dependencies: ["vue"],
     recommended: ["typescript", "tailwind"],
+    disabled: true,
   },
   {
     id: "astro",
@@ -56,12 +59,14 @@ export const frameworkDefs: StackOption[] = [
     description: "Build better websites with Remix",
     dependencies: ["react"],
     recommended: ["typescript", "tailwind", "prisma"],
+    disabled: true,
   },
   {
     id: "solid",
     name: "Solid",
     description: "Simple and performant reactivity for building user interfaces",
     recommended: ["typescript", "tailwind"],
+    disabled: true,
   },
   {
     id: "svelte",
@@ -119,6 +124,7 @@ export const backendDefs: StackOption[] = [
     name: "Fastify",
     description: "Fast and low overhead web framework for Node.js",
     recommended: ["typescript"],
+    disabled: true,
   },
   {
     id: "hono",
@@ -167,6 +173,7 @@ export const backendDefs: StackOption[] = [
     dependencies: ["typescript"],
     recommended: ["typescript"],
     incompatible: ["database", "orm"],
+    disabled: true,
   },
   {
     id: "none",
@@ -201,30 +208,35 @@ export const databaseDefs: StackOption[] = [
     description: "The open source Firebase alternative",
     dependencies: ["postgres"],
     incompatible: ["prisma", "drizzle", "typeorm"],
+    disabled: true,
   },
   {
     id: "firebase",
     name: "Firebase",
     description: "Google's mobile and web app development platform",
     incompatible: ["prisma", "drizzle", "typeorm"],
+    disabled: true,
   },
   {
     id: "neon",
     name: "Neon",
     description: "Serverless Postgres with branching and autoscaling",
     recommended: ["prisma", "drizzle"],
+    disabled: true,
   },
   {
     id: "turso",
     name: "Turso",
     description: "Edge-hosted distributed SQLite database",
     recommended: ["drizzle"],
+    disabled: true,
   },
   {
     id: "planetscale",
     name: "PlanetScale",
     description: "Serverless MySQL platform with branching",
     recommended: ["prisma", "drizzle"],
+    disabled: true,
   },
   {
     id: "cloudflare-d1",
@@ -330,3 +342,5 @@ export const runtimeDefs: StackOption[] = [
     recommended: ["typescript"],
   },
 ];
+
+// Validation function

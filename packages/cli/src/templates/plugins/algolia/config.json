@@ -1,0 +1,48 @@
+{
+  "id": "algolia",
+  "name": "Algolia",
+  "description": "AI-powered search and discovery platform",
+  "category": "search",
+  "pricing": "freemium",
+  "dependencies": {
+    "react": ["algoliasearch", "react-instantsearch"],
+    "vue": ["algoliasearch", "vue-instantsearch"],
+    "next": ["algoliasearch", "react-instantsearch"],
+    "*": ["algoliasearch"]
+  },
+  "devDependencies": {},
+  "envVariables": {
+    "VITE_ALGOLIA_APP_ID": "your-app-id",
+    "VITE_ALGOLIA_SEARCH_API_KEY": "your-search-api-key",
+    "VITE_ALGOLIA_INDEX_NAME": "your-index-name",
+    "ALGOLIA_ADMIN_API_KEY": "your-admin-api-key",
+    "NEXT_PUBLIC_ALGOLIA_APP_ID": "your-app-id",
+    "NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY": "your-search-api-key",
+    "NEXT_PUBLIC_ALGOLIA_INDEX_NAME": "your-index-name"
+  },
+  "setupFiles": {
+    "react": [
+      {
+        "template": "react/search.tsx.hbs",
+        "output": "src/lib/algolia.tsx"
+      }
+    ],
+    "next": [
+      {
+        "template": "react/search.tsx.hbs",
+        "output": "src/lib/algolia.tsx"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Create an Algolia account at https://www.algolia.com",
+      "2. Get your Application ID and API keys from the dashboard",
+      "3. Create a search index and configure searchable attributes",
+      "4. Add your credentials to the .env file",
+      "5. Import and use the search components in your app"
+    ]
+  },
+  "documentationUrl": "https://www.algolia.com/doc/",
+  "setupUrl": "https://www.algolia.com/dashboard"
+}

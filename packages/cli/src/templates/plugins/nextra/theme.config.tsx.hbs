@@ -1,0 +1,46 @@
+import React from 'react';
+import { DocsThemeConfig } from 'nextra-theme-docs';
+
+const config: DocsThemeConfig = {
+  logo: <span>{{pluginName}} Documentation</span>,
+  project: {
+    link: 'https://github.com/your-org/your-repo',
+  },
+  chat: {
+    link: 'https://discord.com',
+  },
+  docsRepositoryBase: 'https://github.com/your-org/your-repo',
+  footer: {
+    text: '{{pluginName}} Documentation',
+  },
+  primaryHue: 200,
+  darkMode: true,
+  sidebar: {
+    toggleButton: true,
+    defaultMenuCollapseLevel: 1,
+  },
+  toc: {
+    float: true,
+  },
+  navigation: {
+    prev: true,
+    next: true,
+  },
+  editLink: {
+    text: 'Edit this page on GitHub →',
+  },
+  feedback: {
+    content: 'Question? Give us feedback →',
+    labels: 'feedback',
+  },
+  banner: {
+    key: 'release-banner',
+    text: (
+      <a href="https://github.com/your-org/your-repo/releases" target="_blank">
+        🎉 New version released. Read more →
+      </a>
+    ),
+  },
+};
+
+export default config;

@@ -1,0 +1,35 @@
+{
+  "id": "nextra",
+  "name": "Nextra",
+  "description": "Next.js-based static site generator for documentation",
+  "category": "docs",
+  "pricing": "free",
+  "dependencies": {
+    "next": ["nextra", "nextra-theme-docs"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "setupFiles": {
+    "next": [
+      {
+        "template": "next.config.js.hbs",
+        "output": "next.config.js"
+      },
+      {
+        "template": "theme.config.tsx.hbs",
+        "output": "theme.config.tsx"
+      }
+    ]
+  },
+  "postInstall": {
+    "instructions": [
+      "1. Create a pages/_meta.json file for navigation structure",
+      "2. Add MDX files in the pages directory for documentation",
+      "3. Configure theme settings in theme.config.tsx",
+      "4. Customize styles and components as needed",
+      "5. Run 'npm run dev' to start the documentation site"
+    ]
+  },
+  "documentationUrl": "https://nextra.site/docs",
+  "setupUrl": "https://nextra.site"
+}

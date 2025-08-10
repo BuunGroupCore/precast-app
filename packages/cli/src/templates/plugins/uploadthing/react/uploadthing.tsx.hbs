@@ -1,0 +1,85 @@
+import {
+  generateUploadButton,
+  generateUploadDropzone,
+} from "@uploadthing/react";
+import type { FileRouter } from "../server/uploadthing.server";
+
+// Generate Upload Components using the new API
+export const UploadButton = generateUploadButton<FileRouter>();
+export const UploadDropzone = generateUploadDropzone<FileRouter>();
+
+// Example usage component with the new API
+export function FileUploadExample() {
+  return (
+    <div className="flex flex-col gap-4">
+      <UploadButton
+        endpoint="imageUploader"
+        onClientUploadComplete={(res) => {
+          console.log("Files uploaded successfully:", res);
+          alert("Upload Completed");
+        }}
+        onUploadError={(error: Error) => {
+          console.error("Upload error:", error);
+          alert(`Upload failed: ${error.message}`);
+        }}
+        onUploadBegin={(name) => {
+          console.log("Upload started for:", name);
+        }}
+      />
+      
+      <UploadDropzone
+        endpoint="imageUploader"
+        onClientUploadComplete={(res) => {
+          console.log("Files uploaded successfully:", res);
+          alert("Upload Completed");
+        }}
+        onUploadError={(error: Error) => {
+          console.error("Upload error:", error);
+          alert(`Upload failed: ${error.message}`);
+        }}
+        onDrop={(acceptedFiles) => {
+          console.log("Files dropped:", acceptedFiles);
+        }}
+      />
+    </div>
+  );
+}
+
+// Custom hook for upload functionality
+export function useUploadThing(
+  endpoint: keyof FileRouter,
+  opts?: {
+    onClientUploadComplete?: (res: any) => void;
+    onUploadError?: (error: Error) => void;
+    onUploadProgress?: (progress: number) => void;
+  }
+) {
+  // This would typically use the useUploadThing hook from @uploadthing/react
+  // but since it requires the FileRouter type, we'll provide a basic implementation
+  
+  const startUpload = async (files: File[]) => {
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append('files', file));
+      
+      const response = await fetch(`/api/uploadthing/${endpoint}`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      opts?.onClientUploadComplete?.(result);
+      return result;
+    } catch (error) {
+      const uploadError = error instanceof Error ? error : new Error('Upload failed');
+      opts?.onUploadError?.(uploadError);
+      throw uploadError;
+    }
+  };
+  
+  return { startUpload, isUploading: false };
+}

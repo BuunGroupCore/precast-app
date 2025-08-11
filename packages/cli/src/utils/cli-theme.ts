@@ -244,61 +244,61 @@ export function createLink(text: string, url: string): string {
 }
 
 /**
- * Display framework icon
+ * Display framework icon using clean Unicode symbols
  */
 export function getFrameworkIcon(framework: string): string {
   const icons: Record<string, string> = {
-    react: "⚛️ ",
-    vue: "🟢",
-    angular: "🔺",
-    next: "▲",
-    nuxt: "🟩",
-    svelte: "🔥",
-    solid: "🔷",
-    remix: "💿",
-    astro: "🚀",
-    vite: "⚡",
-    vanilla: "🍦",
+    react: "◯", // Clean circle for React
+    vue: "▼", // Triangle for Vue
+    angular: "△", // Triangle outline for Angular
+    next: "▲", // Solid triangle for Next.js
+    nuxt: "◆", // Diamond for Nuxt
+    svelte: "◉", // Filled circle for Svelte
+    solid: "◈", // Diamond outline for Solid
+    remix: "◑", // Half circle for Remix
+    astro: "✦", // Star for Astro
+    vite: "⚡", // Lightning (this one works well)
+    vanilla: "◾", // Square for Vanilla
   };
-  return icons[framework] || "📦";
+  return icons[framework] || "◼";
 }
 
 /**
- * Display tech stack badges
+ * Display tech stack badges with clean Unicode symbols
  */
 export function techBadge(tech: string): string {
   const badges: Record<string, { icon: string; color: (text: string) => string }> = {
     // Databases
-    postgres: { icon: "🐘", color: chalk.blue },
-    mysql: { icon: "🐬", color: chalk.cyan },
-    mongodb: { icon: "🍃", color: chalk.green },
-    sqlite: { icon: "🗄️", color: chalk.gray },
+    postgres: { icon: "▣", color: chalk.blue }, // Database symbol
+    mysql: { icon: "▢", color: chalk.cyan }, // Database outline
+    mongodb: { icon: "◯", color: chalk.green }, // Circle for document DB
+    sqlite: { icon: "◻", color: chalk.gray }, // Square for file DB
 
     // ORMs
-    prisma: { icon: "◼", color: chalk.white },
-    drizzle: { icon: "💧", color: chalk.blue },
-    typeorm: { icon: "🔧", color: chalk.yellow },
+    prisma: { icon: "◼", color: chalk.white }, // Solid square
+    drizzle: { icon: "◉", color: chalk.blue }, // Circle with dot
+    typeorm: { icon: "◈", color: chalk.yellow }, // Diamond
 
     // Styling
-    tailwind: { icon: "🎨", color: chalk.cyan },
-    css: { icon: "🎨", color: chalk.blue },
-    scss: { icon: "🎨", color: chalk.magenta },
+    tailwind: { icon: "▲", color: chalk.cyan }, // Triangle for utility-first
+    css: { icon: "◆", color: chalk.blue }, // Diamond for styles
+    scss: { icon: "◇", color: chalk.magenta }, // Diamond outline
 
     // Auth
-    "better-auth": { icon: "🔐", color: chalk.green },
-    "auth.js": { icon: "🔑", color: chalk.yellow },
-    clerk: { icon: "🔒", color: chalk.blue },
+    "better-auth": { icon: "◉", color: chalk.green }, // Secure circle
+    "auth.js": { icon: "◎", color: chalk.yellow }, // Circle with center
+    clerk: { icon: "●", color: chalk.blue }, // Solid circle
 
     // UI Libraries
-    shadcn: { icon: "🎭", color: chalk.white },
-    mui: { icon: "🎨", color: chalk.blue },
-    chakra: { icon: "⚡", color: chalk.cyan },
+    shadcn: { icon: "▼", color: chalk.white }, // Modern triangle
+    mui: { icon: "◆", color: chalk.blue }, // Material diamond
+    chakra: { icon: "◇", color: chalk.cyan }, // Chakra outline
 
     // Backends
-    express: { icon: "🚂", color: chalk.yellow },
-    fastify: { icon: "⚡", color: chalk.green },
-    hono: { icon: "🔥", color: chalk.red },
-    nestjs: { icon: "🐱", color: chalk.red },
+    express: { icon: "▶", color: chalk.yellow }, // Arrow for fast
+    fastify: { icon: "⚡", color: chalk.green }, // Lightning works here
+    hono: { icon: "◈", color: chalk.red }, // Diamond for performance
+    nestjs: { icon: "▼", color: chalk.red }, // Triangle for modular
   };
 
   const badge = badges[tech.toLowerCase()];
@@ -309,27 +309,57 @@ export function techBadge(tech: string): string {
 }
 
 /**
- * Spinner frames for loading animations
+ * Loading animation frames
  */
 export const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 export const dotsSpinner = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 export const lineSpinner = ["-", "\\", "|", "/"];
 export const arrowSpinner = ["←", "↖", "↑", "↗", "→", "↘", "↓", "↙"];
+export const modernSpinner = ["○", "◔", "◐", "◕"];
+export const progressSpinner = ["◯", "◔", "◐", "◕"];
 
 /**
- * Comic/cartoon style decorations (matching Precast brand)
+ * Clean status symbols and decorations
+ */
+export const statusSymbols = {
+  success: "✓", // Checkmark
+  error: "✗", // X mark
+  warning: "⚠", // Warning triangle
+  info: "ⓘ", // Circled i
+  loading: "○", // Circle
+  completed: "●", // Circle with dot
+  pending: "◯", // Large circle
+  active: "▶", // Play symbol
+};
+
+/**
+ * Professional action indicators
+ */
+export const actionSymbols = {
+  create: "✚", // Heavy plus
+  update: "✓", // Checkmark
+  delete: "✗", // X
+  sync: "↻", // Clockwise arrow
+  deploy: "→", // Right arrow
+  build: "⚙", // Gear
+  test: "●", // Bullet
+  lint: "◆", // Diamond
+};
+
+/**
+ * Legacy comic decorations (keeping for compatibility)
  */
 export const comicDecorations = {
-  pow: "💥 POW!",
-  bam: "💢 BAM!",
-  boom: "💣 BOOM!",
+  pow: "▲ POW!",
+  bam: "■ BAM!",
+  boom: "● BOOM!",
   zap: "⚡ ZAP!",
-  wow: "✨ WOW!",
-  super: "🦸 SUPER!",
-  hero: "🦸‍♂️ HERO MODE",
-  rocket: "🚀 BLAST OFF!",
-  star: "⭐ STELLAR!",
-  fire: "🔥 ON FIRE!",
+  wow: "✦ WOW!",
+  super: "◇ SUPER!",
+  hero: "◈ HERO MODE",
+  rocket: "▶ BLAST OFF!",
+  star: "★ STELLAR!",
+  fire: "● ON FIRE!",
 };
 
 /**
@@ -357,4 +387,40 @@ export async function createHeroBanner(title: string, subtitle?: string): Promis
   }
 
   return gradientTitle;
+}
+
+/**
+ * Create status messages with clean symbols
+ */
+export function status(type: keyof typeof statusSymbols, message: string): string {
+  const symbol = statusSymbols[type];
+  const colorFn =
+    type === "success"
+      ? theme.success
+      : type === "error"
+        ? theme.error
+        : type === "warning"
+          ? theme.warning
+          : theme.info;
+  return `${colorFn(symbol)} ${message}`;
+}
+
+/**
+ * Create action messages with clean symbols
+ */
+export function action(type: keyof typeof actionSymbols, message: string): string {
+  const symbol = actionSymbols[type];
+  return `${theme.accent(symbol)} ${message}`;
+}
+
+/**
+ * Create a modern progress indicator
+ */
+export function progressIndicator(completed: number, total: number): string {
+  const percentage = Math.round((completed / total) * 100);
+  const filled = Math.round((completed / total) * 10);
+  const empty = 10 - filled;
+
+  const bar = "●".repeat(filled) + "○".repeat(empty);
+  return `${theme.primary(bar)} ${theme.bold(`${percentage}%`)} (${completed}/${total})`;
 }

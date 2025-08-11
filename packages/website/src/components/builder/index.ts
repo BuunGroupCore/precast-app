@@ -2,6 +2,7 @@ export * from "./types";
 export * from "./constants";
 export * from "./PublicIcon";
 export * from "./CollapsibleSection";
+export * from "./ColorPaletteSection";
 export * from "./AIAssistanceSection";
 export * from "./ApiSection";
 export * from "./UILibrariesSection";

@@ -1,0 +1,134 @@
+/**
+ * Auth.js client configuration for frontend applications
+ * This file provides client-side authentication utilities
+ */
+
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3001/api";
+
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+}
+
+interface Session {
+  user: User;
+  expires: string;
+}
+
+interface SignInCredentials {
+  email: string;
+  password: string;
+}
+
+interface SignUpCredentials extends SignInCredentials {
+  name?: string;
+}
+
+class AuthClient {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = AUTH_URL) {
+    this.baseUrl = baseUrl;
+  }
+
+  /**
+   * Sign in with email and password
+   */
+  async signIn(credentials: SignInCredentials): Promise<Response> {
+    const response = await fetch(`${this.baseUrl}/auth/callback/credentials`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        email: credentials.email,
+        password: credentials.password,
+        redirect: false,
+      }),
+    });
+
+    return response;
+  }
+
+  /**
+   * Sign up a new user
+   * Note: Auth.js doesn't have built-in signup, this would need custom implementation
+   */
+  async signUp(credentials: SignUpCredentials): Promise<Response> {
+    // First create the user via your API
+    const signupResponse = await fetch(`${this.baseUrl}/auth/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!signupResponse.ok) {
+      return signupResponse;
+    }
+
+    // Then sign them in
+    return this.signIn({
+      email: credentials.email,
+      password: credentials.password,
+    });
+  }
+
+  /**
+   * Sign out the current user
+   */
+  async signOut(): Promise<void> {
+    await fetch(`${this.baseUrl}/auth/signout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  }
+
+  /**
+   * Get the current session
+   */
+  async getSession(): Promise<Session | null> {
+    const response = await fetch(`${this.baseUrl}/auth/session`, {
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get CSRF token for form submissions
+   */
+  async getCsrfToken(): Promise<string | null> {
+    const response = await fetch(`${this.baseUrl}/auth/csrf`, {
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data.csrfToken;
+  }
+
+  /**
+   * Get available providers
+   */
+  async getProviders(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/auth/providers`);
+    return response.json();
+  }
+}
+
+// Export singleton instance
+export const authClient = new AuthClient();
+
+// Export for custom instances
+export { AuthClient, type User, type Session, type SignInCredentials, type SignUpCredentials };

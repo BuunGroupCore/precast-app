@@ -6,19 +6,26 @@
     "apps/*"
   ],
   "scripts": {
+    {{#if docker}}
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "docker:reset": "docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d",
+    "docker:ps": "docker compose -f docker/docker-compose.yml ps",
+    {{/if}}
     {{#if (and orm (eq orm "prisma"))}}
-    "predev": "cd apps/api && prisma generate",
+    "predev": "cd apps/api && prisma generate && prisma db push --skip-generate",
+    {{/if}}
+    {{#if (and orm (eq orm "prisma"))}}
     "prebuild": "cd apps/api && prisma generate",
     "db:generate": "cd apps/api && prisma generate",
     "db:push": "cd apps/api && prisma db push",
     "db:migrate": "cd apps/api && prisma migrate dev",
     "db:studio": "cd apps/api && prisma studio",
     {{/if}}
-    {{#if docker}}
-    "docker:up": "bash -c 'docker compose -f docker/docker-compose.yml up -d'",
-    "docker:down": "bash -c 'docker compose -f docker/docker-compose.yml down'",
-    "docker:logs": "bash -c 'docker compose -f docker/docker-compose.yml logs -f'",
-    "docker:reset": "bash -c 'docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d'",
+    {{#if (and docker database (ne database "none"))}}
+    "setup": "{{packageManager}} install && echo '🐳 Please start Docker containers with: {{packageManager}} run docker:up' && echo '📝 Then run: {{packageManager}} run dev'",
+    "dev:docker": "{{packageManager}} run docker:up && sleep 5 && turbo run dev",
     {{/if}}
     "dev": "turbo run dev",
     "build": "turbo run build",

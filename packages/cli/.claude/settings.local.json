@@ -10,7 +10,13 @@
       "WebFetch(domain:betterstack.com)",
       "WebFetch(domain:www.prisma.io)",
       "Bash(docker compose:*)",
-      "Bash(/home/sacha/repositories/precast-app/packages/cli/test-projects/test-project-20250811152719-1516/apps/api/update-schema.sh)"
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/test-projects/test-project-20250811152719-1516/apps/api/update-schema.sh)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:authjs.dev)",
+      "WebFetch(domain:javascript.plainenglish.io)",
+      "WebFetch(domain:www.techiediaries.com)",
+      "WebFetch(domain:turbo.build)",
+      "WebFetch(domain:turborepo.com)"
     ],
     "deny": []
   }

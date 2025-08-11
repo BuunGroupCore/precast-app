@@ -57,6 +57,10 @@ export class TemplateEngine {
       const options = args.pop();
       return args.every(Boolean) ? options.fn(this) : options.inverse(this);
     });
+    // Helper to strip hash from hex color codes for placeholder images
+    this.registerHelper("stripHash", (hexCode: string) =>
+      hexCode ? hexCode.replace("#", "") : ""
+    );
   }
 
   /**

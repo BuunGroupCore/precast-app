@@ -23,14 +23,34 @@ A modern full-stack application built with {{framework}} and {{backend}}.
    {{packageManager}} install
    ```
 
-2. Start development servers:
+{{#if database}}{{#unless (or (eq database "none") (eq database "turso") (eq database "cloudflare-d1") (eq database "firebase") (eq database "supabase"))}}2. Start Docker containers (if using local database):
    ```bash
+   {{packageManager}} run docker:up
+   ```
+   
+   Wait for containers to be healthy, then run migrations if needed:
+   {{#if (eq orm "prisma")}}
+   ```bash
+   cd apps/api && npx prisma migrate deploy
+   ```
+   {{else if (eq orm "drizzle")}}
+   ```bash
+   cd apps/api && npx drizzle-kit push
+   ```
+   {{/if}}
+
+3. Start development servers:
+{{else}}2. Start development servers:
+{{/unless}}{{else}}2. Start development servers:
+{{/if}}   ```bash
    {{packageManager}} run dev
    ```
 
    This will start:
    - Frontend: http://localhost:3000
    - Backend: http://localhost:3001
+   
+   **Note**: With Turbo's TUI mode, you'll see each task in a separate panel in your terminal!
 
 ## Available Scripts
 
@@ -39,6 +59,14 @@ A modern full-stack application built with {{framework}} and {{backend}}.
 - `{{packageManager}} run start` - Start production servers
 - `{{packageManager}} run lint` - Lint all packages
 - `{{packageManager}} run type-check` - Type check all packages
+{{#if database}}{{#unless (or (eq database "none") (eq database "turso") (eq database "cloudflare-d1") (eq database "firebase") (eq database "supabase"))}}
+### Docker Scripts
+- `{{packageManager}} run docker:up` - Start Docker containers
+- `{{packageManager}} run docker:down` - Stop Docker containers
+- `{{packageManager}} run docker:logs` - View container logs
+- `{{packageManager}} run docker:reset` - Reset database (removes all data)
+- `{{packageManager}} run docker:ps` - Show container status
+{{/unless}}{{/if}}
 
 ## Tech Stack
 

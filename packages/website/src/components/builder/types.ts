@@ -1,5 +1,6 @@
 import { IconType } from "react-icons";
 
+import { type ColorPalette } from "@/lib/color-palettes";
 import { type SavedProject } from "@/lib/db";
 
 /**
@@ -21,6 +22,7 @@ export interface ExtendedProjectConfig
   mcpServers?: string[];
   apiClient?: string;
   databaseDeployment?: "local" | "cloud";
+  colorPalette?: ColorPalette; // New: Color palette configuration
   // CLI Feature Toggles
   prettier?: boolean;
   eslint?: boolean;

@@ -1,0 +1,155 @@
+-- Auth.js {{database}} Schema
+-- Based on @auth/{{#if (eq database "postgres")}}pg{{else if (eq database "mysql")}}mysql{{else}}{{database}}{{/if}}-adapter requirements
+-- https://authjs.dev/reference/adapter/{{#if (eq database "postgres")}}pg{{else if (eq database "mysql")}}mysql{{else}}{{database}}{{/if}}
+
+{{#if (eq database "postgres")}}
+-- Create users table
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  email TEXT UNIQUE NOT NULL,
+  "emailVerified" TIMESTAMPTZ,
+  name TEXT,
+  image TEXT,
+  -- Add password field for credentials provider
+  password TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create accounts table (for OAuth providers)
+CREATE TABLE IF NOT EXISTS accounts (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  "userId" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  "providerAccountId" TEXT NOT NULL,
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at INTEGER,
+  token_type TEXT,
+  scope TEXT,
+  id_token TEXT,
+  session_state TEXT,
+  UNIQUE(provider, "providerAccountId")
+);
+
+-- Create sessions table
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  "sessionToken" TEXT UNIQUE NOT NULL,
+  "userId" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires TIMESTAMPTZ NOT NULL
+);
+
+-- Create verification_tokens table
+CREATE TABLE IF NOT EXISTS verification_tokens (
+  identifier TEXT NOT NULL,
+  token TEXT UNIQUE NOT NULL,
+  expires TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (identifier, token)
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_accounts_userId ON accounts("userId");
+CREATE INDEX IF NOT EXISTS idx_sessions_userId ON sessions("userId");
+CREATE INDEX IF NOT EXISTS idx_sessions_sessionToken ON sessions("sessionToken");
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_emailVerified ON users("emailVerified");
+
+-- Add updated_at trigger
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER update_users_updated_at
+  BEFORE UPDATE ON users
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+{{else if (eq database "mysql")}}
+-- Create users table
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(255) PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  emailVerified DATETIME,
+  name VARCHAR(255),
+  image TEXT,
+  -- Add password field for credentials provider
+  password VARCHAR(255),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_email (email),
+  KEY idx_emailVerified (emailVerified)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create accounts table (for OAuth providers)
+CREATE TABLE IF NOT EXISTS accounts (
+  id VARCHAR(255) PRIMARY KEY,
+  userId VARCHAR(255) NOT NULL,
+  type VARCHAR(255) NOT NULL,
+  provider VARCHAR(255) NOT NULL,
+  providerAccountId VARCHAR(255) NOT NULL,
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at INT,
+  token_type VARCHAR(255),
+  scope VARCHAR(255),
+  id_token TEXT,
+  session_state VARCHAR(255),
+  UNIQUE KEY provider_providerAccountId (provider, providerAccountId),
+  KEY idx_userId (userId),
+  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create sessions table
+CREATE TABLE IF NOT EXISTS sessions (
+  id VARCHAR(255) PRIMARY KEY,
+  sessionToken VARCHAR(255) UNIQUE NOT NULL,
+  userId VARCHAR(255) NOT NULL,
+  expires DATETIME NOT NULL,
+  KEY idx_sessionToken (sessionToken),
+  KEY idx_userId (userId),
+  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create verification_tokens table
+CREATE TABLE IF NOT EXISTS verification_tokens (
+  identifier VARCHAR(255) NOT NULL,
+  token VARCHAR(255) UNIQUE NOT NULL,
+  expires DATETIME NOT NULL,
+  PRIMARY KEY (identifier, token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create trigger for UUID generation (MySQL 8.0+)
+DELIMITER $$
+CREATE TRIGGER before_insert_users
+BEFORE INSERT ON users
+FOR EACH ROW
+BEGIN
+  IF NEW.id IS NULL THEN
+    SET NEW.id = UUID();
+  END IF;
+END$$
+
+CREATE TRIGGER before_insert_accounts
+BEFORE INSERT ON accounts
+FOR EACH ROW
+BEGIN
+  IF NEW.id IS NULL THEN
+    SET NEW.id = UUID();
+  END IF;
+END$$
+
+CREATE TRIGGER before_insert_sessions
+BEFORE INSERT ON sessions
+FOR EACH ROW
+BEGIN
+  IF NEW.id IS NULL THEN
+    SET NEW.id = UUID();
+  END IF;
+END$$
+DELIMITER ;
+{{/if}}

@@ -6,7 +6,7 @@ import { consola } from "consola";
 import fsExtra from "fs-extra";
 
 // eslint-disable-next-line import/no-named-as-default-member
-const { writeFile, pathExists, readFile, readdir } = fsExtra;
+const { writeFile, pathExists, readFile, readdir, ensureDir, readJson, writeJson } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
@@ -34,9 +34,16 @@ const authProviders: Record<string, AuthProvider> = {
       remix: ["@auth/core", "@auth/remix", "@auth/prisma-adapter"],
       solid: ["@auth/core", "@auth/solid-start", "@auth/prisma-adapter"],
       svelte: ["@auth/core", "@auth/sveltekit", "@auth/prisma-adapter"],
+      // Backend packages for PostgreSQL support
+      express: ["@auth/core", "@auth/pg-adapter", "pg", "bcryptjs"],
+      hono: ["@auth/core", "@auth/pg-adapter", "pg", "bcryptjs"],
+      fastify: ["@auth/core", "@auth/pg-adapter", "pg", "bcryptjs"],
     },
     devPackages: {
       all: ["@types/node"],
+      express: ["@types/pg", "@types/bcryptjs"],
+      hono: ["@types/pg", "@types/bcryptjs"],
+      fastify: ["@types/pg", "@types/bcryptjs"],
     },
     envVariables: [
       "AUTH_SECRET",
@@ -49,7 +56,16 @@ const authProviders: Record<string, AuthProvider> = {
       "GOOGLE_CLIENT_SECRET",
     ],
     requiresDatabase: true,
-    supportedFrameworks: ["next", "react", "remix", "solid", "svelte"],
+    supportedFrameworks: [
+      "next",
+      "react",
+      "remix",
+      "solid",
+      "svelte",
+      "express",
+      "hono",
+      "fastify",
+    ],
     sessionStrategy: "both",
   },
   "better-auth": {
@@ -244,13 +260,19 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
   const packages: string[] = [];
   const devPackages: string[] = [];
 
+  // Determine which framework to use for package selection
+  // For monorepo with backend, use backend framework for auth packages
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  const packageFramework =
+    provider.id === "auth.js" && isMonorepo ? config.backend : config.framework;
+
   // Get framework-specific packages
-  const frameworkPackages = provider.packages[config.framework] || provider.packages.all || [];
+  const frameworkPackages = provider.packages[packageFramework] || provider.packages.all || [];
   packages.push(...frameworkPackages);
 
   // Get dev packages
   const frameworkDevPackages =
-    provider.devPackages?.[config.framework] || provider.devPackages?.all || [];
+    provider.devPackages?.[packageFramework] || provider.devPackages?.all || [];
   devPackages.push(...frameworkDevPackages);
 
   // Add TypeScript types if using TypeScript
@@ -267,9 +289,14 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
     // Determine the correct installation path
     // For monorepo projects, install in the app directory
     const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
-    // Better Auth should be installed on the API side when we have a backend
+    const isBackendFramework = ["express", "hono", "fastify", "node"].includes(config.framework);
+
     let installPath: string;
-    if (provider.id === "better-auth" && isMonorepo) {
+    if (
+      (provider.id === "better-auth" || provider.id === "auth.js") &&
+      (isMonorepo || isBackendFramework)
+    ) {
+      // Auth.js and Better Auth should be installed on the API side when we have a backend or when the framework is a backend framework
       installPath = path.join(config.projectPath, "apps/api");
     } else {
       installPath = isMonorepo ? path.join(config.projectPath, "apps/web") : config.projectPath;
@@ -377,8 +404,12 @@ async function copyAuthTemplates(
       }
     }
 
-    // For Better Auth with backend, also copy backend-specific route templates
-    if (provider.id === "better-auth" && config.backend && config.backend !== "none") {
+    // For Better Auth or Auth.js with backend, also copy backend-specific route templates
+    if (
+      (provider.id === "better-auth" || provider.id === "auth.js") &&
+      config.backend &&
+      config.backend !== "none"
+    ) {
       const backendRoutePath = path.join(
         templateRoot,
         `${genericAuthDir}/${config.backend}/auth-route.ts.hbs`
@@ -390,9 +421,68 @@ async function copyAuthTemplates(
           path.join(routeDestination, "auth.ts"),
           authContext
         );
-        consola.info(`✓ Created Better Auth route handler for ${config.backend}`);
+        consola.info(`✓ Created ${provider.name} route handler for ${config.backend}`);
       } else {
-        consola.warn(`⚠️  No Better Auth route template found for ${config.backend}`);
+        consola.warn(`⚠️  No ${provider.name} route template found for ${config.backend}`);
+      }
+    }
+
+    // For Auth.js with database but no ORM, copy database setup files
+    if (
+      provider.id === "auth.js" &&
+      config.database &&
+      config.database !== "none" &&
+      (!config.orm || config.orm === "none")
+    ) {
+      const isMonorepo =
+        config.backend && config.backend !== "none" && config.backend !== "next-api";
+      const targetPath = isMonorepo
+        ? path.join(config.projectPath, "apps/api")
+        : config.projectPath;
+
+      // Copy migration SQL file
+      const migrationPath = path.join(
+        templateRoot,
+        `${genericAuthDir}/migrations/001_auth_tables.sql.hbs`
+      );
+      if (await pathExists(migrationPath)) {
+        const migrationDest = path.join(targetPath, "migrations");
+        await ensureDir(migrationDest);
+        await templateEngine.processTemplate(
+          `${genericAuthDir}/migrations/001_auth_tables.sql.hbs`,
+          path.join(migrationDest, "001_auth_tables.sql"),
+          authContext
+        );
+        consola.info(`✓ Created Auth.js database migration file`);
+      }
+
+      // Copy setup script
+      const setupScriptPath = path.join(
+        templateRoot,
+        `${genericAuthDir}/scripts/setup-auth-db.ts.hbs`
+      );
+      if (await pathExists(setupScriptPath)) {
+        const scriptsDest = path.join(targetPath, "scripts");
+        await ensureDir(scriptsDest);
+        await templateEngine.processTemplate(
+          `${genericAuthDir}/scripts/setup-auth-db.ts.hbs`,
+          path.join(scriptsDest, "setup-auth-db.ts"),
+          authContext
+        );
+        consola.info(`✓ Created Auth.js database setup script`);
+
+        // Update package.json with db:setup script
+        const packageJsonPath = path.join(targetPath, "package.json");
+        if (await pathExists(packageJsonPath)) {
+          const packageJson = await readJson(packageJsonPath);
+          if (!packageJson.scripts) {
+            packageJson.scripts = {};
+          }
+          packageJson.scripts["db:setup"] = "tsx scripts/setup-auth-db.ts";
+          packageJson.scripts["db:setup:bun"] = "bun run scripts/setup-auth-db.ts";
+          await writeJson(packageJsonPath, packageJson, { spaces: 2 });
+          consola.info(`✓ Added db:setup scripts to package.json`);
+        }
       }
     }
   } catch (error) {
@@ -404,8 +494,8 @@ function getAuthDestination(config: ProjectConfig & { authProvider?: string }): 
   // Check if it's a monorepo structure
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
-  // Better Auth should always be on the API side when we have a backend
-  if (config.authProvider === "better-auth" && isMonorepo) {
+  // Better Auth and Auth.js should always be on the API side when we have a backend
+  if ((config.authProvider === "better-auth" || config.authProvider === "auth.js") && isMonorepo) {
     return "apps/api/src/lib";
   }
 
@@ -619,6 +709,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   name          String?
+  password      String?   // For credentials provider
   image         String?
   accounts      Account[]
   sessions      Session[]
@@ -711,8 +802,18 @@ function showNextSteps(config: ProjectConfig, provider: AuthProvider): void {
 
   const steps: string[] = [];
 
-  if (provider.requiresDatabase && config.orm === "prisma") {
-    steps.push("1. Run 'npx prisma migrate dev' to create auth tables");
+  if (provider.requiresDatabase) {
+    if (config.orm === "prisma") {
+      steps.push("1. Run 'npx prisma migrate dev' to create auth tables");
+    } else if (config.orm === "drizzle") {
+      steps.push("1. Run 'npx drizzle-kit push' to create auth tables");
+    } else if (
+      config.database &&
+      config.database !== "none" &&
+      (!config.orm || config.orm === "none")
+    ) {
+      steps.push("1. Run 'npm run db:setup' or 'bun run db:setup:bun' to create auth tables");
+    }
   }
 
   steps.push(

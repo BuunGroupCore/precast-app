@@ -7,6 +7,7 @@ import {
   ApiSection,
   AuthSection,
   BackendSection,
+  ColorPaletteSection,
   DatabaseSection,
   DeploymentSection,
   ExtendedProjectConfig,
@@ -26,6 +27,7 @@ import {
   UILibrariesSection,
 } from "@/components/builder";
 import { BuilderPageSEO, GenericComicDialog } from "@/features/common";
+import { colorPalettes } from "@/lib/color-palettes";
 import { db, type SavedProject } from "@/lib/db";
 import { backends, databases, frameworks, orms, stylings } from "@/lib/stack-config";
 import { trackBuilderAction, trackConversion } from "@/utils/analytics";
@@ -35,6 +37,7 @@ import { trackBuilderAction, trackConversion } from "@/utils/analytics";
  * Provides a visual interface for selecting frameworks, databases, styling, and more.
  */
 export function BuilderPage() {
+  const defaultPalette = colorPalettes.find((p) => p.id === "shadcn");
   const [config, setConfig] = useState<ExtendedProjectConfig>({
     name: "my-awesome-project",
     framework: "react",
@@ -54,6 +57,7 @@ export function BuilderPage() {
     runtime: "bun",
     auth: "none",
     mcpServers: [],
+    colorPalette: defaultPalette,
   });
   const [copied, setCopied] = useState(false);
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
@@ -300,6 +304,19 @@ export function BuilderPage() {
       parts.push(`--plugins=${config.plugins.join(",")}`);
     }
 
+    /** Color Palette */
+    if (config.colorPalette && config.colorPalette.id !== "default") {
+      if (config.colorPalette.id === "custom") {
+        // For custom palettes, we'll encode the colors as a base64 JSON string
+        const colorsJson = JSON.stringify(config.colorPalette.colors);
+        const colorsBase64 = btoa(colorsJson);
+        parts.push(`--color-palette=custom:${colorsBase64}`);
+      } else {
+        // For predefined palettes, just pass the ID
+        parts.push(`--color-palette=${config.colorPalette.id}`);
+      }
+    }
+
     /** CLI Feature Toggles (add flags for disabled features) */
     if (config.prettier === false) {
       parts.push("--no-prettier");
@@ -371,6 +388,9 @@ export function BuilderPage() {
 
               {/* 2. Styling Selection - Visual foundation */}
               <StylingSection config={config} setConfig={setConfig} />
+
+              {/* 2.5. Color Palette Selection - Theme colors */}
+              <ColorPaletteSection config={config} setConfig={setConfig} />
 
               {/* 3. UI Components Section - Component libraries */}
               <UILibrariesSection config={config} setConfig={setConfig} />

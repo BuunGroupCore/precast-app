@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Wait for database to be ready
+echo "🔄 Waiting for database to be ready..."
+
+{{#if (eq database "postgres")}}
+# PostgreSQL health check
+until docker exec {{name}}-postgres pg_isready -U {{dbUser}} > /dev/null 2>&1; do
+  echo "⏳ PostgreSQL is unavailable - sleeping..."
+  sleep 2
+done
+echo "✅ PostgreSQL is ready!"
+{{else if (eq database "mysql")}}
+# MySQL health check  
+until docker exec {{name}}-mysql mysqladmin ping -h"localhost" --silent > /dev/null 2>&1; do
+  echo "⏳ MySQL is unavailable - sleeping..."
+  sleep 2
+done
+echo "✅ MySQL is ready!"
+{{else if (eq database "mongodb")}}
+# MongoDB health check
+until docker exec {{name}}-mongodb mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
+  echo "⏳ MongoDB is unavailable - sleeping..."
+  sleep 2
+done
+echo "✅ MongoDB is ready!"
+{{/if}}
+
+{{#if includeRedis}}
+# Redis health check
+until docker exec {{name}}-redis redis-cli ping > /dev/null 2>&1; do
+  echo "⏳ Redis is unavailable - sleeping..."
+  sleep 2
+done
+echo "✅ Redis is ready!"
+{{/if}}
+
+echo "🚀 All services are ready!"

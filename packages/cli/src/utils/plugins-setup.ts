@@ -277,6 +277,7 @@ export async function setupPrecastWidget(
         ...updatedConfig,
         plugins: config.plugins || [],
         database: config.database || "none",
+        authProvider: config.authProvider || "none",
       });
 
       const componentDir = path.join(frontendPath, "src", "components", "precast");
@@ -297,6 +298,7 @@ export async function setupPrecastWidget(
       const routesContent = Handlebars.compile(routesTemplate)({
         ...config,
         plugins: config.plugins || [],
+        authProvider: config.authProvider || "none",
       });
 
       const routesDir = path.join(backendPath, "src", "api", "routes");

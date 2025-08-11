@@ -11,6 +11,7 @@ import {
   runtimeDefs,
   uiFrameworkDefs,
 } from "../../../shared/stack-config.js";
+import { colorPalettes, defaultColorPalette } from "../../../shared/src/color-palettes.js";
 import type { InitOptions } from "../commands/init.js";
 import { getFilteredAuthOptions, isAuthProviderCompatibleWithStack } from "../utils/auth-setup.js";
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
@@ -125,6 +126,35 @@ export async function gatherProjectConfig(
             hint: s.description,
           })),
         })) as string));
+
+  // Color palette selection (only if using CSS or Tailwind)
+  let colorPalette: string | undefined = options.colorPalette;
+  if (!options.yes && !options.colorPalette && (styling === "css" || styling === "tailwind")) {
+    const selectedPalette = (await select({
+      message: "Choose a color palette:",
+      options: [
+        {
+          value: "none",
+          label: "None",
+          hint: "Use default colors",
+        },
+        ...colorPalettes.map((p) => ({
+          value: p.id,
+          label: p.name,
+          hint: p.description,
+        })),
+      ],
+      initialValue: defaultColorPalette,
+    })) as string;
+
+    if (selectedPalette !== "none") {
+      colorPalette = selectedPalette;
+    }
+  } else if (!colorPalette && (styling === "css" || styling === "tailwind")) {
+    // Use default color palette if not specified and in --yes mode
+    colorPalette = defaultColorPalette;
+  }
+
   const runtime =
     options.runtime ||
     (options.yes
@@ -382,5 +412,6 @@ export async function gatherProjectConfig(
     powerups: options.powerups,
     plugins: options.plugins,
     uiFramework,
+    colorPalette,
   };
 }

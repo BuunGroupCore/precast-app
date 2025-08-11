@@ -1,0 +1,332 @@
+import * as path from "path";
+
+import fsExtra from "fs-extra";
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, readFile } = fsExtra;
+
+import {
+  theme,
+  createHeroBanner,
+  createFancyBox,
+  divider,
+  bulletList,
+  techBadge,
+  getFrameworkIcon,
+  createLink,
+} from "../utils/cli-theme.js";
+
+interface PrecastConfig {
+  name: string;
+  version: string;
+  framework: string;
+  backend?: string;
+  database?: string;
+  orm?: string;
+  authProvider?: string;
+  styling?: string;
+  uiLibrary?: string;
+  packageManager?: string;
+  apiClient?: string;
+  testing?: string;
+  aiAssistant?: string;
+  deployment?: string;
+  deploymentType?: string;
+  colorPalette?: string;
+  plugins?: string[];
+  powerups?: string[];
+  mcpServers?: string[];
+  docker?: boolean;
+  typescript?: boolean;
+  git?: boolean;
+  createdAt?: string;
+  lastModified?: string;
+  [key: string]: any;
+}
+
+/**
+ * Create a beautiful tech stack display
+ */
+function createTechStackDisplay(config: PrecastConfig): string {
+  const sections: string[] = [];
+
+  // Core Stack
+  const coreItems = [
+    `${getFrameworkIcon(config.framework)} ${techBadge(config.framework)}`,
+    config.backend && config.backend !== "none" ? `${techBadge(config.backend)}` : null,
+    config.packageManager ? `📦 ${config.packageManager}` : null,
+  ].filter(Boolean) as string[];
+
+  if (coreItems.length > 0) {
+    sections.push(`${theme.bold("Core Stack")}\n${bulletList(coreItems)}`);
+  }
+
+  // Database & ORM
+  const dataItems: string[] = [];
+  if (config.database && config.database !== "none") {
+    dataItems.push(`${techBadge(config.database)}`);
+    if (config.orm && config.orm !== "none") {
+      dataItems.push(`${techBadge(config.orm)}`);
+    }
+  }
+
+  if (dataItems.length > 0) {
+    sections.push(`${theme.bold("Data Layer")}\n${bulletList(dataItems)}`);
+  }
+
+  // UI & Styling
+  const uiItems: string[] = [];
+  if (config.styling && config.styling !== "none") {
+    uiItems.push(`${techBadge(config.styling)}`);
+  }
+  if (config.uiLibrary && config.uiLibrary !== "none") {
+    uiItems.push(`${techBadge(config.uiLibrary)}`);
+  }
+  if (config.colorPalette) {
+    uiItems.push(`🎨 ${config.colorPalette} palette`);
+  }
+
+  if (uiItems.length > 0) {
+    sections.push(`${theme.bold("UI & Styling")}\n${bulletList(uiItems)}`);
+  }
+
+  // Features & Integrations
+  const featureItems: string[] = [];
+  if (config.authProvider && config.authProvider !== "none") {
+    featureItems.push(`${techBadge(config.authProvider)}`);
+  }
+  if (config.apiClient && config.apiClient !== "none") {
+    featureItems.push(`${techBadge(config.apiClient)}`);
+  }
+  if (config.aiAssistant && config.aiAssistant !== "none") {
+    featureItems.push(`🤖 ${config.aiAssistant}`);
+  }
+  if (config.plugins && config.plugins.length > 0) {
+    config.plugins.forEach((plugin) => {
+      featureItems.push(`🔌 ${plugin}`);
+    });
+  }
+
+  if (featureItems.length > 0) {
+    sections.push(`${theme.bold("Features & Integrations")}\n${bulletList(featureItems)}`);
+  }
+
+  return sections.join("\n\n");
+}
+
+/**
+ * Create health status display
+ */
+async function createHealthDisplay(targetPath: string, config: PrecastConfig): Promise<string> {
+  const checks: string[] = [];
+
+  // Dependencies
+  const nodeModulesPath = path.join(targetPath, "node_modules");
+  const hasNodeModules = await pathExists(nodeModulesPath);
+  checks.push(
+    hasNodeModules
+      ? theme.success("✅ Dependencies installed")
+      : theme.error("❌ Dependencies missing - run install")
+  );
+
+  // Docker
+  const dockerComposePath = path.join(targetPath, "docker", "docker-compose.yml");
+  const hasDocker = await pathExists(dockerComposePath);
+  if (config.docker || hasDocker) {
+    checks.push(
+      hasDocker
+        ? theme.success("✅ Docker configured")
+        : theme.warning("⚠️  Docker configuration missing")
+    );
+  }
+
+  // Environment
+  const envPath = path.join(targetPath, ".env");
+  const envLocalPath = path.join(targetPath, ".env.local");
+  const hasEnv = (await pathExists(envPath)) || (await pathExists(envLocalPath));
+  checks.push(
+    hasEnv
+      ? theme.success("✅ Environment configured")
+      : theme.warning("⚠️  Environment variables not set")
+  );
+
+  // Git
+  const gitPath = path.join(targetPath, ".git");
+  const hasGit = await pathExists(gitPath);
+  checks.push(
+    hasGit ? theme.success("✅ Git repository") : theme.warning("⚠️  Git not initialized")
+  );
+
+  // TypeScript
+  if (config.typescript) {
+    const tsconfigPath = path.join(targetPath, "tsconfig.json");
+    const hasTsConfig = await pathExists(tsconfigPath);
+    checks.push(
+      hasTsConfig
+        ? theme.success("✅ TypeScript configured")
+        : theme.error("❌ tsconfig.json missing")
+    );
+  }
+
+  return checks.join("\n");
+}
+
+/**
+ * Create quick commands display
+ */
+function createQuickCommands(
+  config: PrecastConfig,
+  hasNodeModules: boolean,
+  hasDocker: boolean
+): string {
+  const pm = config.packageManager || "npm";
+  const runCmd = pm === "npm" ? "npm run" : pm;
+
+  const commands: string[] = [];
+
+  if (!hasNodeModules) {
+    commands.push(
+      `${theme.accent("→")} ${theme.bold(`${pm} install`)} ${theme.muted("- Install dependencies")}`
+    );
+  }
+
+  if (hasDocker && config.database && config.database !== "none") {
+    commands.push(
+      `${theme.accent("→")} ${theme.bold(`${runCmd} docker:up`)} ${theme.muted("- Start services")}`
+    );
+  }
+
+  commands.push(
+    `${theme.accent("→")} ${theme.bold(`${runCmd} dev`)} ${theme.muted("- Development server")}`
+  );
+  commands.push(
+    `${theme.accent("→")} ${theme.bold(`${runCmd} build`)} ${theme.muted("- Production build")}`
+  );
+
+  if (config.testing && config.testing !== "none") {
+    commands.push(
+      `${theme.accent("→")} ${theme.bold(`${runCmd} test`)} ${theme.muted("- Run tests")}`
+    );
+  }
+
+  return commands.join("\n");
+}
+
+/**
+ * Display the status and configuration of a Precast project.
+ * Reads the precast.jsonc file and presents project information in a formatted display.
+ * @param projectPath - Optional path to the project directory (defaults to current directory)
+ */
+export async function statusCommand(projectPath?: string): Promise<void> {
+  try {
+    const targetPath = projectPath ? path.resolve(projectPath) : process.cwd();
+    const precastConfigPath = path.join(targetPath, "precast.jsonc");
+
+    if (!(await pathExists(precastConfigPath))) {
+      console.log();
+      const errorBox = createFancyBox(
+        `${theme.error("❌ No precast.jsonc found")}\n\n` +
+          `This doesn't appear to be a Precast project.\n\n` +
+          `${theme.info("💡 Run:")} ${theme.bold("create-precast-app init")}\n` +
+          `${theme.muted("   to create a new project")}\n\n` +
+          `${theme.info("📁 Searched in:")} ${theme.dim(targetPath)}`,
+        "🔍 Project Not Found"
+      );
+      console.log(errorBox);
+      console.log();
+      process.exit(1);
+    }
+
+    const configContent = await readFile(precastConfigPath, "utf-8");
+
+    // Parse JSONC by removing comments and trailing commas
+    let jsonContent = configContent;
+    jsonContent = jsonContent.replace(/(?:^|\s)\/\/.*$/gm, ""); // Single-line comments (preserving URLs)
+    jsonContent = jsonContent.replace(/\/\*[\s\S]*?\*\//g, ""); // Multi-line comments
+    jsonContent = jsonContent.replace(/,\s*([}\]])/g, "$1"); // Trailing commas
+
+    const config: PrecastConfig = JSON.parse(jsonContent);
+
+    // Create beautiful header with ASCII art
+    console.log();
+    const heroBanner = await createHeroBanner("STATUS", `📊 Project health & configuration`);
+    console.log(heroBanner);
+    console.log();
+
+    // Project Info Section
+    const projectName = config.name || path.basename(targetPath);
+    const projectInfo = [
+      `${theme.primary("🚀")} ${theme.bold.white(projectName)}`,
+      config.version ? `${theme.muted("   Version:")} ${theme.info(config.version)}` : "",
+      config.deploymentType
+        ? `${theme.muted("   Type:")} ${theme.accent(config.deploymentType)}`
+        : "",
+      config.createdAt
+        ? `${theme.muted("   Created:")} ${theme.dim(new Date(config.createdAt).toLocaleDateString())}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const infoBox = createFancyBox(projectInfo, "📋 Project Info");
+    console.log(infoBox);
+    console.log();
+
+    // Tech Stack Section
+    const techStackDisplay = createTechStackDisplay(config);
+    if (techStackDisplay) {
+      const stackBox = createFancyBox(techStackDisplay, "🛠️  Tech Stack");
+      console.log(stackBox);
+      console.log();
+    }
+
+    // Health Check Section
+    const nodeModulesPath = path.join(targetPath, "node_modules");
+    const hasNodeModules = await pathExists(nodeModulesPath);
+    const dockerComposePath = path.join(targetPath, "docker", "docker-compose.yml");
+    const hasDocker = await pathExists(dockerComposePath);
+
+    const healthDisplay = await createHealthDisplay(targetPath, config);
+    const healthBox = createFancyBox(healthDisplay, "🏥 Health Check");
+    console.log(healthBox);
+    console.log();
+
+    // Quick Commands Section
+    const commandsDisplay = createQuickCommands(config, hasNodeModules, hasDocker);
+    const commandsBox = createFancyBox(commandsDisplay, "⚡ Quick Commands");
+    console.log(commandsBox);
+    console.log();
+
+    // Footer
+    console.log(theme.muted(divider()));
+    console.log(
+      theme.muted(
+        `  Generated by ${theme.bold("Precast CLI")} • ${createLink("precast.dev", "https://precast.dev")}`
+      )
+    );
+    console.log();
+  } catch (error) {
+    console.log();
+    let errorMessage = "An unknown error occurred";
+    let errorDetails = "";
+
+    if (error instanceof SyntaxError) {
+      errorMessage = "Failed to parse precast.jsonc file";
+      errorDetails = "Make sure the file contains valid JSON with proper syntax";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+      errorDetails = "Check the file permissions and project structure";
+    }
+
+    const errorBox = createFancyBox(
+      `${theme.error("❌ Error")}\n\n` +
+        `${errorMessage}\n\n` +
+        `${theme.info("💡 Suggestion:")}\n${errorDetails}`,
+      "⚠️  Status Command Failed"
+    );
+    console.log(errorBox);
+    console.log();
+    process.exit(1);
+  }
+}
+
+export default statusCommand;

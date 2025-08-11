@@ -42,6 +42,7 @@ export interface ProjectConfig {
   includeAdminTools?: boolean; // Include admin tools like pgAdmin, phpMyAdmin, etc.
   dbUser?: string; // Database user name
   includeRedis?: boolean; // Include Redis in Docker setup
+  colorPalette?: string; // Color palette theme
 }
 
 // Stack definitions without React Icons (for CLI usage)

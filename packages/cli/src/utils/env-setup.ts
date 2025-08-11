@@ -277,6 +277,27 @@ export function getEnvironmentVariables(
         );
         break;
       case "auth.js":
+        {
+          const isMonorepo =
+            config.backend && config.backend !== "none" && config.backend !== "next-api";
+          variables.push(
+            {
+              key: "AUTH_SECRET",
+              description: "Auth.js secret",
+              value: generateSecret(),
+              required: true,
+            },
+            {
+              key: "AUTH_URL",
+              description: "Auth.js URL",
+              value: "", // Will be overridden by development/production values
+              development: isMonorepo ? "http://localhost:3001/api" : "http://localhost:3000/api",
+              production: "https://yourdomain.com/api",
+              required: true,
+            }
+          );
+        }
+        break;
       case "nextauth":
         variables.push(
           {

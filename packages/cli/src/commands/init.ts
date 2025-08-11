@@ -7,8 +7,8 @@ import fsExtra from "fs-extra";
 import pc from "picocolors";
 
 import { getConfigValidator } from "../core/config-validator.js";
-import { gatherProjectConfig } from "../prompts/config-prompts.js";
 import { gatherProjectConfigWithNavigation } from "../prompts/config-prompts-with-navigation.js";
+import { gatherProjectConfig } from "../prompts/config-prompts.js";
 import { trackProjectCreation, displayTelemetryNotice } from "../utils/analytics.js";
 import { setupApiClient } from "../utils/api-client-setup.js";
 import { displayBanner } from "../utils/banner.js";
@@ -82,6 +82,8 @@ export interface InitOptions {
   powerups?: string[];
   /** Business feature plugins to include (stripe, resend, etc.) */
   plugins?: string[];
+  /** Color palette theme for the project */
+  colorPalette?: string;
 }
 
 /**
@@ -101,7 +103,7 @@ export async function initCommand(projectName: string | undefined, options: Init
   const startTime = Date.now();
 
   try {
-    // Check if navigation mode is enabled via environment variable or if not in --yes mode
+    /** Determine if we should use navigation-based prompts */
     const useNavigation =
       process.env.PRECAST_NAV === "true" || (!options.yes && process.env.PRECAST_NAV !== "false");
 
@@ -154,7 +156,7 @@ export async function initCommand(projectName: string | undefined, options: Init
     const s = spinner();
     s.start("Creating project structure");
     try {
-      // Get the package manager version for the packageManager field in package.json
+      /** Resolve package manager version for configuration */
       const { getPackageManagerVersion } = await import("../utils/package-manager.js");
       config.packageManagerVersion = await getPackageManagerVersion(config.packageManager);
 
@@ -169,9 +171,8 @@ export async function initCommand(projectName: string | undefined, options: Init
       const pm = options.packageManager || (await detectPackageManager());
       await addSecurityOverridesToProject(projectPath, config.framework, pm);
 
-      // Format code before git initialization to ensure clean commits
+      /** Format code if not installing (installation handles formatting) */
       if (!(options.install || config.autoInstall)) {
-        // Only format if we're not installing (installation will format automatically)
         s.start("Formatting generated code");
         const { formatGeneratedCode } = await import("../utils/package-manager.js");
         await formatGeneratedCode(projectPath, config.prettier);
@@ -185,7 +186,7 @@ export async function initCommand(projectName: string | undefined, options: Init
       }
       if (options.install || config.autoInstall) {
         s.start("Installing dependencies");
-        // Use the package manager from config which was already determined
+        /** Use determined package manager from configuration */
         const pm = config.packageManager;
         if (!(await checkPackageManagerAvailable(pm))) {
           log.warning(`Package manager ${pm} not available, falling back to npm`);
@@ -294,7 +295,7 @@ async function initializeGit(projectPath: string) {
       });
       if (globalName) userName = globalName;
     } catch {
-      // Use default name
+      /* Use default name */
     }
     try {
       const { stdout: globalEmail } = await execa("git", ["config", "--global", "user.email"], {
@@ -302,7 +303,7 @@ async function initializeGit(projectPath: string) {
       });
       if (globalEmail) userEmail = globalEmail;
     } catch {
-      // Use default email
+      /* Use default email */
     }
     await execa("git", ["config", "user.name", userName], { cwd: projectPath, stdio: "pipe" });
     await execa("git", ["config", "user.email", userEmail], { cwd: projectPath, stdio: "pipe" });

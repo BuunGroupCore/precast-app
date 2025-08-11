@@ -1,0 +1,187 @@
+{{#if colorPalette}}
+# Color Palette Documentation
+
+## {{colorPalette.name}}
+
+> {{colorPalette.description}}
+
+### Color Reference
+
+> **Note**: Color swatches use placeholder images. If they don't load, refer to the hex codes.
+
+| Color | Name | Hex Code | Usage |
+|-------|------|----------|---------|
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.primary}}/{{stripHash colorPalette.colors.primary}}.png" alt="Primary" width="15" height="15"> | **Primary** | `{{colorPalette.colors.primary}}` | Main brand color |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.primaryDark}}/{{stripHash colorPalette.colors.primaryDark}}.png" alt="Primary Dark" width="15" height="15"> | **Primary Dark** | `{{colorPalette.colors.primaryDark}}` | Darker variant for hover states |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.secondary}}/{{stripHash colorPalette.colors.secondary}}.png" alt="Secondary" width="15" height="15"> | **Secondary** | `{{colorPalette.colors.secondary}}` | Supporting brand color |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.secondaryDark}}/{{stripHash colorPalette.colors.secondaryDark}}.png" alt="Secondary Dark" width="15" height="15"> | **Secondary Dark** | `{{colorPalette.colors.secondaryDark}}` | Darker secondary variant |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.accent}}/{{stripHash colorPalette.colors.accent}}.png" alt="Accent" width="15" height="15"> | **Accent** | `{{colorPalette.colors.accent}}` | Call-to-action elements |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.accentDark}}/{{stripHash colorPalette.colors.accentDark}}.png" alt="Accent Dark" width="15" height="15"> | **Accent Dark** | `{{colorPalette.colors.accentDark}}` | Darker accent variant |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.background}}/{{stripHash colorPalette.colors.background}}.png" alt="Background" width="15" height="15"> | **Background** | `{{colorPalette.colors.background}}` | Main background color |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.surface}}/{{stripHash colorPalette.colors.surface}}.png" alt="Surface" width="15" height="15"> | **Surface** | `{{colorPalette.colors.surface}}` | Card/panel backgrounds |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.text}}/{{stripHash colorPalette.colors.text}}.png" alt="Text" width="15" height="15"> | **Text** | `{{colorPalette.colors.text}}` | Primary text color |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.textSecondary}}/{{stripHash colorPalette.colors.textSecondary}}.png" alt="Text Secondary" width="15" height="15"> | **Text Secondary** | `{{colorPalette.colors.textSecondary}}` | Muted/secondary text |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.error}}/{{stripHash colorPalette.colors.error}}.png" alt="Error" width="15" height="15"> | **Error** | `{{colorPalette.colors.error}}` | Error states and messages |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.warning}}/{{stripHash colorPalette.colors.warning}}.png" alt="Warning" width="15" height="15"> | **Warning** | `{{colorPalette.colors.warning}}` | Warning states and alerts |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.success}}/{{stripHash colorPalette.colors.success}}.png" alt="Success" width="15" height="15"> | **Success** | `{{colorPalette.colors.success}}` | Success states and confirmations |
+| <img src="https://via.placeholder.com/15/{{stripHash colorPalette.colors.info}}/{{stripHash colorPalette.colors.info}}.png" alt="Info" width="15" height="15"> | **Info** | `{{colorPalette.colors.info}}` | Informational elements |
+
+{{#if (ne styling "tailwind")}}
+### Usage in CSS
+
+```css
+/* CSS Variables */
+:root {
+  --color-primary: {{colorPalette.colors.primary}};
+  --color-primary-dark: {{colorPalette.colors.primaryDark}};
+  --color-secondary: {{colorPalette.colors.secondary}};
+  --color-secondary-dark: {{colorPalette.colors.secondaryDark}};
+  --color-accent: {{colorPalette.colors.accent}};
+  --color-accent-dark: {{colorPalette.colors.accentDark}};
+  --color-background: {{colorPalette.colors.background}};
+  --color-surface: {{colorPalette.colors.surface}};
+  --color-text: {{colorPalette.colors.text}};
+  --color-text-secondary: {{colorPalette.colors.textSecondary}};
+  --color-error: {{colorPalette.colors.error}};
+  --color-warning: {{colorPalette.colors.warning}};
+  --color-success: {{colorPalette.colors.success}};
+  --color-info: {{colorPalette.colors.info}};
+}
+
+/* Example usage */
+.button-primary {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.button-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+```
+{{else}}
+### Usage in Tailwind CSS
+
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '{{colorPalette.colors.primary}}',
+          dark: '{{colorPalette.colors.primaryDark}}',
+        },
+        secondary: {
+          DEFAULT: '{{colorPalette.colors.secondary}}',
+          dark: '{{colorPalette.colors.secondaryDark}}',
+        },
+        accent: {
+          DEFAULT: '{{colorPalette.colors.accent}}',
+          dark: '{{colorPalette.colors.accentDark}}',
+        },
+        background: '{{colorPalette.colors.background}}',
+        surface: '{{colorPalette.colors.surface}}',
+        text: {
+          DEFAULT: '{{colorPalette.colors.text}}',
+          secondary: '{{colorPalette.colors.textSecondary}}',
+        },
+        error: '{{colorPalette.colors.error}}',
+        warning: '{{colorPalette.colors.warning}}',
+        success: '{{colorPalette.colors.success}}',
+        info: '{{colorPalette.colors.info}}',
+      }
+    }
+  }
+}
+```
+
+#### Tailwind Classes
+
+- `bg-primary` / `bg-primary-dark` - Primary background colors
+- `bg-secondary` / `bg-secondary-dark` - Secondary background colors
+- `bg-accent` / `bg-accent-dark` - Accent background colors
+- `bg-background` - Main background
+- `bg-surface` - Surface/card background
+- `text-primary` - Primary text color
+- `text-secondary` - Secondary text color
+- `text-error` / `text-warning` / `text-success` / `text-info` - Status text colors
+- `border-primary` / `border-secondary` / `border-accent` - Border colors
+{{/if}}
+
+### Component Examples
+
+#### Button Component
+
+```{{#if typescript}}tsx{{else}}jsx{{/if}}
+// Primary Button
+<button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded">
+  Click Me
+</button>
+
+// Secondary Button
+<button className="bg-secondary hover:bg-secondary-dark text-text px-4 py-2 rounded">
+  Learn More
+</button>
+
+// Accent Button
+<button className="bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded">
+  Get Started
+</button>
+```
+
+#### Alert Components
+
+```{{#if typescript}}tsx{{else}}jsx{{/if}}
+// Error Alert
+<div className="bg-error/10 border border-error text-error p-4 rounded">
+  Something went wrong!
+</div>
+
+// Success Alert
+<div className="bg-success/10 border border-success text-success p-4 rounded">
+  Operation completed successfully!
+</div>
+
+// Warning Alert
+<div className="bg-warning/10 border border-warning text-warning p-4 rounded">
+  Please review before continuing.
+</div>
+
+// Info Alert
+<div className="bg-info/10 border border-info text-info p-4 rounded">
+  Here's some helpful information.
+</div>
+```
+
+### Accessibility Notes
+
+- Ensure sufficient color contrast between text and background colors
+- Primary text (`{{colorPalette.colors.text}}`) on background (`{{colorPalette.colors.background}}`) should meet WCAG AA standards
+- Don't rely solely on color to convey information
+- Test your color combinations with accessibility tools
+
+### Quick Reference
+
+```javascript
+const colors = {
+  primary: '{{colorPalette.colors.primary}}',
+  primaryDark: '{{colorPalette.colors.primaryDark}}',
+  secondary: '{{colorPalette.colors.secondary}}',
+  secondaryDark: '{{colorPalette.colors.secondaryDark}}',
+  accent: '{{colorPalette.colors.accent}}',
+  accentDark: '{{colorPalette.colors.accentDark}}',
+  background: '{{colorPalette.colors.background}}',
+  surface: '{{colorPalette.colors.surface}}',
+  text: '{{colorPalette.colors.text}}',
+  textSecondary: '{{colorPalette.colors.textSecondary}}',
+  error: '{{colorPalette.colors.error}}',
+  warning: '{{colorPalette.colors.warning}}',
+  success: '{{colorPalette.colors.success}}',
+  info: '{{colorPalette.colors.info}}'
+};
+```
+
+---
+
+*Generated by [Precast](https://precast.dev) • Color Palette: {{colorPalette.name}}*
+{{/if}}

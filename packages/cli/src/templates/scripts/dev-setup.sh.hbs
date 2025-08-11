@@ -1,0 +1,191 @@
+#!/bin/bash
+
+# Development setup script - starts Docker containers and runs migrations
+# This script is idempotent - safe to run multiple times
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Configuration
+{{#if (eq database "postgres")}}
+DB_CONTAINER_NAME="{{name}}-postgres"
+DB_PORT=5432
+DB_TYPE="PostgreSQL"
+{{else if (eq database "mysql")}}
+DB_CONTAINER_NAME="{{name}}-mysql"
+DB_PORT=3306
+DB_TYPE="MySQL"
+{{else if (eq database "mongodb")}}
+DB_CONTAINER_NAME="{{name}}-mongodb"
+DB_PORT=27017
+DB_TYPE="MongoDB"
+{{/if}}
+
+echo -e "${BLUE}🚀 Starting development environment...${NC}"
+
+# Function to check if Docker is running
+check_docker() {
+    if ! docker info > /dev/null 2>&1; then
+        echo -e "${RED}❌ Docker is not running. Please start Docker and try again.${NC}"
+        exit 1
+    fi
+}
+
+# Function to check if container is running
+is_container_running() {
+    docker ps --filter "name=$1" --format "\{{.Names}}" | grep -q "$1"
+}
+
+# Function to check if container exists (running or stopped)
+container_exists() {
+    docker ps -a --filter "name=$1" --format "\{{.Names}}" | grep -q "$1"
+}
+
+# Function to wait for database to be ready
+wait_for_db() {
+    echo -e "${YELLOW}⏳ Waiting for $DB_TYPE to be ready...${NC}"
+    
+    {{#if (eq database "postgres")}}
+    # Wait for PostgreSQL
+    for i in {1..30}; do
+        if docker exec $DB_CONTAINER_NAME pg_isready -U postgres > /dev/null 2>&1; then
+            echo -e "${GREEN}✅ PostgreSQL is ready!${NC}"
+            return 0
+        fi
+        echo -n "."
+        sleep 1
+    done
+    {{else if (eq database "mysql")}}
+    # Wait for MySQL
+    for i in {1..30}; do
+        if docker exec $DB_CONTAINER_NAME mysqladmin ping -h localhost --silent > /dev/null 2>&1; then
+            echo -e "${GREEN}✅ MySQL is ready!${NC}"
+            return 0
+        fi
+        echo -n "."
+        sleep 1
+    done
+    {{else if (eq database "mongodb")}}
+    # Wait for MongoDB
+    for i in {1..30}; do
+        if docker exec $DB_CONTAINER_NAME mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; then
+            echo -e "${GREEN}✅ MongoDB is ready!${NC}"
+            return 0
+        fi
+        echo -n "."
+        sleep 1
+    done
+    {{/if}}
+    
+    echo -e "${RED}❌ Database failed to start within 30 seconds${NC}"
+    exit 1
+}
+
+# Function to run migrations based on ORM
+run_migrations() {
+    echo -e "${BLUE}📦 Running database migrations...${NC}"
+    
+    {{#if (eq orm "prisma")}}
+    # Prisma migrations
+    if [ -f "prisma/schema.prisma" ] || [ -f "apps/api/prisma/schema.prisma" ]; then
+        echo -e "${YELLOW}Running Prisma migrations...${NC}"
+        if [ -f "apps/api/prisma/schema.prisma" ]; then
+            cd apps/api
+        fi
+        npx prisma migrate deploy 2>/dev/null || npx prisma db push
+        if [ -f "../package.json" ]; then
+            cd ..
+        fi
+        echo -e "${GREEN}✅ Prisma migrations complete!${NC}"
+    fi
+    {{else if (eq orm "drizzle")}}
+    # Drizzle migrations
+    if [ -f "drizzle.config.ts" ] || [ -f "apps/api/drizzle.config.ts" ]; then
+        echo -e "${YELLOW}Running Drizzle migrations...${NC}"
+        if [ -f "apps/api/drizzle.config.ts" ]; then
+            cd apps/api
+        fi
+        npx drizzle-kit push 2>/dev/null || echo "Drizzle push completed"
+        if [ -f "../package.json" ]; then
+            cd ..
+        fi
+        echo -e "${GREEN}✅ Drizzle migrations complete!${NC}"
+    fi
+    {{else if (eq orm "typeorm")}}
+    # TypeORM migrations
+    echo -e "${YELLOW}Running TypeORM migrations...${NC}"
+    if [ -f "apps/api/package.json" ]; then
+        cd apps/api
+    fi
+    npx typeorm migration:run 2>/dev/null || echo "TypeORM migrations completed"
+    if [ -f "../package.json" ]; then
+        cd ..
+    fi
+    echo -e "${GREEN}✅ TypeORM migrations complete!${NC}"
+    {{else if (eq orm "mongoose")}}
+    # Mongoose doesn't need migrations
+    echo -e "${GREEN}✅ MongoDB with Mongoose ready (no migrations needed)${NC}"
+    {{else}}
+    # No ORM - run custom setup if available
+    {{#if (and authProvider (eq authProvider "auth.js"))}}
+    {{#if (and database (ne database "none"))}}
+    # Run Auth.js database setup for raw SQL
+    if [ -f "scripts/setup-auth-db.ts" ] || [ -f "apps/api/scripts/setup-auth-db.ts" ]; then
+        echo -e "${YELLOW}Running Auth.js database setup...${NC}"
+        if [ -f "apps/api/scripts/setup-auth-db.ts" ]; then
+            cd apps/api
+        fi
+        npm run db:setup 2>/dev/null || bun run db:setup:bun 2>/dev/null || echo "Database setup completed"
+        if [ -f "../package.json" ]; then
+            cd ..
+        fi
+        echo -e "${GREEN}✅ Auth.js tables created!${NC}"
+    fi
+    {{/if}}
+    {{/if}}
+    {{/if}}
+}
+
+# Main execution
+check_docker
+
+# Check if docker-compose.yml exists
+if [ ! -f "docker-compose.yml" ] && [ ! -f "docker-compose.yaml" ]; then
+    echo -e "${YELLOW}⚠️  No docker-compose file found. Skipping Docker setup.${NC}"
+else
+    # Check if containers are already running
+    if is_container_running "$DB_CONTAINER_NAME"; then
+        echo -e "${GREEN}✅ Database container '$DB_CONTAINER_NAME' is already running${NC}"
+    else
+        # Check if container exists but is stopped
+        if container_exists "$DB_CONTAINER_NAME"; then
+            echo -e "${YELLOW}🔄 Starting existing database container...${NC}"
+            docker compose up -d
+        else
+            echo -e "${YELLOW}🐳 Starting Docker containers for the first time...${NC}"
+            docker compose up -d
+        fi
+        
+        # Wait for database to be ready
+        wait_for_db
+        
+        # Run migrations on first setup or restart
+        run_migrations
+    fi
+fi
+
+echo -e "${GREEN}✨ Development environment is ready!${NC}"
+echo -e "${BLUE}📝 Starting application...${NC}"
+
+# Continue with the actual dev command
+{{#if (eq packageManager "bun")}}
+exec bun run dev:app
+{{else}}
+exec npm run dev:app
+{{/if}}

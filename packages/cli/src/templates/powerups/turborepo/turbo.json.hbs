@@ -1,23 +1,46 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalDependencies": [
+    "**/.env.*local",
+    "tsconfig.json"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [{{#ifEquals framework "next"}}".next/**", "!.next/cache/**"{{else ifEquals framework "vite"}}"dist/**"{{else ifEquals framework "nuxt"}}.nuxt/**", ".output/**"{{else}}"dist/**", "build/**"{{/ifEquals}}]
+      "outputs": [{{#ifEquals framework "next"}}".next/**", "!.next/cache/**"{{else ifEquals framework "vite"}}"dist/**"{{else ifEquals framework "nuxt"}}.nuxt/**", ".output/**"{{else}}"dist/**", "build/**"{{/ifEquals}}],
+      "outputLogs": "new-only"
     },
     "dev": {
       "cache": false,
+      "persistent": true,
+      "interactive": true
+    },
+    "start": {
+      "dependsOn": ["build"],
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint"],
+      "outputLogs": "errors-only"
     },
     "test": {
       "dependsOn": ["build"],
-      "outputs": ["coverage/**"]
+      "outputs": ["coverage/**"],
+      "outputLogs": "new-only",
+      "interactive": true
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true,
+      "interactive": true
     },
     "type-check": {
-      "dependsOn": ["^type-check"]
+      "dependsOn": ["^type-check"],
+      "outputLogs": "errors-only"
+    },
+    "clean": {
+      "cache": false
     }
   }
 }

@@ -233,6 +233,94 @@
       "type": "boolean",
       "description": "Whether dependencies were automatically installed",
       "default": false
+    },
+    "packageManagerVersion": {
+      "type": "string",
+      "description": "Exact version of the package manager used",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
+    },
+    "deploymentType": {
+      "type": "string",
+      "description": "Type of deployment architecture",
+      "enum": ["static", "fullstack", "api", "hybrid"]
+    },
+    "colorPalette": {
+      "type": "string",
+      "description": "Color palette theme for the project",
+      "enum": [
+        "shadcn",
+        "vercel",
+        "stripe",
+        "linear",
+        "radix",
+        "tailwind",
+        "notion",
+        "nextjs",
+        "chakra",
+        "default",
+        "neon",
+        "ocean",
+        "sunset",
+        "forest",
+        "monochrome",
+        "cyberpunk",
+        "pastel",
+        "retro",
+        "corporate",
+        "dracula",
+        "material",
+        "github",
+        "solarized",
+        "nord",
+        "monokai",
+        "gruvbox",
+        "tokyo-night",
+        "catppuccin",
+        "one-dark",
+        "ayu",
+        "synthwave",
+        "custom"
+      ]
+    },
+    "aiContext": {
+      "type": "array",
+      "description": "AI context files included in the project",
+      "items": {
+        "type": "string",
+        "enum": ["claude", "copilot", "cursor", "gemini"]
+      }
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Business logic plugins installed",
+      "items": {
+        "type": "string",
+        "enum": [
+          "stripe",
+          "resend",
+          "sendgrid",
+          "socketio",
+          "pusher",
+          "twilio",
+          "uploadthing",
+          "clerk-webhooks"
+        ]
+      }
+    },
+    "includeAdminTools": {
+      "type": "boolean",
+      "description": "Whether admin tools like pgAdmin or phpMyAdmin were included",
+      "default": false
+    },
+    "includeRedis": {
+      "type": "boolean",
+      "description": "Whether Redis was included in Docker setup",
+      "default": false
+    },
+    "dbUser": {
+      "type": "string",
+      "description": "Custom database username",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
     }
   },
   "required": [

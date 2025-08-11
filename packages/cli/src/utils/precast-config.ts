@@ -22,13 +22,32 @@ export interface PrecastConfig {
   orm?: string;
   styling?: string;
   uiLibrary?: string;
+  uiFramework?: string; // For Vite projects
   apiClient?: string;
   aiAssistant?: string;
+  authProvider?: string;
   typescript: boolean;
   git: boolean;
+  gitignore?: boolean;
+  eslint?: boolean;
+  prettier?: boolean;
   docker?: boolean;
+  securePasswords?: boolean;
   packageManager: string;
+  packageManagerVersion?: string;
+  runtime?: string;
+  deploymentMethod?: string;
+  deploymentType?: "static" | "fullstack" | "api" | "hybrid";
+  colorPalette?: string;
+  aiContext?: string[];
+  mcpServers?: string[];
+  powerups?: string[];
+  plugins?: string[];
   addons?: string[];
+  autoInstall?: boolean;
+  includeAdminTools?: boolean;
+  includeRedis?: boolean;
+  dbUser?: string;
 }
 
 /**
@@ -36,24 +55,71 @@ export interface PrecastConfig {
  * @param projectConfig - The project configuration to write
  */
 export async function writePrecastConfig(projectConfig: ProjectConfig) {
-  const precastConfig: PrecastConfig = {
+  // Determine deployment type based on the stack
+  let deploymentType: PrecastConfig["deploymentType"] = "fullstack";
+  if (projectConfig.backend === "none" && projectConfig.database === "none") {
+    deploymentType = "static";
+  } else if (projectConfig.backend !== "none" && projectConfig.database === "none") {
+    deploymentType = "api";
+  } else if (
+    projectConfig.framework === "next" ||
+    projectConfig.framework === "nuxt" ||
+    projectConfig.framework === "remix"
+  ) {
+    deploymentType = "hybrid";
+  }
+
+  // Build config object, only including defined values
+  const precastConfig: any = {
     version: await getPackageVersion(),
     createdAt: new Date().toISOString(),
     framework: projectConfig.framework,
     language: projectConfig.language,
-    backend: projectConfig.backend,
-    database: projectConfig.database,
-    orm: projectConfig.orm,
-    styling: projectConfig.styling,
-    uiLibrary: projectConfig.uiLibrary,
-    apiClient: projectConfig.apiClient,
-    aiAssistant: projectConfig.aiAssistant,
     typescript: projectConfig.typescript,
     git: projectConfig.git,
-    docker: projectConfig.docker,
     packageManager: projectConfig.packageManager,
-    addons: projectConfig.addons,
   };
+
+  // Add optional fields only if they're defined
+  if (projectConfig.backend) precastConfig.backend = projectConfig.backend;
+  if (projectConfig.database) precastConfig.database = projectConfig.database;
+  if (projectConfig.orm) precastConfig.orm = projectConfig.orm;
+  if (projectConfig.styling) precastConfig.styling = projectConfig.styling;
+  if (projectConfig.uiLibrary) precastConfig.uiLibrary = projectConfig.uiLibrary;
+  if (projectConfig.uiFramework) precastConfig.uiFramework = projectConfig.uiFramework;
+  if (projectConfig.apiClient) precastConfig.apiClient = projectConfig.apiClient;
+  if (projectConfig.aiAssistant) precastConfig.aiAssistant = projectConfig.aiAssistant;
+  if (projectConfig.authProvider) precastConfig.authProvider = projectConfig.authProvider;
+  if (projectConfig.gitignore !== undefined) precastConfig.gitignore = projectConfig.gitignore;
+  if (projectConfig.eslint !== undefined) precastConfig.eslint = projectConfig.eslint;
+  if (projectConfig.prettier !== undefined) precastConfig.prettier = projectConfig.prettier;
+  if (projectConfig.docker !== undefined) precastConfig.docker = projectConfig.docker;
+  if (projectConfig.securePasswords !== undefined)
+    precastConfig.securePasswords = projectConfig.securePasswords;
+  if (projectConfig.packageManagerVersion)
+    precastConfig.packageManagerVersion = projectConfig.packageManagerVersion;
+  if (projectConfig.runtime) precastConfig.runtime = projectConfig.runtime;
+  if (projectConfig.deploymentMethod)
+    precastConfig.deploymentMethod = projectConfig.deploymentMethod;
+  if (deploymentType) precastConfig.deploymentType = deploymentType;
+  if (projectConfig.colorPalette) precastConfig.colorPalette = projectConfig.colorPalette;
+  if (projectConfig.aiContext && projectConfig.aiContext.length > 0)
+    precastConfig.aiContext = projectConfig.aiContext;
+  if (projectConfig.mcpServers && projectConfig.mcpServers.length > 0)
+    precastConfig.mcpServers = projectConfig.mcpServers;
+  if (projectConfig.powerups && projectConfig.powerups.length > 0)
+    precastConfig.powerups = projectConfig.powerups;
+  if (projectConfig.plugins && projectConfig.plugins.length > 0)
+    precastConfig.plugins = projectConfig.plugins;
+  if (projectConfig.addons && projectConfig.addons.length > 0)
+    precastConfig.addons = projectConfig.addons;
+  if (projectConfig.autoInstall !== undefined)
+    precastConfig.autoInstall = projectConfig.autoInstall;
+  if (projectConfig.includeAdminTools !== undefined)
+    precastConfig.includeAdminTools = projectConfig.includeAdminTools;
+  if (projectConfig.includeRedis !== undefined)
+    precastConfig.includeRedis = projectConfig.includeRedis;
+  if (projectConfig.dbUser) precastConfig.dbUser = projectConfig.dbUser;
 
   const baseContent = {
     $schema: "https://precast.dev/precast.schema.json",
@@ -115,7 +181,7 @@ export async function readPrecastConfig(projectDir: string): Promise<PrecastConf
  */
 export async function updatePrecastConfig(
   projectDir: string,
-  updates: Partial<Pick<PrecastConfig, "uiLibrary" | "aiAssistant" | "addons">>
+  updates: Partial<Omit<PrecastConfig, "$schema" | "version" | "createdAt">>
 ) {
   try {
     const configPath = path.join(projectDir, PRECAST_CONFIG_FILE);
@@ -167,17 +233,31 @@ export async function detectPrecastProject(projectDir: string): Promise<ProjectC
     orm: config.orm || "none",
     styling: config.styling || "css",
     uiLibrary: config.uiLibrary,
+    uiFramework: config.uiFramework,
     apiClient: config.apiClient,
     aiAssistant: config.aiAssistant,
+    authProvider: config.authProvider,
     typescript: config.typescript,
     git: config.git,
-    gitignore: true,
-    eslint: true,
-    prettier: true,
+    gitignore: config.gitignore ?? true,
+    eslint: config.eslint ?? true,
+    prettier: config.prettier ?? true,
     docker: config.docker ?? false,
+    securePasswords: config.securePasswords,
     packageManager: config.packageManager,
+    packageManagerVersion: config.packageManagerVersion,
     projectPath: projectDir,
-    runtime: "node",
+    runtime: config.runtime || "node",
+    deploymentMethod: config.deploymentMethod,
+    colorPalette: config.colorPalette,
+    aiContext: config.aiContext,
+    mcpServers: config.mcpServers,
+    powerups: config.powerups,
+    plugins: config.plugins,
     addons: config.addons,
+    autoInstall: config.autoInstall,
+    includeAdminTools: config.includeAdminTools,
+    includeRedis: config.includeRedis,
+    dbUser: config.dbUser,
   };
 }

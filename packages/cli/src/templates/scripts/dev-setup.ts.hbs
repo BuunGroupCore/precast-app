@@ -1,0 +1,362 @@
+#!/usr/bin/env node
+/**
+ * Development setup script - starts Docker containers and runs migrations
+ * This script is idempotent - safe to run multiple times
+ */
+
+import { execSync, spawn } from "child_process";
+import { existsSync } from "fs";
+import { join } from "path";
+
+// Colors for output
+const colors = {
+  red: "\x1b[31m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
+  reset: "\x1b[0m",
+};
+
+// Configuration
+const config = {
+  {{#if (eq database "postgres")}}
+  dbContainerName: "{{name}}-postgres",
+  dbPort: 5432,
+  dbType: "PostgreSQL",
+  {{else if (eq database "mysql")}}
+  dbContainerName: "{{name}}-mysql",
+  dbPort: 3306,
+  dbType: "MySQL",
+  {{else if (eq database "mongodb")}}
+  dbContainerName: "{{name}}-mongodb",
+  dbPort: 27017,
+  dbType: "MongoDB",
+  {{/if}}
+  orm: "{{orm}}",
+  authProvider: "{{authProvider}}",
+  database: "{{database}}",
+  packageManager: "{{packageManager}}",
+  isMonorepo: {{#if (and backend (ne backend "none") (ne backend "next-api"))}}true{{else}}false{{/if}},
+};
+
+function log(message: string, color: keyof typeof colors = "reset") {
+  console.log(`${colors[color]}${message}${colors.reset}`);
+}
+
+function execCommand(command: string, silent = false): string | null {
+  try {
+    // Wrap the command in a shell that preserves PATH
+    // This ensures Docker and other system commands are available
+    const shellCommand = process.platform === "win32" 
+      ? command 
+      : `/bin/sh -c 'PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH" && ${command.replace(/'/g, "'\\''")}'`;
+    
+    const result = execSync(shellCommand, { 
+      encoding: "utf8",
+      stdio: silent ? "pipe" : "inherit"
+    });
+    return result;
+  } catch (error) {
+    if (!silent) {
+      console.error(`Command failed: ${command}`);
+    }
+    return null;
+  }
+}
+
+async function checkDocker(): Promise<boolean> {
+  // Skip Docker check if no docker-compose exists
+  const hasDockerCompose = existsSync("docker/docker-compose.yml") || 
+                          existsSync("docker/docker-compose.yaml") ||
+                          existsSync("docker-compose.yml") || 
+                          existsSync("docker-compose.yaml");
+  
+  if (!hasDockerCompose) {
+    return true; // Skip Docker check if no docker-compose
+  }
+  
+  // Try to check if Docker is running
+  const dockerCheck = execCommand("docker ps -q", true);
+  if (dockerCheck !== null) {
+    return true;
+  }
+  
+  // If Docker check fails, warn but continue
+  log("⚠️  Could not verify Docker status.", "yellow");
+  log("   Docker containers will be started if available.", "yellow");
+  return true; // Continue anyway - let docker compose show its own error if needed
+}
+
+function isContainerRunning(containerName: string): boolean {
+  const result = execCommand(
+    `docker ps --filter "name=${containerName}" --format "\{{.Names}}"`,
+    true
+  );
+  return result ? result.includes(containerName) : false;
+}
+
+function containerExists(containerName: string): boolean {
+  const result = execCommand(
+    `docker ps -a --filter "name=${containerName}" --format "\{{.Names}}"`,
+    true
+  );
+  return result ? result.includes(containerName) : false;
+}
+
+async function waitForDatabase(): Promise<boolean> {
+  log(`⏳ Waiting for ${config.dbType} to be ready...`, "yellow");
+  
+  let checkCommand: string;
+  {{#if (eq database "postgres")}}
+  checkCommand = `docker exec ${config.dbContainerName} pg_isready -U postgres`;
+  {{else if (eq database "mysql")}}
+  checkCommand = `docker exec ${config.dbContainerName} mysqladmin ping -h localhost --silent`;
+  {{else if (eq database "mongodb")}}
+  checkCommand = `docker exec ${config.dbContainerName} mongosh --eval "db.adminCommand('ping')"`;
+  {{else}}
+  checkCommand = "echo 'No database configured'";
+  {{/if}}
+  
+  for (let i = 0; i < 30; i++) {
+    const result = execCommand(checkCommand, true);
+    if (result !== null) {
+      log(`✅ ${config.dbType} is ready!`, "green");
+      return true;
+    }
+    process.stdout.write(".");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  
+  console.log(); // New line after dots
+  log(`❌ Database failed to start within 30 seconds`, "red");
+  return false;
+}
+
+async function runMigrations(): Promise<void> {
+  log("📦 Running database migrations...", "blue");
+  
+  {{#if (eq orm "prisma")}}
+  // Prisma migrations
+  const prismaPath = existsSync("apps/api/prisma/schema.prisma") 
+    ? "apps/api" 
+    : existsSync("prisma/schema.prisma") ? "." : null;
+    
+  if (prismaPath) {
+    log("Running Prisma migrations...", "yellow");
+    const originalDir = process.cwd();
+    if (prismaPath !== ".") {
+      process.chdir(prismaPath);
+    }
+    
+    // Try migrate deploy first, fall back to db push
+    const migrateResult = execCommand("npx prisma migrate deploy", true);
+    if (!migrateResult) {
+      execCommand("npx prisma db push");
+    }
+    
+    process.chdir(originalDir);
+    log("✅ Prisma migrations complete!", "green");
+  }
+  {{else if (eq orm "drizzle")}}
+  // Drizzle migrations
+  const drizzlePath = existsSync("apps/api/drizzle.config.ts")
+    ? "apps/api"
+    : existsSync("drizzle.config.ts") ? "." : null;
+    
+  if (drizzlePath) {
+    log("Running Drizzle migrations...", "yellow");
+    const originalDir = process.cwd();
+    if (drizzlePath !== ".") {
+      process.chdir(drizzlePath);
+    }
+    
+    execCommand("npx drizzle-kit push");
+    
+    process.chdir(originalDir);
+    log("✅ Drizzle migrations complete!", "green");
+  }
+  {{else if (eq orm "typeorm")}}
+  // TypeORM migrations
+  log("Running TypeORM migrations...", "yellow");
+  const typeormPath = existsSync("apps/api/package.json") ? "apps/api" : ".";
+  const originalDir = process.cwd();
+  if (typeormPath !== ".") {
+    process.chdir(typeormPath);
+  }
+  
+  execCommand("npx typeorm migration:run");
+  
+  process.chdir(originalDir);
+  log("✅ TypeORM migrations complete!", "green");
+  {{else if (eq orm "mongoose")}}
+  // Mongoose doesn't need migrations
+  log("✅ MongoDB with Mongoose ready (no migrations needed)", "green");
+  {{else}}
+  // No ORM - run custom setup if available
+  {{#if (and authProvider (eq authProvider "auth.js"))}}
+  {{#if (and database (ne database "none"))}}
+  // Run Auth.js database setup for raw SQL
+  const setupPath = existsSync("apps/api/scripts/setup-auth-db.ts")
+    ? "apps/api"
+    : existsSync("scripts/setup-auth-db.ts") ? "." : null;
+    
+  if (setupPath) {
+    log("Running Auth.js database setup...", "yellow");
+    const originalDir = process.cwd();
+    if (setupPath !== ".") {
+      process.chdir(setupPath);
+    }
+    
+    // Try different commands
+    const setupResult = execCommand("npm run db:setup", true) ||
+                       execCommand("bun run db:setup:bun", true) ||
+                       execCommand("tsx scripts/setup-auth-db.ts", true);
+    
+    process.chdir(originalDir);
+    if (setupResult) {
+      log("✅ Auth.js tables created!", "green");
+    }
+  }
+  {{/if}}
+  {{/if}}
+  {{/if}}
+}
+
+async function startDevelopment(): Promise<void> {
+  log("🚀 Starting development environment...", "blue");
+  
+  // Check if docker-compose exists (in docker/ subdirectory or root)
+  const hasDockerCompose = existsSync("docker/docker-compose.yml") || 
+                          existsSync("docker/docker-compose.yaml") ||
+                          existsSync("docker-compose.yml") || 
+                          existsSync("docker-compose.yaml");
+  
+  if (!hasDockerCompose) {
+    log("⚠️  No docker-compose file found. Skipping Docker setup.", "yellow");
+  } else if (config.database && config.database !== "none") {
+    // Check Docker availability
+    await checkDocker();
+    
+    // Determine docker-compose location
+    const dockerComposeFile = existsSync("docker/docker-compose.yml") ? "docker/docker-compose.yml" :
+                             existsSync("docker/docker-compose.yaml") ? "docker/docker-compose.yaml" :
+                             existsSync("docker-compose.yml") ? "docker-compose.yml" : "docker-compose.yaml";
+    
+    try {
+      // Check if containers are already running
+      if (isContainerRunning(config.dbContainerName)) {
+        log(`✅ Database container '${config.dbContainerName}' is already running`, "green");
+      } else {
+        // Check if container exists but is stopped
+        if (containerExists(config.dbContainerName)) {
+          log("🔄 Starting existing database container...", "yellow");
+          execCommand(`docker compose -f ${dockerComposeFile} up -d`);
+        } else {
+          log("🐳 Starting Docker containers for the first time...", "yellow");
+          const dockerResult = execCommand(`docker compose -f ${dockerComposeFile} up -d`);
+          if (dockerResult === null) {
+            log("⚠️  Could not start Docker containers. Please ensure Docker is installed and running.", "yellow");
+            log("   You can start them manually with: docker compose -f " + dockerComposeFile + " up -d", "yellow");
+          }
+        }
+        
+        // Only wait for database if Docker command succeeded
+        if (isContainerRunning(config.dbContainerName)) {
+          // Wait for database to be ready
+          const dbReady = await waitForDatabase();
+          if (!dbReady) {
+            log("⚠️  Database is taking longer to start. You may need to wait and restart.", "yellow");
+          } else {
+            // Run migrations on first setup or restart
+            await runMigrations();
+          }
+        }
+      }
+    } catch (error) {
+      log("⚠️  Docker operations failed. Continuing without Docker.", "yellow");
+      if (error instanceof Error) {
+        log(`   Error: ${error.message}`, "yellow");
+      }
+    }
+  }
+  
+  log("✨ Development environment is ready!", "green");
+  log("📝 Starting application...", "blue");
+  
+  // Start the actual dev command using the appropriate package manager
+  let devCommand: string;
+  let devArgs: string[];
+  
+  // For monorepos, we need to use turbo
+  if (config.isMonorepo) {
+    switch (config.packageManager) {
+      case "bun":
+        devCommand = "bunx";
+        devArgs = ["turbo", "run", "dev"];
+        break;
+      case "pnpm":
+        devCommand = "pnpm";
+        devArgs = ["exec", "turbo", "run", "dev"];
+        break;
+      case "yarn":
+        devCommand = "yarn";
+        devArgs = ["turbo", "run", "dev"];
+        break;
+      default: // npm
+        devCommand = "npx";
+        devArgs = ["turbo", "run", "dev"];
+        break;
+    }
+  } else {
+    // For single apps, just run the dev:app script
+    switch (config.packageManager) {
+      case "bun":
+        devCommand = "bun";
+        devArgs = ["run", "dev:app"];
+        break;
+      case "pnpm":
+        devCommand = "pnpm";
+        devArgs = ["run", "dev:app"];
+        break;
+      case "yarn":
+        devCommand = "yarn";
+        devArgs = ["dev:app"];
+        break;
+      default: // npm
+        devCommand = "npm";
+        devArgs = ["run", "dev:app"];
+        break;
+    }
+  }
+  
+  // Spawn the dev process and inherit stdio
+  const devProcess = spawn(devCommand, devArgs, {
+    stdio: "inherit",
+    shell: true,
+  });
+  
+  devProcess.on("error", (error) => {
+    log(`Failed to start dev server: ${error.message}`, "red");
+    process.exit(1);
+  });
+  
+  devProcess.on("exit", (code) => {
+    process.exit(code || 0);
+  });
+}
+
+// Handle graceful shutdown
+process.on("SIGINT", () => {
+  log("\n👋 Shutting down development environment...", "yellow");
+  process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+  process.exit(0);
+});
+
+// Start the development environment
+startDevelopment().catch((error) => {
+  log(`Error: ${error.message}`, "red");
+  process.exit(1);
+});

@@ -145,6 +145,37 @@ export async function setupDockerCompose(
       }
     }
 
+    // Generate wait-for-db script
+    const waitScriptTemplatePath = path.join(
+      __dirname,
+      "templates",
+      "docker",
+      "wait-for-db.sh.hbs"
+    );
+    const srcWaitScriptPath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "src",
+      "templates",
+      "docker",
+      "wait-for-db.sh.hbs"
+    );
+
+    const waitScriptPath = (await pathExists(waitScriptTemplatePath))
+      ? waitScriptTemplatePath
+      : srcWaitScriptPath;
+
+    if (await pathExists(waitScriptPath)) {
+      const waitScriptTemplate = await readFile(waitScriptPath, "utf-8");
+      const waitScriptContent = Handlebars.compile(waitScriptTemplate)(context);
+      const waitScriptOutputPath = path.join(dockerDir, "wait-for-db.sh");
+      await writeFile(waitScriptOutputPath, waitScriptContent);
+      // Make script executable
+      await fsExtra.chmod(waitScriptOutputPath, 0o755);
+      consola.success("Created wait-for-db.sh script");
+    }
+
     // URL-encode passwords for database URLs to handle special characters
     const encodedPasswords = {
       POSTGRES_PASSWORD: encodeURIComponent(passwords.POSTGRES_PASSWORD),
@@ -187,6 +218,10 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
     await writeFile(path.join(dockerDir, ".env"), envContent);
     await writeFile(path.join(dockerDir, ".env.example"), envContent);
 
+    // Update package.json files
+    const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
+    // Update root package.json
     const packageJsonPath = path.join(projectPath, "package.json");
     if (await pathExists(packageJsonPath)) {
       const packageJson = await readJson(packageJsonPath);
@@ -202,7 +237,42 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
       };
 
       await writeJson(packageJsonPath, packageJson, { spaces: 2 });
-      consola.success("Added Docker scripts to package.json");
+      consola.success("Added Docker scripts to root package.json");
+    }
+
+    // For monorepo, also update API package.json
+    if (isMonorepo) {
+      const apiPackageJsonPath = path.join(projectPath, "apps/api/package.json");
+      if (await pathExists(apiPackageJsonPath)) {
+        const apiPackageJson = await readJson(apiPackageJsonPath);
+
+        // Add migration scripts based on ORM
+        if (config.orm === "prisma") {
+          apiPackageJson.scripts = {
+            ...apiPackageJson.scripts,
+            "db:migrate": "prisma migrate deploy",
+            "db:push": "prisma db push",
+            "db:studio": "prisma studio",
+          };
+        } else if (config.orm === "drizzle") {
+          apiPackageJson.scripts = {
+            ...apiPackageJson.scripts,
+            "db:push": "drizzle-kit push",
+            "db:studio": "drizzle-kit studio",
+            "db:generate": "drizzle-kit generate",
+          };
+        } else if (config.orm === "typeorm") {
+          apiPackageJson.scripts = {
+            ...apiPackageJson.scripts,
+            "db:migrate": "typeorm migration:run",
+            "db:generate": "typeorm migration:generate",
+            "db:revert": "typeorm migration:revert",
+          };
+        }
+
+        await writeJson(apiPackageJsonPath, apiPackageJson, { spaces: 2 });
+        consola.success("Added database scripts to API package.json");
+      }
     }
 
     const readmeContent = `# Docker Development Environment

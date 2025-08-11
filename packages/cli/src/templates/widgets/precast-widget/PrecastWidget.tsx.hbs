@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { 
   SiPostgresql, 
@@ -36,6 +37,26 @@ interface SystemInfo {
   dbPort?: number;
 }
 
+interface Service {
+  name: string;
+  type: string;
+  icon: string;
+  port?: number;
+  testEndpoint?: string;
+  containers?: Array<{ name: string; port: number; icon: string }>;
+}
+
+interface AuthDetails {
+  email?: string;
+  user?: {
+    email?: string;
+    [key: string]: unknown;
+  };
+  session?: unknown;
+  token?: unknown;
+  [key: string]: unknown;
+}
+
 /**
  * PrecastWidget - Brutalist service validation and testing widget
  * Validates that Docker containers, databases, and other services are working correctly
@@ -47,6 +68,14 @@ export function PrecastWidget() {
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
+
+  {{#if authProvider}}
+  // Auth testing state (must be at top level)
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
+  const [authEmail, setAuthEmail] = useState('test@example.com');
+  const [authPassword, setAuthPassword] = useState('TestPassword123!');
+  const [authName, setAuthName] = useState('Test User');
+  {{/if}}
 
   // Only show in development
   const isDevelopment = import.meta.env.DEV;
@@ -77,7 +106,7 @@ export function PrecastWidget() {
 
   // Dynamically build services based on what's configured
   const buildServices = () => {
-    const detectedServices: Record<string, Record<string, unknown>> = {};
+    const detectedServices: Record<string, Service> = {};
     
     {{#if backend}}
     // API service
@@ -223,6 +252,7 @@ export function PrecastWidget() {
 
   {{#if database}}
   // Database Connection Test
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const testDatabaseConnection = async () => {
     setLoading((prev) => ({ ...prev, database: true }));
     try {
@@ -262,6 +292,7 @@ export function PrecastWidget() {
 
   {{#if backend}}
   // API Health Check
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const testApiHealth = async () => {
     setLoading((prev) => ({ ...prev, api: true }));
     try {
@@ -302,6 +333,7 @@ export function PrecastWidget() {
 
   {{#if docker}}
   // Docker Health Check
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const testDockerHealth = async () => {
     setLoading((prev) => ({ ...prev, docker: true }));
     try {
@@ -352,6 +384,7 @@ export function PrecastWidget() {
 
   {{#if (includes plugins 'resend')}}
   // Email Service Test
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const testEmailService = async () => {
     setLoading((prev) => ({ ...prev, email: true }));
     try {
@@ -414,21 +447,18 @@ export function PrecastWidget() {
   {{/if}}
 
   {{#if authProvider}}
-  // Auth testing state
-  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
-  const [authEmail, setAuthEmail] = useState('test@example.com');
-  const [authPassword, setAuthPassword] = useState('TestPassword123!');
-  const [authName, setAuthName] = useState('Test User');
 
   /**
    * Test authentication status endpoint
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const testAuthStatus = async () => {
     setLoading((prev) => ({ ...prev, authStatus: true }));
     try {
       const apiUrl = import.meta.env.VITE_API_URL || "";
       
-      // Try Better Auth's built-in ok endpoint first
+      {{#if (eq authProvider 'better-auth')}}
+      // Try Better Auth's built-in ok endpoint
       const okResponse = await fetch(`${apiUrl}/api/auth/ok`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -453,6 +483,55 @@ export function PrecastWidget() {
           details: `Auth health check returned ${okResponse.status}`,
         });
       }
+      {{else if (eq authProvider 'auth.js')}}
+      // Test Auth.js providers endpoint
+      const response = await fetch(`${apiUrl}/api/auth/providers`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      
+      if (response.ok) {
+        const providers = await response.json();
+        addTestResult("authStatus", {
+          success: true,
+          message: "AUTH.JS SERVICE HEALTHY",
+          details: {
+            endpoint: "/api/auth/providers",
+            providers: providers.providers || [],
+            status: "Auth.js is responding correctly"
+          },
+        });
+      } else {
+        addTestResult("authStatus", {
+          success: false,
+          message: "AUTH.JS SERVICE UNHEALTHY",
+          details: `Auth.js health check returned ${response.status}`,
+        });
+      }
+      {{else}}
+      // Generic auth health check
+      const response = await fetch(`${apiUrl}/api/health/auth`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        addTestResult("authStatus", {
+          success: true,
+          message: "AUTH SERVICE HEALTHY",
+          details: data
+        });
+      } else {
+        addTestResult("authStatus", {
+          success: false,
+          message: "AUTH SERVICE UNHEALTHY",
+          details: `Auth health check returned ${response.status}`,
+        });
+      }
+      {{/if}}
     } catch (error) {
       addTestResult("authStatus", {
         success: false,
@@ -467,6 +546,7 @@ export function PrecastWidget() {
   /**
    * Test authentication endpoints with user input
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const testAuthService = async () => {
     setLoading((prev) => ({ ...prev, auth: true }));
     try {
@@ -500,6 +580,71 @@ export function PrecastWidget() {
           }),
         });
       }
+      {{else if (eq authProvider 'auth.js')}}
+      let response;
+      let responseData;
+      
+      if (authMode === 'signup') {
+        // Auth.js doesn't have built-in signup, use custom endpoint
+        response = await fetch(`${apiUrl}/api/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            name: authName
+          }),
+        });
+      } else {
+        // Get CSRF token first
+        const csrfResponse = await fetch(`${apiUrl}/api/auth/csrf`, {
+          credentials: "include",
+        });
+        const { csrfToken } = await csrfResponse.json();
+        
+        // Test signin endpoint with credentials provider
+        response = await fetch(`${apiUrl}/api/auth/callback/credentials`, {
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            csrfToken,
+            redirect: false,
+            json: true
+          }),
+        });
+      }
+      {{else}}
+      // Generic auth test for other providers
+      let response;
+      let responseData;
+      
+      if (authMode === 'signup') {
+        response = await fetch(`${apiUrl}/api/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            name: authName
+          }),
+        });
+      } else {
+        response = await fetch(`${apiUrl}/api/auth/signin`, {
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword
+          }),
+        });
+      }
+      {{/if}}
 
       try {
         responseData = await response.json();
@@ -547,7 +692,6 @@ export function PrecastWidget() {
           },
         });
       }
-      {{/if}}
     } catch (error) {
       addTestResult("auth", {
         success: false,
@@ -604,7 +748,7 @@ export function PrecastWidget() {
               {new Date(result.timestamp).toLocaleTimeString()}
             </p>
             
-            {result.details && typeof result.details === "object" && (
+            {result.details && typeof result.details === "object" && result.details !== null ? (
               shouldCollapse ? (
                 <div className="{{#if (eq styling 'tailwind')}}mt-2{{else}}collapsible-details{{/if}}">
                   <button
@@ -643,9 +787,9 @@ export function PrecastWidget() {
                   {!isExpanded && result.details && (
                     <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/10 rounded{{else}}summary-box{{/if}}">
                       <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/70 font-mono{{else}}summary-text{{/if}}">
-                        ✓ User: {(result.details as any).email || (result.details as any).user?.email || 'Authenticated'}
-                        {(result.details as any).session && <><br />✓ Session created</>}
-                        {(result.details as any).token && <><br />✓ Token received</>}
+                        ✓ User: {(result.details as AuthDetails).email || (result.details as AuthDetails).user?.email || 'Authenticated'}
+                        {Boolean((result.details as AuthDetails).session) && <><br />✓ Session created</>}
+                        {Boolean((result.details as AuthDetails).token) && <><br />✓ Token received</>}
                       </p>
                     </div>
                   )}
@@ -657,7 +801,7 @@ export function PrecastWidget() {
                   </pre>
                 </div>
               )
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -695,18 +839,18 @@ export function PrecastWidget() {
           {/* Side Tab Navigation */}
           {!isMinimized && (
             <div className="{{#if (eq styling 'tailwind')}}flex flex-col mr-0{{else}}side-tabs{{/if}}">
-              {Object.entries(services).map(([key, service]: [string, Record<string, unknown>]) => (
+              {Object.entries(services).map(([key, service]) => (
                 <button
                   key={key}
                   onClick={() => setActiveTab(key)}
                   className={`{{#if (eq styling 'tailwind')}}w-12 h-12 border-2 border-black border-r-0 flex items-center justify-center transition-all duration-150 ${activeTab === key ? 'bg-yellow-400 shadow-[-2px_0px_0px_0px_rgba(0,0,0,1)]' : 'bg-white hover:bg-gray-100'} ${key === Object.keys(services)[0] ? '' : 'border-t-0'}{{else}}side-tab{{/if}}`}
-                  title={service.name as string}
+                  title={service.name}
                   {{#unless (eq styling 'tailwind')}}
                   data-active={activeTab === key}
                   {{/unless}}
                 >
                   <div className="{{#if (eq styling 'tailwind')}}transform scale-125{{else}}tab-icon{{/if}}">
-                    {getServiceIcon(service.icon as string, 20)}
+                    {getServiceIcon(service.icon, 20)}
                   </div>
                 </button>
               ))}
@@ -768,18 +912,18 @@ export function PrecastWidget() {
             {!isMinimized && (
               <div className="{{#if (eq styling 'tailwind')}}p-4 overflow-y-auto max-h-[calc(85vh-4rem)] bg-white{{else}}panel-content{{/if}}">
                 {/* Dynamic tab content based on active service */}
-                {Object.entries(services).map(([key, service]: [string, Record<string, unknown>]) => 
+                {Object.entries(services).map(([key, service]) => 
                   activeTab === key && (
                     <div key={key} className="{{#if (eq styling 'tailwind')}}space-y-4{{else}}tab-content{{/if}}">
                       <div className="{{#if (eq styling 'tailwind')}}border-2 border-black p-4 bg-white{{else}}service-card{{/if}}">
                         <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-3{{else}}service-header{{/if}}">
                           <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}service-info{{/if}}">
                             <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-yellow-400 border-2 border-black flex items-center justify-center{{else}}service-icon{{/if}}">
-                              {getServiceIcon(service.icon as string, 20)}
+                              {getServiceIcon(service.icon, 20)}
                             </div>
                             <div>
                               <h3 className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase text-sm{{else}}service-name{{/if}}">
-                                {(service.type as string)?.toUpperCase() || (service.name as string)}
+                                {service.type?.toUpperCase() || service.name}
                               </h3>
                               {service.port && (
                                 <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 font-mono{{else}}service-port{{/if}}">

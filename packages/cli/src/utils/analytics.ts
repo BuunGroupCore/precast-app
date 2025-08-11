@@ -12,6 +12,7 @@ const GA_API_SECRET = "";
 const GA_ENDPOINT = "https://www.google-analytics.com/mp/collect";
 const TELEMETRY_DISABLED_KEY = "PRECAST_TELEMETRY_DISABLED";
 const SESSION_FILE = join(os.homedir(), ".precast-cli-session");
+const TELEMETRY_CONFIG_FILE = join(os.homedir(), ".precast-telemetry");
 
 export interface TelemetryEvent {
   framework?: string;
@@ -37,6 +38,7 @@ export interface TelemetryEvent {
  * Check if telemetry is enabled
  */
 export function isTelemetryEnabled(): boolean {
+  // Check environment variable first
   if (
     process.env[TELEMETRY_DISABLED_KEY] === "1" ||
     process.env[TELEMETRY_DISABLED_KEY] === "true"
@@ -44,8 +46,21 @@ export function isTelemetryEnabled(): boolean {
     return false;
   }
 
+  // Check CI environment
   if (process.env.CI === "true" || process.env.CONTINUOUS_INTEGRATION === "true") {
     return false;
+  }
+
+  // Check local config file
+  try {
+    if (existsSync(TELEMETRY_CONFIG_FILE)) {
+      const config = JSON.parse(readFileSync(TELEMETRY_CONFIG_FILE, "utf-8"));
+      if (config.disabled === true) {
+        return false;
+      }
+    }
+  } catch {
+    // Ignore errors reading config file
   }
 
   return true;
@@ -209,11 +224,22 @@ export function displayTelemetryNotice(): void {
     return;
   }
 
+  // Check if we've already shown the notice (config file exists)
+  try {
+    if (existsSync(TELEMETRY_CONFIG_FILE)) {
+      return; // User has already made a choice
+    }
+  } catch {
+    // Continue to show notice
+  }
+
   console.log(`
   📊 Precast collects anonymous usage data to improve the CLI.
      No personal information is collected.
      
-     To opt-out: export PRECAST_TELEMETRY_DISABLED=1
+     To opt-out: create-precast-app telemetry disable
+     Or set: export PRECAST_TELEMETRY_DISABLED=1
+     
      Learn more: https://precast.dev/docs/telemetry
   `);
 }

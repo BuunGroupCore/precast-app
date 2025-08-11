@@ -168,6 +168,27 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
           {/* Styling */}
           {renderStackItem("styling", config.styling)}
 
+          {/* Color Palette */}
+          {config.colorPalette && (
+            <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-row min-[320px]:flex-col items-center justify-start min-[320px]:justify-center gap-2 min-[320px]:gap-1 relative overflow-hidden">
+              <span className="absolute top-0.5 right-0.5 text-[7px] min-[320px]:text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full z-10">
+                Colors
+              </span>
+              <div className="flex gap-0.5">
+                {config.colorPalette.preview?.slice(0, 4).map((color, i) => (
+                  <div
+                    key={i}
+                    className="w-3 h-3 min-[320px]:w-4 min-[320px]:h-4 rounded-sm border border-white/50"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal">
+                {config.colorPalette.name}
+              </span>
+            </div>
+          )}
+
           {/* Runtime */}
           {renderStackItem("runtime", config.runtime || "node")}
 

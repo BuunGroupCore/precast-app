@@ -1,0 +1,33 @@
+{{#if colorPalette}}
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '{{colorPalette.colors.primary}}',
+          dark: '{{colorPalette.colors.primaryDark}}',
+        },
+        secondary: {
+          DEFAULT: '{{colorPalette.colors.secondary}}',
+          dark: '{{colorPalette.colors.secondaryDark}}',
+        },
+        accent: {
+          DEFAULT: '{{colorPalette.colors.accent}}',
+          dark: '{{colorPalette.colors.accentDark}}',
+        },
+        background: '{{colorPalette.colors.background}}',
+        surface: '{{colorPalette.colors.surface}}',
+        text: {
+          DEFAULT: '{{colorPalette.colors.text}}',
+          secondary: '{{colorPalette.colors.textSecondary}}',
+        },
+        error: '{{colorPalette.colors.error}}',
+        warning: '{{colorPalette.colors.warning}}',
+        success: '{{colorPalette.colors.success}}',
+        info: '{{colorPalette.colors.info}}',
+      },
+    },
+  },
+}
+{{/if}}

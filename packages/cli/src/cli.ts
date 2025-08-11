@@ -6,9 +6,10 @@ import { fileURLToPath } from "url";
 import { Command } from "commander";
 import fsExtra from "fs-extra";
 
-import { addFeaturesCommand } from "./commands/add-features.js";
 import { addCommand } from "./commands/add.js";
 import { initCommand } from "./commands/init.js";
+import { statusCommand } from "./commands/status.js";
+import { telemetryCommand } from "./commands/telemetry.js";
 
 /** Current file and directory paths */
 const __filename = fileURLToPath(import.meta.url);
@@ -72,6 +73,10 @@ program
     "--plugins <plugins>",
     "Comma-separated list of plugins (stripe, resend, sendgrid, socketio)"
   )
+  .option(
+    "--color-palette <palette>",
+    "Color palette theme (minimal-pro, monochrome, gradient, midnight, breeze, electric, nature, sunset, developer, arctic)"
+  )
   .action(async (projectName, options) => {
     await initCommand(projectName, {
       yes: options.yes,
@@ -98,32 +103,37 @@ program
       mcpServers: options.mcpServers,
       powerups: options.powerups ? options.powerups.split(",") : undefined,
       plugins: options.plugins ? options.plugins.split(",") : undefined,
+      colorPalette: options.colorPalette,
     });
   });
 program
   .command("add [resource]")
-  .description("Add a new resource to your project (component, route, api, etc.)")
+  .description("Add a new resource to your project (component, route, api, feature, etc.)")
   .option("-n, --name <name>", "Resource name")
+  .option("--ui <library>", "UI component library to add")
+  .option("--auth <provider>", "Authentication provider to add")
+  .option("--api-client <client>", "API client library to add")
+  .option("--ai <assistant>", "AI assistant to add")
+  .option("--plugin <plugin>", "Plugin to add (stripe, resend, sendgrid, socketio)")
   .option("--no-typescript", "Generate JavaScript instead of TypeScript")
   .action(async (resource, options) => {
     await addCommand(resource, {
       name: options.name,
+      ui: options.ui,
+      auth: options.auth,
+      apiClient: options.apiClient,
+      ai: options.ai,
+      plugin: options.plugin,
       typescript: options.typescript,
     });
   });
 program
-  .command("add-features")
-  .description("Add features to an existing Precast project (UI libraries, AI context files)")
-  .option("--ui <library>", "UI component library to add")
-  .option("--ai <tools...>", "AI assistance tools to add (claude, copilot, cursor, gemini)")
-  .option("-y, --yes", "Skip all prompts and use defaults")
-  .action(async (options) => {
-    await addFeaturesCommand(process.cwd(), {
-      ui: options.ui,
-      ai: options.ai,
-      yes: options.yes,
-    });
+  .command("status [path]")
+  .description("Show the status and configuration of a Precast project")
+  .action(async (projectPath) => {
+    await statusCommand(projectPath);
   });
+
 program
   .command("list")
   .description("List available templates and features")
@@ -140,4 +150,12 @@ program
     const { createBannerTemplate } = await import("./utils/banner.js");
     await createBannerTemplate();
   });
+
+program
+  .command("telemetry [action]")
+  .description("Manage telemetry settings (status, enable, disable)")
+  .action(async (action) => {
+    await telemetryCommand(action);
+  });
+
 program.parse();

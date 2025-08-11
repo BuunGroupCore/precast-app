@@ -144,6 +144,25 @@ pnpm --filter create-precast-app build
 ./packages/cli/dist/cli.js init test-project
 ```
 
+## 📊 Telemetry
+
+Precast CLI collects anonymous usage data to help improve the tool. No personal information is collected.
+
+### Managing Telemetry
+
+```bash
+# Check telemetry status
+npx create-precast-app telemetry status
+
+# Disable telemetry
+npx create-precast-app telemetry disable
+
+# Enable telemetry
+npx create-precast-app telemetry enable
+```
+
+Learn more in our [Telemetry Documentation](docs/TELEMETRY.md).
+
 ## 🤝 Contributing
 
 We love contributions! Please see our [Contributing Guide](https://github.com/BuunGroupCore/precast-app/blob/main/CONTRIBUTING.md) for details.

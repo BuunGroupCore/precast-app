@@ -58,7 +58,13 @@ Each CLI session generates a random UUID that persists across commands but conta
 
 ### Opt-Out
 
-You can disable telemetry at any time by setting an environment variable:
+You can disable telemetry at any time using the CLI command:
+
+```bash
+create-precast-app telemetry disable
+```
+
+Or by setting an environment variable:
 
 ```bash
 export PRECAST_TELEMETRY_DISABLED=1
@@ -68,6 +74,21 @@ Or in your shell configuration file (`~/.bashrc`, `~/.zshrc`, etc.):
 
 ```bash
 echo 'export PRECAST_TELEMETRY_DISABLED=1' >> ~/.bashrc
+```
+
+### Managing Telemetry
+
+The CLI provides commands to manage telemetry settings:
+
+```bash
+# Check current telemetry status
+create-precast-app telemetry status
+
+# Disable telemetry
+create-precast-app telemetry disable
+
+# Enable telemetry
+create-precast-app telemetry enable
 ```
 
 ### Automatic Disabling

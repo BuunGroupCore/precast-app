@@ -1,0 +1,59 @@
+{{#if colorPalette}}
+/* Color Palette: {{colorPalette.name}} */
+/* {{colorPalette.description}} */
+
+:root {
+  /* Primary Colors */
+  --color-primary: {{colorPalette.colors.primary}};
+  --color-primary-dark: {{colorPalette.colors.primaryDark}};
+  
+  /* Secondary Colors */
+  --color-secondary: {{colorPalette.colors.secondary}};
+  --color-secondary-dark: {{colorPalette.colors.secondaryDark}};
+  
+  /* Accent Colors */
+  --color-accent: {{colorPalette.colors.accent}};
+  --color-accent-dark: {{colorPalette.colors.accentDark}};
+  
+  /* Background Colors */
+  --color-background: {{colorPalette.colors.background}};
+  --color-surface: {{colorPalette.colors.surface}};
+  
+  /* Text Colors */
+  --color-text: {{colorPalette.colors.text}};
+  --color-text-secondary: {{colorPalette.colors.textSecondary}};
+  
+  /* Status Colors */
+  --color-error: {{colorPalette.colors.error}};
+  --color-warning: {{colorPalette.colors.warning}};
+  --color-success: {{colorPalette.colors.success}};
+  --color-info: {{colorPalette.colors.info}};
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: {{colorPalette.colors.primaryDark}};
+    --color-secondary: {{colorPalette.colors.secondaryDark}};
+    --color-accent: {{colorPalette.colors.accentDark}};
+  }
+}
+
+/* Utility classes */
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-accent { background-color: var(--color-accent); }
+.bg-background { background-color: var(--color-background); }
+.bg-surface { background-color: var(--color-surface); }
+
+.text-primary { color: var(--color-text); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-error { color: var(--color-error); }
+.text-warning { color: var(--color-warning); }
+.text-success { color: var(--color-success); }
+.text-info { color: var(--color-info); }
+
+.border-primary { border-color: var(--color-primary); }
+.border-secondary { border-color: var(--color-secondary); }
+.border-accent { border-color: var(--color-accent); }
+{{/if}}

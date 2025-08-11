@@ -102,6 +102,19 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     await setupAIContextFiles(config, projectPath, templateEngine);
   }
 
+  // Setup color palette if selected
+  if (
+    config.colorPalette &&
+    (config.styling === "css" || config.styling === "tailwind" || config.styling === "scss")
+  ) {
+    try {
+      const { setupColorPalette } = await import("../utils/color-palette-setup.js");
+      await setupColorPalette(config, projectPath);
+    } catch (error) {
+      logger.warn(`Failed to setup color palette: ${error}`);
+    }
+  }
+
   // Setup database-specific files and configurations
   if (config.database && config.database !== "none") {
     try {
@@ -136,10 +149,11 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Automatically setup admin panel if project has plugins or database
+  // Automatically setup admin panel if project has plugins, database, or auth
   const shouldSetupAdminPanel =
     (config.plugins && config.plugins.length > 0) ||
-    (config.database && config.database !== "none");
+    (config.database && config.database !== "none") ||
+    (config.authProvider && config.authProvider !== "none");
 
   if (shouldSetupAdminPanel) {
     try {

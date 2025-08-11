@@ -1,158 +1,224 @@
-import { ExternalLink } from "lucide-react";
-import { FaReact{{#if (eq runtime "node")}}, FaNode{{/if}} } from "react-icons/fa";
-import { SiVite, SiTailwindcss, SiTypescript{{#if (eq runtime "bun")}}, SiBun{{/if}} } from "react-icons/si";
-
-{{#if typescript}}/**
- * Technology item interface
- */
-interface TechnologyItem {
-  name: string;
-  icon: React.ReactNode;
-  url: string;
-  description: string;
-  color: {
-    gradient: string;
-    border: string;
-    bg: string;
-    text: string;
-  };
-}{{/if}}
+import { Code2, Layers, Package2 } from "lucide-react";
+import { 
+  SiReact, 
+  SiVite, 
+  SiTailwindcss, 
+  SiTypescript, 
+  SiBun,
+{{#if backend}}
+{{#if (eq backend 'hono')}}
+  SiHono,
+{{/if}}
+{{#if (eq backend 'express')}}
+  SiExpress,
+{{/if}}
+{{#if (eq backend 'fastify')}}
+  SiFastify,
+{{/if}}
+{{#if (eq backend 'nestjs')}}
+  SiNestjs,
+{{/if}}
+{{/if}}
+{{#if database}}
+{{#if (eq database 'postgres')}}
+  SiPostgresql,
+{{/if}}
+{{#if (eq database 'mysql')}}
+  SiMysql,
+{{/if}}
+{{#if (eq database 'sqlite')}}
+  SiSqlite,
+{{/if}}
+{{#if (eq database 'mongodb')}}
+  SiMongodb,
+{{/if}}
+{{/if}}
+{{#if orm}}
+{{#if (eq orm 'prisma')}}
+  SiPrisma,
+{{/if}}
+{{#if (eq orm 'drizzle')}}
+  SiDrizzle,
+{{/if}}
+{{/if}}
+{{#if docker}}
+  SiDocker
+{{/if}}
+} from "react-icons/si";
 
 /**
- * Technology Stack component showcasing the selected technologies
- * Displays beautiful cards for each technology in the stack
+ * Technology Stack component - Grid layout with brutalist cards
  */
 export function TechnologyStack() {
-  {{#if typescript}}const technologies: TechnologyItem[] = [{{else}}const technologies = [{{/if}}
+  const technologies = [
     {
-      name: "{{#if (eq framework "react")}}React{{else if (eq framework "vue")}}Vue.js{{else if (eq framework "angular")}}Angular{{else}}{{framework}}{{/if}}",
-      icon: {{#if typescript}}{{#if (eq framework "react")}}<FaReact className="w-12 h-12" />{{else if (eq framework "vue")}}<FaVuejs className="w-12 h-12" />{{else if (eq framework "angular")}}<FaAngular className="w-12 h-12" />{{else}}<FaReact className="w-12 h-12" />{{/if}}{{else}}<span className="text-4xl">⚛️</span>{{/if}},
-      url: "{{#if (eq framework "react")}}https://react.dev{{else if (eq framework "vue")}}https://vuejs.org{{else if (eq framework "angular")}}https://angular.io{{else}}https://react.dev{{/if}}",
-      description: "{{#if (eq framework "react")}}The library for web and native user interfaces. Learn about components, hooks, and the React ecosystem.{{else if (eq framework "vue")}}The progressive JavaScript framework for building user interfaces with an intuitive API.{{else if (eq framework "angular")}}Platform for building mobile and desktop web applications with TypeScript.{{else}}Modern JavaScript framework for building user interfaces.{{/if}}",
-      color: {
-        gradient: "{{#if (eq framework "react")}}from-blue-600 to-cyan-600{{else if (eq framework "vue")}}from-green-600 to-teal-600{{else if (eq framework "angular")}}from-red-600 to-pink-600{{else}}from-blue-600 to-cyan-600{{/if}}",
-        border: "{{#if (eq framework "react")}}hover:border-blue-500/50{{else if (eq framework "vue")}}hover:border-green-500/50{{else if (eq framework "angular")}}hover:border-red-500/50{{else}}hover:border-blue-500/50{{/if}}",
-        bg: "{{#if (eq framework "react")}}bg-blue-500/10 group-hover:bg-blue-500/20{{else if (eq framework "vue")}}bg-green-500/10 group-hover:bg-green-500/20{{else if (eq framework "angular")}}bg-red-500/10 group-hover:bg-red-500/20{{else}}bg-blue-500/10 group-hover:bg-blue-500/20{{/if}}",
-        text: "{{#if (eq framework "react")}}text-blue-400 group-hover:text-blue-300{{else if (eq framework "vue")}}text-green-400 group-hover:text-green-300{{else if (eq framework "angular")}}text-red-400 group-hover:text-red-300{{else}}text-blue-400 group-hover:text-blue-300{{/if}}"
-      }
+      category: "FRONTEND",
+      items: [
+        {{#if (eq framework 'react')}}
+        { name: "React", icon: <SiReact size={24} />, version: "18.3", port: "5173" },
+        {{/if}}
+        {{#if (or (eq framework 'react') (eq framework 'vue') (eq framework 'svelte'))}}
+        { name: "Vite", icon: <SiVite size={24} />, version: "5.4", build: "FAST" },
+        {{/if}}
+        {{#if (eq styling 'tailwind')}}
+        { name: "Tailwind", icon: <SiTailwindcss size={24} />, version: "3.4", jit: "ON" },
+        {{/if}}
+        {{#if typescript}}
+        { name: "TypeScript", icon: <SiTypescript size={24} />, version: "5.7", strict: "YES" },
+        {{/if}}
+      ]
     },
+    {{#if (or backend database orm docker)}}
     {
-      name: "Vite",
-      icon: {{#if typescript}}<SiVite className="w-12 h-12" />{{else}}<span className="text-4xl">⚡</span>{{/if}},
-      url: "https://vitejs.dev",
-      description: "Next generation frontend tooling with lightning fast development server and optimized builds.",
-      color: {
-        gradient: "from-yellow-600 to-orange-600",
-        border: "hover:border-yellow-500/50",
-        bg: "bg-yellow-500/10 group-hover:bg-yellow-500/20",
-        text: "text-yellow-400 group-hover:text-yellow-300"
-      }
-    }{{#if (eq styling "tailwind")}},
+      category: "BACKEND",
+      items: [
+        {{#if backend}}
+        {{#if (eq backend 'hono')}}
+        { name: "Hono", icon: <SiHono size={24} />, version: "3.0", port: "3001" },
+        {{/if}}
+        {{#if (eq backend 'express')}}
+        { name: "Express", icon: <SiExpress size={24} />, version: "4.18", port: "3001" },
+        {{/if}}
+        {{#if (eq backend 'fastify')}}
+        { name: "Fastify", icon: <SiFastify size={24} />, version: "4.24", port: "3001" },
+        {{/if}}
+        {{#if (eq backend 'nestjs')}}
+        { name: "NestJS", icon: <SiNestjs size={24} />, version: "10.0", port: "3001" },
+        {{/if}}
+        {{/if}}
+        {{#if (and orm (ne orm 'none'))}}
+        {{#if (eq orm 'prisma')}}
+        { name: "Prisma", icon: <SiPrisma size={24} />, version: "5.20", orm: "TYPE-SAFE" },
+        {{/if}}
+        {{#if (eq orm 'drizzle')}}
+        { name: "Drizzle", icon: <SiDrizzle size={24} />, version: "0.29", orm: "TYPE-SAFE" },
+        {{/if}}
+        {{/if}}
+        {{#if database}}
+        {{#if (eq database 'postgres')}}
+        { name: "PostgreSQL", icon: <SiPostgresql size={24} />, version: "16", port: "5432" },
+        {{/if}}
+        {{#if (eq database 'mysql')}}
+        { name: "MySQL", icon: <SiMysql size={24} />, version: "8.0", port: "3306" },
+        {{/if}}
+        {{#if (eq database 'sqlite')}}
+        { name: "SQLite", icon: <SiSqlite size={24} />, version: "3.45", file: "LOCAL" },
+        {{/if}}
+        {{#if (eq database 'mongodb')}}
+        { name: "MongoDB", icon: <SiMongodb size={24} />, version: "7.0", port: "27017" },
+        {{/if}}
+        {{/if}}
+        {{#if docker}}
+        { name: "Docker", icon: <SiDocker size={24} />, version: "25", status: "RUNNING" },
+        {{/if}}
+      ]
+    },
+    {{/if}}
     {
-      name: "Tailwind CSS",
-      icon: {{#if typescript}}<SiTailwindcss className="w-12 h-12" />{{else}}<span className="text-4xl">🎨</span>{{/if}},
-      url: "https://tailwindcss.com",
-      description: "Utility-first CSS framework for building beautiful interfaces without leaving your HTML.",
-      color: {
-        gradient: "from-cyan-600 to-teal-600",
-        border: "hover:border-cyan-500/50",
-        bg: "bg-cyan-500/10 group-hover:bg-cyan-500/20",
-        text: "text-cyan-400 group-hover:text-cyan-300"
-      }
-    }{{/if}}{{#if typescript}},
-    {
-      name: "TypeScript",
-      icon: <SiTypescript className="w-12 h-12" />,
-      url: "https://www.typescriptlang.org",
-      description: "Strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.",
-      color: {
-        gradient: "from-blue-600 to-indigo-600",
-        border: "hover:border-blue-500/50",
-        bg: "bg-blue-500/10 group-hover:bg-blue-500/20",
-        text: "text-blue-400 group-hover:text-blue-300"
-      }
-    }{{#if (eq runtime "bun")}},
-    {
-      name: "Bun",
-      icon: {{#if typescript}}<SiBun className="w-12 h-12" />{{else}}<span className="text-4xl">🥟</span>{{/if}},
-      url: "https://bun.sh",
-      description: "Ultra-fast JavaScript runtime, bundler, test runner and package manager – all in one.",
-      color: {
-        gradient: "from-orange-600 to-red-600",
-        border: "hover:border-orange-500/50",
-        bg: "bg-orange-500/10 group-hover:bg-orange-500/20",
-        text: "text-orange-400 group-hover:text-orange-300"
-      }
-    }{{else if (eq runtime "node")}},
-    {
-      name: "Node.js",
-      icon: {{#if typescript}}<FaNode className="w-12 h-12" />{{else}}<span className="text-4xl">🟢</span>{{/if}},
-      url: "https://nodejs.org",
-      description: "JavaScript runtime built on Chrome's V8 JavaScript engine with a rich ecosystem of packages.",
-      color: {
-        gradient: "from-green-600 to-emerald-600",
-        border: "hover:border-green-500/50",
-        bg: "bg-green-500/10 group-hover:bg-green-500/20",
-        text: "text-green-400 group-hover:text-green-300"
-      }
-    }{{/if}}{{/if}}
+      category: "TOOLING",
+      items: [
+        { name: "{{#if (eq packageManager 'bun')}}Bun{{else if (eq packageManager 'pnpm')}}PNPM{{else if (eq packageManager 'yarn')}}Yarn{{else}}NPM{{/if}}", icon: <SiBun size={24} />, version: "{{#if (eq packageManager 'bun')}}1.2{{else if (eq packageManager 'pnpm')}}8.15{{else if (eq packageManager 'yarn')}}1.22{{else}}9.8{{/if}}", speed: "{{#if (eq packageManager 'bun')}}ULTRA{{else}}FAST{{/if}}" },
+        { name: "Turbo", icon: <Package2 size={24} />, version: "1.12", cache: "ENABLED" },
+        { name: "ESLint", icon: <Code2 size={24} />, version: "8.57", rules: "STRICT" },
+        { name: "Prettier", icon: <Layers size={24} />, version: "3.0", format: "AUTO" },
+      ]
+    }
   ];
 
   return (
-    {{#if (eq styling "tailwind")}}
-    <section className="mb-20">
-      <h3 className="text-3xl font-bold text-white text-center mb-12">
-        Explore Your Technology Stack
-      </h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {technologies.map((tech, index) => (
-          <div key={index} className="group relative">
-            <div className={`absolute -inset-0.5 bg-gradient-to-r ${tech.color.gradient} rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300`}></div>
-            <a
-              href={tech.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`relative flex flex-col h-full p-8 bg-slate-800/90 rounded-2xl border border-slate-700/50 ${tech.color.border} transition-all duration-300 group-hover:scale-105`}
-            >
-              <div className={`w-20 h-20 mb-6 p-4 ${tech.color.bg} rounded-2xl flex items-center justify-center transition-colors`}>
-                <div className={tech.color.text.replace('group-hover:', '')}>
-                  {tech.icon}
+    <section className="{{#if (eq styling 'tailwind')}}mb-20{{else}}technology-section{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}max-w-6xl mx-auto{{else}}container{{/if}}">
+        {/* Section header */}
+        <div className="{{#if (eq styling 'tailwind')}}mb-12 text-center{{else}}section-header{{/if}}">
+          <h2 className="{{#if (eq styling 'tailwind')}}inline-block text-3xl font-black uppercase text-black bg-yellow-400 px-6 py-3 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]{{else}}brutalist-title{{/if}}">
+            TECHNOLOGY MATRIX
+          </h2>
+        </div>
+
+        {/* Tech grid */}
+        <div className="{{#if (eq styling 'tailwind')}}space-y-8{{else}}tech-grid{{/if}}">
+          {technologies.map((category, catIdx) => (
+            <div key={catIdx}>
+              {/* Category header */}
+              <div className="{{#if (eq styling 'tailwind')}}mb-4 flex items-center{{else}}category-header{{/if}}">
+                <div className="{{#if (eq styling 'tailwind')}}bg-black text-yellow-400 px-3 py-1 font-bold text-xs uppercase tracking-wider{{else}}category-label{{/if}}">
+                  {category.category}
                 </div>
+                <div className="{{#if (eq styling 'tailwind')}}flex-1 h-0.5 bg-black ml-3{{else}}category-line{{/if}}"></div>
               </div>
-              
-              <h4 className="text-2xl font-bold text-white mb-3 group-hover:text-white/90 transition-colors">
-                {tech.name}
-              </h4>
-              
-              <p className="text-gray-400 text-center mb-6 leading-relaxed flex-grow">
-                {tech.description}
-              </p>
-              
-              <div className={`flex items-center justify-center gap-2 font-medium ${tech.color.text} transition-colors`}>
-                <span>Learn {tech.name}</span>
-                {{#if typescript}}<ExternalLink className="w-4 h-4" />{{else}}↗{{/if}}
+
+              {/* Tech cards */}
+              <div className="{{#if (eq styling 'tailwind')}}grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4{{else}}tech-cards{{/if}}">
+                {category.items.map((tech, idx) => (
+                  <div
+                    key={idx}
+                    className="{{#if (eq styling 'tailwind')}}group relative{{else}}tech-card{{/if}}"
+                  >
+                    {/* Shadow effect */}
+                    <div className="{{#if (eq styling 'tailwind')}}absolute inset-0 bg-black transform translate-x-1 translate-y-1{{else}}card-shadow{{/if}}"></div>
+                    
+                    {/* Card content */}
+                    <div className="{{#if (eq styling 'tailwind')}}relative bg-white border-2 border-black hover:translate-x-0.5 hover:translate-y-0.5 transition-all duration-150 cursor-pointer{{else}}card-content{{/if}}">
+                      {/* Status indicator */}
+                      <div className="{{#if (eq styling 'tailwind')}}absolute -top-1.5 -right-1.5 w-3 h-3 bg-yellow-400 border border-black{{else}}status-indicator{{/if}}"></div>
+                      
+                      <div className="{{#if (eq styling 'tailwind')}}p-4{{else}}card-inner{{/if}}">
+                        {/* Icon and name header */}
+                        <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-3 pb-2 border-b-2 border-black{{else}}card-header{{/if}}">
+                          <div className="{{#if (eq styling 'tailwind')}}text-black{{else}}tech-icon{{/if}}">{tech.icon}</div>
+                          <span className="{{#if (eq styling 'tailwind')}}font-black text-xs uppercase text-black{{else}}tech-name{{/if}}">
+                            {tech.name}
+                          </span>
+                        </div>
+                        
+                        {/* Stats */}
+                        <div className="{{#if (eq styling 'tailwind')}}space-y-1 font-mono text-xs{{else}}tech-stats{{/if}}">
+                          {Object.entries(tech).map(([key, value]) => {
+                            if (key === 'name' || key === 'icon') return null;
+                            return (
+                              <div key={key} className="{{#if (eq styling 'tailwind')}}flex justify-between items-center{{else}}stat-row{{/if}}">
+                                <span className="{{#if (eq styling 'tailwind')}}text-black/60 uppercase text-[10px]{{else}}stat-key{{/if}}">{key}:</span>
+                                <span className="{{#if (eq styling 'tailwind')}}text-black font-bold bg-yellow-400/20 px-1{{else}}stat-value{{/if}}">{value as string}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      
+                      {/* Bottom accent bar */}
+                      <div className="{{#if (eq styling 'tailwind')}}h-2 bg-black group-hover:bg-yellow-400 transition-colors{{else}}accent-bar{{/if}}"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </a>
+            </div>
+          ))}
+        </div>
+
+        {/* System diagram */}
+        <div className="{{#if (eq styling 'tailwind')}}mt-12 p-6 border-4 border-black bg-yellow-400{{else}}system-diagram{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-center space-x-8 font-mono text-sm{{else}}diagram-content{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}diagram-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-black{{else}}diagram-icon{{/if}}"></div>
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-bold{{else}}diagram-label{{/if}}">FRONTEND</span>
+            </div>
+            <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}diagram-arrow{{/if}}">→</span>
+            {{#if backend}}
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}diagram-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-black{{else}}diagram-icon{{/if}}"></div>
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-bold{{else}}diagram-label{{/if}}">API</span>
+            </div>
+            <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}diagram-arrow{{/if}}">→</span>
+            {{/if}}
+            {{#if database}}
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}diagram-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-black{{else}}diagram-icon{{/if}}"></div>
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-bold{{else}}diagram-label{{/if}}">DATABASE</span>
+            </div>
+            {{/if}}
           </div>
-        ))}
+        </div>
       </div>
     </section>
-    {{else}}
-    <section className="technology-stack">
-      <h3>Explore Your Technology Stack</h3>
-      
-      <div className="tech-grid">
-        {technologies.map((tech, index) => (
-          <a key={index} href={tech.url} target="_blank" rel="noopener noreferrer" className="tech-card">
-            <div className="tech-icon">{tech.icon}</div>
-            <h4>{tech.name}</h4>
-            <p>{tech.description}</p>
-            <span>Learn {tech.name} ↗</span>
-          </a>
-        ))}
-      </div>
-    </section>
-    {{/if}}
   );
 }

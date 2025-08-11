@@ -1,0 +1,194 @@
+import { FastifyPluginAsync } from 'fastify';
+import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendNotificationEmail } from '@/services/email';
+
+// Email validation helper
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Email request schemas
+const emailSchema = {
+  type: 'object',
+  required: ['to', 'subject'],
+  properties: {
+    to: { 
+      oneOf: [
+        { type: 'string' },
+        { type: 'array', items: { type: 'string' } }
+      ]
+    },
+    subject: { type: 'string' },
+    html: { type: 'string' },
+    text: { type: 'string' },
+    type: { type: 'string', enum: ['welcome', 'password-reset', 'notification'] },
+    name: { type: 'string' },
+    resetToken: { type: 'string' },
+    resetUrl: { type: 'string' },
+    title: { type: 'string' },
+    message: { type: 'string' }
+  }
+};
+
+const emailPlugin: FastifyPluginAsync = async (fastify) => {
+  // POST /api/email - Send email
+  fastify.post('/email', {
+    schema: {
+      body: emailSchema,
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            id: { type: 'string' }
+          }
+        },
+        400: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+            details: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { to, subject, html, text, type, name, resetToken, resetUrl, title, message } = request.body as any;
+
+      // Validate email format
+      const emails = Array.isArray(to) ? to : [to];
+      const invalidEmails = emails.filter((email: string) => !validateEmail(email));
+      
+      if (invalidEmails.length > 0) {
+        return reply.status(400).send({
+          error: `Invalid email addresses: ${invalidEmails.join(', ')}`
+        });
+      }
+
+      // Send email based on type
+      let result;
+      switch (type) {
+        case 'welcome': {
+          if (!name) {
+            return reply.status(400).send({
+              error: 'Name is required for welcome emails'
+            });
+          }
+          result = await sendWelcomeEmail(to, name);
+          break;
+        }
+
+        case 'password-reset': {
+          if (!resetToken || !resetUrl) {
+            return reply.status(400).send({
+              error: 'resetToken and resetUrl are required for password reset emails'
+            });
+          }
+          result = await sendPasswordResetEmail(to, resetToken, resetUrl);
+          break;
+        }
+
+        case 'notification': {
+          if (!title || !message) {
+            return reply.status(400).send({
+              error: 'title and message are required for notification emails'
+            });
+          }
+          result = await sendNotificationEmail(to, title, message);
+          break;
+        }
+
+        default:
+          // Custom email
+          if (!html && !text) {
+            return reply.status(400).send({
+              error: 'Either html or text content is required'
+            });
+          }
+          result = await sendEmail({ to, subject, html, text });
+          break;
+      }
+
+      return reply.send({
+        success: true,
+        message: 'Email sent successfully',
+        id: result.id,
+      });
+
+    } catch (error) {
+      fastify.log.error('Email API error:', error);
+      return reply.status(500).send({
+        error: 'Failed to send email',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // GET /api/email/health - Health check
+  fastify.get('/email/health', {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            service: { type: 'string' },
+            status: { type: 'string' },
+            provider: { type: 'string' },
+            timestamp: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    return reply.send({
+      service: 'Email Service',
+      status: 'healthy',
+      provider: 'Resend',
+      timestamp: new Date().toISOString(),
+    });
+  });
+};
+
+export default emailPlugin;
+
+// Usage in your main app file:
+// import emailPlugin from './api/routes/email';
+// await fastify.register(emailPlugin, { prefix: '/api' });
+
+// Example API calls:
+// 
+// Welcome email:
+// POST /api/email
+// {
+//   "type": "welcome",
+//   "to": "user@example.com",
+//   "subject": "Welcome!",
+//   "name": "John Doe"
+// }
+//
+// Password reset email:
+// POST /api/email
+// {
+//   "type": "password-reset",
+//   "to": "user@example.com",
+//   "subject": "Reset Your Password", 
+//   "resetToken": "abc123",
+//   "resetUrl": "https://example.com/reset-password"
+// }
+//
+// Custom email:
+// POST /api/email
+// {
+//   "to": "user@example.com",
+//   "subject": "Custom Subject",
+//   "html": "<h1>Custom HTML Content</h1>",
+//   "text": "Custom text content"
+// }

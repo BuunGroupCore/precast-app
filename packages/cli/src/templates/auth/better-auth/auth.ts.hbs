@@ -1,14 +1,23 @@
 import { betterAuth } from "better-auth";
 {{#if (eq orm "prisma")}}
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma";
+import { prisma } from "@/lib/prisma{{#if typescript}}.js{{/if}}";
 {{/if}}
 {{#if (eq orm "drizzle")}}
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./db";
+import { db } from "@/lib/db{{#if typescript}}.js{{/if}}";
 {{/if}}
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}",
+  basePath: "/api/auth",
+  trustedOrigins: [
+    // Add frontend URL to trusted origins (different frameworks use different ports)
+    process.env.CLIENT_URL || "http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}",
+    process.env.BETTER_AUTH_URL || "http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}",
+    // Add production URLs when available
+    ...(process.env.PRODUCTION_URL ? [process.env.PRODUCTION_URL] : []),
+  ],
   {{#if (or (eq orm "prisma") (eq orm "drizzle"))}}
   database: {{#if (eq orm "prisma")}}prismaAdapter(prisma, {
     provider: "{{#if (eq database "postgres")}}postgresql{{else if (eq database "mysql")}}mysql{{else}}sqlite{{/if}}",
@@ -23,12 +32,12 @@ export const auth = betterAuth({
   },
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
     },
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     },
   },
   session: {

@@ -258,8 +258,8 @@ export async function healthRoutes(fastify: FastifyInstance) {
 
 {{#if (eq backend 'hono')}}
 import { Hono } from 'hono';
-
 {{#if database}}
+
 {{#if (eq orm 'prisma')}}
 import { PrismaClient } from '@prisma/client';
 {{/if}}

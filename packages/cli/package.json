@@ -21,7 +21,9 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "tsx watch src/cli.ts",
+    "dev": "sh -c 'if command -v bun >/dev/null 2>&1 && echo \"$npm_config_user_agent\" | grep -q bun; then bun --watch src/cli.ts; else tsx watch src/cli.ts; fi'",
+    "dev:bun": "bun --watch src/cli.ts",
+    "dev:node": "tsx watch src/cli.ts",
     "build": "tsup && cp -r src/templates dist/ && pnpm run audit:fix",
     "audit:fix": "(pnpm audit --audit-level=moderate 2>/dev/null || echo 'Audit check skipped in CI environment') || true",
     "update:templates": "pnpm run src/scripts/update-template-deps.ts && pnpm run build",

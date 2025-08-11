@@ -16,7 +16,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 {{#if (eq authProvider "better-auth")}}
 # Better Auth Configuration
 BETTER_AUTH_SECRET={{authSecret}}
-BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}
 BETTER_AUTH_DATABASE_URL={{databaseUrl}}
 
 # OAuth Providers

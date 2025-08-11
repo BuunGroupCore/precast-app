@@ -1,11 +1,16 @@
 {
-  "name": "{{config.name}}-api",
+  "name": "{{name}}-api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     {{#if config.orm}}{{#if (eq config.orm "prisma")}}"postinstall": "prisma generate",
-    {{/if}}{{/if}}"dev": "tsx watch src/index.ts",
+    "predev": "prisma db push --skip-generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    {{/if}}{{/if}}"dev": "bun run --watch src/index.ts",
+    "dev:node": "tsx watch src/index.ts",
     "build": "tsup",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts,.tsx",
@@ -21,7 +26,10 @@
   "devDependencies": {
     {{#if typescript}}"tsx": "^4.7.1",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.2",{{/if}}
+    "typescript": "^5.4.2",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",{{/if}}
     "nodemon": "^3.1.0"
   }
 }

@@ -1,0 +1,186 @@
+import * as http from 'http';
+import * as url from 'url';
+import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendNotificationEmail } from '@/services/email';
+
+// Email validation helper
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Parse JSON body helper
+const parseBody = (req: http.IncomingMessage): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch (error) {
+        reject(new Error('Invalid JSON'));
+      }
+    });
+  });
+};
+
+// Response helper
+const sendResponse = (res: http.ServerResponse, statusCode: number, data: any) => {
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  });
+  res.end(JSON.stringify(data));
+};
+
+// Email route handler
+export const handleEmailRoute = async (req: http.IncomingMessage, res: http.ServerResponse) => {
+  const parsedUrl = url.parse(req.url || '', true);
+  const pathname = parsedUrl.pathname;
+  const method = req.method;
+
+  // Handle CORS preflight
+  if (method === 'OPTIONS') {
+    return sendResponse(res, 200, {});
+  }
+
+  try {
+    // GET /api/email/health - Health check
+    if (method === 'GET' && pathname === '/api/email/health') {
+      return sendResponse(res, 200, {
+        service: 'Email Service',
+        status: 'healthy',
+        provider: 'Resend',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // POST /api/email - Send email
+    if (method === 'POST' && pathname === '/api/email') {
+      const body = await parseBody(req);
+      const { to, subject, html, text, type, name, resetToken, resetUrl, title, message } = body;
+
+      // Validate required fields
+      if (!to || !subject) {
+        return sendResponse(res, 400, {
+          error: 'Missing required fields: to, subject'
+        });
+      }
+
+      // Validate email format
+      const emails = Array.isArray(to) ? to : [to];
+      const invalidEmails = emails.filter((email: string) => !validateEmail(email));
+      
+      if (invalidEmails.length > 0) {
+        return sendResponse(res, 400, {
+          error: `Invalid email addresses: ${invalidEmails.join(', ')}`
+        });
+      }
+
+      // Send email based on type
+      let result;
+      switch (type) {
+        case 'welcome': {
+          if (!name) {
+            return sendResponse(res, 400, {
+              error: 'Name is required for welcome emails'
+            });
+          }
+          result = await sendWelcomeEmail(to, name);
+          break;
+        }
+
+        case 'password-reset': {
+          if (!resetToken || !resetUrl) {
+            return sendResponse(res, 400, {
+              error: 'resetToken and resetUrl are required for password reset emails'
+            });
+          }
+          result = await sendPasswordResetEmail(to, resetToken, resetUrl);
+          break;
+        }
+
+        case 'notification': {
+          if (!title || !message) {
+            return sendResponse(res, 400, {
+              error: 'title and message are required for notification emails'
+            });
+          }
+          result = await sendNotificationEmail(to, title, message);
+          break;
+        }
+
+        default:
+          // Custom email
+          if (!html && !text) {
+            return sendResponse(res, 400, {
+              error: 'Either html or text content is required'
+            });
+          }
+          result = await sendEmail({ to, subject, html, text });
+          break;
+      }
+
+      return sendResponse(res, 200, {
+        success: true,
+        message: 'Email sent successfully',
+        id: result.id,
+      });
+    }
+
+    // Route not found
+    return sendResponse(res, 404, {
+      error: 'Route not found'
+    });
+
+  } catch (error) {
+    console.error('Email API error:', error);
+    return sendResponse(res, 500, {
+      error: 'Failed to send email',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Usage in your main server file:
+// import { handleEmailRoute } from './api/routes/email';
+// 
+// const server = http.createServer(async (req, res) => {
+//   if (req.url?.startsWith('/api/email')) {
+//     return await handleEmailRoute(req, res);
+//   }
+//   // ... other routes
+// });
+
+// Example API calls:
+// 
+// Welcome email:
+// POST /api/email
+// {
+//   "type": "welcome",
+//   "to": "user@example.com",
+//   "subject": "Welcome!",
+//   "name": "John Doe"
+// }
+//
+// Password reset email:
+// POST /api/email
+// {
+//   "type": "password-reset",
+//   "to": "user@example.com",
+//   "subject": "Reset Your Password", 
+//   "resetToken": "abc123",
+//   "resetUrl": "https://example.com/reset-password"
+// }
+//
+// Custom email:
+// POST /api/email
+// {
+//   "to": "user@example.com",
+//   "subject": "Custom Subject",
+//   "html": "<h1>Custom HTML Content</h1>",
+//   "text": "Custom text content"
+// }

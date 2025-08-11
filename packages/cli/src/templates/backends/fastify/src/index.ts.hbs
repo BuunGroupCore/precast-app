@@ -5,6 +5,12 @@ import dotenv from 'dotenv';
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
 import { healthRoutes } from '@/api/routes/health{{#if typescript}}.js{{/if}}';
 {{/if}}
+{{#if (includes plugins 'resend')}}
+import emailRoutes from '@/api/routes/email{{#if typescript}}.js{{/if}}';
+{{/if}}
+{{#if authProvider}}
+import { authRoutes } from '@/api/routes/auth{{#if typescript}}.js{{/if}}';
+{{/if}}
 
 dotenv.config();
 
@@ -17,14 +23,22 @@ const fastify: FastifyInstance = Fastify({
 const PORT = Number(process.env.PORT) || 3001;
 const HOST = process.env.HOST || 'localhost';
 
-// Register plugins
 await fastify.register(helmet);
-await fastify.register(cors);
+await fastify.register(cors, {
+  origin: process.env.CLIENT_URL || 'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
+  credentials: true,
+});
 
-// Routes
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
 await fastify.register(healthRoutes, { prefix: '/api' });
-{{else}}
+{{/if}}
+{{#if (includes plugins 'resend')}}
+await fastify.register(emailRoutes, { prefix: '/api' });
+{{/if}}
+{{#if authProvider}}
+await fastify.register(authRoutes, { prefix: '/api/auth' });
+{{/if}}
+{{#unless (or (and plugins plugins.length) (and database (ne database 'none')))}}
 fastify.get('/api/health', async (request, reply) => {
   return {
     status: 'ok',
@@ -32,7 +46,7 @@ fastify.get('/api/health', async (request, reply) => {
     timestamp: new Date().toISOString()
   };
 });
-{{/if}}
+{{/unless}}
 
 fastify.get('/api/hello', async (request, reply) => {
   return {

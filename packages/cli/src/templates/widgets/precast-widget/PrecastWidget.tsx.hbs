@@ -1,144 +1,561 @@
 import React, { useState, useEffect } from 'react';
-{{#if (eq uiLibrary 'shadcn')}}
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Textarea } from '@/components/ui/textarea';
-{{/if}}
+import { 
+  SiPostgresql, 
+  SiDocker, 
+  SiMongodb, 
+  SiMysql,
+  SiPrisma,
+  SiRedis,
+  SiSupabase,
+  SiStripe
+} from 'react-icons/si';
+import { 
+  Server, 
+  Database, 
+  Mail,
+  Activity,
+  Container,
+  Layers,
+  Terminal,
+  AlertTriangle,
+  Shield,
+  User
+} from 'lucide-react';
 
 interface TestResult {
   success: boolean;
   message: string;
-  details?: any;
+  details?: unknown;
   timestamp: string;
 }
 
+interface SystemInfo {
+  uptime: number;
+  environment: string;
+  apiPort?: number;
+  dbPort?: number;
+}
+
 /**
- * PrecastWidget - Service validation and testing widget
+ * PrecastWidget - Brutalist service validation and testing widget
  * Validates that Docker containers, databases, and other services are working correctly
  */
 export function PrecastWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("{{#if database}}database{{else}}api{{/if}}");
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
 
   // Only show in development
   const isDevelopment = import.meta.env.DEV;
+
+  // Service icon mapping
+  const getServiceIcon = (service: string, size: number = 16) => {
+    const iconProps = { size, className: "{{#if (eq styling 'tailwind')}}text-black{{else}}icon-black{{/if}}" };
+    const iconMap: Record<string, React.ReactNode> = {
+      postgres: <SiPostgresql {...iconProps} />,
+      postgresql: <SiPostgresql {...iconProps} />,
+      mysql: <SiMysql {...iconProps} />,
+      mongodb: <SiMongodb {...iconProps} />,
+      prisma: <SiPrisma {...iconProps} />,
+      docker: <SiDocker {...iconProps} />,
+      redis: <SiRedis {...iconProps} />,
+      supabase: <SiSupabase {...iconProps} />,
+      stripe: <SiStripe {...iconProps} />,
+      mail: <Mail {...iconProps} />,
+      server: <Server {...iconProps} />,
+      database: <Database {...iconProps} />,
+      container: <Container {...iconProps} />,
+      api: <Activity {...iconProps} />,
+      auth: <Shield {...iconProps} />,
+      user: <User {...iconProps} />,
+    };
+    return iconMap[service.toLowerCase()] || <Layers {...iconProps} />;
+  };
+
+  // Dynamically build services based on what's configured
+  const buildServices = () => {
+    const detectedServices: Record<string, Record<string, unknown>> = {};
+    
+    {{#if backend}}
+    // API service
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (apiUrl) {
+      detectedServices.api = {
+        name: "API",
+        type: "{{backend}}",
+        port: apiUrl.includes(":") ? parseInt(apiUrl.split(":").pop() || "3001") : 3001,
+        icon: "server",
+        testEndpoint: "/health"
+      };
+    }
+    {{/if}}
+    
+    {{#if database}}
+    // Database service
+    detectedServices.database = {
+      name: "DATABASE",
+      type: "{{database}}",
+      port: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}},
+      icon: "{{database}}",
+      testEndpoint: "/health/database"
+    };
+    {{/if}}
+    
+    {{#if docker}}
+    // Docker services
+    detectedServices.docker = {
+      name: "DOCKER",
+      type: "compose",
+      icon: "docker",
+      containers: [
+        {{#if (eq database 'postgres')}}
+        { name: "postgres:16-alpine", port: 5432, icon: "postgres" },
+        { name: "pgadmin4", port: 5050, icon: "database" }
+        {{else if (eq database 'mysql')}}
+        { name: "mysql:8", port: 3306, icon: "mysql" },
+        { name: "phpmyadmin", port: 8080, icon: "database" }
+        {{else if (eq database 'mongodb')}}
+        { name: "mongodb:7", port: 27017, icon: "mongodb" },
+        { name: "mongo-express", port: 8081, icon: "database" }
+        {{/if}}
+      ]
+    };
+    {{/if}}
+    
+    {{#if (includes plugins 'resend')}}
+    // Email service
+    detectedServices.email = {
+      name: "EMAIL",
+      type: "resend",
+      icon: "mail"
+    };
+    {{/if}}
+
+    {{#if (includes plugins 'stripe')}}
+    // Payment service
+    detectedServices.payment = {
+      name: "PAYMENT",
+      type: "stripe",
+      icon: "stripe"
+    };
+    {{/if}}
+    
+    {{#if authProvider}}
+    // Authentication service
+    detectedServices.auth = {
+      name: "AUTH",
+      type: "{{authProvider}}",
+      icon: "auth"
+    };
+    {{/if}}
+    
+    return detectedServices;
+  };
   
+  const services = buildServices();
+
   useEffect(() => {
     // Check if admin panel should be open by default (from localStorage)
-    const savedState = localStorage.getItem('adminPanelOpen');
-    if (savedState === 'true') {
+    const savedState = localStorage.getItem("adminPanelOpen");
+    if (savedState === "true") {
       setIsOpen(true);
     }
+
+    // Fetch system info
+    fetchSystemInfo();
+    
+    {{#if docker}}
+    // Check Docker status on mount if Docker is configured
+    if (services.docker) {
+      testDockerHealth();
+    }
+    {{/if}}
+    
+    {{#if authProvider}}
+    // Check auth status on mount if auth is configured
+    if (services.auth) {
+      testAuthStatus();
+    }
+    {{/if}}
   }, []);
 
   if (!isDevelopment) {
     return null;
   }
 
-  const addTestResult = (service: string, result: Omit<TestResult, 'timestamp'>) => {
-    setTestResults(prev => ({
-      ...prev,
-      [service]: {
-        ...result,
-        timestamp: new Date().toISOString()
-      }
-    }));
-  };
-
-  {{#if (includes plugins 'resend')}}
-  // Resend Email Test
-  const [emailForm, setEmailForm] = useState({
-    to: '',
-    subject: 'Test Email from Admin Panel',
-    message: 'This is a test email sent from the admin panel.',
-    type: 'custom'
-  });
-
-  const testResendEmail = async () => {
-    setLoading(prev => ({ ...prev, resend: true }));
+  const fetchSystemInfo = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          to: emailForm.to,
-          subject: emailForm.subject,
-          html: `<p>${emailForm.message}</p>`,
-          type: emailForm.type
-        })
-      });
-
-      const data = await response.json();
-      
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiUrl}/api/health`);
       if (response.ok) {
-        addTestResult('resend', {
-          success: true,
-          message: 'Email sent successfully!',
-          details: data
-        });
-      } else {
-        addTestResult('resend', {
-          success: false,
-          message: 'Failed to send email',
-          details: data.error
+        const data = await response.json();
+        setSystemInfo({
+          uptime: data.uptime || 0,
+          environment: data.environment || 'development',
+          apiPort: {{#if backend}}3001{{else}}undefined{{/if}},
+          dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
         });
       }
     } catch (error) {
-      addTestResult('resend', {
-        success: false,
-        message: 'Network error',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      console.error("Failed to fetch system info:", error);
+      // Set default system info when API is unavailable
+      setSystemInfo({
+        uptime: 0,
+        environment: 'development',
+        apiPort: {{#if backend}}3001{{else}}undefined{{/if}},
+        dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
       });
-    } finally {
-      setLoading(prev => ({ ...prev, resend: false }));
     }
   };
-  {{/if}}
+
+  const addTestResult = (service: string, result: Omit<TestResult, "timestamp">) => {
+    setTestResults((prev) => ({
+      ...prev,
+      [service]: {
+        ...result,
+        timestamp: new Date().toISOString(),
+      },
+    }));
+  };
 
   {{#if database}}
   // Database Connection Test
   const testDatabaseConnection = async () => {
-    setLoading(prev => ({ ...prev, database: true }));
+    setLoading((prev) => ({ ...prev, database: true }));
     try {
-      // Support both relative and absolute API URLs
-      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const apiUrl = import.meta.env.VITE_API_URL || "";
       const response = await fetch(`${apiUrl}/api/health/database`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include' // Include cookies for CORS
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
-        addTestResult('database', {
+        addTestResult("database", {
           success: true,
-          message: 'Database connected!',
-          details: data
+          message: "DATABASE CONNECTED",
+          details: data,
         });
       } else {
-        addTestResult('database', {
+        addTestResult("database", {
           success: false,
-          message: 'Database connection failed',
-          details: data.error
+          message: "CONNECTION FAILED",
+          details: data.error,
         });
       }
     } catch (error) {
-      addTestResult('database', {
+      addTestResult("database", {
         success: false,
-        message: 'Network error',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        message: "NETWORK ERROR",
+        details: error instanceof Error ? error.message : "Unknown error",
       });
     } finally {
-      setLoading(prev => ({ ...prev, database: false }));
+      setLoading((prev) => ({ ...prev, database: false }));
+    }
+  };
+  {{/if}}
+
+  {{#if backend}}
+  // API Health Check
+  const testApiHealth = async () => {
+    setLoading((prev) => ({ ...prev, api: true }));
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiUrl}/api/health`);
+      const data = await response.json();
+
+      if (response.ok) {
+        addTestResult("api", {
+          success: true,
+          message: "API HEALTHY",
+          details: data,
+        });
+        setSystemInfo({
+          uptime: data.uptime || 0,
+          environment: data.environment || 'development',
+          apiPort: 3001,
+          dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+        });
+      } else {
+        addTestResult("api", {
+          success: false,
+          message: "API UNHEALTHY",
+          details: data,
+        });
+      }
+    } catch (error) {
+      addTestResult("api", {
+        success: false,
+        message: "API UNREACHABLE",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, api: false }));
+    }
+  };
+  {{/if}}
+
+  {{#if docker}}
+  // Docker Health Check
+  const testDockerHealth = async () => {
+    setLoading((prev) => ({ ...prev, docker: true }));
+    try {
+      // Check if database is accessible (which indicates Docker is running)
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiUrl}/api/health/database`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        addTestResult("docker", {
+          success: true,
+          message: "DOCKER RUNNING",
+          details: {
+            status: "Containers are running",
+            database: data.database || "Connected",
+            services: services.docker?.containers || []
+          },
+        });
+      } else if (response.status === 500 || response.status === 503) {
+        // Database connection failed - likely Docker is not running
+        addTestResult("docker", {
+          success: false,
+          message: "DOCKER NOT RUNNING",
+          details: "Docker containers may not be running. Run: cd docker && docker compose up -d",
+        });
+      } else {
+        addTestResult("docker", {
+          success: false,
+          message: "DOCKER STATUS UNKNOWN",
+          details: "Unable to determine Docker status",
+        });
+      }
+    } catch (error) {
+      addTestResult("docker", {
+        success: false,
+        message: "DOCKER CHECK FAILED",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, docker: false }));
+    }
+  };
+  {{/if}}
+
+  {{#if (includes plugins 'resend')}}
+  // Email Service Test
+  const testEmailService = async () => {
+    setLoading((prev) => ({ ...prev, email: true }));
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      
+      // First test email service health
+      const healthResponse = await fetch(`${apiUrl}/api/email/health`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (!healthResponse.ok) {
+        throw new Error("Email service unavailable");
+      }
+
+      // Then send a test email
+      const testResponse = await fetch(`${apiUrl}/api/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          type: "notification",
+          to: "test@example.com", // This would normally come from config
+          subject: "{{name}} - Email Service Test",
+          title: "Email Service Test",
+          message: "This is a test email from your {{name}} application. Email service is working correctly!"
+        }),
+      });
+
+      const data = await testResponse.json();
+
+      if (testResponse.ok) {
+        addTestResult("email", {
+          success: true,
+          message: "EMAIL SERVICE ACTIVE",
+          details: {
+            provider: "Resend",
+            status: "Email sent successfully",
+            id: data.id,
+          },
+        });
+      } else {
+        addTestResult("email", {
+          success: false,
+          message: "EMAIL SEND FAILED",
+          details: data.error || "Failed to send test email",
+        });
+      }
+    } catch (error) {
+      addTestResult("email", {
+        success: false,
+        message: "EMAIL SERVICE ERROR",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, email: false }));
+    }
+  };
+  {{/if}}
+
+  {{#if authProvider}}
+  // Auth testing state
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
+  const [authEmail, setAuthEmail] = useState('test@example.com');
+  const [authPassword, setAuthPassword] = useState('TestPassword123!');
+  const [authName, setAuthName] = useState('Test User');
+
+  /**
+   * Test authentication status endpoint
+   */
+  const testAuthStatus = async () => {
+    setLoading((prev) => ({ ...prev, authStatus: true }));
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      
+      // Try Better Auth's built-in ok endpoint first
+      const okResponse = await fetch(`${apiUrl}/api/auth/ok`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (okResponse.ok) {
+        const data = await okResponse.text();
+        addTestResult("authStatus", {
+          success: true,
+          message: "AUTH SERVICE HEALTHY",
+          details: {
+            endpoint: "/api/auth/ok",
+            response: data,
+            status: "Better Auth is responding correctly"
+          },
+        });
+      } else {
+        addTestResult("authStatus", {
+          success: false,
+          message: "AUTH SERVICE UNHEALTHY",
+          details: `Auth health check returned ${okResponse.status}`,
+        });
+      }
+    } catch (error) {
+      addTestResult("authStatus", {
+        success: false,
+        message: "AUTH SERVICE UNREACHABLE",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, authStatus: false }));
+    }
+  };
+
+  /**
+   * Test authentication endpoints with user input
+   */
+  const testAuthService = async () => {
+    setLoading((prev) => ({ ...prev, auth: true }));
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      
+      {{#if (eq authProvider 'better-auth')}}
+      let response;
+      let responseData;
+      
+      if (authMode === 'signup') {
+        // Test registration endpoint
+        response = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            name: authName
+          }),
+        });
+      } else {
+        // Test signin endpoint
+        response = await fetch(`${apiUrl}/api/auth/sign-in/email`, {
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword
+          }),
+        });
+      }
+
+      try {
+        responseData = await response.json();
+      } catch {
+        responseData = await response.text();
+      }
+
+      if (response.ok) {
+        addTestResult("auth", {
+          success: true,
+          message: authMode === 'signup' ? "SIGN-UP SUCCESSFUL" : "SIGN-IN SUCCESSFUL",
+          details: {
+            email: authEmail,
+            response: responseData,
+            status: response.status
+          },
+        });
+        
+        // Test session after successful auth
+        const sessionResponse = await fetch(`${apiUrl}/api/auth/get-session`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          addTestResult("authSession", {
+            success: true,
+            message: "SESSION ACTIVE",
+            details: sessionData,
+          });
+        }
+      } else {
+        addTestResult("auth", {
+          success: false,
+          message: authMode === 'signup' ? "SIGN-UP FAILED" : "SIGN-IN FAILED",
+          details: {
+            status: response.status,
+            error: responseData,
+            hint: response.status === 401 ? "Invalid credentials or user doesn't exist" : 
+                  response.status === 409 ? "User already exists" : 
+                  response.status === 403 ? "CORS issue - check trustedOrigins" : 
+                  "Check server logs for details"
+          },
+        });
+      }
+      {{/if}}
+    } catch (error) {
+      addTestResult("auth", {
+        success: false,
+        message: "AUTH REQUEST FAILED",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, auth: false }));
     }
   };
   {{/if}}
@@ -146,35 +563,101 @@ export function PrecastWidget() {
   const togglePanel = () => {
     const newState = !isOpen;
     setIsOpen(newState);
-    localStorage.setItem('adminPanelOpen', String(newState));
+    localStorage.setItem("adminPanelOpen", String(newState));
     if (newState) {
       setIsMinimized(false);
+      fetchSystemInfo();
     }
   };
 
+
   const ResultDisplay = ({ service }: { service: string }) => {
     const result = testResults[service];
+    const [isExpanded, setIsExpanded] = useState(false);
+    
     if (!result) return null;
 
+    // Check if this is an auth result with large response data
+    const isAuthResult = service === 'auth' || service === 'authSession';
+    const hasLargeDetails = result.details && typeof result.details === "object" && 
+                           Object.keys(result.details).length > 3;
+    const shouldCollapse = isAuthResult && result.success && hasLargeDetails;
+
     return (
-      <div className={`mt-3 p-3 rounded-lg text-xs border ${
-        result.success 
-          ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-          : 'bg-red-500/10 text-red-400 border-red-500/20'
-      }`}>
-        <div className="flex items-start space-x-2">
-          {result.success ? (
-            <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          )}
-          <div className="flex-1">
-            <p className="font-medium">{result.message}</p>
-            <p className="text-xs opacity-60 mt-1">{new Date(result.timestamp).toLocaleTimeString()}</p>
+      <div
+        className={`{{#if (eq styling 'tailwind')}}mt-3 p-3 border-2 border-black ${result.success ? 'bg-white' : 'bg-yellow-400'}{{else}}result-display{{/if}}`}
+        {{#unless (eq styling 'tailwind')}}style=\{{backgroundColor: result.success ? 'var(--color-light)' : 'var(--color-primary)'}}{{/unless}}
+      >
+        <div className="{{#if (eq styling 'tailwind')}}flex items-start space-x-2{{else}}result-content{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}w-4 h-4 mt-0.5 bg-black flex items-center justify-center{{else}}result-icon{{/if}}">
+            {result.success ? (
+              <Activity size={12} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+            ) : (
+              <AlertTriangle size={12} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+            )}
+          </div>
+          <div className="{{#if (eq styling 'tailwind')}}flex-1 min-w-0{{else}}result-details{{/if}}">
+            <p className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase text-xs tracking-wide break-words{{else}}result-message{{/if}}">
+              {result.message}
+            </p>
+            <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 mt-1 font-mono{{else}}result-timestamp{{/if}}">
+              {new Date(result.timestamp).toLocaleTimeString()}
+            </p>
+            
+            {result.details && typeof result.details === "object" && (
+              shouldCollapse ? (
+                <div className="{{#if (eq styling 'tailwind')}}mt-2{{else}}collapsible-details{{/if}}">
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="{{#if (eq styling 'tailwind')}}w-full text-left px-3 py-2 bg-black text-yellow-400 border-2 border-black hover:bg-gray-800 transition-colors flex items-center justify-between{{else}}expand-btn{{/if}}"
+                  >
+                    <span className="{{#if (eq styling 'tailwind')}}text-xs font-bold uppercase tracking-wider{{else}}expand-text{{/if}}">
+                      {isExpanded ? 'Hide' : 'Show'} Response Details
+                    </span>
+                    <span className="{{#if (eq styling 'tailwind')}}text-xs font-mono{{else}}expand-arrow{{/if}}">
+                      {isExpanded ? '▼' : '▶'}
+                    </span>
+                  </button>
+                  
+                  {isExpanded && (
+                    <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-gray-900 border-2 border-black overflow-hidden rounded{{else}}code-block{{/if}}">
+                      <pre className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-green-400 overflow-x-auto max-w-full whitespace-pre-wrap break-all{{else}}json-highlighted{{/if}}">
+                        <code 
+                          className="language-json"
+                          dangerouslySetInnerHTML=\{{
+                            __html: JSON.stringify(result.details, null, 2)
+                              .replace(/&/g, '&amp;')
+                              .replace(/</g, '&lt;')
+                              .replace(/>/g, '&gt;')
+                              .replace(/("[\w]+"):/g, '<span style="color: #60a5fa">$1</span>:')
+                              .replace(/(:\s*"[^"]*")/g, '<span style="color: #fde047">$1</span>')
+                              .replace(/(:\s*\d+)/g, '<span style="color: #c084fc">$1</span>')
+                              .replace(/(:\s*true|:\s*false)/g, '<span style="color: #f87171">$1</span>')
+                              .replace(/(:\s*null)/g, '<span style="color: #9ca3af">$1</span>')
+                          }}
+                        />
+                      </pre>
+                    </div>
+                  )}
+                  
+                  {!isExpanded && result.details && (
+                    <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/10 rounded{{else}}summary-box{{/if}}">
+                      <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/70 font-mono{{else}}summary-text{{/if}}">
+                        ✓ User: {(result.details as any).email || (result.details as any).user?.email || 'Authenticated'}
+                        {(result.details as any).session && <><br />✓ Session created</>}
+                        {(result.details as any).token && <><br />✓ Token received</>}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/10 overflow-hidden rounded{{else}}result-json{{/if}}">
+                  <pre className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-black/70 overflow-x-auto max-w-full whitespace-pre-wrap break-all{{else}}json-content{{/if}}">
+                    {JSON.stringify(result.details, null, 2)}
+                  </pre>
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -183,272 +666,280 @@ export function PrecastWidget() {
 
   return (
     <>
-      {/* Floating Button - Modern Glass Morphism */}
+      {/* Floating Button - Minimalistic Bold Design with Logo */}
       {!isOpen && (
         <button
           onClick={togglePanel}
-          className="fixed bottom-6 right-6 z-50 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_rgba(139,92,246,0.3)] transition-all duration-300 hover:scale-110 hover:bg-white/20 group"
-          title="Open Admin Panel"
+          className="{{#if (eq styling 'tailwind')}}fixed bottom-6 right-6 z-50 bg-yellow-400 border-2 border-black p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 group{{else}}precast-floating-btn{{/if}}"
+          title="Open Precast Validator"
         >
-          <div className="relative">
-            <svg
-              className="w-6 h-6 text-purple-400 group-hover:text-purple-300 transition-colors"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-r from-purple-400 to-pink-400"></span>
-            </span>
+          <div className="{{#if (eq styling 'tailwind')}}relative w-6 h-6{{else}}btn-icon{{/if}}">
+            <img 
+              src="https://precast.dev/logo.png" 
+              alt="Precast" 
+              className="{{#if (eq styling 'tailwind')}}w-full h-full object-contain{{else}}logo-img{{/if}}"
+              onError={(e) => {
+                // Fallback to geometric icon if logo fails to load
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+            <Terminal size={24} className="{{#if (eq styling 'tailwind')}}hidden{{else}}hidden{{/if}}" />
           </div>
         </button>
       )}
 
-      {/* Floating Panel - Modern Glass Design */}
+      {/* Floating Panel with Side Tabs */}
       {isOpen && (
-        <div
-          className={`fixed z-50 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(139,92,246,0.15)] transition-all duration-300 ${
-            isMinimized 
-              ? 'bottom-6 right-6 w-72 h-14' 
-              : 'bottom-6 right-6 w-[420px] max-h-[85vh]'
-          }`}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl">
-                <svg
-                  className="w-5 h-5 text-purple-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">Precast Validator</h3>
-                <p className="text-xs text-gray-400">Service Health Check</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={() => setIsMinimized(!isMinimized)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
-                title={isMinimized ? "Expand" : "Minimize"}
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  {isMinimized ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  )}
-                </svg>
-              </button>
-              <button
-                onClick={togglePanel}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
-                title="Close"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Content - Modern Dark Theme */}
+        <div className="{{#if (eq styling 'tailwind')}}fixed bottom-6 right-6 z-50 flex{{else}}precast-panel-container{{/if}}">
+          {/* Side Tab Navigation */}
           {!isMinimized && (
-            <div className="p-5 overflow-y-auto max-h-[calc(85vh-4rem)]">
-              <div className="space-y-4">
-                {{#if database}}
-                {/* Database Test Card */}
-                <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-4 hover:bg-white/[0.07] transition-colors">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg flex items-center justify-center">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-white text-sm">Database</h3>
-                        <p className="text-xs text-gray-400">{{database}}</p>
-                      </div>
-                    </div>
-                    <span className={`px-2 py-1 text-xs rounded-full border ${
-                      testResults.database?.success 
-                        ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-                        : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                    }`}>
-                      {testResults.database?.success ? 'Connected' : 'Ready to Test'}
-                    </span>
+            <div className="{{#if (eq styling 'tailwind')}}flex flex-col mr-0{{else}}side-tabs{{/if}}">
+              {Object.entries(services).map(([key, service]: [string, Record<string, unknown>]) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key)}
+                  className={`{{#if (eq styling 'tailwind')}}w-12 h-12 border-2 border-black border-r-0 flex items-center justify-center transition-all duration-150 ${activeTab === key ? 'bg-yellow-400 shadow-[-2px_0px_0px_0px_rgba(0,0,0,1)]' : 'bg-white hover:bg-gray-100'} ${key === Object.keys(services)[0] ? '' : 'border-t-0'}{{else}}side-tab{{/if}}`}
+                  title={service.name as string}
+                  {{#unless (eq styling 'tailwind')}}
+                  data-active={activeTab === key}
+                  {{/unless}}
+                >
+                  <div className="{{#if (eq styling 'tailwind')}}transform scale-125{{else}}tab-icon{{/if}}">
+                    {getServiceIcon(service.icon as string, 20)}
                   </div>
-                  <button
-                    onClick={testDatabaseConnection}
-                    disabled={loading.database}
-                    className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-purple-500/20"
-                  >
-                    {loading.database ? (
-                      <span className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Testing...
-                      </span>
-                    ) : 'Test Connection'}
-                  </button>
-                  <ResultDisplay service="database" />
-                </div>
-                {{/if}}
-
-                {{#if (includes plugins 'resend')}}
-                {/* Email Service Card */}
-                <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-4 hover:bg-white/[0.07] transition-colors">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-white text-sm">Email Service</h3>
-                        <p className="text-xs text-gray-400">Resend API</p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-full border border-blue-500/20">
-                      Ready
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    <input
-                      type="email"
-                      placeholder="test@example.com"
-                      value={emailForm.to}
-                      onChange={(e) => setEmailForm(prev => ({ ...prev, to: e.target.value }))}
-                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-colors"
-                    />
-                    <button
-                      onClick={testResendEmail}
-                      disabled={loading.resend || !emailForm.to}
-                      className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-500/20"
-                    >
-                      {loading.resend ? (
-                        <span className="flex items-center justify-center">
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Sending...
-                        </span>
-                      ) : 'Send Test Email'}
-                    </button>
-                  </div>
-                  <ResultDisplay service="resend" />
-                </div>
-                {{/if}}
-
-                {{#if (includes plugins 'stripe')}}
-                {/* Payment Service Card */}
-                <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-4 hover:bg-white/[0.07] transition-colors">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-white text-sm">Payment Service</h3>
-                        <p className="text-xs text-gray-400">Stripe API</p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-500/10 text-purple-400 text-xs rounded-full border border-purple-500/20">
-                      Configured
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => console.log('Test Stripe')}
-                    className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-lg shadow-purple-500/20"
-                  >
-                    Test Connection
-                  </button>
-                </div>
-                {{/if}}
-
-                {/* Quick Actions - Modern Dark Theme */}
-                <div className="mt-6 pt-4 border-t border-white/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-medium text-gray-300">Quick Actions</p>
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent ml-3"></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => window.open('/api/health', '_blank')}
-                      className="group relative px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all duration-200"
-                    >
-                      <div className="flex items-center justify-center space-x-2">
-                        <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-xs text-gray-300 group-hover:text-white">API Health</span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setTestResults({});
-                        console.clear();
-                      }}
-                      className="group relative px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all duration-200"
-                    >
-                      <div className="flex items-center justify-center space-x-2">
-                        <svg className="w-3.5 h-3.5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        <span className="text-xs text-gray-300 group-hover:text-white">Clear</span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
+                </button>
+              ))}
             </div>
           )}
+
+          {/* Main Panel */}
+          <div
+            className={`{{#if (eq styling 'tailwind')}}bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 ${isMinimized ? 'w-72 h-14' : 'w-[420px] max-h-[85vh]'}{{else}}precast-main-panel{{/if}}`}
+            {{#unless (eq styling 'tailwind')}}
+            data-minimized={isMinimized}
+            {{/unless}}
+          >
+            {/* Header */}
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between p-3 border-b-2 border-black bg-yellow-400{{else}}panel-header{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}header-title{{/if}}">
+                <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-white border-2 border-black flex items-center justify-center p-1{{else}}header-logo{{/if}}">
+                  <img 
+                    src="https://precast.dev/logo.png" 
+                    alt="Precast" 
+                    className="{{#if (eq styling 'tailwind')}}w-full h-full object-contain{{else}}logo-img{{/if}}"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                  <div className="{{#if (eq styling 'tailwind')}}w-4 h-4 bg-black hidden{{else}}logo-fallback hidden{{/if}}"></div>
+                </div>
+                <div>
+                  <h3 className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase tracking-wider text-sm{{else}}panel-title{{/if}}">
+                    PRECAST
+                  </h3>
+                  <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/70 font-mono{{else}}panel-subtitle{{/if}}">
+                    {systemInfo?.environment ? `ENV: ${systemInfo.environment.toUpperCase()}` : "VALIDATOR_v1.0"}
+                  </p>
+                </div>
+              </div>
+              <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-1{{else}}header-controls{{/if}}">
+                <button
+                  onClick={() => setIsMinimized(!isMinimized)}
+                  className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-white border-2 border-black hover:bg-yellow-400 transition-colors flex items-center justify-center{{else}}control-btn{{/if}}"
+                  title={isMinimized ? "Expand" : "Minimize"}
+                >
+                  <span className="{{#if (eq styling 'tailwind')}}font-bold text-lg leading-none{{else}}control-icon{{/if}}">
+                    {isMinimized ? "+" : "-"}
+                  </span>
+                </button>
+                <button
+                  onClick={togglePanel}
+                  className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-black hover:bg-gray-800 transition-colors flex items-center justify-center{{else}}control-btn control-close{{/if}}"
+                  title="Close"
+                >
+                  <span className="{{#if (eq styling 'tailwind')}}text-white font-bold text-sm{{else}}close-icon{{/if}}">✕</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            {!isMinimized && (
+              <div className="{{#if (eq styling 'tailwind')}}p-4 overflow-y-auto max-h-[calc(85vh-4rem)] bg-white{{else}}panel-content{{/if}}">
+                {/* Dynamic tab content based on active service */}
+                {Object.entries(services).map(([key, service]: [string, Record<string, unknown>]) => 
+                  activeTab === key && (
+                    <div key={key} className="{{#if (eq styling 'tailwind')}}space-y-4{{else}}tab-content{{/if}}">
+                      <div className="{{#if (eq styling 'tailwind')}}border-2 border-black p-4 bg-white{{else}}service-card{{/if}}">
+                        <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-3{{else}}service-header{{/if}}">
+                          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}service-info{{/if}}">
+                            <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-yellow-400 border-2 border-black flex items-center justify-center{{else}}service-icon{{/if}}">
+                              {getServiceIcon(service.icon as string, 20)}
+                            </div>
+                            <div>
+                              <h3 className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase text-sm{{else}}service-name{{/if}}">
+                                {(service.type as string)?.toUpperCase() || (service.name as string)}
+                              </h3>
+                              {service.port && (
+                                <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 font-mono{{else}}service-port{{/if}}">
+                                  PORT: {service.port}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <span
+                            className={`{{#if (eq styling 'tailwind')}}px-3 py-1 text-xs font-bold uppercase tracking-wider border-2 border-black ${(key === 'auth' ? testResults.authStatus?.success : testResults[key]?.success) ? 'bg-black text-yellow-400' : 'bg-yellow-400 text-black'}{{else}}status-badge{{/if}}`}
+                            {{#unless (eq styling 'tailwind')}}
+                            data-success={(key === 'auth' ? testResults.authStatus?.success : testResults[key]?.success)}
+                            {{/unless}}
+                          >
+                            {(key === 'auth' ? testResults.authStatus?.success : testResults[key]?.success) ? "ONLINE" : "UNKNOWN"}
+                          </span>
+                        </div>
+                        
+                        {/* Test buttons for services that support testing */}
+                        {(key === 'database' || key === 'api' || key === 'email' || key === 'docker') && (
+                          <button
+                            onClick={() => {
+                              if (key === 'database') testDatabaseConnection();
+                              else if (key === 'api') testApiHealth();
+                              {{#if docker}}
+                              else if (key === 'docker') testDockerHealth();
+                              {{/if}}
+                              {{#if (includes plugins 'resend')}}
+                              else if (key === 'email') testEmailService();
+                              {{/if}}
+                            }}
+                            disabled={loading[key]}
+                            className="{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-yellow-400 border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn{{/if}}"
+                          >
+                            {loading[key] ? (
+                              <span className="{{#if (eq styling 'tailwind')}}flex items-center justify-center{{else}}loading{{/if}}">
+                                <span className="{{#if (eq styling 'tailwind')}}inline-block w-4 h-4 border-2 border-black border-t-transparent animate-spin mr-2{{else}}spinner{{/if}}"></span>
+                                TESTING...
+                              </span>
+                            ) : (
+                              `RUN ${key === 'database' ? 'CONNECTION' : key === 'api' ? 'HEALTH' : key === 'docker' ? 'DOCKER' : key === 'email' ? 'EMAIL' : 'SERVICE'} TEST`
+                            )}
+                          </button>
+                        )}
+
+                        {/* Enhanced Auth Testing UI */}
+                        {{#if authProvider}}
+                        {key === 'auth' && (
+                          <div className="{{#if (eq styling 'tailwind')}}space-y-3{{else}}auth-test-container{{/if}}">
+                            {/* Mode selector */}
+                            <div className="{{#if (eq styling 'tailwind')}}flex gap-2{{else}}mode-selector{{/if}}">
+                              <button
+                                onClick={() => setAuthMode('signup')}
+                                className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signup' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}mode-btn{{/if}}`}
+                                {{#unless (eq styling 'tailwind')}}data-active={authMode === 'signup'}{{/unless}}
+                              >
+                                SIGN UP
+                              </button>
+                              <button
+                                onClick={() => setAuthMode('signin')}
+                                className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signin' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}mode-btn{{/if}}`}
+                                {{#unless (eq styling 'tailwind')}}data-active={authMode === 'signin'}{{/unless}}
+                              >
+                                SIGN IN
+                              </button>
+                            </div>
+
+                            {/* Input fields */}
+                            <div className="{{#if (eq styling 'tailwind')}}space-y-2{{else}}auth-inputs{{/if}}">
+                              <input
+                                type="email"
+                                value={authEmail}
+                                onChange={(e) => setAuthEmail(e.target.value)}
+                                placeholder="Email"
+                                className="{{#if (eq styling 'tailwind')}}w-full px-3 py-2 border-2 border-black text-sm font-mono{{else}}input-field{{/if}}"
+                              />
+                              <input
+                                type="password"
+                                value={authPassword}
+                                onChange={(e) => setAuthPassword(e.target.value)}
+                                placeholder="Password"
+                                className="{{#if (eq styling 'tailwind')}}w-full px-3 py-2 border-2 border-black text-sm font-mono{{else}}input-field{{/if}}"
+                              />
+                              {authMode === 'signup' && (
+                                <input
+                                  type="text"
+                                  value={authName}
+                                  onChange={(e) => setAuthName(e.target.value)}
+                                  placeholder="Name"
+                                  className="{{#if (eq styling 'tailwind')}}w-full px-3 py-2 border-2 border-black text-sm font-mono{{else}}input-field{{/if}}"
+                                />
+                              )}
+                            </div>
+
+                            {/* Test button */}
+                            <button
+                              onClick={() => testAuthService()}
+                              disabled={loading.auth}
+                              className="{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-yellow-400 border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn{{/if}}"
+                            >
+                              {loading.auth ? (
+                                <span className="{{#if (eq styling 'tailwind')}}flex items-center justify-center{{else}}loading{{/if}}">
+                                  <span className="{{#if (eq styling 'tailwind')}}inline-block w-4 h-4 border-2 border-black border-t-transparent animate-spin mr-2{{else}}spinner{{/if}}"></span>
+                                  TESTING...
+                                </span>
+                              ) : (
+                                `TEST ${authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}`
+                              )}
+                            </button>
+                          </div>
+                        )}
+                        {{/if}}
+
+                        {/* Auth status test button */}
+                        {{#if authProvider}}
+                        {key === 'auth' && (
+                          <button
+                            onClick={() => testAuthStatus()}
+                            disabled={loading.authStatus}
+                            className="{{#if (eq styling 'tailwind')}}w-full mt-2 px-4 py-3 bg-white border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn status-btn{{/if}}"
+                          >
+                            {loading.authStatus ? (
+                              <span className="{{#if (eq styling 'tailwind')}}flex items-center justify-center{{else}}loading{{/if}}">
+                                <span className="{{#if (eq styling 'tailwind')}}inline-block w-4 h-4 border-2 border-black border-t-transparent animate-spin mr-2{{else}}spinner{{/if}}"></span>
+                                CHECKING...
+                              </span>
+                            ) : (
+                              'CHECK STATUS ENDPOINT'
+                            )}
+                          </button>
+                        )}
+                        {{/if}}
+                        
+                        {/* Docker containers list */}
+                        {key === 'docker' && service.containers && Array.isArray(service.containers) && (
+                          <div className="{{#if (eq styling 'tailwind')}}space-y-2{{else}}containers-list{{/if}}">
+                            {(service.containers as Array<{name: string; port: number; icon: string}>).map((container, idx: number) => (
+                              <div key={idx} className="{{#if (eq styling 'tailwind')}}border border-black p-2{{else}}container-item{{/if}}">
+                                <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between{{else}}container-info{{/if}}">
+                                  <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}container-name{{/if}}">
+                                    {getServiceIcon(container.icon, 14)}
+                                    <span className="{{#if (eq styling 'tailwind')}}text-xs font-mono{{else}}container-text{{/if}}">{container.name}</span>
+                                  </div>
+                                  <span className="{{#if (eq styling 'tailwind')}}text-xs font-bold text-black bg-yellow-400 px-2{{else}}container-port{{/if}}">
+                                    {container.port}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <ResultDisplay service={key} />
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </>

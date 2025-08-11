@@ -1,0 +1,34 @@
+import { IncomingMessage, ServerResponse } from 'http';
+import { auth } from '@/lib/auth{{#if typescript}}.js{{/if}}';
+
+/**
+ * Better Auth route handler for Node.js
+ * @param req - Incoming HTTP request
+ * @param res - HTTP response
+ * @param url - Parsed URL object
+ * @returns Response or null if not handled
+ */
+export async function handleAuthRoute(req: IncomingMessage, res: ServerResponse, url: URL) {
+  if (url.pathname.startsWith('/api/auth/')) {
+    return auth.handler(req);
+  }
+  
+  if (url.pathname === '/api/auth' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      service: 'Better Auth',
+      status: 'active',
+      endpoints: {
+        signUp: '/api/auth/sign-up',
+        signIn: '/api/auth/sign-in',
+        signOut: '/api/auth/sign-out',
+        getSession: '/api/auth/get-session'
+      },
+      providers: ['email', 'github', 'google'],
+      timestamp: new Date().toISOString(),
+    }));
+    return;
+  }
+
+  return null;
+}

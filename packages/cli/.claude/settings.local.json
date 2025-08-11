@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./test-runner.sh:*)",
+      "Bash(./test-runner-enhanced.sh:*)",
+      "Bash(bash:*)",
+      "Bash(env PATH=\"$PATH\" bun run docker:up)",
+      "mcp__brave-search__brave_web_search",
+      "WebFetch(domain:www.better-auth.com)",
+      "WebFetch(domain:betterstack.com)",
+      "WebFetch(domain:www.prisma.io)",
+      "Bash(docker compose:*)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/test-projects/test-project-20250811152719-1516/apps/api/update-schema.sh)"
+    ],
+    "deny": []
+  }
+}

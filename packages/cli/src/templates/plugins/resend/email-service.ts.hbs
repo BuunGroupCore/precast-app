@@ -59,14 +59,14 @@ export async function sendEmail({
 export async function sendWelcomeEmail(to: string, name: string) {
   return sendEmail({
     to,
-    subject: 'Welcome to {{pluginName}}!',
+    subject: 'Welcome to {{name}}!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333;">Welcome, ${name}!</h1>
         <p>Thank you for signing up. We're excited to have you on board.</p>
         <p>If you have any questions, feel free to reply to this email.</p>
         <br>
-        <p>Best regards,<br>The {{pluginName}} Team</p>
+        <p>Best regards,<br>The {{name}} Team</p>
       </div>
     `,
   });
@@ -110,7 +110,7 @@ export async function sendNotificationEmail(to: string, title: string, message: 
         <h2 style="color: #333;">${title}</h2>
         <p>${message}</p>
         <br>
-        <p>Best regards,<br>The {{pluginName}} Team</p>
+        <p>Best regards,<br>The {{name}} Team</p>
       </div>
     `,
   });

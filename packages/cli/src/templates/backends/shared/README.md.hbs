@@ -1,0 +1,557 @@
+# {{name}} API
+
+This is the backend API for your {{name}} application, built with {{backend}} and {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}.
+
+## 🚀 Quick Start
+
+{{#if docker}}
+### With Docker (Recommended)
+
+```bash
+# 1. Start Docker containers (database, etc.)
+cd docker && docker compose up -d && cd ..
+
+# 2. Install dependencies
+{{packageManager}} install
+
+# 3. Start development server (auto-syncs database)
+{{packageManager}} run dev
+```
+
+**Note:** When you run `npm run dev`, it will automatically:
+- Push the Prisma schema to the database (creating tables)
+- Generate the Prisma client
+- Start the development server
+
+### Without Docker
+
+```bash
+# 1. Ensure your database is running
+
+# 2. Install dependencies
+{{packageManager}} install
+
+# 3. Start development server (auto-syncs database)
+{{packageManager}} run dev
+```
+{{else}}
+```bash
+# Install dependencies
+{{packageManager}} install
+
+# Start development server{{#if (eq orm "prisma")}} (auto-syncs database){{/if}}
+{{packageManager}} run dev
+```
+{{/if}}
+
+The API will be available at `http://localhost:3001`
+
+## 📁 Project Structure
+
+```
+apps/api/
+├── src/
+│   ├── api/          # API routes and endpoints
+│   │   └── routes/   # Route handlers
+│   ├── lib/          # Shared libraries and utilities
+{{#if (eq orm "prisma")}}│   │   └── prisma.ts # Prisma client instance{{/if}}
+{{#if (eq orm "drizzle")}}│   │   └── db.ts     # Drizzle database instance{{/if}}
+{{#if authProvider}}│   │   └── auth.ts   # Authentication configuration{{/if}}
+│   ├── services/     # Business logic and services
+{{#if (includes plugins 'resend')}}│   │   └── email.ts  # Email service{{/if}}
+│   └── index.ts      # Application entry point
+{{#if (eq orm "prisma")}}├── prisma/
+│   ├── schema.prisma # Database schema
+│   └── migrations/   # Database migrations{{/if}}
+{{#if (eq orm "drizzle")}}├── drizzle/
+│   ├── schema.ts     # Database schema
+│   └── migrations/   # Database migrations{{/if}}
+├── .env              # Environment variables
+├── .env.example      # Example environment variables
+└── package.json      # Dependencies and scripts
+```
+
+{{#if (or (eq orm "prisma") (eq orm "drizzle"))}}
+## 🗄️ Database Setup
+
+{{#if (eq orm "prisma")}}
+### Using Prisma
+
+1. **Configure your database connection** in `.env`:
+   ```env
+   DATABASE_URL="{{#if (eq database "postgres")}}postgresql://username:password@localhost:5432/dbname{{else if (eq database "mysql")}}mysql://username:password@localhost:3306/dbname{{else if (eq database "sqlite")}}file:./dev.db{{/if}}"
+   ```
+
+2. **Run initial migration** to create database tables:
+   ```bash
+   npx prisma migrate dev --name init
+   ```
+
+3. **Generate Prisma Client** (automatically done after migrations):
+   ```bash
+   npx prisma generate
+   ```
+
+4. **View your database** with Prisma Studio:
+   ```bash
+   npx prisma studio
+   ```
+
+#### Common Prisma Commands
+
+- **Create a new migration:**
+  ```bash
+  npx prisma migrate dev --name your_migration_name
+  ```
+
+- **Apply migrations in production:**
+  ```bash
+  npx prisma migrate deploy
+  ```
+
+- **Reset database** (⚠️ This will delete all data):
+  ```bash
+  npx prisma migrate reset
+  ```
+
+- **Pull database schema** (introspect existing database):
+  ```bash
+  npx prisma db pull
+  ```
+
+- **Push schema changes** (without creating migration):
+  ```bash
+  npx prisma db push
+  ```
+{{/if}}
+
+{{#if (eq orm "drizzle")}}
+### Using Drizzle ORM
+
+1. **Configure your database connection** in `.env`:
+   ```env
+   DATABASE_URL="{{#if (eq database "postgres")}}postgresql://username:password@localhost:5432/dbname{{else if (eq database "mysql")}}mysql://username:password@localhost:3306/dbname{{else if (eq database "sqlite")}}file:./dev.db{{/if}}"
+   ```
+
+2. **Generate initial migration:**
+   ```bash
+   {{packageManager}} run db:generate
+   ```
+
+3. **Apply migrations:**
+   ```bash
+   {{packageManager}} run db:migrate
+   ```
+
+4. **View your database** with Drizzle Studio:
+   ```bash
+   {{packageManager}} run db:studio
+   ```
+
+#### Common Drizzle Commands
+
+- **Generate new migration:**
+  ```bash
+  {{packageManager}} run db:generate
+  ```
+
+- **Apply migrations:**
+  ```bash
+  {{packageManager}} run db:migrate
+  ```
+
+- **Drop all tables** (⚠️ This will delete all data):
+  ```bash
+  {{packageManager}} run db:drop
+  ```
+
+- **Push schema** (prototype without migrations):
+  ```bash
+  {{packageManager}} run db:push
+  ```
+{{/if}}
+{{/if}}
+
+{{#if authProvider}}
+## 🔐 Authentication Setup
+
+Your API is configured with **{{authProvider}}** for authentication.
+
+{{#if (eq authProvider "better-auth")}}
+### Better Auth Setup
+
+{{#if (eq orm "prisma")}}
+**✅ Database tables are created automatically when you run `npm run dev`!**
+
+The `predev` script automatically pushes the Prisma schema to your database, creating all necessary tables for Better Auth (User, Session, Account).
+
+If you need to manually manage the database:
+```bash
+# Push schema changes to database
+{{packageManager}} run db:push
+
+# Create a migration (for production)
+{{packageManager}} run db:migrate
+
+# Open Prisma Studio to view data
+{{packageManager}} run db:studio
+```
+{{else if (eq orm "drizzle")}}
+1. **Database Migration Required**: Better Auth requires database tables for users, sessions, and accounts.
+   ```bash
+   # Generate and run auth migrations
+   {{packageManager}} run db:generate
+   {{packageManager}} run db:migrate
+   ```
+{{/if}}
+
+2. **Configure OAuth Providers** (optional) in `.env`:
+   ```env
+   GITHUB_CLIENT_ID=your_github_client_id
+   GITHUB_CLIENT_SECRET=your_github_client_secret
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   ```
+
+3. **Available Endpoints:**
+   - `POST /api/auth/sign-up` - Register new user
+   - `POST /api/auth/sign-in` - Login user
+   - `POST /api/auth/sign-out` - Logout user
+   - `GET /api/auth/get-session` - Get current session
+   - `GET /api/auth/status` - Check auth service status
+
+4. **Testing Authentication:**
+   Use the PrecastWidget in your frontend to test auth endpoints, or use curl:
+   ```bash
+   # Register a user
+   curl -X POST http://localhost:3001/api/auth/sign-up \
+     -H "Content-Type: application/json" \
+     -d '{"email":"test@example.com","password":"Test123!","name":"Test User"}'
+   ```
+{{/if}}
+
+{{#if (eq authProvider "auth.js")}}
+### Auth.js (NextAuth) Setup
+
+1. **Configure providers** in `.env`:
+   ```env
+   AUTH_SECRET=your_secret_key_here
+   GITHUB_ID=your_github_client_id
+   GITHUB_SECRET=your_github_client_secret
+   ```
+
+2. **Run database migrations:**
+   ```bash
+   npx prisma migrate dev --name add_auth_tables
+   ```
+{{/if}}
+
+{{#if (eq authProvider "supabase-auth")}}
+### Supabase Auth Setup
+
+1. **Configure Supabase** in `.env`:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_KEY=your-service-key
+   ```
+
+2. **Set up authentication** in Supabase Dashboard:
+   - Enable email/password authentication
+   - Configure OAuth providers
+   - Set redirect URLs
+{{/if}}
+{{/if}}
+
+{{#if (includes plugins 'resend')}}
+## ✉️ Email Service
+
+Your API includes email functionality using **Resend**.
+
+### Setup
+
+1. **Get your API key** from [Resend Dashboard](https://resend.com/api-keys)
+
+2. **Configure** in `.env`:
+   ```env
+   RESEND_API_KEY=re_your_api_key
+   RESEND_FROM_EMAIL=noreply@yourdomain.com
+   ```
+
+3. **Available Functions:**
+   - `sendEmail()` - Send custom emails
+   - `sendWelcomeEmail()` - Send welcome emails
+   - `sendPasswordResetEmail()` - Send password reset emails
+   - `sendNotificationEmail()` - Send notifications
+
+4. **Test endpoint:**
+   ```bash
+   curl -X POST http://localhost:3001/api/email \
+     -H "Content-Type: application/json" \
+     -d '{"to":"test@example.com","subject":"Test","type":"notification","title":"Test Email","message":"This is a test"}'
+   ```
+{{/if}}
+
+## 🧪 Testing
+
+```bash
+# Run tests
+{{packageManager}} test
+
+# Run tests in watch mode
+{{packageManager}} test:watch
+
+# Run tests with coverage
+{{packageManager}} test:coverage
+```
+
+## 📝 Available Scripts
+
+- `{{packageManager}} run dev` - Start development server with hot reload
+- `{{packageManager}} run build` - Build for production
+- `{{packageManager}} run start` - Start production server
+{{#if (eq orm "prisma")}}- `{{packageManager}} run db:migrate` - Run database migrations
+- `{{packageManager}} run db:studio` - Open Prisma Studio{{/if}}
+{{#if (eq orm "drizzle")}}- `{{packageManager}} run db:generate` - Generate migrations
+- `{{packageManager}} run db:migrate` - Run migrations
+- `{{packageManager}} run db:studio` - Open Drizzle Studio{{/if}}
+- `{{packageManager}} run lint` - Run ESLint
+- `{{packageManager}} run format` - Format code with Prettier
+
+## 🔧 Environment Variables
+
+Create a `.env` file based on `.env.example`:
+
+```env
+# Server
+NODE_ENV=development
+PORT=3001
+
+{{#if (or (eq orm "prisma") (eq orm "drizzle"))}}
+# Database
+DATABASE_URL=your_database_connection_string
+{{/if}}
+
+{{#if authProvider}}
+# Authentication
+{{#if (eq authProvider "better-auth")}}BETTER_AUTH_SECRET=your_secret_key
+BETTER_AUTH_URL=http://localhost:3001{{/if}}
+{{#if (eq authProvider "auth.js")}}AUTH_SECRET=your_secret_key{{/if}}
+{{/if}}
+
+{{#if (includes plugins 'resend')}}
+# Email Service
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+{{/if}}
+```
+
+{{#if docker}}
+## 🐳 Docker Setup
+
+### Quick Start with Docker Compose
+
+```bash
+# Navigate to the docker directory
+cd docker/
+
+# Start all containers in detached mode
+docker compose up -d
+
+# View container logs
+docker compose logs -f
+
+# Stop all containers
+docker compose down
+```
+
+### Docker Services
+
+Your application includes the following Docker services:
+
+{{#if (eq database "postgres")}}
+- **PostgreSQL 16** - Database server on port 5432
+- **pgAdmin4** - Database management UI on port 5050
+  - Email: `admin@admin.com`
+  - Password: `admin`
+{{else if (eq database "mysql")}}
+- **MySQL 8** - Database server on port 3306
+- **phpMyAdmin** - Database management UI on port 8080
+{{else if (eq database "mongodb")}}
+- **MongoDB 7** - Database server on port 27017
+- **Mongo Express** - Database management UI on port 8081
+  - Username: `admin`
+  - Password: `admin`
+{{/if}}
+{{#if (includes plugins "redis")}}
+- **Redis** - Cache server on port 6379
+- **RedisInsight** - Redis management UI on port 8001
+{{/if}}
+
+### Docker Commands Reference
+
+```bash
+# Start specific service
+docker compose up -d postgres
+
+# View logs for specific service
+docker compose logs -f postgres
+
+# Execute commands in container
+docker compose exec postgres psql -U postgres
+
+# Remove containers and volumes (⚠️ Deletes all data)
+docker compose down -v
+
+# Rebuild containers after changes
+docker compose up -d --build
+
+# Check container status
+docker compose ps
+
+# View container resource usage
+docker stats
+```
+
+### Database Connection via Docker
+
+When using Docker, update your `.env` file:
+
+```env
+{{#if (eq database "postgres")}}
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/{{name}}"
+{{else if (eq database "mysql")}}
+DATABASE_URL="mysql://root:password@localhost:3306/{{name}}"
+{{else if (eq database "mongodb")}}
+DATABASE_URL="mongodb://localhost:27017/{{name}}"
+{{/if}}
+```
+
+### Troubleshooting Docker
+
+If you encounter issues:
+
+1. **Containers won't start:**
+   ```bash
+   # Check if ports are already in use
+   lsof -i :5432  # For PostgreSQL
+   lsof -i :3306  # For MySQL
+   lsof -i :27017 # For MongoDB
+   
+   # Stop conflicting services
+   sudo service postgresql stop  # If PostgreSQL is installed locally
+   sudo service mysql stop       # If MySQL is installed locally
+   ```
+
+2. **Database connection issues:**
+   ```bash
+   # Ensure containers are running
+   docker compose ps
+   
+   # Check container logs
+   docker compose logs postgres  # Or mysql/mongodb
+   
+   # Test connection from host
+   psql -h localhost -U postgres -d {{name}}
+   ```
+
+3. **Permission issues:**
+   ```bash
+   # Fix volume permissions
+   sudo chown -R $USER:$USER ./docker/volumes
+   ```
+
+4. **Reset everything:**
+   ```bash
+   # Stop and remove all containers, networks, and volumes
+   docker compose down -v
+   
+   # Start fresh
+   docker compose up -d
+   ```
+
+{{/if}}
+## 🚀 Deployment
+
+### Production Build
+
+```bash
+# Build the application
+{{packageManager}} run build
+
+# Start production server
+NODE_ENV=production {{packageManager}} start
+```
+
+### Database Migrations in Production
+
+{{#if (eq orm "prisma")}}
+```bash
+# Apply migrations without creating new ones
+npx prisma migrate deploy
+```
+{{/if}}
+{{#if (eq orm "drizzle")}}
+```bash
+# Apply migrations
+{{packageManager}} run db:migrate
+```
+{{/if}}
+
+### Health Check
+
+Your API includes a health check endpoint at `/api/health` that verifies:
+- Server is running
+- {{#if (or (eq orm "prisma") (eq orm "drizzle"))}}Database connection{{/if}}
+- {{#if authProvider}}Authentication service{{/if}}
+- {{#if (includes plugins 'resend')}}Email service{{/if}}
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+{{#if (or (eq orm "prisma") (eq orm "drizzle"))}}
+#### Database Connection Issues
+- Ensure your database is running
+- Check `DATABASE_URL` in `.env`
+- Verify network connectivity
+{{#if docker}}- Check if Docker containers are running: `docker-compose ps`{{/if}}
+{{/if}}
+
+{{#if authProvider}}
+#### Authentication Not Working
+- Ensure database migrations have been run
+- Check environment variables are set correctly
+- Verify OAuth redirect URLs match your configuration
+{{/if}}
+
+{{#if (includes plugins 'resend')}}
+#### Email Sending Failed
+- Verify `RESEND_API_KEY` is valid
+- Check sender email is verified in Resend
+- Review email service logs for errors
+{{/if}}
+
+### Debug Mode
+
+Enable debug logging:
+```env
+DEBUG=* {{packageManager}} run dev
+```
+
+## 📚 Resources
+
+- [{{backend}} Documentation]({{#if (eq backend "express")}}https://expressjs.com{{else if (eq backend "fastify")}}https://fastify.io{{else if (eq backend "hono")}}https://hono.dev{{else if (eq backend "nestjs")}}https://nestjs.com{{else}}https://nodejs.org{{/if}})
+{{#if (eq orm "prisma")}}- [Prisma Documentation](https://www.prisma.io/docs){{/if}}
+{{#if (eq orm "drizzle")}}- [Drizzle ORM Documentation](https://orm.drizzle.team){{/if}}
+{{#if (eq authProvider "better-auth")}}- [Better Auth Documentation](https://better-auth.com){{/if}}
+{{#if (eq authProvider "auth.js")}}- [Auth.js Documentation](https://authjs.dev){{/if}}
+{{#if (includes plugins 'resend')}}- [Resend Documentation](https://resend.com/docs){{/if}}
+
+## 📄 License
+
+This project is private and proprietary.
+
+---
+
+Generated with [Precast CLI](https://precast.app) 🚀

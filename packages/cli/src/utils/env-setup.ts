@@ -33,6 +33,28 @@ function generateSecurePassword(length: number = 20): string {
 }
 
 /**
+ * Get the default frontend URL based on the framework
+ */
+function getDefaultFrontendUrl(config: ProjectConfig): string {
+  const portMap: Record<string, number> = {
+    next: 3000,
+    nuxt: 3000,
+    remix: 3000,
+    astro: 4321,
+    angular: 4200,
+    vue: 5173,
+    react: 5173,
+    vite: 5173,
+    svelte: 5173,
+    solid: 3000,
+    vanilla: 5173,
+  };
+
+  const port = portMap[config.framework] || 5173;
+  return `http://localhost:${port}`;
+}
+
+/**
  * Get environment variables based on project configuration
  */
 export function getEnvironmentVariables(
@@ -221,8 +243,8 @@ export function getEnvironmentVariables(
             key: "BETTER_AUTH_URL",
             description: "Better Auth base URL",
             value: "", // Will be overridden by development/production values
-            development: "http://localhost:3000",
-            production: "https://yourdomain.com",
+            development: "http://localhost:3001", // API port for monorepo
+            production: "https://api.yourdomain.com",
             required: true,
           }
         );
@@ -600,6 +622,14 @@ export function getEnvironmentVariables(
         development: "3001",
         production: "3001",
         required: false,
+      },
+      {
+        key: "CLIENT_URL",
+        description: "Frontend URL for CORS",
+        value: "", // Will be overridden by development/production values
+        development: getDefaultFrontendUrl(config),
+        production: "https://yourdomain.com",
+        required: false,
       }
     );
   }
@@ -611,12 +641,12 @@ export function getEnvironmentVariables(
 }
 
 /**
- * Generate a secure random secret
+ * Generate a secure random secret (32+ characters for Better Auth)
  */
-function generateSecret(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+function generateSecret(length: number = 32): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
   let result = "";
-  for (let i = 0; i < 32; i++) {
+  for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;

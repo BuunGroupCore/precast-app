@@ -64,6 +64,16 @@ export async function generateBackendTemplate(
       });
     }
 
+    // Copy shared backend files (README, etc.)
+    const sharedDir = `backends/shared`;
+    if (
+      await templateEngine.getAvailableTemplates("backends").then((dirs) => dirs.includes("shared"))
+    ) {
+      await templateEngine.copyTemplateDirectory(sharedDir, projectPath, config, {
+        overwrite: false, // Don't overwrite existing files
+      });
+    }
+
     consola.success(`${backend} backend generated successfully!`);
   } catch (error) {
     consola.error(`Failed to generate ${backend} backend:`, error);

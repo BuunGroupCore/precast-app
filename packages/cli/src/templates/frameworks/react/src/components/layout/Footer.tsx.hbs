@@ -1,108 +1,56 @@
-{{#if typescript}}import { Heart, ExternalLink, BookOpen } from "lucide-react";
-import { FaGithub } from "react-icons/fa";
-import { SiPreact } from "react-icons/si";{{/if}}
+import { Github, ExternalLink, Terminal } from "lucide-react";
 
 /**
- * Footer component with Precast branding and useful links
+ * Footer component - Brutalist terminal-style footer
  */
 export function Footer() {
   return (
-    {{#if (eq styling "tailwind")}}
-    <footer className="mt-auto border-t border-white/10">
-      <div className="bg-slate-900/50 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            {/* Branding */}
-            <div className="flex items-center gap-4 group">
-              <div className="relative">
-                {{#if typescript}}<SiPreact className="h-8 w-8 text-purple-400 group-hover:text-purple-300 transition-colors duration-300" />{{else}}<span className="text-3xl group-hover:scale-110 transition-transform duration-300">⚡</span>{{/if}}
-                <div className="absolute -inset-1 bg-purple-500/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </div>
-              <div className="text-center md:text-left">
-                <p className="text-white font-semibold group-hover:text-purple-100 transition-colors duration-300">{{name}}</p>
-                <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors duration-300">Powered by Precast</p>
-              </div>
-            </div>
-
-            {/* Links */}
-            <div className="flex items-center gap-8">
-              <a 
-                href="https://precast.dev" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 font-medium hover:scale-105"
-              >
-                <span className="group-hover:translate-x-0.5 transition-transform duration-300">Precast.dev</span>
-                {{#if typescript}}<ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300" />{{else}}<span className="group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300 inline-block">↗</span>{{/if}}
-              </a>
-              <a 
-                href="https://precast.dev/docs" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
-              >
-                {{#if typescript}}<BookOpen className="w-4 h-4 group-hover:text-blue-400 transition-colors duration-300" />{{else}}<span className="text-blue-400">📚</span>{{/if}}
-                <span className="group-hover:translate-x-0.5 transition-transform duration-300">Documentation</span>
-              </a>
-              <a 
-                href="https://github.com/BuunGroupCore/precast-app" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-gray-300 hover:text-white transition-all duration-300 hover:scale-105"
-              >
-                {{#if typescript}}<FaGithub className="w-4 h-4 group-hover:text-gray-100 transition-colors duration-300" />{{else}}<span className="text-gray-400">🐙</span>{{/if}}
-                <span className="group-hover:translate-x-0.5 transition-transform duration-300">GitHub</span>
-              </a>
-            </div>
+    <footer className="{{#if (eq styling 'tailwind')}}mt-auto border-t-4 border-black bg-black{{else}}footer{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}max-w-6xl mx-auto px-6 py-6{{else}}footer-content{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}flex flex-col md:flex-row items-center justify-between gap-6{{else}}footer-inner{{/if}}">
+          {/* Terminal prompt */}
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-3 font-mono text-sm{{else}}footer-prompt{{/if}}">
+            <Terminal size={16} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+            <span className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}prompt-symbol{{/if}}">$</span>
+            <span className="{{#if (eq styling 'tailwind')}}text-white{{else}}prompt-text{{/if}}">{{projectName}}</span>
+            <span className="{{#if (eq styling 'tailwind')}}text-yellow-400 animate-pulse{{else}}prompt-cursor{{/if}}">_</span>
           </div>
 
-          {/* Bottom section */}
-          <div className="mt-8 pt-6 border-t border-slate-700/50 text-center">
-            <p className="text-gray-500 text-sm flex items-center justify-center gap-2 group hover:text-gray-400 transition-colors duration-300">
-              <span>Made with</span>
-              <Heart className="w-4 h-4 text-red-500 animate-pulse group-hover:scale-110 transition-transform duration-300" />
-              <span>using</span>
-              <a 
-                href="https://precast.dev" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-purple-400 hover:text-purple-300 transition-colors duration-300 font-semibold"
-              >
-                precast.dev
-              </a>
-            </p>
+          {/* Links */}
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center gap-6{{else}}footer-links{{/if}}">
+            <a
+              href="https://precast.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="{{#if (eq styling 'tailwind')}}group flex items-center gap-2 text-yellow-400 hover:text-white transition-colors font-mono text-xs uppercase tracking-wider{{else}}footer-link{{/if}}"
+            >
+              <span>[PRECAST.DEV]</span>
+              <ExternalLink size={12} className="{{#if (eq styling 'tailwind')}}group-hover:translate-x-1 transition-transform{{else}}link-icon{{/if}}" />
+            </a>
+            <a
+              href="https://github.com/BuunGroupCore/precast-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="{{#if (eq styling 'tailwind')}}group flex items-center gap-2 text-yellow-400 hover:text-white transition-colors font-mono text-xs uppercase tracking-wider{{else}}footer-link{{/if}}"
+            >
+              <Github size={14} />
+              <span>[SOURCE]</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Status bar */}
+        <div className="{{#if (eq styling 'tailwind')}}mt-4 pt-4 border-t border-yellow-400/20 flex flex-wrap items-center justify-between text-xs font-mono{{else}}status-bar{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center gap-4 text-gray-500{{else}}status-left{{/if}}">
+            <span>STATUS: <span className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}status-value{{/if}}">ONLINE</span></span>
+            <span>MODE: <span className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}status-value{{/if}}">DEV</span></span>
+            <span>VERSION: <span className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}status-value{{/if}}">1.0.0</span></span>
+          </div>
+          <div className="{{#if (eq styling 'tailwind')}}text-gray-500{{else}}status-right{{/if}}">
+            GENERATED BY <span className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}status-value{{/if}}">PRECAST CLI</span>
           </div>
         </div>
       </div>
     </footer>
-    {{else}}
-    <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-branding">
-          <span className="footer-logo">⚡</span>
-          <div>
-            <p><strong>{{name}}</strong></p>
-            <p>Powered by Precast</p>
-          </div>
-        </div>
-
-        <div className="footer-links">
-          <a href="https://precast.dev" target="_blank" rel="noopener noreferrer" className="footer-link">
-            <span>Precast.dev</span> <span className="external-icon">↗</span>
-          </a>
-          <a href="https://precast.dev/docs" target="_blank" rel="noopener noreferrer" className="footer-link">
-            <span className="docs-icon">📚</span> <span>Documentation</span>
-          </a>
-          <a href="https://github.com/BuunGroupCore/precast-app" target="_blank" rel="noopener noreferrer" className="footer-link">
-            <span className="github-icon">🐙</span> <span>GitHub</span>
-          </a>
-        </div>
-      </div>
-      
-      <div className="footer-bottom">
-        <p>Made with <span className="heart">❤️</span> using <a href="https://precast.dev" target="_blank" rel="noopener noreferrer"><strong>precast.dev</strong></a></p>
-      </div>
-    </footer>
-    {{/if}}
   );
 }

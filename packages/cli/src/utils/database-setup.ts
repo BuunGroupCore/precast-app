@@ -75,10 +75,6 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
       await setupDatabaseConnection(config, targetPath, context);
     }
 
-    if (config.framework && config.framework !== "none") {
-      await setupDatabaseConnectionTest(config, projectPath, context);
-    }
-
     consola.success(`✅ Database setup completed for ${config.database} with ${config.orm}!`);
   } catch (error) {
     consola.error("Failed to setup database configuration:", error);
@@ -329,52 +325,6 @@ async function processTemplateDirectory(
       await copy(filePath, outputPath);
     }
   }
-}
-
-/**
- * Add database connection test utilities for frontend applications
- */
-async function setupDatabaseConnectionTest(
-  config: ProjectConfig,
-  projectPath: string,
-  context: Record<string, any>
-): Promise<void> {
-  consola.info("Adding database connection test utilities...");
-
-  const templatePath = path.join(
-    __dirname,
-    "templates",
-    "database",
-    "connection",
-    "db-test.ts.hbs"
-  );
-  const srcTemplatePath = path.join(
-    __dirname,
-    "..",
-    "..",
-    "src",
-    "templates",
-    "database",
-    "connection",
-    "db-test.ts.hbs"
-  );
-
-  let finalTemplatePath = templatePath;
-  if (!(await pathExists(templatePath)) && (await pathExists(srcTemplatePath))) {
-    finalTemplatePath = srcTemplatePath;
-  }
-
-  if (await pathExists(finalTemplatePath)) {
-    const content = await readFile(finalTemplatePath, "utf-8");
-    const template = Handlebars.compile(content);
-    const rendered = template(context);
-
-    const utilsPath = path.join(projectPath, "src", "utils");
-    await ensureDir(utilsPath);
-    await writeFile(path.join(utilsPath, "db-test.ts"), rendered);
-  }
-
-  consola.success("✅ Database connection test utilities added!");
 }
 
 /**

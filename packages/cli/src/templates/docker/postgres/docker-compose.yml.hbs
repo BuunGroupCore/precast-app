@@ -6,7 +6,7 @@ services:
     container_name: {{name}}-postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "{{POSTGRES_PASSWORD}}"
+      POSTGRES_PASSWORD: "{{{POSTGRES_PASSWORD}}}"
       POSTGRES_DB: {{name}}
     ports:
       - "5432:5432"
@@ -28,7 +28,7 @@ services:
     container_name: {{name}}-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: "{{POSTGRES_PASSWORD}}"
+      PGADMIN_DEFAULT_PASSWORD: "{{{POSTGRES_PASSWORD}}}"
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
     ports:

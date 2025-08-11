@@ -217,36 +217,26 @@ export async function generateAuthTemplate(
 
   consola.info(`🔐 Setting up ${provider.name} authentication...`);
 
-  // Check if database is configured
   if (provider.requiresDatabase && config.database === "none") {
     consola.warn(`⚠️  ${provider.name} requires a database. Please configure a database first.`);
     return;
   }
 
-  // Inform about secure secrets
   if (config.securePasswords !== false) {
     consola.info("🔑 Generating cryptographically secure JWT secrets...");
   } else {
     consola.warn("⚠️  Using default secrets. Remember to change them in production!");
   }
 
-  // Install packages
   await installAuthPackages(config, provider);
-
-  // Copy auth templates
   await copyAuthTemplates(config, provider);
-
-  // Update environment variables
   await updateEnvFile(config, provider);
 
-  // Update Prisma schema if using Prisma
   if (config.orm === "prisma" && provider.requiresDatabase) {
     await updatePrismaSchema(config, provider);
   }
 
   consola.success(`✅ ${provider.name} authentication setup complete!`);
-
-  // Show next steps
   showNextSteps(config, provider);
 }
 
@@ -277,7 +267,13 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
     // Determine the correct installation path
     // For monorepo projects, install in the app directory
     const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
-    const installPath = isMonorepo ? path.join(config.projectPath, "apps/web") : config.projectPath;
+    // Better Auth should be installed on the API side when we have a backend
+    let installPath: string;
+    if (provider.id === "better-auth" && isMonorepo) {
+      installPath = path.join(config.projectPath, "apps/api");
+    } else {
+      installPath = isMonorepo ? path.join(config.projectPath, "apps/web") : config.projectPath;
+    }
 
     // Install regular dependencies
     if (packages.length > 0) {
@@ -380,14 +376,38 @@ async function copyAuthTemplates(
         }
       }
     }
+
+    // For Better Auth with backend, also copy backend-specific route templates
+    if (provider.id === "better-auth" && config.backend && config.backend !== "none") {
+      const backendRoutePath = path.join(
+        templateRoot,
+        `${genericAuthDir}/${config.backend}/auth-route.ts.hbs`
+      );
+      if (await pathExists(backendRoutePath)) {
+        const routeDestination = path.join(config.projectPath, "apps/api/src/api/routes");
+        await templateEngine.processTemplate(
+          `${genericAuthDir}/${config.backend}/auth-route.ts.hbs`,
+          path.join(routeDestination, "auth.ts"),
+          authContext
+        );
+        consola.info(`✓ Created Better Auth route handler for ${config.backend}`);
+      } else {
+        consola.warn(`⚠️  No Better Auth route template found for ${config.backend}`);
+      }
+    }
   } catch (error) {
     consola.warn(`Failed to copy auth templates: ${error}`);
   }
 }
 
-function getAuthDestination(config: ProjectConfig): string {
+function getAuthDestination(config: ProjectConfig & { authProvider?: string }): string {
   // Check if it's a monorepo structure
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
+  // Better Auth should always be on the API side when we have a backend
+  if (config.authProvider === "better-auth" && isMonorepo) {
+    return "apps/api/src/lib";
+  }
 
   switch (config.framework) {
     case "next":
@@ -399,11 +419,15 @@ function getAuthDestination(config: ProjectConfig): string {
     case "solid":
     case "svelte":
     case "remix":
+      // For Better Auth with backend, put on API side
+      if (config.authProvider === "better-auth" && isMonorepo) {
+        return "apps/api/src/lib";
+      }
       return isMonorepo ? "apps/web/src/lib" : "src/lib";
     case "express":
     case "fastify":
     case "node":
-      return isMonorepo ? "apps/api/src/auth" : "src/auth";
+      return isMonorepo ? "apps/api/src/lib" : "src/lib";
     default:
       return isMonorepo ? "apps/web/src/lib" : "src/lib";
   }
@@ -461,9 +485,22 @@ function generateDatabaseUrl(config: ProjectConfig): string {
   }
 }
 
-async function updateEnvFile(config: ProjectConfig, provider: AuthProvider): Promise<void> {
-  const envPath = path.join(config.projectPath, ".env.local");
-  const envExamplePath = path.join(config.projectPath, ".env.example");
+async function updateEnvFile(
+  config: ProjectConfig & { authProvider?: string },
+  provider: AuthProvider
+): Promise<void> {
+  // For Better Auth with backend, put env vars in the API directory
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  let envBasePath: string;
+
+  if (provider.id === "better-auth" && isMonorepo) {
+    envBasePath = path.join(config.projectPath, "apps/api");
+  } else {
+    envBasePath = config.projectPath;
+  }
+
+  const envPath = path.join(envBasePath, ".env");
+  const envExamplePath = path.join(envBasePath, ".env.example");
 
   // Generate environment variables content using template
   const templateRoot = getTemplateRoot();
@@ -524,12 +561,20 @@ async function updateEnvFile(config: ProjectConfig, provider: AuthProvider): Pro
   await writeFile(envExamplePath, existingExampleContent);
 }
 
-async function updatePrismaSchema(config: ProjectConfig, provider: AuthProvider): Promise<void> {
+async function updatePrismaSchema(
+  config: ProjectConfig & { authProvider?: string },
+  provider: AuthProvider
+): Promise<void> {
   if (provider.id !== "auth.js" && provider.id !== "better-auth") {
     return; // Only Auth.js and Better Auth need Prisma schema updates
   }
 
-  const schemaPath = path.join(config.projectPath, "prisma", "schema.prisma");
+  // Determine correct path for Prisma schema
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  const schemaPath = isMonorepo
+    ? path.join(config.projectPath, "apps", "api", "prisma", "schema.prisma")
+    : path.join(config.projectPath, "prisma", "schema.prisma");
+
   if (!(await pathExists(schemaPath))) {
     consola.warn("Prisma schema not found. Skipping schema update.");
     return;
@@ -538,16 +583,30 @@ async function updatePrismaSchema(config: ProjectConfig, provider: AuthProvider)
   const schemaContent = await readFile(schemaPath, "utf-8");
 
   // Check if auth models already exist
-  if (schemaContent.includes("model User") && schemaContent.includes("model Account")) {
+  if (schemaContent.includes("model Account") || schemaContent.includes("model Session")) {
     consola.info("Auth models already exist in Prisma schema");
     return;
   }
+
+  // Check if a basic User model exists and needs to be replaced
+  const hasBasicUserModel =
+    schemaContent.includes("model User") && !schemaContent.includes("model Account");
 
   // Add auth models based on provider
   const authModels =
     provider.id === "auth.js" ? getAuthJsPrismaModels() : getBetterAuthPrismaModels();
 
-  const updatedSchema = schemaContent + "\n\n" + authModels;
+  let updatedSchema: string;
+  if (hasBasicUserModel) {
+    // Replace the basic User model with the auth User model
+    const userModelRegex = /model User\s*\{[^}]*\}/;
+    updatedSchema = schemaContent.replace(userModelRegex, "");
+    updatedSchema = updatedSchema + "\n\n" + authModels;
+    consola.info("Replaced basic User model with auth User model");
+  } else {
+    updatedSchema = schemaContent + "\n\n" + authModels;
+  }
+
   await writeFile(schemaPath, updatedSchema);
 
   consola.success("Updated Prisma schema with auth models");
@@ -622,22 +681,28 @@ model Session {
   userId    String
   expiresAt DateTime
   token     String   @unique
+  ipAddress String?
+  userAgent String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String    @id @default(cuid())
+  accountId         String
+  providerId        String
   userId            String
-  provider          String
-  providerAccountId String
-  refreshToken      String? @db.Text
-  accessToken       String? @db.Text
-  expiresAt         Int?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+  accessToken       String?   @db.Text
+  refreshToken      String?   @db.Text
+  idToken           String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope             String?
+  password          String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }`;
 }
 

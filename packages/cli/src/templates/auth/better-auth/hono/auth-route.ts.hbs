@@ -1,0 +1,29 @@
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { auth } from '@/lib/auth{{#if typescript}}.js{{/if}}';
+
+/**
+ * Better Auth routes for Hono
+ */
+const authApp = new Hono();
+
+/**
+ * CORS configuration for auth routes
+ */
+authApp.use('/auth/*', cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true,
+  allowHeaders: ['Content-Type', 'Authorization'],
+  allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
+}));
+
+/**
+ * Handle all Better Auth endpoints
+ * When mounted at /api, this will handle /api/auth/*
+ * Better Auth expects the raw Web API Request object
+ */
+authApp.on(['POST', 'GET', 'PUT', 'DELETE'], '/auth/*', async (c) => {
+  return auth.handler(c.req.raw);
+});
+
+export default authApp;

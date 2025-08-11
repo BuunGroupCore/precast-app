@@ -123,7 +123,8 @@ export async function setupPlugins(
         frontendPath,
         framework,
         config.typescript,
-        "setupFiles"
+        "setupFiles",
+        config
       );
 
       // Setup backend files if backend exists
@@ -133,7 +134,8 @@ export async function setupPlugins(
           backendPath,
           config.backend,
           config.typescript,
-          "backendSetupFiles"
+          "backendSetupFiles",
+          config
         );
       }
 
@@ -251,12 +253,28 @@ export async function setupPrecastWidget(
       return;
     }
 
+    // Install icon dependencies for the widget
+    consola.info("📦 Installing icon libraries for PrecastWidget...");
+    const iconDeps = ["react-icons@^5.0.1", "lucide-react@^0.368.0"];
+    await installDependencies(iconDeps, {
+      packageManager: config.packageManager,
+      projectPath: frontendPath,
+      dev: false,
+    });
+
+    // Add react-icons to the config for template processing
+    const updatedConfig = {
+      ...config,
+      // Add react-icons as a temporary flag for template processing
+      hasReactIcons: true,
+    };
+
     // Process PrecastWidget floating component
     const widgetTemplatePath = path.join(widgetPath, "PrecastWidget.tsx.hbs");
     if (await pathExists(widgetTemplatePath)) {
       const widgetTemplate = await readFile(widgetTemplatePath, "utf-8");
       const widgetContent = Handlebars.compile(widgetTemplate)({
-        ...config,
+        ...updatedConfig,
         plugins: config.plugins || [],
         database: config.database || "none",
       });
@@ -304,7 +322,8 @@ async function setupPluginFiles(
   targetPath: string,
   framework: string,
   typescript: boolean,
-  filesKey: "setupFiles" | "backendSetupFiles"
+  filesKey: "setupFiles" | "backendSetupFiles",
+  config?: ProjectConfig
 ): Promise<void> {
   const setupFiles = pluginConfig[filesKey];
   if (!setupFiles) return;
@@ -356,6 +375,7 @@ async function setupPluginFiles(
 
     // Generate content with context
     const context = {
+      ...(config || {}),
       typescript,
       pluginId: pluginConfig.id,
       pluginName: pluginConfig.name,

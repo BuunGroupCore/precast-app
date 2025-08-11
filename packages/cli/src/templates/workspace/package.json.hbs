@@ -15,20 +15,22 @@
     "db:studio": "cd apps/api && prisma studio",
     {{/if}}
     {{#if docker}}
-    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
-    "docker:down": "docker compose -f docker/docker-compose.yml down",
-    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
-    "docker:reset": "docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d",
+    "docker:up": "bash -c 'docker compose -f docker/docker-compose.yml up -d'",
+    "docker:down": "bash -c 'docker compose -f docker/docker-compose.yml down'",
+    "docker:logs": "bash -c 'docker compose -f docker/docker-compose.yml logs -f'",
+    "docker:reset": "bash -c 'docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d'",
     {{/if}}
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "turbo": "^1.12.4",
+    "turbo": "^2.5.5",
     {{#if typescript}}"typescript": "^5.4.2",{{/if}}
     "eslint": "^8.57.0"
   },

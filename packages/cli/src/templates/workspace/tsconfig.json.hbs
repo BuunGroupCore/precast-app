@@ -16,18 +16,18 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/web/src/*"]{{#if (or (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs"))}},
+      "@/*": ["apps/web/src/*"]{{#if (or (eq backend "node") (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs") (eq backend "koa"))}},
       "@api/*": ["apps/api/src/*"]{{/if}}
     }
   },
   "include": [
-    "apps/web/src/**/*"{{#if (or (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs"))}},
+    "apps/web/src/**/*"{{#if (or (eq backend "node") (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs") (eq backend "koa"))}},
     "apps/api/src/**/*"{{/if}}
   ],
   "references": [
     {
       "path": "./apps/web"
-    }{{#if (or (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs"))}},
+    }{{#if (or (eq backend "node") (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs") (eq backend "koa"))}},
     {
       "path": "./apps/api"
     }{{/if}}

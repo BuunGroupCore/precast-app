@@ -18,12 +18,6 @@
     "RESEND_FROM_EMAIL": "noreply@yourdomain.com"
   },
   "setupFiles": {
-    "*": [
-      {
-        "template": "email-service.ts.hbs",
-        "output": "src/services/email.ts"
-      }
-    ],
     "next": [
       {
         "template": "next/api-route.ts.hbs",
@@ -32,9 +26,49 @@
     ]
   },
   "backendSetupFiles": {
+    "*": [
+      {
+        "template": "email-service.ts.hbs",
+        "output": "src/services/email.ts"
+      }
+    ],
     "express": [
       {
+        "template": "email-service.ts.hbs",
+        "output": "src/services/email.ts"
+      },
+      {
         "template": "express/email-route.ts.hbs",
+        "output": "src/api/routes/email.ts"
+      }
+    ],
+    "hono": [
+      {
+        "template": "email-service.ts.hbs",
+        "output": "src/services/email.ts"
+      },
+      {
+        "template": "hono/email-route.ts.hbs",
+        "output": "src/api/routes/email.ts"
+      }
+    ],
+    "fastify": [
+      {
+        "template": "email-service.ts.hbs",
+        "output": "src/services/email.ts"
+      },
+      {
+        "template": "fastify/email-route.ts.hbs",
+        "output": "src/api/routes/email.ts"
+      }
+    ],
+    "node": [
+      {
+        "template": "email-service.ts.hbs",
+        "output": "src/services/email.ts"
+      },
+      {
+        "template": "node/email-route.ts.hbs",
         "output": "src/api/routes/email.ts"
       }
     ]

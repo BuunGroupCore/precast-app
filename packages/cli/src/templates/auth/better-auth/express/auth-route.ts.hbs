@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import { toNodeHandler } from 'better-auth/node';
+import { auth } from '@/lib/auth{{#if typescript}}.js{{/if}}';
+
+/**
+ * Better Auth routes for Express
+ * Uses toNodeHandler for proper request handling
+ */
+const authRouter = Router();
+
+/**
+ * Handle all Better Auth endpoints
+ * When mounted at /api/auth, this will handle /api/auth/*
+ * toNodeHandler converts Node.js request to Web API Request
+ */
+authRouter.all('*', toNodeHandler(auth));
+
+export default authRouter;

@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     {{#if orm}}{{#if (eq orm "prisma")}}"postinstall": "prisma generate",
+    "predev": "prisma db push --skip-generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
     {{/if}}{{/if}}"dev": "bun run --watch src/index.ts",
     "dev:node": "tsx watch src/index.ts",
     "build": "tsup",

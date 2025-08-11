@@ -1,16 +1,21 @@
-import { serve } from "@hono/node-server";
-import { Hono } from "hono";
+import { config } from "dotenv";
+{{#if (eq packageManager "bun")}}import { Hono } from "hono";{{else}}import { serve } from "@hono/node-server";
+import { Hono } from "hono";{{/if}}
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
-import { config } from "dotenv";
 
-{{#if (eq database "postgres" && eq orm "prisma")}}import { prisma } from "@/lib/prisma";{{/if}}
-{{#if (eq database "mongodb" && eq orm "mongoose")}}import { connectDB } from "@/lib/mongoose";{{/if}}
-{{#if (eq apiClient "hono-rpc")}}import rpcApp from "@/routes/rpc";{{/if}}
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
 import healthApp from "@/api/routes/health{{#if typescript}}.js{{/if}}";
 {{/if}}
+{{#if (includes plugins 'resend')}}
+import emailApp from "@/api/routes/email{{#if typescript}}.js{{/if}}";
+{{/if}}
+{{#if authProvider}}
+import authApp from "@/api/routes/auth{{#if typescript}}.js{{/if}}";
+{{/if}}
+{{#if (eq apiClient "hono-rpc")}}import rpcApp from "@/routes/rpc";{{/if}}
+{{#if (and (eq database "mongodb") (eq orm "mongoose"))}}import { connectDB } from "@/lib/mongoose";{{/if}}
 
 config();
 
@@ -20,16 +25,21 @@ const PORT = parseInt(process.env.PORT || "3001", 10);
 // Middleware
 app.use("*", logger());
 app.use("*", cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: process.env.CLIENT_URL || "http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}",
   credentials: true,
 }));
 app.use("*", prettyJSON());
 
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
-// Mount health routes
 app.route("/api", healthApp);
-{{else}}
-// Health check
+{{/if}}
+{{#if (includes plugins 'resend')}}
+app.route("/api", emailApp);
+{{/if}}
+{{#if authProvider}}
+app.route("/api", authApp);
+{{/if}}
+{{#unless (or (and plugins plugins.length) (and database (ne database 'none')))}}
 app.get("/api/health", async (c) => {
   {{#if (and (eq database "postgres") (eq orm "prisma"))}}
   try {
@@ -71,9 +81,8 @@ app.get("/api/health", async (c) => {
   });
   {{/if}}
 });
-{{/if}}
+{{/unless}}
 
-// Example API route
 app.get("/api/hello", (c) => {
   return c.json({ 
     message: "Hello from {{name}} API!",
@@ -103,15 +112,22 @@ app.onError((err, c) => {
   }, 500);
 });
 
+// Export type for RPC client
+export type AppType = typeof app;
+
 // Start server
-serve({
+{{#if (eq packageManager "bun")}}console.log(`🚀 Server running on http://localhost:${PORT}`);
+console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
+
+export default {
+  port: PORT,
+  fetch: app.fetch,
+};{{else}}serve({
   fetch: app.fetch,
   port: PORT,
-}, (info) => {
+}, (_info) => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
 });
 
-// Export type for RPC client
-export type AppType = typeof app;
-export default app;
+export default app;{{/if}}

@@ -1,5 +1,4 @@
 {{#if typescript}}import { ReactNode } from "react";{{else}}import React from "react";{{/if}}
-
 import { Footer } from "./Footer";
 
 {{#if typescript}}
@@ -9,14 +8,32 @@ interface LayoutProps {
 {{/if}}
 
 /**
- * Main application layout component
+ * Main application layout - Brutalist design with grid pattern
  */
 export function Layout({ children }{{#if typescript}}: LayoutProps{{/if}}) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
-      <main className="flex-1">
+    <div className="{{#if (eq styling 'tailwind')}}min-h-screen bg-white relative flex flex-col{{else}}layout{{/if}}">
+      {/* Grid pattern background */}
+      <div 
+        className="{{#if (eq styling 'tailwind')}}fixed inset-0 opacity-[0.03] pointer-events-none{{else}}grid-background{{/if}}"
+        {{#if (eq styling 'tailwind')}}
+        style=\{{
+          backgroundImage: `
+            repeating-linear-gradient(0deg, black, black 1px, transparent 1px, transparent 40px),
+            repeating-linear-gradient(90deg, black, black 1px, transparent 1px, transparent 40px)
+          `,
+        }}
+        {{/if}}
+      />
+      
+      {/* Diagonal accent stripes */}
+      <div className="{{#if (eq styling 'tailwind')}}fixed top-0 left-0 w-full h-2 bg-yellow-400 border-b-2 border-black z-10{{else}}layout-accent-top{{/if}}" />
+      <div className="{{#if (eq styling 'tailwind')}}fixed top-0 left-0 w-2 h-full bg-yellow-400 border-r-2 border-black z-10{{else}}layout-accent-left{{/if}}" />
+      
+      <main className="{{#if (eq styling 'tailwind')}}relative z-0 flex-1 pt-8{{else}}main{{/if}}">
         {children}
       </main>
+      
       <Footer />
     </div>
   );

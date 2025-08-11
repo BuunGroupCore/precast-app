@@ -8,7 +8,10 @@ import App from "@/App{{#if typescript}}.tsx{{else}}.jsx{{/if}}";
 {{#if (eq apiClient "tanstack-query")}}import { QueryProvider } from "@/providers/query-provider";{{/if}}
 {{#if (eq apiClient "swr")}}import { SWRProvider } from "@/providers/swr-provider";{{/if}}
 
-createRoot(document.getElementById("root"){{#if typescript}}!{{/if}}).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Failed to find the root element");
+
+createRoot(rootElement).render(
   <React.StrictMode>
     {{#if (eq apiClient "tanstack-query")}}
     <QueryProvider>

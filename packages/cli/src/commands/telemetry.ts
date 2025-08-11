@@ -48,10 +48,10 @@ async function writeTelemetryConfig(config: TelemetryConfig): Promise<void> {
   } catch {
     console.log();
     const errorBox = createFancyBox(
-      `${theme.error("❌ Configuration Error")}\n\n` +
+      `${theme.error("✗ Configuration Error")}\n\n` +
         `Failed to save telemetry configuration\n\n` +
-        `${theme.info("💡 This won't affect CLI functionality")}`,
-      "⚠️  Config Save Failed"
+        `${theme.info("ⓘ This won't affect CLI functionality")}`,
+      "⚠ Config Save Failed"
     );
     console.log(errorBox);
     console.log();
@@ -96,13 +96,13 @@ export async function telemetryCommand(action?: string): Promise<void> {
   if (!validActions.includes(action)) {
     console.log();
     const errorBox = createFancyBox(
-      `${theme.error("❌ Invalid Action")}\n\n` +
+      `${theme.error("✗ Invalid Action")}\n\n` +
         `Action "${action}" is not recognized\n\n` +
-        `${theme.info("💡 Valid actions:")}\n` +
+        `${theme.info("ⓘ Valid actions:")}\n` +
         `  • ${theme.accent("status")} - Check current telemetry status\n` +
         `  • ${theme.accent("enable")} - Enable telemetry data collection\n` +
         `  • ${theme.accent("disable")} - Disable telemetry data collection`,
-      "⚠️  Command Error"
+      "⚠ Command Error"
     );
     console.log(errorBox);
     console.log();
@@ -120,23 +120,23 @@ export async function telemetryCommand(action?: string): Promise<void> {
       const config = await readTelemetryConfig();
 
       const statusContent = isEnabled
-        ? `${theme.success("✅ TELEMETRY ENABLED")} ${comicDecorations.rocket}\n\n` +
+        ? `${theme.success("✓ TELEMETRY ENABLED")} ${comicDecorations.rocket}\n\n` +
           `The CLI collects ${theme.bold("anonymous usage data")} to improve the tool.\n` +
-          `${theme.info("🔒 No personal information")} is ever collected.\n\n` +
-          `${theme.accent("🎯 What we collect:")}\n` +
+          `${theme.info("◆ No personal information")} is ever collected.\n\n` +
+          `${theme.accent("● What we collect:")}\n` +
           `  • Framework choices (React, Vue, etc.)\n` +
           `  • Feature usage patterns\n` +
           `  • Error frequencies (anonymous)\n` +
           `  • Performance metrics\n\n` +
-          `${theme.muted("💡 To opt-out:")}\n` +
+          `${theme.muted("ⓘ To opt-out:")}\n` +
           `${theme.bold("create-precast-app telemetry disable")}`
-        : `${theme.error("❌ TELEMETRY DISABLED")} ${comicDecorations.pow}\n\n` +
+        : `${theme.error("✗ TELEMETRY DISABLED")} ${comicDecorations.pow}\n\n` +
           `No usage data is being collected.\n` +
           `You've opted out of anonymous analytics.\n\n` +
-          `${theme.muted("💡 To help us improve:")}\n` +
+          `${theme.muted("ⓘ To help us improve:")}\n` +
           `${theme.bold("create-precast-app telemetry enable")}`;
 
-      const statusBox = createFancyBox(statusContent, "📊 Current Status");
+      const statusBox = createFancyBox(statusContent, "◆ Current Status");
       console.log(statusBox);
       console.log();
 
@@ -150,10 +150,10 @@ export async function telemetryCommand(action?: string): Promise<void> {
 
       if (process.env.PRECAST_TELEMETRY_DISABLED) {
         const envInfo = createFancyBox(
-          `${theme.warning("⚠️  Environment Override")}\n\n` +
+          `${theme.warning("⚠ Environment Override")}\n\n` +
             `The ${theme.bold("PRECAST_TELEMETRY_DISABLED")} environment variable is set.\n` +
             `This overrides any local configuration.`,
-          "🌍 Environment Variable"
+          "◯ Environment Variable"
         );
         console.log(envInfo);
         console.log();
@@ -179,12 +179,12 @@ export async function telemetryCommand(action?: string): Promise<void> {
       const exportLine = "export PRECAST_TELEMETRY_DISABLED=1";
 
       const successContent =
-        `${theme.success("✅ TELEMETRY DISABLED")} ${comicDecorations.pow}\n\n` +
+        `${theme.success("✓ TELEMETRY DISABLED")} ${comicDecorations.pow}\n\n` +
         `Analytics collection has been turned off.\n` +
         `Your privacy preferences have been saved locally.\n\n` +
-        `${theme.info("🔒 Privacy guaranteed:")} No data will be collected.`;
+        `${theme.info("◆ Privacy guaranteed:")} No data will be collected.`;
 
-      const successBox = createFancyBox(successContent, "🎯 Mission Accomplished");
+      const successBox = createFancyBox(successContent, "● Mission Accomplished");
       console.log(successBox);
       console.log();
 
@@ -194,9 +194,9 @@ export async function telemetryCommand(action?: string): Promise<void> {
         `${theme.bold(exportLine)}\n\n` +
         `${theme.muted("Quick command:")}\n` +
         `${theme.info(`echo '${exportLine}' >> ${shellConfigFile}`)}\n\n` +
-        `${theme.muted("💡 The local setting is already active for this session!")}`;
+        `${theme.muted("ⓘ The local setting is already active for this session!")}`;
 
-      const shellBox = createFancyBox(shellContent, "🐚 Shell Configuration");
+      const shellBox = createFancyBox(shellContent, "◆ Shell Configuration");
       console.log(shellBox);
       console.log();
 
@@ -215,22 +215,22 @@ export async function telemetryCommand(action?: string): Promise<void> {
       const shellConfigFile = getShellConfigFile();
 
       const enableContent =
-        `${theme.success("✅ TELEMETRY ENABLED")} ${comicDecorations.super}\n\n` +
-        `Thank you for helping us improve Precast! 🎉\n\n` +
-        `${theme.info("🎯 What this enables:")}\n` +
+        `${theme.success("✓ TELEMETRY ENABLED")} ${comicDecorations.super}\n\n` +
+        `Thank you for helping us improve Precast!\n\n` +
+        `${theme.info("● What this enables:")}\n` +
         `  • Anonymous usage analytics\n` +
         `  • Error frequency tracking (no personal data)\n` +
         `  • Feature usage patterns\n` +
         `  • Performance improvements based on real usage\n\n` +
-        `${theme.muted("🔒 Privacy guaranteed:")} No personal information is collected.`;
+        `${theme.muted("◆ Privacy guaranteed:")} No personal information is collected.`;
 
-      const enableBox = createFancyBox(enableContent, "🚀 Analytics Activated");
+      const enableBox = createFancyBox(enableContent, "▶ Analytics Activated");
       console.log(enableBox);
       console.log();
 
       if (process.env.PRECAST_TELEMETRY_DISABLED) {
         const warningContent =
-          `${theme.warning("⚠️  ENVIRONMENT VARIABLE OVERRIDE")}\n\n` +
+          `${theme.warning("⚠ ENVIRONMENT VARIABLE OVERRIDE")}\n\n` +
           `The ${theme.bold("PRECAST_TELEMETRY_DISABLED")} environment variable is still set.\n` +
           `This will override your local configuration.\n\n` +
           `${theme.bold("To fully enable telemetry:")}\n\n` +
@@ -239,7 +239,7 @@ export async function telemetryCommand(action?: string): Promise<void> {
           `${theme.muted("Or unset for this session:")}\n` +
           `${theme.info("unset PRECAST_TELEMETRY_DISABLED")}`;
 
-        const warningBox = createFancyBox(warningContent, "🌍 Environment Override");
+        const warningBox = createFancyBox(warningContent, "◯ Environment Override");
         console.log(warningBox);
         console.log();
       }

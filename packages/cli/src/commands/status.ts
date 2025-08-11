@@ -13,6 +13,8 @@ import {
   techBadge,
   getFrameworkIcon,
   createLink,
+  statusSymbols,
+  actionSymbols,
 } from "../utils/cli-theme.js";
 
 interface PrecastConfig {
@@ -53,7 +55,7 @@ function createTechStackDisplay(config: PrecastConfig): string {
   const coreItems = [
     `${getFrameworkIcon(config.framework)} ${techBadge(config.framework)}`,
     config.backend && config.backend !== "none" ? `${techBadge(config.backend)}` : null,
-    config.packageManager ? `📦 ${config.packageManager}` : null,
+    config.packageManager ? `${theme.accent("◆")} ${config.packageManager}` : null,
   ].filter(Boolean) as string[];
 
   if (coreItems.length > 0) {
@@ -82,7 +84,7 @@ function createTechStackDisplay(config: PrecastConfig): string {
     uiItems.push(`${techBadge(config.uiLibrary)}`);
   }
   if (config.colorPalette) {
-    uiItems.push(`🎨 ${config.colorPalette} palette`);
+    uiItems.push(`${theme.accent("◇")} ${config.colorPalette} palette`);
   }
 
   if (uiItems.length > 0) {
@@ -98,11 +100,11 @@ function createTechStackDisplay(config: PrecastConfig): string {
     featureItems.push(`${techBadge(config.apiClient)}`);
   }
   if (config.aiAssistant && config.aiAssistant !== "none") {
-    featureItems.push(`🤖 ${config.aiAssistant}`);
+    featureItems.push(`${theme.accent("◉")} ${config.aiAssistant}`);
   }
   if (config.plugins && config.plugins.length > 0) {
     config.plugins.forEach((plugin) => {
-      featureItems.push(`🔌 ${plugin}`);
+      featureItems.push(`${theme.accent("▶")} ${plugin}`);
     });
   }
 
@@ -124,8 +126,8 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
   const hasNodeModules = await pathExists(nodeModulesPath);
   checks.push(
     hasNodeModules
-      ? theme.success("✅ Dependencies installed")
-      : theme.error("❌ Dependencies missing - run install")
+      ? theme.success(`${statusSymbols.success} Dependencies installed`)
+      : theme.error(`${statusSymbols.error} Dependencies missing - run install`)
   );
 
   // Docker
@@ -134,8 +136,8 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
   if (config.docker || hasDocker) {
     checks.push(
       hasDocker
-        ? theme.success("✅ Docker configured")
-        : theme.warning("⚠️  Docker configuration missing")
+        ? theme.success(`${statusSymbols.success} Docker configured`)
+        : theme.warning(`${statusSymbols.warning} Docker configuration missing`)
     );
   }
 
@@ -145,15 +147,17 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
   const hasEnv = (await pathExists(envPath)) || (await pathExists(envLocalPath));
   checks.push(
     hasEnv
-      ? theme.success("✅ Environment configured")
-      : theme.warning("⚠️  Environment variables not set")
+      ? theme.success(`${statusSymbols.success} Environment configured`)
+      : theme.warning(`${statusSymbols.warning} Environment variables not set`)
   );
 
   // Git
   const gitPath = path.join(targetPath, ".git");
   const hasGit = await pathExists(gitPath);
   checks.push(
-    hasGit ? theme.success("✅ Git repository") : theme.warning("⚠️  Git not initialized")
+    hasGit
+      ? theme.success(`${statusSymbols.success} Git repository`)
+      : theme.warning(`${statusSymbols.warning} Git not initialized`)
   );
 
   // TypeScript
@@ -162,8 +166,8 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
     const hasTsConfig = await pathExists(tsconfigPath);
     checks.push(
       hasTsConfig
-        ? theme.success("✅ TypeScript configured")
-        : theme.error("❌ tsconfig.json missing")
+        ? theme.success(`${statusSymbols.success} TypeScript configured`)
+        : theme.error(`${statusSymbols.error} tsconfig.json missing`)
     );
   }
 
@@ -185,26 +189,26 @@ function createQuickCommands(
 
   if (!hasNodeModules) {
     commands.push(
-      `${theme.accent("→")} ${theme.bold(`${pm} install`)} ${theme.muted("- Install dependencies")}`
+      `${theme.accent(actionSymbols.deploy)} ${theme.bold(`${pm} install`)} ${theme.muted("- Install dependencies")}`
     );
   }
 
   if (hasDocker && config.database && config.database !== "none") {
     commands.push(
-      `${theme.accent("→")} ${theme.bold(`${runCmd} docker:up`)} ${theme.muted("- Start services")}`
+      `${theme.accent(actionSymbols.deploy)} ${theme.bold(`${runCmd} docker:up`)} ${theme.muted("- Start services")}`
     );
   }
 
   commands.push(
-    `${theme.accent("→")} ${theme.bold(`${runCmd} dev`)} ${theme.muted("- Development server")}`
+    `${theme.accent(actionSymbols.deploy)} ${theme.bold(`${runCmd} dev`)} ${theme.muted("- Development server")}`
   );
   commands.push(
-    `${theme.accent("→")} ${theme.bold(`${runCmd} build`)} ${theme.muted("- Production build")}`
+    `${theme.accent(actionSymbols.build)} ${theme.bold(`${runCmd} build`)} ${theme.muted("- Production build")}`
   );
 
   if (config.testing && config.testing !== "none") {
     commands.push(
-      `${theme.accent("→")} ${theme.bold(`${runCmd} test`)} ${theme.muted("- Run tests")}`
+      `${theme.accent(actionSymbols.test)} ${theme.bold(`${runCmd} test`)} ${theme.muted("- Run tests")}`
     );
   }
 
@@ -224,12 +228,12 @@ export async function statusCommand(projectPath?: string): Promise<void> {
     if (!(await pathExists(precastConfigPath))) {
       console.log();
       const errorBox = createFancyBox(
-        `${theme.error("❌ No precast.jsonc found")}\n\n` +
+        `${theme.error(`${statusSymbols.error} No precast.jsonc found`)}\n\n` +
           `This doesn't appear to be a Precast project.\n\n` +
-          `${theme.info("💡 Run:")} ${theme.bold("create-precast-app init")}\n` +
+          `${theme.info(`${statusSymbols.info} Run:`)} ${theme.bold("create-precast-app init")}\n` +
           `${theme.muted("   to create a new project")}\n\n` +
-          `${theme.info("📁 Searched in:")} ${theme.dim(targetPath)}`,
-        "🔍 Project Not Found"
+          `${theme.info("◆ Searched in:")} ${theme.dim(targetPath)}`,
+        "● Project Not Found"
       );
       console.log(errorBox);
       console.log();
@@ -248,14 +252,14 @@ export async function statusCommand(projectPath?: string): Promise<void> {
 
     // Create beautiful header with ASCII art
     console.log();
-    const heroBanner = await createHeroBanner("STATUS", `📊 Project health & configuration`);
+    const heroBanner = await createHeroBanner("STATUS", `◉ Project health & configuration`);
     console.log(heroBanner);
     console.log();
 
     // Project Info Section
     const projectName = config.name || path.basename(targetPath);
     const projectInfo = [
-      `${theme.primary("🚀")} ${theme.bold.white(projectName)}`,
+      `${theme.primary("▶")} ${theme.bold.white(projectName)}`,
       config.version ? `${theme.muted("   Version:")} ${theme.info(config.version)}` : "",
       config.deploymentType
         ? `${theme.muted("   Type:")} ${theme.accent(config.deploymentType)}`
@@ -267,14 +271,14 @@ export async function statusCommand(projectPath?: string): Promise<void> {
       .filter(Boolean)
       .join("\n");
 
-    const infoBox = createFancyBox(projectInfo, "📋 Project Info");
+    const infoBox = createFancyBox(projectInfo, "◆ Project Info");
     console.log(infoBox);
     console.log();
 
     // Tech Stack Section
     const techStackDisplay = createTechStackDisplay(config);
     if (techStackDisplay) {
-      const stackBox = createFancyBox(techStackDisplay, "🛠️  Tech Stack");
+      const stackBox = createFancyBox(techStackDisplay, "⚙ Tech Stack");
       console.log(stackBox);
       console.log();
     }
@@ -286,13 +290,13 @@ export async function statusCommand(projectPath?: string): Promise<void> {
     const hasDocker = await pathExists(dockerComposePath);
 
     const healthDisplay = await createHealthDisplay(targetPath, config);
-    const healthBox = createFancyBox(healthDisplay, "🏥 Health Check");
+    const healthBox = createFancyBox(healthDisplay, "◉ Health Check");
     console.log(healthBox);
     console.log();
 
     // Quick Commands Section
     const commandsDisplay = createQuickCommands(config, hasNodeModules, hasDocker);
-    const commandsBox = createFancyBox(commandsDisplay, "⚡ Quick Commands");
+    const commandsBox = createFancyBox(commandsDisplay, `${actionSymbols.deploy} Quick Commands`);
     console.log(commandsBox);
     console.log();
 
@@ -318,10 +322,10 @@ export async function statusCommand(projectPath?: string): Promise<void> {
     }
 
     const errorBox = createFancyBox(
-      `${theme.error("❌ Error")}\n\n` +
+      `${theme.error(`${statusSymbols.error} Error`)}\n\n` +
         `${errorMessage}\n\n` +
-        `${theme.info("💡 Suggestion:")}\n${errorDetails}`,
-      "⚠️  Status Command Failed"
+        `${theme.info(`${statusSymbols.info} Suggestion:`)}\n${errorDetails}`,
+      `${statusSymbols.warning} Status Command Failed`
     );
     console.log(errorBox);
     console.log();

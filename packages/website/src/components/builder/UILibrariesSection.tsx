@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React, { useEffect } from "react";
 import { FaPaintBrush } from "react-icons/fa";
 
-import { Tooltip } from "@/components/ui/Tooltip";
+import { ComicTooltip } from "@/components/ui/ComicTooltip";
 
 import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
@@ -97,7 +97,7 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
               }
 
               return (
-                <Tooltip key={lib.id} content={tooltipContent}>
+                <ComicTooltip key={lib.id} content={tooltipContent}>
                   <button
                     onClick={() => isFullyCompatible && setConfig({ ...config, uiLibrary: lib.id })}
                     data-active={config.uiLibrary === lib.id}
@@ -114,7 +114,7 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
                       ))}
                     <span className="text-xs">{lib.name}</span>
                   </button>
-                </Tooltip>
+                </ComicTooltip>
               );
             })}
         </div>

@@ -8,6 +8,7 @@ interface CollapsibleSectionProps {
   icon: React.ReactNode;
   className?: string;
   defaultCollapsed?: boolean;
+  summary?: React.ReactNode;
 }
 
 export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
@@ -16,18 +17,26 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   icon,
   className = "",
   defaultCollapsed = false,
+  summary,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
   return (
     <div className={`comic-card ${className}`}>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
+      <div
+        className="flex items-center justify-between mb-2 cursor-pointer"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        <div className="flex items-center gap-3 flex-1">
           {icon}
           {title}
         </div>
+        {isCollapsed && summary && <div className="mr-2">{summary}</div>}
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsCollapsed(!isCollapsed);
+          }}
           className="p-2 rounded-full hover:bg-comic-gray/20 transition-colors"
           aria-label={isCollapsed ? "Expand" : "Collapse"}
         >

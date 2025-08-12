@@ -85,17 +85,32 @@ export const ColorPaletteSection: React.FC<ColorPaletteSectionProps> = ({ config
     }
   };
 
-  const ColorPreview: React.FC<{ colors: string[] }> = ({ colors }) => (
+  const ColorPreview: React.FC<{ colors: string[]; size?: "sm" | "md" }> = ({
+    colors,
+    size = "md",
+  }) => (
     <div className="flex gap-0.5 sm:gap-1">
       {colors.map((color, index) => (
         <div
           key={index}
-          className="w-5 h-5 sm:w-6 sm:h-6 rounded border-2 border-comic-black shadow-sm"
+          className={`${
+            size === "sm" ? "w-4 h-4" : "w-5 h-5 sm:w-6 sm:h-6"
+          } rounded border-2 border-comic-black shadow-sm`}
           style={{ backgroundColor: color }}
         />
       ))}
     </div>
   );
+
+  const PaletteSummary = () => {
+    const currentPalette = config.colorPalette || colorPalettes.find((p) => p.id === "shadcn");
+    return (
+      <div className="flex items-center gap-2">
+        <span className="font-comic text-xs text-comic-black/70">{currentPalette?.name}</span>
+        <ColorPreview colors={currentPalette?.preview || []} size="sm" />
+      </div>
+    );
+  };
 
   return (
     <motion.div
@@ -106,6 +121,8 @@ export const ColorPaletteSection: React.FC<ColorPaletteSectionProps> = ({ config
     >
       <CollapsibleSection
         icon={<FaPalette className="text-3xl text-comic-purple" />}
+        defaultCollapsed={true}
+        summary={<PaletteSummary />}
         title={
           <div className="flex items-center gap-3 flex-1">
             <h3 className="font-display text-2xl">COLOR PALETTE</h3>
@@ -167,7 +184,7 @@ export const ColorPaletteSection: React.FC<ColorPaletteSectionProps> = ({ config
                       <span className="font-comic font-bold text-xs sm:text-sm truncate w-full text-center">
                         {palette.name}
                       </span>
-                      <ColorPreview colors={palette.preview || []} />
+                      <ColorPreview colors={palette.preview || []} size="md" />
                       {isSelected && (
                         <FaCheck className="text-comic-green text-sm sm:text-lg mt-1" />
                       )}

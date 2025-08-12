@@ -1,15 +1,26 @@
 import { hc } from "hono/client";
-{{#if config.backend}}{{#unless (eq config.backend "none")}}
+{{#if backend}}
+  {{#if (ne backend "none")}}
+    {{! Monorepo structure with separate backend }}
 import type { AppType } from "../../../api/src";
-{{else}}
+  {{else}}
+    {{! Single app with backend in same project }}
 import type { AppType } from "@/server/app";
-{{/unless}}{{else}}
+  {{/if}}
+{{else}}
+  {{! No backend specified, assume single app }}
 import type { AppType } from "@/server/app";
 {{/if}}
 
 // Create the Hono RPC client
 export const client = hc<AppType>(
-  process.env.{{#if (eq config.framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:{{#if (eq config.backend "hono")}}3001{{else}}3001{{/if}}"
+  {{#if (eq framework "next")}}
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+  {{else if (eq framework "react-router")}}
+  process.env.REACT_APP_API_URL || "http://localhost:3001"
+  {{else}}
+  import.meta.env.VITE_API_URL || "http://localhost:3001"
+  {{/if}}
 );
 
 // Example usage:

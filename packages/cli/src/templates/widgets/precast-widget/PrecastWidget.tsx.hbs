@@ -57,6 +57,19 @@ interface AuthDetails {
   [key: string]: unknown;
 }
 
+// Framework-specific environment variable access
+const getApiUrl = () => {
+  {{#if (eq framework "next")}}
+  return process.env.NEXT_PUBLIC_API_URL;
+  {{else if (eq framework "nuxt")}}
+  return process.env.NUXT_PUBLIC_API_URL;
+  {{else if (eq framework "react-router")}}
+  return process.env.REACT_APP_API_URL;
+  {{else}}
+  return import.meta.env.VITE_API_URL;
+  {{/if}}
+};
+
 /**
  * PrecastWidget - Brutalist service validation and testing widget
  * Validates that Docker containers, databases, and other services are working correctly
@@ -77,8 +90,16 @@ export function PrecastWidget() {
   const [authName, setAuthName] = useState('Test User');
   {{/if}}
 
-  // Only show in development
-  const isDevelopment = import.meta.env.DEV;
+  // Only show in development - framework specific
+  {{#if (eq framework "next")}}
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  {{else if (eq framework "nuxt")}}
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  {{else if (eq framework "react-router")}}
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  {{else}}
+  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+  {{/if}}
 
   // Service icon mapping
   const getServiceIcon = (service: string, size: number = 16) => {
@@ -110,7 +131,7 @@ export function PrecastWidget() {
     
     {{#if backend}}
     // API service
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = getApiUrl();
     if (apiUrl) {
       detectedServices.api = {
         name: "API",
@@ -217,7 +238,7 @@ export function PrecastWidget() {
 
   const fetchSystemInfo = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const apiUrl = getApiUrl() || "";
       const response = await fetch(`${apiUrl}/api/health`);
       if (response.ok) {
         const data = await response.json();
@@ -256,7 +277,7 @@ export function PrecastWidget() {
   const testDatabaseConnection = async () => {
     setLoading((prev) => ({ ...prev, database: true }));
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const apiUrl = getApiUrl() || "";
       const response = await fetch(`${apiUrl}/api/health/database`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -296,7 +317,7 @@ export function PrecastWidget() {
   const testApiHealth = async () => {
     setLoading((prev) => ({ ...prev, api: true }));
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const apiUrl = getApiUrl() || "";
       const response = await fetch(`${apiUrl}/api/health`);
       const data = await response.json();
 
@@ -338,7 +359,7 @@ export function PrecastWidget() {
     setLoading((prev) => ({ ...prev, docker: true }));
     try {
       // Check if database is accessible (which indicates Docker is running)
-      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const apiUrl = getApiUrl() || "";
       const response = await fetch(`${apiUrl}/api/health/database`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -388,7 +409,7 @@ export function PrecastWidget() {
   const testEmailService = async () => {
     setLoading((prev) => ({ ...prev, email: true }));
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const apiUrl = getApiUrl() || "";
       
       // First test email service health
       const healthResponse = await fetch(`${apiUrl}/api/email/health`, {
@@ -455,7 +476,7 @@ export function PrecastWidget() {
   const testAuthStatus = async () => {
     setLoading((prev) => ({ ...prev, authStatus: true }));
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const apiUrl = getApiUrl() || "";
       
       {{#if (eq authProvider 'better-auth')}}
       // Try Better Auth's built-in ok endpoint
@@ -550,7 +571,7 @@ export function PrecastWidget() {
   const testAuthService = async () => {
     setLoading((prev) => ({ ...prev, auth: true }));
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const apiUrl = getApiUrl() || "";
       
       {{#if (eq authProvider 'better-auth')}}
       let response;
@@ -974,17 +995,17 @@ export function PrecastWidget() {
                         {key === 'auth' && (
                           <div className="{{#if (eq styling 'tailwind')}}space-y-3{{else}}auth-test-container{{/if}}">
                             {/* Mode selector */}
-                            <div className="{{#if (eq styling 'tailwind')}}flex gap-2{{else}}mode-selector{{/if}}">
+                            <div className="{{#if (eq styling 'tailwind')}}flex gap-2{{else}}auth-mode-selector{{/if}}">
                               <button
                                 onClick={() => setAuthMode('signup')}
-                                className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signup' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}mode-btn{{/if}}`}
+                                className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signup' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}auth-mode-btn{{/if}}`}
                                 {{#unless (eq styling 'tailwind')}}data-active={authMode === 'signup'}{{/unless}}
                               >
                                 SIGN UP
                               </button>
                               <button
                                 onClick={() => setAuthMode('signin')}
-                                className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signin' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}mode-btn{{/if}}`}
+                                className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signin' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}auth-mode-btn{{/if}}`}
                                 {{#unless (eq styling 'tailwind')}}data-active={authMode === 'signin'}{{/unless}}
                               >
                                 SIGN IN

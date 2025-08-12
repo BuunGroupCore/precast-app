@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React, { useState, useEffect } from "react";
 import { FaDatabase } from "react-icons/fa";
 
-import { Tooltip } from "@/components/ui/Tooltip";
+import { ComicTooltip } from "@/components/ui/ComicTooltip";
 import { databases, orms, type StackOption } from "@/lib/stack-config";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -116,7 +116,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
               const isCloudOnly = !hasDeploymentOptions && db.id !== "none";
 
               return (
-                <Tooltip key={db.id} content={db.description || ""}>
+                <ComicTooltip key={db.id} content={db.description || ""}>
                   <button
                     onClick={() => handleDatabaseSelect(db)}
                     data-active={isSelected}
@@ -156,7 +156,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                       ))}
                     <span className="text-xs">{db.name}</span>
                   </button>
-                </Tooltip>
+                </ComicTooltip>
               );
             })}
         </div>
@@ -178,7 +178,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                     return true;
                   })
                   .map((orm) => (
-                    <Tooltip key={orm.id} content={orm.description || ""}>
+                    <ComicTooltip key={orm.id} content={orm.description || ""}>
                       <button
                         onClick={() => setConfig({ ...config, orm: orm.id })}
                         data-active={config.orm === orm.id}
@@ -192,7 +192,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                           ))}
                         <span className="text-xs">{orm.name}</span>
                       </button>
-                    </Tooltip>
+                    </ComicTooltip>
                   ))}
               </div>
             </div>

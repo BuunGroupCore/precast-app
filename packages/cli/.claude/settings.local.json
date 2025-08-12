@@ -20,7 +20,9 @@
       "WebFetch(domain:tanstack.com)",
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:blog.logrocket.com)",
-      "Bash(./dist/cli.js init:*)"
+      "Bash(./dist/cli.js init:*)",
+      "Bash(timeout:*)",
+      "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": []
   }

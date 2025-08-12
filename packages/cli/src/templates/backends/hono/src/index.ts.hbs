@@ -130,4 +130,7 @@ export default {
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
 });
 
+// Export the app type for RPC clients
+export type AppType = typeof app;
+
 export default app;{{/if}}

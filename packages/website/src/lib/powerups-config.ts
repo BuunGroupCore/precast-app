@@ -14,14 +14,7 @@ import {
   FaRoute,
   FaChartLine,
 } from "react-icons/fa";
-import {
-  SiTurborepo,
-  SiPrettier,
-  SiEslint,
-  SiStorybook,
-  SiCypress,
-  SiReactrouter,
-} from "react-icons/si";
+import { SiTurborepo, SiPrettier, SiEslint, SiStorybook, SiCypress } from "react-icons/si";
 
 /**
  * Configuration for additional development tools and extensions.
@@ -341,29 +334,6 @@ export const powerUps: PowerUp[] = [
   },
 
   /** Routing */
-  {
-    id: "tanstack-router",
-    name: "TanStack Router",
-    description: "Type-safe routing with search params validation",
-    icon: FaRoute,
-    category: "routing",
-    frameworks: ["react", "solid"],
-    dependencies: ["typescript"],
-    beta: true,
-    recommended: {
-      frameworks: ["react", "solid"],
-      reason: "Modern type-safe routing solution",
-    },
-  },
-  {
-    id: "react-router",
-    name: "React Router",
-    description: "Declarative routing for React applications",
-    icon: SiReactrouter,
-    category: "routing",
-    frameworks: ["react"],
-    dependencies: ["react"],
-  },
   {
     id: "vue-router",
     name: "Vue Router",

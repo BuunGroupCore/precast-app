@@ -1,0 +1,37 @@
+import { createFileRoute } from '@tanstack/react-router';
+
+export const Route = createFileRoute('/about')({
+  component: About,
+});
+
+function About() {
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}container mx-auto px-4 py-16{{else}}page-container{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}max-w-4xl mx-auto{{else}}content-wrapper{{/if}}">
+        <h1 className="{{#if (eq styling 'tailwind')}}text-4xl font-bold mb-6{{else}}page-title{{/if}}">About {{name}}</h1>
+        <div className="{{#if (eq styling 'tailwind')}}prose prose-lg dark:prose-invert{{else}}content{{/if}}">
+          <p className="{{#if (eq styling 'tailwind')}}text-gray-600 dark:text-gray-400{{else}}text{{/if}}">
+            This project was scaffolded with create-precast-app, a modern CLI tool for generating full-stack web applications.
+          </p>
+          <h2 className="{{#if (eq styling 'tailwind')}}text-2xl font-semibold mt-8 mb-4{{else}}section-title{{/if}}">Features</h2>
+          <ul className="{{#if (eq styling 'tailwind')}}list-disc list-inside space-y-2{{else}}feature-list{{/if}}">
+            <li>Type-safe routing with TanStack Router</li>
+            <li>Modern React development with Vite</li>
+            {{#if typescript}}
+            <li>Full TypeScript support</li>
+            {{/if}}
+            {{#if (eq styling "tailwind")}}
+            <li>Tailwind CSS for styling</li>
+            {{/if}}
+            {{#if (and backend (ne backend "none"))}}
+            <li>{{backend}} backend API</li>
+            {{/if}}
+            {{#if (and database (ne database "none"))}}
+            <li>{{database}} database integration</li>
+            {{/if}}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}

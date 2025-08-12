@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaPaintBrush } from "react-icons/fa";
 
-import { Tooltip } from "@/components/ui/Tooltip";
+import { ComicTooltip } from "@/components/ui/ComicTooltip";
 import { stylings } from "@/lib/stack-config";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -72,7 +72,7 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
             }
 
             return (
-              <Tooltip key={style.id} content={tooltipContent}>
+              <ComicTooltip key={style.id} content={tooltipContent}>
                 <button
                   onClick={() => isCompatible && setConfig({ ...config, styling: style.id })}
                   data-active={config.styling === style.id}
@@ -99,7 +99,7 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
                     ))}
                   <span className="text-xs truncate">{style.name}</span>
                 </button>
-              </Tooltip>
+              </ComicTooltip>
             );
           })}
         </div>

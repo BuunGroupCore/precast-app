@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { FaServer, FaCloud } from "react-icons/fa";
 
-import { Tooltip } from "@/components/ui/Tooltip";
+import { ComicTooltip } from "@/components/ui/ComicTooltip";
 import { backends } from "@/lib/stack-config";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -40,7 +40,7 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
               }
 
               return (
-                <Tooltip key={be.id} content={tooltipContent}>
+                <ComicTooltip key={be.id} content={tooltipContent} disabled={!tooltipContent}>
                   <button
                     onClick={() => {
                       const updates: Partial<ExtendedProjectConfig> = { backend: be.id };
@@ -61,12 +61,12 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
                     className="filter-btn-comic flex flex-col items-center justify-center gap-2 py-3 h-20 w-full relative"
                   >
                     {be.serverless && (
-                      <div className="absolute top-1 right-7 w-5 h-5 bg-comic-purple text-comic-white rounded border border-comic-black flex items-center justify-center p-0.5">
+                      <div className="absolute top-1 right-7 w-5 h-5 bg-comic-white text-comic-black rounded border border-comic-black flex items-center justify-center p-0.5">
                         <BuilderIcon icon={FaCloud} className="text-[10px]" />
                       </div>
                     )}
                     {be.uvBadge && (
-                      <div className="absolute top-1 right-7 w-5 h-5 bg-comic-purple text-comic-white rounded border border-comic-black flex items-center justify-center p-0.5">
+                      <div className="absolute top-1 right-7 w-5 h-5 bg-comic-white rounded border border-comic-black flex items-center justify-center p-0.5">
                         <PublicIcon name="uv" className="w-full h-full object-contain" />
                       </div>
                     )}
@@ -81,7 +81,7 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
                     {be.icon && <BuilderIcon icon={be.icon} className="text-2xl" />}
                     <span className="text-xs">{be.name}</span>
                   </button>
-                </Tooltip>
+                </ComicTooltip>
               );
             })}
         </div>

@@ -809,6 +809,21 @@ header nav button:hover::after {
   }
 }
 
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
 /* Comic Dropdown Styling */
 .comic-select {
   @apply relative w-full p-3 pr-10 font-comic font-bold text-sm 

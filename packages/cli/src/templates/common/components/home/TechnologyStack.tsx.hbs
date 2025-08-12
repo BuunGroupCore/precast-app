@@ -1,0 +1,260 @@
+import { Code2, Layers, Package2 } from "lucide-react";
+import { 
+  {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router') (eq framework 'tanstack-router') (eq framework 'tanstack-start'))}}
+  SiReact, 
+  {{else if (eq framework 'vue')}}
+  SiVuedotjs as SiVue,
+  {{else if (eq framework 'svelte')}}
+  SiSvelte,
+  {{else if (eq framework 'solid')}}
+  SiSolid,
+  {{else if (eq framework 'angular')}}
+  SiAngular,
+  {{else if (eq framework 'astro')}}
+  SiAstro,
+  {{else if (or (eq framework 'vanilla') (eq framework 'vite'))}}
+  SiJavascript,
+  {{/if}}
+  {{#if (or (eq framework 'react') (eq framework 'vue') (eq framework 'svelte') (eq framework 'vite-react') (eq framework 'vite-vue') (eq framework 'vite-svelte') (eq framework 'vite-solid') (eq framework 'vite-vanilla') (eq framework 'vite'))}}
+  SiVite, 
+  {{/if}}
+  {{#if (eq styling 'tailwind')}}
+  SiTailwindcss, 
+  {{/if}}
+  {{#if typescript}}
+  SiTypescript, 
+  {{/if}}
+  SiBun,
+{{#if backend}}
+{{#if (eq backend 'hono')}}
+  SiHono,
+{{/if}}
+{{#if (eq backend 'express')}}
+  SiExpress,
+{{/if}}
+{{#if (eq backend 'fastify')}}
+  SiFastify,
+{{/if}}
+{{#if (eq backend 'nestjs')}}
+  SiNestjs,
+{{/if}}
+{{/if}}
+{{#if database}}
+{{#if (eq database 'postgres')}}
+  SiPostgresql,
+{{/if}}
+{{#if (eq database 'mysql')}}
+  SiMysql,
+{{/if}}
+{{#if (eq database 'sqlite')}}
+  SiSqlite,
+{{/if}}
+{{#if (eq database 'mongodb')}}
+  SiMongodb,
+{{/if}}
+{{/if}}
+{{#if orm}}
+{{#if (eq orm 'prisma')}}
+  SiPrisma,
+{{/if}}
+{{#if (eq orm 'drizzle')}}
+  SiDrizzle,
+{{/if}}
+{{/if}}
+{{#if docker}}
+  SiDocker
+{{/if}}
+} from "react-icons/si";
+
+/**
+ * Technology Stack component - Grid layout with brutalist cards
+ */
+export function TechnologyStack() {
+  const technologies = [
+    {
+      category: "FRONTEND",
+      items: [
+        {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
+        { name: "React", icon: <SiReact size={24} />, version: "18.3", port: "5173" },
+        {{else if (eq framework 'tanstack-router')}}
+        { name: "TanStack Router", icon: <SiReact size={24} />, version: "1.0", port: "5173" },
+        {{else if (eq framework 'tanstack-start')}}
+        { name: "TanStack Start", icon: <SiReact size={24} />, version: "1.0", port: "5173" },
+        {{else if (eq framework 'vue')}}
+        { name: "Vue", icon: <SiVue size={24} />, version: "3.4", port: "5173" },
+        {{else if (eq framework 'svelte')}}
+        { name: "Svelte", icon: <SiSvelte size={24} />, version: "4.2", port: "5173" },
+        {{else if (eq framework 'solid')}}
+        { name: "Solid", icon: <SiSolid size={24} />, version: "1.8", port: "5173" },
+        {{else if (eq framework 'angular')}}
+        { name: "Angular", icon: <SiAngular size={24} />, version: "17.0", port: "4200" },
+        {{else if (eq framework 'astro')}}
+        { name: "Astro", icon: <SiAstro size={24} />, version: "4.0", port: "4321" },
+        {{else if (or (eq framework 'vanilla') (eq framework 'vite'))}}
+        { name: "Vanilla JS", icon: <SiJavascript size={24} />, version: "ES2023", port: "5173" },
+        {{/if}}
+        {{#if (or (eq framework 'react') (eq framework 'vue') (eq framework 'svelte'))}}
+        { name: "Vite", icon: <SiVite size={24} />, version: "5.4", build: "FAST" },
+        {{/if}}
+        {{#if (eq styling 'tailwind')}}
+        { name: "Tailwind", icon: <SiTailwindcss size={24} />, version: "3.4", jit: "ON" },
+        {{/if}}
+        {{#if typescript}}
+        { name: "TypeScript", icon: <SiTypescript size={24} />, version: "5.7", strict: "YES" },
+        {{/if}}
+      ]
+    },
+    {{#if (or backend database orm docker)}}
+    {
+      category: "BACKEND",
+      items: [
+        {{#if backend}}
+        {{#if (eq backend 'hono')}}
+        { name: "Hono", icon: <SiHono size={24} />, version: "3.0", port: "3001" },
+        {{/if}}
+        {{#if (eq backend 'express')}}
+        { name: "Express", icon: <SiExpress size={24} />, version: "4.18", port: "3001" },
+        {{/if}}
+        {{#if (eq backend 'fastify')}}
+        { name: "Fastify", icon: <SiFastify size={24} />, version: "4.24", port: "3001" },
+        {{/if}}
+        {{#if (eq backend 'nestjs')}}
+        { name: "NestJS", icon: <SiNestjs size={24} />, version: "10.0", port: "3001" },
+        {{/if}}
+        {{/if}}
+        {{#if (and orm (ne orm 'none'))}}
+        {{#if (eq orm 'prisma')}}
+        { name: "Prisma", icon: <SiPrisma size={24} />, version: "5.20", orm: "TYPE-SAFE" },
+        {{/if}}
+        {{#if (eq orm 'drizzle')}}
+        { name: "Drizzle", icon: <SiDrizzle size={24} />, version: "0.29", orm: "TYPE-SAFE" },
+        {{/if}}
+        {{/if}}
+        {{#if database}}
+        {{#if (eq database 'postgres')}}
+        { name: "PostgreSQL", icon: <SiPostgresql size={24} />, version: "16", port: "5432" },
+        {{/if}}
+        {{#if (eq database 'mysql')}}
+        { name: "MySQL", icon: <SiMysql size={24} />, version: "8.0", port: "3306" },
+        {{/if}}
+        {{#if (eq database 'sqlite')}}
+        { name: "SQLite", icon: <SiSqlite size={24} />, version: "3.45", file: "LOCAL" },
+        {{/if}}
+        {{#if (eq database 'mongodb')}}
+        { name: "MongoDB", icon: <SiMongodb size={24} />, version: "7.0", port: "27017" },
+        {{/if}}
+        {{/if}}
+        {{#if docker}}
+        { name: "Docker", icon: <SiDocker size={24} />, version: "25", status: "RUNNING" },
+        {{/if}}
+      ]
+    },
+    {{/if}}
+    {
+      category: "TOOLING",
+      items: [
+        { name: "{{#if (eq packageManager 'bun')}}Bun{{else if (eq packageManager 'pnpm')}}PNPM{{else if (eq packageManager 'yarn')}}Yarn{{else}}NPM{{/if}}", icon: <SiBun size={24} />, version: "{{#if (eq packageManager 'bun')}}1.2{{else if (eq packageManager 'pnpm')}}8.15{{else if (eq packageManager 'yarn')}}1.22{{else}}9.8{{/if}}", speed: "{{#if (eq packageManager 'bun')}}ULTRA{{else}}FAST{{/if}}" },
+        { name: "Turbo", icon: <Package2 size={24} />, version: "1.12", cache: "ENABLED" },
+        { name: "ESLint", icon: <Code2 size={24} />, version: "8.57", rules: "STRICT" },
+        { name: "Prettier", icon: <Layers size={24} />, version: "3.0", format: "AUTO" },
+      ]
+    }
+  ];
+
+  return (
+    <section className="{{#if (eq styling 'tailwind')}}mb-20{{else}}technology-section{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}max-w-6xl mx-auto{{else}}container{{/if}}">
+        {/* Section header */}
+        <div className="{{#if (eq styling 'tailwind')}}mb-12 text-center{{else}}section-header{{/if}}">
+          <h2 className="{{#if (eq styling 'tailwind')}}inline-block text-3xl font-black uppercase text-black bg-yellow-400 px-6 py-3 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]{{else}}brutalist-title{{/if}}">
+            TECHNOLOGY MATRIX
+          </h2>
+        </div>
+
+        {/* Tech grid */}
+        <div className="{{#if (eq styling 'tailwind')}}space-y-8{{else}}tech-grid{{/if}}">
+          {technologies.map((category, catIdx) => (
+            <div key={catIdx}>
+              {/* Category header */}
+              <div className="{{#if (eq styling 'tailwind')}}mb-4 flex items-center{{else}}category-header{{/if}}">
+                <div className="{{#if (eq styling 'tailwind')}}bg-black text-yellow-400 px-3 py-1 font-bold text-xs uppercase tracking-wider{{else}}category-label{{/if}}">
+                  {category.category}
+                </div>
+                <div className="{{#if (eq styling 'tailwind')}}flex-1 h-0.5 bg-black ml-3{{else}}category-line{{/if}}"></div>
+              </div>
+
+              {/* Tech cards */}
+              <div className="{{#if (eq styling 'tailwind')}}grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4{{else}}tech-cards{{/if}}">
+                {category.items.map((tech, idx) => (
+                  <div
+                    key={idx}
+                    className="{{#if (eq styling 'tailwind')}}group relative{{else}}tech-card{{/if}}"
+                  >
+                    {/* Shadow effect */}
+                    <div className="{{#if (eq styling 'tailwind')}}absolute inset-0 bg-black transform translate-x-1 translate-y-1{{else}}card-shadow{{/if}}"></div>
+                    
+                    {/* Card content */}
+                    <div className="{{#if (eq styling 'tailwind')}}relative bg-white border-2 border-black hover:translate-x-0.5 hover:translate-y-0.5 transition-all duration-150 cursor-pointer{{else}}card-content{{/if}}">
+                      {/* Status indicator */}
+                      <div className="{{#if (eq styling 'tailwind')}}absolute -top-1.5 -right-1.5 w-3 h-3 bg-yellow-400 border border-black{{else}}status-indicator{{/if}}"></div>
+                      
+                      <div className="{{#if (eq styling 'tailwind')}}p-4{{else}}card-inner{{/if}}">
+                        {/* Icon and name header */}
+                        <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-3 pb-2 border-b-2 border-black{{else}}card-header{{/if}}">
+                          <div className="{{#if (eq styling 'tailwind')}}text-black{{else}}tech-icon{{/if}}">{tech.icon}</div>
+                          <span className="{{#if (eq styling 'tailwind')}}font-black text-xs uppercase text-black{{else}}tech-name{{/if}}">
+                            {tech.name}
+                          </span>
+                        </div>
+                        
+                        {/* Stats */}
+                        <div className="{{#if (eq styling 'tailwind')}}space-y-1 font-mono text-xs{{else}}tech-stats{{/if}}">
+                          {Object.entries(tech).map(([key, value]) => {
+                            if (key === 'name' || key === 'icon') return null;
+                            return (
+                              <div key={key} className="{{#if (eq styling 'tailwind')}}flex justify-between items-center{{else}}stat-row{{/if}}">
+                                <span className="{{#if (eq styling 'tailwind')}}text-black/60 uppercase text-[10px]{{else}}stat-key{{/if}}">{key}:</span>
+                                <span className="{{#if (eq styling 'tailwind')}}text-black font-bold bg-yellow-400/20 px-1{{else}}stat-value{{/if}}">{value as string}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      
+                      {/* Bottom accent bar */}
+                      <div className="{{#if (eq styling 'tailwind')}}h-2 bg-black group-hover:bg-yellow-400 transition-colors{{else}}accent-bar{{/if}}"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* System diagram */}
+        <div className="{{#if (eq styling 'tailwind')}}mt-12 p-6 border-4 border-black bg-yellow-400{{else}}system-diagram{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-center space-x-8 font-mono text-sm{{else}}diagram-content{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}diagram-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-black{{else}}diagram-icon{{/if}}"></div>
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-bold{{else}}diagram-label{{/if}}">FRONTEND</span>
+            </div>
+            <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}diagram-arrow{{/if}}">→</span>
+            {{#if backend}}
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}diagram-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-black{{else}}diagram-icon{{/if}}"></div>
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-bold{{else}}diagram-label{{/if}}">API</span>
+            </div>
+            <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}diagram-arrow{{/if}}">→</span>
+            {{/if}}
+            {{#if database}}
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}diagram-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-black{{else}}diagram-icon{{/if}}"></div>
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-bold{{else}}diagram-label{{/if}}">DATABASE</span>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

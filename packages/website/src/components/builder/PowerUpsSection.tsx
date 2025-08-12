@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp, FaTools, FaGitAlt, FaDocker } from "react-icons/fa";
 import { SiTypescript } from "react-icons/si";
 
-import { Tooltip } from "@/components/ui/Tooltip";
+import { ComicTooltip } from "@/components/ui/ComicTooltip";
 import { powerUps, powerUpCategories } from "@/lib/powerups-config";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -12,13 +12,18 @@ import type { ExtendedProjectConfig } from "./types";
 interface PowerUpsSectionProps {
   config: ExtendedProjectConfig;
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
+  handleDockerToggle?: () => void;
 }
 
 /**
  * Power-ups selection component with dependency validation and categorization.
  * Shows available extensions and tools based on current stack configuration.
  */
-export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setConfig }) => {
+export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
+  config,
+  setConfig,
+  handleDockerToggle,
+}) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -202,7 +207,13 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
         </button>
 
         <button
-          onClick={() => setConfig({ ...config, docker: !config.docker })}
+          onClick={() => {
+            if (handleDockerToggle) {
+              handleDockerToggle();
+            } else {
+              setConfig({ ...config, docker: !config.docker });
+            }
+          }}
           className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 h-[80px] flex flex-col ${
             config.docker
               ? "bg-comic-yellow text-comic-black"
@@ -289,7 +300,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
               const isAvailable = powerup.isAvailable;
 
               return (
-                <Tooltip
+                <ComicTooltip
                   key={powerup.id}
                   content={
                     isAvailable
@@ -343,7 +354,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
                         : `Requires ${powerup.missingRequirements?.join(" and ")}`}
                     </p>
                   </button>
-                </Tooltip>
+                </ComicTooltip>
               );
             })}
           </div>

@@ -112,6 +112,77 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
 
     const templates: { [key: string]: { [key: string]: string } } = {
       claude: {
+        ".claude/settings.json": `// Note: You can also create .claude/settings.local.json for user-specific settings
+// that won't be committed to version control (added to .gitignore automatically)
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "NotebookEdit",
+      "Glob",
+      "Grep",
+      "LS",
+      "WebSearch",
+      "WebFetch",
+      "TodoWrite"${
+        config.framework !== "vanilla" || config.backend !== "none" ? ',\n      "Bash"' : ""
+      }${config.backend && config.backend !== "none" ? ',\n      "Task"' : ""}${
+        config.backend && config.backend !== "none" && config.database !== "none"
+          ? ',\n      "ExitPlanMode"'
+          : ""
+      }
+    ]
+  }
+}`,
+        ".claude/mcp.json":
+          config.mcpServers && config.mcpServers.length > 0
+            ? `{
+  "mcpServers": {
+    ${config.mcpServers
+      .map((server) => {
+        if (server === "filesystem") {
+          return `"filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/user/projects"]
+    }`;
+        } else if (server === "github") {
+          return `"github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    }`;
+        } else if (server === "postgresql") {
+          return `"postgresql": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "\${DATABASE_URL}"]
+    }`;
+        } else if (server === "sqlite") {
+          return `"sqlite": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "path/to/your/database.db"]
+    }`;
+        } else if (server === "mongodb") {
+          return `"mongodb": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-mongodb"],
+      "env": {
+        "MONGODB_URI": "\${MONGODB_URI}"
+      }
+    }`;
+        }
+        return "";
+      })
+      .filter(Boolean)
+      .join(",\n    ")}
+  }
+}`
+            : `// MCP servers configuration
+// This file is only created when MCP servers are selected`,
         "CLAUDE.md": `# {{name}} - AI Assistant Context
 
 ## Project Overview
@@ -425,7 +496,14 @@ This is a modern {{framework}} application with the following architecture:
                 <div className="text-xs space-y-1">
                   {aiAssistants
                     .find((ai) => ai.id === config.aiAssistant)
-                    ?.files?.map((file, idx) => (
+                    ?.files?.filter((file) => {
+                      // Only show mcp.json if MCP servers are selected
+                      if (file === ".claude/mcp.json") {
+                        return config.mcpServers && config.mcpServers.length > 0;
+                      }
+                      return true;
+                    })
+                    .map((file, idx) => (
                       <div key={idx} className="space-y-1">
                         <button
                           onClick={() => toggleFile(file)}

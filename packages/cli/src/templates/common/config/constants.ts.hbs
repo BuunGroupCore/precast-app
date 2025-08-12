@@ -1,0 +1,66 @@
+/**
+ * @fileoverview Application configuration constants
+ */
+
+/**
+ * Application configuration
+ */
+export const APP_CONFIG = {
+  name: '{{name}}',
+  displayName: '{{name}}',
+  description: 'A modern {{framework}} application',
+  version: '1.0.0',
+  {{#if (and backend (ne backend "none"))}}
+  {{#if (eq framework "next")}}
+  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  {{else if (eq framework "nuxt")}}
+  apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:3001',
+  {{else if (eq framework "react-router")}}
+  apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3001',
+  {{else}}
+  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  {{/if}}
+  {{/if}}
+} as const;
+
+/**
+ * SEO configuration
+ */
+export const SEO_CONFIG = {
+  title: `${APP_CONFIG.displayName}`,
+  description: APP_CONFIG.description,
+  keywords: ['{{name}}', '{{framework}}', '{{#if typescript}}TypeScript{{else}}JavaScript{{/if}}'],
+  ogImage: '/og-image.png',
+} as const;
+
+/**
+ * Social media links
+ */
+export const SOCIAL_MEDIA = {
+  github: 'https://github.com/{{name}}',
+  twitter: 'https://twitter.com/{{name}}',
+  linkedin: 'https://linkedin.com/company/{{name}}',
+} as const;
+
+/**
+ * Feature flags
+ */
+export const FEATURES = {
+  {{#if (eq framework "next")}}
+  analytics: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true',
+  pwa: process.env.NEXT_PUBLIC_ENABLE_PWA === 'true',
+  notifications: process.env.NEXT_PUBLIC_ENABLE_NOTIFICATIONS === 'true',
+  {{else if (eq framework "nuxt")}}
+  analytics: process.env.NUXT_PUBLIC_ENABLE_ANALYTICS === 'true',
+  pwa: process.env.NUXT_PUBLIC_ENABLE_PWA === 'true',
+  notifications: process.env.NUXT_PUBLIC_ENABLE_NOTIFICATIONS === 'true',
+  {{else if (eq framework "react-router")}}
+  analytics: process.env.REACT_APP_ENABLE_ANALYTICS === 'true',
+  pwa: process.env.REACT_APP_ENABLE_PWA === 'true',
+  notifications: process.env.REACT_APP_ENABLE_NOTIFICATIONS === 'true',
+  {{else}}
+  analytics: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
+  pwa: import.meta.env.VITE_ENABLE_PWA === 'true',
+  notifications: import.meta.env.VITE_ENABLE_NOTIFICATIONS === 'true',
+  {{/if}}
+} as const;

@@ -1,0 +1,83 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "^1.91.0",
+    "@tanstack/router-devtools": "^1.91.0",
+    "@tanstack/router-vite-plugin": "^1.91.0",
+    {{#if (eq uiLibrary "shadcn")}}
+    "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-label": "^2.1.1",
+    "@radix-ui/react-popover": "^1.1.4",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-toast": "^1.2.4",
+    {{/if}}
+    {{#if (includes apiClient "tanstack-query")}}
+    "@tanstack/react-query": "^5.62.0",
+    "@tanstack/react-query-devtools": "^5.62.0",
+    {{/if}}
+    {{#if (eq apiClient "swr")}}
+    "swr": "^2.2.5",
+    {{/if}}
+    {{#if (eq apiClient "axios")}}
+    "axios": "^1.7.2",
+    {{/if}}
+    {{#if (eq apiClient "trpc")}}
+    "@trpc/client": "^11.0.0",
+    "@trpc/server": "^11.0.0",
+    "@trpc/react-query": "^11.0.0",
+    "@tanstack/react-query": "^5.62.0",
+    "superjson": "^2.2.1",
+    {{/if}}
+    {{#if (eq apiClient "hono-rpc")}}
+    "hono": "^4.6.0",
+    "@hono/zod-validator": "^0.4.0",
+    {{/if}}
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.511.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    {{#if (eq uiLibrary "shadcn")}}
+    "sonner": "^2.0.3",
+    {{/if}}
+    "tailwind-merge": "^3.3.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    {{#if eslint}}
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    {{/if}}
+    "@vitejs/plugin-react": "^4.3.1",
+    {{#if eslint}}
+    "eslint": "^9.0.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    {{/if}}
+    {{#if prettier}}
+    "prettier": "^3.3.3",
+    {{/if}}
+    {{#if (eq styling "tailwind")}}
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    {{/if}}
+    {{#if (eq uiLibrary "daisyui")}}
+    "daisyui": "^4.12.14",
+    {{/if}}
+    "typescript": "^5.8.3",
+    "vite": "^6.0.5"
+  }
+}

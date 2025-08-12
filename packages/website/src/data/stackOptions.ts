@@ -12,6 +12,7 @@ export interface StackOption {
 }
 
 export const frameworkDefs: StackOption[] = [
+  // SPA Frameworks
   {
     id: "react",
     name: "React",
@@ -33,11 +34,46 @@ export const frameworkDefs: StackOption[] = [
     disabled: true,
   },
   {
+    id: "solid",
+    name: "Solid",
+    description: "Simple and performant reactivity for building user interfaces",
+    recommended: ["typescript", "tailwind"],
+    disabled: true,
+  },
+  {
+    id: "svelte",
+    name: "Svelte",
+    description: "Cybernetically enhanced web apps",
+    recommended: ["typescript", "tailwind"],
+  },
+  {
+    id: "tanstack-router",
+    name: "TanStack Router",
+    description: "Type-safe React router with built-in caching and data fetching",
+    dependencies: ["react"],
+    recommended: ["typescript", "tailwind"],
+  },
+  // Full-Stack Frameworks
+  {
     id: "next",
     name: "Next.js",
     description: "The React Framework for Production",
     dependencies: ["react"],
     recommended: ["typescript", "tailwind", "prisma"],
+  },
+  {
+    id: "react-router",
+    name: "React Router v7",
+    description: "Full-stack React framework (formerly Remix)",
+    dependencies: ["react"],
+    recommended: ["typescript", "tailwind", "prisma"],
+  },
+  {
+    id: "tanstack-start",
+    name: "TanStack Start",
+    description: "Full-stack React framework powered by TanStack Router",
+    dependencies: ["react"],
+    recommended: ["typescript", "tailwind"],
   },
   {
     id: "nuxt",
@@ -53,27 +89,7 @@ export const frameworkDefs: StackOption[] = [
     description: "Build faster websites with Astro's next-gen island architecture",
     recommended: ["typescript", "tailwind"],
   },
-  {
-    id: "remix",
-    name: "Remix",
-    description: "Build better websites with Remix",
-    dependencies: ["react"],
-    recommended: ["typescript", "tailwind", "prisma"],
-    disabled: true,
-  },
-  {
-    id: "solid",
-    name: "Solid",
-    description: "Simple and performant reactivity for building user interfaces",
-    recommended: ["typescript", "tailwind"],
-    disabled: true,
-  },
-  {
-    id: "svelte",
-    name: "Svelte",
-    description: "Cybernetically enhanced web apps",
-    recommended: ["typescript", "tailwind"],
-  },
+  // Other
   {
     id: "vanilla",
     name: "Vanilla",
@@ -87,22 +103,15 @@ export const frameworkDefs: StackOption[] = [
     recommended: ["typescript"],
   },
   {
-    id: "tanstack-start",
-    name: "TanStack Start",
-    description: "Full-stack React framework powered by TanStack Router",
-    dependencies: ["react"],
-    recommended: ["typescript", "tailwind"],
+    id: "vite",
+    name: "Vite",
+    description: "Next Generation Frontend Tooling",
+    recommended: ["typescript"],
   },
   {
     id: "none",
     name: "None",
     description: "No frontend framework - backend only or custom setup",
-  },
-  {
-    id: "vite",
-    name: "Vite",
-    description: "Next Generation Frontend Tooling",
-    recommended: ["typescript"],
   },
 ];
 

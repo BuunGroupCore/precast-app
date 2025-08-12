@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
-import { FaDocker, FaGitAlt, FaPaintBrush, FaFolderOpen } from "react-icons/fa";
+import React from "react";
+import { FaDocker, FaGitAlt, FaPaintBrush } from "react-icons/fa";
 import { SiTypescript } from "react-icons/si";
 
 import { plugins } from "@/lib/plugins-config";
@@ -17,7 +17,6 @@ import {
 
 import { BuilderIcon } from "./BuilderIcon";
 import { aiAssistants, deploymentMethods, uiLibraries } from "./constants";
-import { FolderStructureDialog } from "./FolderStructureDialog";
 import { PublicIcon } from "./PublicIcon";
 import type { ExtendedProjectConfig } from "./types";
 
@@ -26,8 +25,6 @@ interface StackSummarySectionProps {
 }
 
 export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config }) => {
-  const [showFolderStructure, setShowFolderStructure] = useState(false);
-
   /** Calculate total count of activated powers */
   const totalCount = [
     config.framework !== "vanilla" ? 1 : 0,
@@ -108,299 +105,269 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
   };
 
   return (
-    <>
-      <FolderStructureDialog
-        isOpen={showFolderStructure}
-        onClose={() => setShowFolderStructure(false)}
-        config={config}
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-        className="comic-card bg-comic-darkBlue text-comic-white overflow-hidden"
-      >
-        {/* Header Section */}
-        <div className="relative mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display text-xl sm:text-2xl">YOUR EPIC STACK</h3>
-            {/* Power count badge - moved to inline */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-              className="bg-comic-red text-comic-white px-2 sm:px-3 py-1 rounded-full shadow-lg"
-            >
-              <span className="font-comic font-bold text-[10px] sm:text-xs">
-                {totalCount} POWERS!
-              </span>
-            </motion.div>
-          </div>
-          {/* Comic Style Separator with Preview Button */}
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t-2 border-dashed border-comic-yellow opacity-50"></div>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowFolderStructure(true)}
-              className="relative bg-comic-yellow text-comic-black px-3 sm:px-4 py-1.5 sm:py-2 comic-button transform -rotate-2 hover:rotate-0 transition-all duration-200 shadow-lg hidden sm:flex"
-              title="Preview folder structure"
-            >
-              <div className="flex items-center gap-2">
-                <BuilderIcon
-                  icon={FaFolderOpen}
-                  className="text-base sm:text-lg text-comic-black"
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.2 }}
+      className="comic-card bg-comic-darkBlue text-comic-white overflow-hidden"
+    >
+      {/* Header Section */}
+      <div className="relative mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display text-xl sm:text-2xl">YOUR EPIC STACK</h3>
+          {/* Power count badge - moved to inline */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            className="bg-comic-red text-comic-white px-2 sm:px-3 py-1 rounded-full shadow-lg"
+          >
+            <span className="font-comic font-bold text-[10px] sm:text-xs">
+              {totalCount} POWERS!
+            </span>
+          </motion.div>
+        </div>
+        {/* Comic Style Separator */}
+        <div className="relative flex items-center">
+          <div className="w-full border-t-2 border-dashed border-comic-yellow opacity-50"></div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-h-[300px] sm:max-h-[240px] overflow-y-auto pb-2">
+        {/* Framework */}
+        {renderStackItem("framework", config.framework)}
+
+        {/* Backend */}
+        {config.backend !== "none" && renderStackItem("backend", config.backend)}
+
+        {/* Database */}
+        {config.database !== "none" && renderStackItem("database", config.database)}
+
+        {/* ORM */}
+        {config.orm !== "none" && config.database !== "none" && renderStackItem("orm", config.orm)}
+
+        {/* Styling */}
+        {renderStackItem("styling", config.styling)}
+
+        {/* Color Palette */}
+        {config.colorPalette && (
+          <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-row min-[320px]:flex-col items-center justify-start min-[320px]:justify-center gap-2 min-[320px]:gap-1 relative overflow-hidden">
+            <span className="absolute top-0.5 right-0.5 text-[7px] min-[320px]:text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full z-10">
+              Colors
+            </span>
+            <div className="flex gap-0.5">
+              {config.colorPalette.preview?.slice(0, 4).map((color, i) => (
+                <div
+                  key={i}
+                  className="w-3 h-3 min-[320px]:w-4 min-[320px]:h-4 rounded-sm border border-white/50"
+                  style={{ backgroundColor: color }}
                 />
-                <span className="font-comic font-bold text-xs sm:text-sm">VIEW STRUCTURE</span>
-              </div>
-            </motion.button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-h-[300px] sm:max-h-[240px] overflow-y-auto pb-2">
-          {/* Framework */}
-          {renderStackItem("framework", config.framework)}
-
-          {/* Backend */}
-          {config.backend !== "none" && renderStackItem("backend", config.backend)}
-
-          {/* Database */}
-          {config.database !== "none" && renderStackItem("database", config.database)}
-
-          {/* ORM */}
-          {config.orm !== "none" &&
-            config.database !== "none" &&
-            renderStackItem("orm", config.orm)}
-
-          {/* Styling */}
-          {renderStackItem("styling", config.styling)}
-
-          {/* Color Palette */}
-          {config.colorPalette && (
-            <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-row min-[320px]:flex-col items-center justify-start min-[320px]:justify-center gap-2 min-[320px]:gap-1 relative overflow-hidden">
-              <span className="absolute top-0.5 right-0.5 text-[7px] min-[320px]:text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full z-10">
-                Colors
-              </span>
-              <div className="flex gap-0.5">
-                {config.colorPalette.preview?.slice(0, 4).map((color, i) => (
-                  <div
-                    key={i}
-                    className="w-3 h-3 min-[320px]:w-4 min-[320px]:h-4 rounded-sm border border-white/50"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-              <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal text-white">
-                {config.colorPalette.name}
-              </span>
+              ))}
             </div>
-          )}
-
-          {/* Runtime */}
-          {renderStackItem("runtime", config.runtime || "node")}
-
-          {/* UI Library */}
-          {config.uiLibrary &&
-            config.uiLibrary !== "none" &&
-            (() => {
-              const uiLib = uiLibraries.find((lib) => lib.id === config.uiLibrary);
-              return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
-                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
-                    UI Lib
-                  </span>
-                  {uiLib?.icon ? (
-                    typeof uiLib.icon === "string" ? (
-                      <PublicIcon name={uiLib.icon} className="w-5 h-5 brightness-0 invert" />
-                    ) : (
-                      <BuilderIcon icon={uiLib.icon} className="text-2xl text-white" />
-                    )
-                  ) : (
-                    <BuilderIcon icon={FaPaintBrush} className="text-2xl text-white" />
-                  )}
-                  <span className="text-xs font-comic text-center text-white">
-                    {uiLib?.name || config.uiLibrary}
-                  </span>
-                </div>
-              );
-            })()}
-
-          {/* UI Framework (for Vite builds) */}
-          {config.uiFramework &&
-            (() => {
-              const uiFramework = frameworks.find((f) => f.id === config.uiFramework);
-              return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
-                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
-                    UI Framework
-                  </span>
-                  {uiFramework?.icon && (
-                    <BuilderIcon icon={uiFramework.icon} className="text-2xl text-white" />
-                  )}
-                  <span className="text-xs font-comic text-center text-white">
-                    {uiFramework?.name || config.uiFramework}
-                  </span>
-                </div>
-              );
-            })()}
-
-          {/* AI Assistant */}
-          {config.aiAssistant &&
-            config.aiAssistant !== "none" &&
-            (() => {
-              const aiAssistant = aiAssistants.find((ai) => ai.id === config.aiAssistant);
-              return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
-                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
-                    AI
-                  </span>
-                  {aiAssistant?.icon ? (
-                    typeof aiAssistant.icon === "string" ? (
-                      <PublicIcon name={aiAssistant.icon} className="w-5 h-5 brightness-0 invert" />
-                    ) : (
-                      <BuilderIcon icon={aiAssistant.icon} className="text-2xl text-white" />
-                    )
-                  ) : (
-                    <span className="text-2xl">🤖</span>
-                  )}
-                  <span className="text-xs font-comic text-center text-white">
-                    {aiAssistant?.name || config.aiAssistant}
-                  </span>
-                </div>
-              );
-            })()}
-
-          {/* Deployment */}
-          {config.deploymentMethod &&
-            config.deploymentMethod !== "none" &&
-            (() => {
-              const deployment = deploymentMethods.find(
-                (dep) => dep.id === config.deploymentMethod
-              );
-              return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
-                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
-                    Deploy
-                  </span>
-                  {deployment?.icon ? (
-                    typeof deployment.icon === "string" ? (
-                      <PublicIcon name={deployment.icon} className="w-5 h-5 brightness-0 invert" />
-                    ) : (
-                      <BuilderIcon icon={deployment.icon} className="text-2xl text-white" />
-                    )
-                  ) : (
-                    <span className="text-2xl">🚀</span>
-                  )}
-                  <span className="text-xs font-comic text-center text-white">
-                    {deployment?.name || config.deploymentMethod}
-                  </span>
-                </div>
-              );
-            })()}
-
-          {/* Authentication */}
-          {config.auth &&
-            config.auth !== "none" &&
-            (() => {
-              const auth = authProviders.find((a) => a.id === config.auth);
-              return (
-                <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
-                  <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
-                    Auth
-                  </span>
-                  {auth?.icon ? (
-                    typeof auth.icon === "string" ? (
-                      <PublicIcon name={auth.icon} className="w-5 h-5 brightness-0 invert" />
-                    ) : (
-                      <BuilderIcon icon={auth.icon} className="text-2xl text-white" />
-                    )
-                  ) : (
-                    <span className="text-2xl">🔐</span>
-                  )}
-                  <span className="text-xs font-comic text-center text-white">
-                    {auth?.name || config.auth}
-                  </span>
-                </div>
-              );
-            })()}
-        </div>
-
-        {/* Plugins */}
-        {config.plugins && config.plugins.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-comic-white/20">
-            <h4 className="font-comic text-sm mb-2 text-comic-purple text-center">
-              BUSINESS PLUGINS
-            </h4>
-            <div className="flex flex-wrap justify-center gap-3 max-h-20 overflow-y-auto pb-2">
-              {config.plugins.map((pluginId) => {
-                const plugin = plugins.find((p) => p.id === pluginId);
-                if (!plugin) return null;
-                const Icon = plugin.icon;
-                return (
-                  <div
-                    key={pluginId}
-                    className="comic-panel p-2 bg-comic-purple/20 hover:bg-comic-purple/30 transition-colors cursor-pointer flex flex-col items-center gap-1"
-                    title={plugin.description}
-                  >
-                    <BuilderIcon icon={Icon} className="text-2xl text-white" />
-                    <span className="text-xs font-comic text-center text-white">{plugin.name}</span>
-                  </div>
-                );
-              })}
-            </div>
+            <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal text-white">
+              {config.colorPalette.name}
+            </span>
           </div>
         )}
 
-        {/* Power-ups */}
-        {(config.typescript ||
-          config.git ||
-          config.docker ||
-          (config.powerups && config.powerups.length > 0)) && (
-          <div className="mt-4 pt-4 border-t border-comic-white/20">
-            <h4 className="font-comic text-sm mb-2 text-comic-yellow text-center">POWER-UPS</h4>
-            <div className="flex flex-wrap justify-center gap-3 max-h-20 overflow-y-auto pb-2">
-              {config.typescript && (
-                <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
-                  <BuilderIcon icon={SiTypescript} className="text-2xl text-white" />
-                  <span className="text-xs font-comic text-center text-white">TypeScript</span>
+        {/* Runtime */}
+        {renderStackItem("runtime", config.runtime || "node")}
+
+        {/* UI Library */}
+        {config.uiLibrary &&
+          config.uiLibrary !== "none" &&
+          (() => {
+            const uiLib = uiLibraries.find((lib) => lib.id === config.uiLibrary);
+            return (
+              <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                  UI Lib
+                </span>
+                {uiLib?.icon ? (
+                  typeof uiLib.icon === "string" ? (
+                    <PublicIcon name={uiLib.icon} className="w-5 h-5 brightness-0 invert" />
+                  ) : (
+                    <BuilderIcon icon={uiLib.icon} className="text-2xl text-white" />
+                  )
+                ) : (
+                  <BuilderIcon icon={FaPaintBrush} className="text-2xl text-white" />
+                )}
+                <span className="text-xs font-comic text-center text-white">
+                  {uiLib?.name || config.uiLibrary}
+                </span>
+              </div>
+            );
+          })()}
+
+        {/* UI Framework (for Vite builds) */}
+        {config.uiFramework &&
+          (() => {
+            const uiFramework = frameworks.find((f) => f.id === config.uiFramework);
+            return (
+              <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                  UI Framework
+                </span>
+                {uiFramework?.icon && (
+                  <BuilderIcon icon={uiFramework.icon} className="text-2xl text-white" />
+                )}
+                <span className="text-xs font-comic text-center text-white">
+                  {uiFramework?.name || config.uiFramework}
+                </span>
+              </div>
+            );
+          })()}
+
+        {/* AI Assistant */}
+        {config.aiAssistant &&
+          config.aiAssistant !== "none" &&
+          (() => {
+            const aiAssistant = aiAssistants.find((ai) => ai.id === config.aiAssistant);
+            return (
+              <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                  AI
+                </span>
+                {aiAssistant?.icon ? (
+                  typeof aiAssistant.icon === "string" ? (
+                    <PublicIcon name={aiAssistant.icon} className="w-5 h-5 brightness-0 invert" />
+                  ) : (
+                    <BuilderIcon icon={aiAssistant.icon} className="text-2xl text-white" />
+                  )
+                ) : (
+                  <span className="text-2xl">🤖</span>
+                )}
+                <span className="text-xs font-comic text-center text-white">
+                  {aiAssistant?.name || config.aiAssistant}
+                </span>
+              </div>
+            );
+          })()}
+
+        {/* Deployment */}
+        {config.deploymentMethod &&
+          config.deploymentMethod !== "none" &&
+          (() => {
+            const deployment = deploymentMethods.find((dep) => dep.id === config.deploymentMethod);
+            return (
+              <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                  Deploy
+                </span>
+                {deployment?.icon ? (
+                  typeof deployment.icon === "string" ? (
+                    <PublicIcon name={deployment.icon} className="w-5 h-5 brightness-0 invert" />
+                  ) : (
+                    <BuilderIcon icon={deployment.icon} className="text-2xl text-white" />
+                  )
+                ) : (
+                  <span className="text-2xl">🚀</span>
+                )}
+                <span className="text-xs font-comic text-center text-white">
+                  {deployment?.name || config.deploymentMethod}
+                </span>
+              </div>
+            );
+          })()}
+
+        {/* Authentication */}
+        {config.auth &&
+          config.auth !== "none" &&
+          (() => {
+            const auth = authProviders.find((a) => a.id === config.auth);
+            return (
+              <div className="comic-panel p-2 bg-comic-white/10 flex flex-col items-center gap-1 relative overflow-hidden">
+                <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
+                  Auth
+                </span>
+                {auth?.icon ? (
+                  typeof auth.icon === "string" ? (
+                    <PublicIcon name={auth.icon} className="w-5 h-5 brightness-0 invert" />
+                  ) : (
+                    <BuilderIcon icon={auth.icon} className="text-2xl text-white" />
+                  )
+                ) : (
+                  <span className="text-2xl">🔐</span>
+                )}
+                <span className="text-xs font-comic text-center text-white">
+                  {auth?.name || config.auth}
+                </span>
+              </div>
+            );
+          })()}
+      </div>
+
+      {/* Plugins */}
+      {config.plugins && config.plugins.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-comic-white/20">
+          <h4 className="font-comic text-sm mb-2 text-comic-purple text-center">
+            BUSINESS PLUGINS
+          </h4>
+          <div className="flex flex-wrap justify-center gap-3 max-h-20 overflow-y-auto pb-2">
+            {config.plugins.map((pluginId) => {
+              const plugin = plugins.find((p) => p.id === pluginId);
+              if (!plugin) return null;
+              const Icon = plugin.icon;
+              return (
+                <div
+                  key={pluginId}
+                  className="comic-panel p-2 bg-comic-purple/20 hover:bg-comic-purple/30 transition-colors cursor-pointer flex flex-col items-center gap-1"
+                  title={plugin.description}
+                >
+                  <BuilderIcon icon={Icon} className="text-2xl text-white" />
+                  <span className="text-xs font-comic text-center text-white">{plugin.name}</span>
                 </div>
-              )}
-              {config.git && (
-                <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
-                  <BuilderIcon icon={FaGitAlt} className="text-2xl text-white" />
-                  <span className="text-xs font-comic text-center text-white">Git</span>
-                </div>
-              )}
-              {config.docker && (
-                <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
-                  <BuilderIcon icon={FaDocker} className="text-2xl text-white" />
-                  <span className="text-xs font-comic text-center text-white">Docker</span>
-                </div>
-              )}
-              {/* Additional Power-ups */}
-              {config.powerups?.map((powerupId) => {
-                const powerup = powerUps.find((p) => p.id === powerupId);
-                if (!powerup) return null;
-                const Icon = powerup.icon;
-                return (
-                  <div
-                    key={powerupId}
-                    className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1"
-                    title={powerup.description}
-                  >
-                    <BuilderIcon icon={Icon} className="text-2xl text-white" />
-                    <span className="text-xs font-comic text-center text-white">
-                      {powerup.name}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+              );
+            })}
           </div>
-        )}
-      </motion.div>
-    </>
+        </div>
+      )}
+
+      {/* Power-ups */}
+      {(config.typescript ||
+        config.git ||
+        config.docker ||
+        (config.powerups && config.powerups.length > 0)) && (
+        <div className="mt-4 pt-4 border-t border-comic-white/20">
+          <h4 className="font-comic text-sm mb-2 text-comic-yellow text-center">POWER-UPS</h4>
+          <div className="flex flex-wrap justify-center gap-3 max-h-20 overflow-y-auto pb-2">
+            {config.typescript && (
+              <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
+                <BuilderIcon icon={SiTypescript} className="text-2xl text-white" />
+                <span className="text-xs font-comic text-center text-white">TypeScript</span>
+              </div>
+            )}
+            {config.git && (
+              <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
+                <BuilderIcon icon={FaGitAlt} className="text-2xl text-white" />
+                <span className="text-xs font-comic text-center text-white">Git</span>
+              </div>
+            )}
+            {config.docker && (
+              <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
+                <BuilderIcon icon={FaDocker} className="text-2xl text-white" />
+                <span className="text-xs font-comic text-center text-white">Docker</span>
+              </div>
+            )}
+            {/* Additional Power-ups */}
+            {config.powerups?.map((powerupId) => {
+              const powerup = powerUps.find((p) => p.id === powerupId);
+              if (!powerup) return null;
+              const Icon = powerup.icon;
+              return (
+                <div
+                  key={powerupId}
+                  className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1"
+                  title={powerup.description}
+                >
+                  <BuilderIcon icon={Icon} className="text-2xl text-white" />
+                  <span className="text-xs font-comic text-center text-white">{powerup.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </motion.div>
   );
 };

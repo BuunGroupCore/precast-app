@@ -12,6 +12,46 @@ import { generateBackendTemplate } from "@/generators/backend-generator.js";
 import { getTemplateRoot } from "@/utils/template-path.js";
 
 /**
+ * Map framework names to their new directory structure
+ */
+function getFrameworkPath(framework: string): string {
+  const frameworkMap: Record<string, string> = {
+    // React ecosystem
+    react: "react/bare",
+    "react-router": "react/router-v7",
+    "react-native": "react/native",
+    next: "react/next",
+    "tanstack-router": "react/tanstack-router",
+    "tanstack-start": "react/tanstack-start",
+    "vite-react": "react/vite",
+
+    // Vue ecosystem
+    vue: "vue/bare",
+    nuxt: "vue/nuxt",
+    "vite-vue": "vue/vite",
+
+    // Svelte ecosystem
+    svelte: "svelte/bare",
+    "vite-svelte": "svelte/vite",
+
+    // Solid ecosystem
+    solid: "solid/bare",
+    "vite-solid": "solid/vite",
+
+    // Vanilla ecosystem
+    vanilla: "vanilla/bare",
+    "vite-vanilla": "vanilla/vite",
+
+    // Standalone frameworks
+    angular: "angular",
+    astro: "astro",
+    vite: "vite",
+  };
+
+  return frameworkMap[framework] || framework;
+}
+
+/**
  * Generate package.json file for a project
  * @param config - Project configuration
  * @param projectPath - Project directory path
@@ -120,9 +160,15 @@ async function generateSingleAppProject(
   projectPath: string,
   templateEngine: any
 ) {
-  await templateEngine.copyTemplateDirectory(`frameworks/${framework}/base`, projectPath, config, {
-    overwrite: true,
-  });
+  const frameworkPath = getFrameworkPath(framework);
+  await templateEngine.copyTemplateDirectory(
+    `frameworks/${frameworkPath}/base`,
+    projectPath,
+    config,
+    {
+      overwrite: true,
+    }
+  );
 
   // Copy common public assets first (for all frameworks)
   const commonPublicDir = `common/public`;
@@ -139,17 +185,41 @@ async function generateSingleAppProject(
     }
   );
 
-  // Copy common src config (constants, etc.)
-  const commonSrcDir = `common/src`;
-  await templateEngine.copyTemplateDirectory(commonSrcDir, path.join(projectPath, "src"), config, {
-    overwrite: false, // Don't overwrite framework-specific files
-  });
+  // Copy common styles (globals.css, etc.)
+  const commonStylesDir = `common/styles`;
+  try {
+    await templateEngine.copyTemplateDirectory(
+      commonStylesDir,
+      path.join(projectPath, "src/styles"),
+      config,
+      {
+        overwrite: false, // Don't overwrite framework-specific styles
+      }
+    );
+  } catch (error) {
+    consola.debug(`Common styles not found or error copying: ${error}`);
+  }
+
+  // Copy common pages (home, not-found, etc.)
+  const commonPagesDir = `common/pages`;
+  try {
+    await templateEngine.copyTemplateDirectory(
+      commonPagesDir,
+      path.join(projectPath, "src/pages"),
+      config,
+      {
+        overwrite: true, // Overwrite framework-specific pages with common ones
+      }
+    );
+  } catch (error) {
+    consola.debug(`Common pages not found or error copying: ${error}`);
+  }
 
   // Copy src directory if it exists (for all frameworks including TanStack Start)
-  const srcDir = `frameworks/${framework}/src`;
+  const srcDir = `frameworks/${frameworkPath}/src`;
   if (
     await templateEngine
-      .getAvailableTemplates(`frameworks/${framework}`)
+      .getAvailableTemplates(`frameworks/${frameworkPath}`)
       .then((dirs: string[]) => dirs.includes("src"))
   ) {
     await templateEngine.copyTemplateDirectory(srcDir, path.join(projectPath, "src"), config, {
@@ -170,10 +240,39 @@ async function generateSingleAppProject(
     consola.debug(`Common components not found or error copying: ${error}`);
   }
 
-  const publicDir = `frameworks/${framework}/public`;
+  // Copy common config directory (constants.ts, etc.)
+  const commonConfigDir = `common/config`;
+  try {
+    await templateEngine.copyTemplateDirectory(
+      commonConfigDir,
+      path.join(projectPath, "src/config"),
+      config,
+      {
+        overwrite: false, // Don't overwrite framework-specific config
+      }
+    );
+  } catch (error) {
+    // Log but don't fail if common config doesn't exist
+    consola.debug(`Common config not found or error copying: ${error}`);
+  }
+
+  // Copy vite-env.d.ts for Vite-based frameworks
+  if (framework !== "next" && framework !== "nuxt") {
+    try {
+      await templateEngine.copyTemplate(
+        "common/vite-env.d.ts.hbs",
+        path.join(projectPath, "src/vite-env.d.ts"),
+        config
+      );
+    } catch (error) {
+      consola.debug(`vite-env.d.ts not found or error copying: ${error}`);
+    }
+  }
+
+  const publicDir = `frameworks/${frameworkPath}/public`;
   if (
     await templateEngine
-      .getAvailableTemplates(`frameworks/${framework}`)
+      .getAvailableTemplates(`frameworks/${frameworkPath}`)
       .then((dirs: string[]) => dirs.includes("public"))
   ) {
     await templateEngine.copyTemplateDirectory(
@@ -202,6 +301,8 @@ async function generateMonorepoProject(
 ) {
   logger.verbose("Generating monorepo structure...");
 
+  const frameworkPath = getFrameworkPath(framework);
+
   await templateEngine.copyTemplateDirectory("workspace", projectPath, config, {
     overwrite: true,
   });
@@ -213,7 +314,7 @@ async function generateMonorepoProject(
   const webDir = path.join(appsDir, "web");
   await fs.mkdir(webDir, { recursive: true });
 
-  await templateEngine.copyTemplateDirectory(`frameworks/${framework}/base`, webDir, config, {
+  await templateEngine.copyTemplateDirectory(`frameworks/${frameworkPath}/base`, webDir, config, {
     overwrite: true,
   });
 
@@ -234,10 +335,10 @@ async function generateMonorepoProject(
 
   // Handle TanStack Start's app directory structure
   if (framework === "tanstack-start") {
-    const appDir = `frameworks/${framework}/app`;
+    const appDir = `frameworks/${frameworkPath}/app`;
     if (
       await templateEngine
-        .getAvailableTemplates(`frameworks/${framework}`)
+        .getAvailableTemplates(`frameworks/${frameworkPath}`)
         .then((dirs: string[]) => dirs.includes("app"))
     ) {
       await templateEngine.copyTemplateDirectory(appDir, path.join(webDir, "app"), config, {
@@ -245,16 +346,46 @@ async function generateMonorepoProject(
       });
     }
   } else {
-    const srcDir = `frameworks/${framework}/src`;
+    const srcDir = `frameworks/${frameworkPath}/src`;
     if (
       await templateEngine
-        .getAvailableTemplates(`frameworks/${framework}`)
+        .getAvailableTemplates(`frameworks/${frameworkPath}`)
         .then((dirs: string[]) => dirs.includes("src"))
     ) {
       await templateEngine.copyTemplateDirectory(srcDir, path.join(webDir, "src"), config, {
         overwrite: true,
       });
     }
+  }
+
+  // Copy common styles (globals.css, etc.) for monorepo
+  const commonStylesDir = `common/styles`;
+  try {
+    const stylesPath =
+      framework === "tanstack-start"
+        ? path.join(webDir, "app/styles")
+        : path.join(webDir, "src/styles");
+
+    await templateEngine.copyTemplateDirectory(commonStylesDir, stylesPath, config, {
+      overwrite: false, // Don't overwrite framework-specific styles
+    });
+  } catch (error) {
+    consola.debug(`Common styles not found or error copying: ${error}`);
+  }
+
+  // Copy common pages (home, not-found, etc.) for monorepo
+  const commonPagesDir = `common/pages`;
+  try {
+    const pagesPath =
+      framework === "tanstack-start"
+        ? path.join(webDir, "app/pages")
+        : path.join(webDir, "src/pages");
+
+    await templateEngine.copyTemplateDirectory(commonPagesDir, pagesPath, config, {
+      overwrite: true, // Overwrite framework-specific pages with common ones
+    });
+  } catch (error) {
+    consola.debug(`Common pages not found or error copying: ${error}`);
   }
 
   // Copy common components (PrecastBanner, etc.) AFTER framework src/app
@@ -273,10 +404,39 @@ async function generateMonorepoProject(
     consola.debug(`Common components not found or error copying: ${error}`);
   }
 
-  const publicDir = `frameworks/${framework}/public`;
+  // Copy common config directory (constants.ts, etc.) for monorepo
+  const commonConfigDir = `common/config`;
+  try {
+    const configPath =
+      framework === "tanstack-start"
+        ? path.join(webDir, "app/config")
+        : path.join(webDir, "src/config");
+
+    await templateEngine.copyTemplateDirectory(commonConfigDir, configPath, config, {
+      overwrite: false, // Don't overwrite framework-specific config
+    });
+  } catch (error) {
+    // Log but don't fail if common config doesn't exist
+    consola.debug(`Common config not found or error copying: ${error}`);
+  }
+
+  // Copy vite-env.d.ts for Vite-based frameworks in monorepo
+  if (framework !== "next" && framework !== "nuxt") {
+    try {
+      const viteEnvPath =
+        framework === "tanstack-start"
+          ? path.join(webDir, "app/vite-env.d.ts")
+          : path.join(webDir, "src/vite-env.d.ts");
+      await templateEngine.copyTemplate("common/vite-env.d.ts.hbs", viteEnvPath, config);
+    } catch (error) {
+      consola.debug(`vite-env.d.ts not found or error copying: ${error}`);
+    }
+  }
+
+  const publicDir = `frameworks/${frameworkPath}/public`;
   if (
     await templateEngine
-      .getAvailableTemplates(`frameworks/${framework}`)
+      .getAvailableTemplates(`frameworks/${frameworkPath}`)
       .then((dirs: string[]) => dirs.includes("public"))
   ) {
     await templateEngine.copyTemplateDirectory(publicDir, path.join(webDir, "public"), config, {

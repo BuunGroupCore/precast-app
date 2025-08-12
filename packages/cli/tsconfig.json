@@ -31,12 +31,5 @@
     "dynamic-test-generator.ts",
     "smart-test-generator.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/templates/**/*.js",
-    "src/templates/**/*.jsx",
-    "src/templates/**/*.mjs",
-    "src/templates/**/*.cjs"
-  ]
+  "exclude": ["node_modules", "dist", "src/templates/**/*"]
 }

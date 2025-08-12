@@ -1,0 +1,132 @@
+import { useState } from "react";
+import { Terminal, Play, Database{{#if docker}}, Server{{/if}}, Globe, Package } from "lucide-react";
+
+/**
+ * Getting Started component - Console-style command reference
+ */
+export function GettingStarted() {
+  const [activeTab, setActiveTab] = useState("development");
+  
+  const commands = {
+    development: [
+      { cmd: "{{packageManager}} run dev", desc: "Start all services", icon: <Play size={14} /> },
+      {{#if docker}}
+      { cmd: "{{packageManager}} run docker:up", desc: "Start Docker containers", icon: <Server size={14} /> },
+      {{/if}}
+      {{#if (and database orm)}}
+      { cmd: "{{packageManager}} run db:migrate", desc: "Run database migrations", icon: <Database size={14} /> },
+      {{#if (eq orm 'prisma')}}
+      { cmd: "{{packageManager}} run db:studio", desc: "Open Prisma Studio", icon: <Globe size={14} /> },
+      {{/if}}
+      {{/if}}
+    ],
+    production: [
+      { cmd: "{{packageManager}} run build", desc: "Build for production", icon: <Package size={14} /> },
+      { cmd: "{{packageManager}} run start", desc: "Start production server", icon: <Play size={14} /> },
+      {{#if docker}}
+      { cmd: "docker compose up -d", desc: "Deploy with Docker", icon: <Server size={14} /> },
+      {{/if}}
+    ],
+    testing: [
+      { cmd: "{{packageManager}} test", desc: "Run test suite", icon: <Terminal size={14} /> },
+      { cmd: "{{packageManager}} run lint", desc: "Check code quality", icon: <Terminal size={14} /> },
+      {{#if typescript}}
+      { cmd: "{{packageManager}} run type-check", desc: "TypeScript validation", icon: <Terminal size={14} /> },
+      {{/if}}
+    ],
+  };
+
+  const tabs = [
+    { id: "development", label: "DEV", color: "bg-yellow-400" },
+    { id: "production", label: "PROD", color: "bg-black" },
+    { id: "testing", label: "TEST", color: "bg-white" },
+  ];
+
+  return (
+    <section className="{{#if (eq styling 'tailwind')}}mb-20{{else}}getting-started-section{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}max-w-4xl mx-auto{{else}}container{{/if}}">
+        {/* Section header */}
+        <div className="{{#if (eq styling 'tailwind')}}mb-8{{else}}section-header{{/if}}">
+          <h2 className="{{#if (eq styling 'tailwind')}}inline-block text-3xl font-black uppercase text-black bg-yellow-400 px-4 py-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]{{else}}brutalist-title{{/if}}">
+            QUICK START
+          </h2>
+        </div>
+
+        {/* Terminal window */}
+        <div className="{{#if (eq styling 'tailwind')}}border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]{{else}}terminal-window{{/if}}">
+          {/* Terminal header */}
+          <div className="{{#if (eq styling 'tailwind')}}bg-black px-4 py-3 flex items-center justify-between{{else}}terminal-header{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}terminal-title-group{{/if}}">
+              <Terminal size={16} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+              <span className="{{#if (eq styling 'tailwind')}}text-yellow-400 font-mono text-sm uppercase tracking-wider{{else}}terminal-title{{/if}}">
+                Command Reference
+              </span>
+            </div>
+            
+            {/* Tab buttons */}
+            <div className="{{#if (eq styling 'tailwind')}}flex space-x-2{{else}}tab-buttons{{/if}}">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`{{#if (eq styling 'tailwind')}}px-3 py-1 text-xs font-bold uppercase tracking-wider border-2 transition-all duration-150 ${
+                    activeTab === tab.id
+                      ? `${tab.color} ${tab.id === 'production' ? 'text-yellow-400' : 'text-black'} border-yellow-400`
+                      : "bg-black text-gray-500 border-gray-700 hover:border-gray-500"
+                  }{{else}}tab-btn{{/if}}`}
+                  {{#unless (eq styling 'tailwind')}}
+                  data-active={activeTab === tab.id}
+                  data-type={tab.id}
+                  {{/unless}}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Terminal content */}
+          <div className="{{#if (eq styling 'tailwind')}}p-6 font-mono{{else}}terminal-content{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}space-y-3{{else}}commands-list{{/if}}">
+              {commands[activeTab as keyof typeof commands].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="{{#if (eq styling 'tailwind')}}group flex items-start space-x-3 p-3 border-2 border-black bg-white hover:bg-yellow-50 transition-colors{{else}}command-item{{/if}}"
+                >
+                  <div className="{{#if (eq styling 'tailwind')}}mt-0.5 text-yellow-600{{else}}command-icon{{/if}}">{item.icon}</div>
+                  <div className="{{#if (eq styling 'tailwind')}}flex-1{{else}}command-content{{/if}}">
+                    <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}command-line{{/if}}">
+                      <span className="{{#if (eq styling 'tailwind')}}text-black/60 text-sm{{else}}prompt{{/if}}">$</span>
+                      <code className="{{#if (eq styling 'tailwind')}}text-black font-bold text-sm{{else}}command-text{{/if}}">{item.cmd}</code>
+                    </div>
+                    <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 mt-1{{else}}command-desc{{/if}}"># {item.desc}</p>
+                  </div>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(item.cmd)}
+                    className="{{#if (eq styling 'tailwind')}}opacity-0 group-hover:opacity-100 px-2 py-1 bg-black text-yellow-400 text-xs font-bold uppercase transition-opacity{{else}}copy-btn{{/if}}"
+                  >
+                    COPY
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Pro tip */}
+            <div className="{{#if (eq styling 'tailwind')}}mt-6 p-4 bg-yellow-400 border-2 border-black{{else}}pro-tip{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}flex items-start space-x-2{{else}}tip-content{{/if}}">
+                <span className="{{#if (eq styling 'tailwind')}}text-black font-bold text-xs uppercase{{else}}tip-label{{/if}}">TIP:</span>
+                <p className="{{#if (eq styling 'tailwind')}}text-xs text-black{{else}}tip-text{{/if}}">
+                  {{#if docker}}
+                  Run <code className="{{#if (eq styling 'tailwind')}}bg-black text-yellow-400 px-1{{else}}inline-code{{/if}}">{{packageManager}} run docker:ps</code> to check container status
+                  {{else}}
+                  Use <code className="{{#if (eq styling 'tailwind')}}bg-black text-yellow-400 px-1{{else}}inline-code{{/if}}">{{packageManager}} run dev</code> to start the development server
+                  {{/if}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

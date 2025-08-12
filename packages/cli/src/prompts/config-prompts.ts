@@ -382,12 +382,17 @@ export async function gatherProjectConfig(
   const packageManager = options.packageManager || (await detectAvailablePackageManager());
 
   let autoInstall = false;
-  if (!options.yes) {
+  if (options.install !== undefined) {
+    // If --install flag is explicitly set, use that
+    autoInstall = options.install;
+  } else if (!options.yes) {
+    // If not in --yes mode, prompt the user
     autoInstall = (await confirm({
       message: "Install dependencies automatically?",
       initialValue: true,
     })) as boolean;
   }
+  // If --yes mode and no --install flag, autoInstall remains false
 
   return {
     name,

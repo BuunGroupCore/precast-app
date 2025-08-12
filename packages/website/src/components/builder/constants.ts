@@ -29,8 +29,9 @@ export const aiAssistants: AIAssistant[] = [
     name: "Claude Code",
     icon: "claude-color",
     color: "text-purple-600",
-    description: "AI pair programming with Claude - context-aware code assistance",
-    files: [".claude/project.json", ".claude/instructions.md"],
+    description:
+      "AI pair programming with Claude - creates project-specific configuration and context files for enhanced code assistance",
+    files: [".claude/settings.json", ".claude/mcp.json", "CLAUDE.md"],
   },
   {
     id: "copilot",

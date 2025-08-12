@@ -1,0 +1,231 @@
+import { APP_CONFIG } from "@/config/constants";
+import { Terminal, Zap, Database, Server } from "lucide-react";
+import { 
+  {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router') (eq framework 'tanstack-router') (eq framework 'tanstack-start'))}}
+  SiReact, 
+  {{else if (eq framework 'vue')}}
+  SiVuedotjs as SiVue,
+  {{else if (eq framework 'svelte')}}
+  SiSvelte,
+  {{else if (eq framework 'solid')}}
+  SiSolid,
+  {{else if (eq framework 'angular')}}
+  SiAngular,
+  {{else if (eq framework 'astro')}}
+  SiAstro,
+  {{else if (or (eq framework 'vanilla') (eq framework 'vite'))}}
+  SiJavascript,
+  {{/if}}
+  {{#if (eq styling 'tailwind')}}
+  SiTailwindcss, 
+  {{/if}}
+  {{#if typescript}}
+  SiTypescript, 
+  {{/if}}
+  {{#if (eq backend 'hono')}}
+  SiHono,
+  {{else if (eq backend 'express')}}
+  SiExpress,
+  {{else if (eq backend 'fastify')}}
+  SiFastify,
+  {{else if (eq backend 'nestjs')}}
+  SiNestjs,
+  {{else if (eq backend 'koa')}}
+  SiNodedotjs as SiKoa,
+  {{else if (eq backend 'node')}}
+  SiNodedotjs,
+  {{/if}}
+  {{#if (eq database 'postgres')}}
+  SiPostgresql,
+  {{else if (eq database 'mysql')}}
+  SiMysql,
+  {{else if (eq database 'mongodb')}}
+  SiMongodb,
+  {{/if}}
+  {{#if (eq orm 'prisma')}}
+  SiPrisma
+  {{else if (eq orm 'drizzle')}}
+  SiNodedotjs as SiDrizzle
+  {{else if (eq orm 'typeorm')}}
+  SiNodedotjs as SiTypeorm
+  {{else if (eq orm 'mongoose')}}
+  SiMongodb as SiMongoose
+  {{/if}}
+} from "react-icons/si";
+import { useState, useEffect } from "react";
+
+/**
+ * Hero section component - Brutalist console-inspired design
+ */
+export function Hero() {
+  const [typedText, setTypedText] = useState("");
+  const fullText = `> INITIALIZING ${APP_CONFIG.displayName}...`;
+  
+  useEffect(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= fullText.length) {
+        setTypedText(fullText.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 50);
+    
+    return () => clearInterval(timer);
+  }, []);
+
+  const techStack = [
+    {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
+    { name: "REACT", icon: <SiReact size={20} />, color: "text-black" },
+    {{else if (eq framework 'tanstack-router')}}
+    { name: "TANSTACK", icon: <SiReact size={20} />, color: "text-black" },
+    {{else if (eq framework 'tanstack-start')}}
+    { name: "TANSTACK", icon: <SiReact size={20} />, color: "text-black" },
+    {{else if (eq framework 'vue')}}
+    { name: "VUE", icon: <SiVue size={20} />, color: "text-black" },
+    {{else if (eq framework 'svelte')}}
+    { name: "SVELTE", icon: <SiSvelte size={20} />, color: "text-black" },
+    {{else if (eq framework 'solid')}}
+    { name: "SOLID", icon: <SiSolid size={20} />, color: "text-black" },
+    {{else if (eq framework 'angular')}}
+    { name: "ANGULAR", icon: <SiAngular size={20} />, color: "text-black" },
+    {{else if (eq framework 'astro')}}
+    { name: "ASTRO", icon: <SiAstro size={20} />, color: "text-black" },
+    {{else if (or (eq framework 'vanilla') (eq framework 'vite'))}}
+    { name: "VANILLA", icon: <SiJavascript size={20} />, color: "text-black" },
+    {{/if}}
+    {{#if (eq styling 'tailwind')}}
+    { name: "TAILWIND", icon: <SiTailwindcss size={20} />, color: "text-black" },
+    {{/if}}
+    { name: "TYPESCRIPT", icon: <SiTypescript size={20} />, color: "text-black" },
+    {{#if (and backend (ne backend 'none'))}}
+    { name: "{{#if (eq backend 'hono')}}HONO{{else if (eq backend 'express')}}EXPRESS{{else if (eq backend 'fastify')}}FASTIFY{{else if (eq backend 'nestjs')}}NESTJS{{else if (eq backend 'koa')}}KOA{{else if (eq backend 'node')}}NODE{{/if}}", icon: <{{#if (eq backend 'hono')}}SiHono{{else if (eq backend 'express')}}SiExpress{{else if (eq backend 'fastify')}}SiFastify{{else if (eq backend 'nestjs')}}SiNestjs{{else if (eq backend 'koa')}}SiKoa{{else if (eq backend 'node')}}SiNodedotjs{{/if}} size={20} />, color: "text-black" },
+    {{/if}}
+    {{#if (and database (ne database 'none'))}}
+    { name: "{{#if (eq database 'postgres')}}POSTGRES{{else if (eq database 'mysql')}}MYSQL{{else if (eq database 'mongodb')}}MONGODB{{/if}}", icon: <Si{{#if (eq database 'postgres')}}Postgresql{{else if (eq database 'mysql')}}Mysql{{else if (eq database 'mongodb')}}Mongodb{{/if}} size={20} />, color: "text-black" },
+    {{/if}}
+    {{#if (and orm (ne orm 'none'))}}
+    { name: "{{#if (eq orm 'prisma')}}PRISMA{{else if (eq orm 'drizzle')}}DRIZZLE{{else if (eq orm 'typeorm')}}TYPEORM{{else if (eq orm 'mongoose')}}MONGOOSE{{/if}}", icon: <{{#if (eq orm 'prisma')}}SiPrisma{{else if (eq orm 'drizzle')}}SiDrizzle{{else if (eq orm 'typeorm')}}SiTypeorm{{else if (eq orm 'mongoose')}}SiMongoose{{/if}} size={20} />, color: "text-black" },
+    {{/if}}
+  ];
+
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}mb-20{{else}}hero-section{{/if}}">
+      {/* Terminal-style header */}
+      <div className="{{#if (eq styling 'tailwind')}}border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-8{{else}}terminal-window{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}bg-black px-4 py-2 flex items-center justify-between{{else}}terminal-header{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}terminal-title-group{{/if}}">
+            <Terminal size={16} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+            <span className="{{#if (eq styling 'tailwind')}}text-yellow-400 font-mono text-sm uppercase tracking-wider{{else}}terminal-title{{/if}}">
+              System Terminal v1.0
+            </span>
+          </div>
+          <div className="{{#if (eq styling 'tailwind')}}flex space-x-2{{else}}terminal-controls{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-yellow-400{{else}}control-dot{{/if}}"></div>
+            <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-yellow-400{{else}}control-dot{{/if}}"></div>
+            <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-yellow-400{{else}}control-dot{{/if}}"></div>
+          </div>
+        </div>
+        
+        <div className="{{#if (eq styling 'tailwind')}}p-8 font-mono{{else}}terminal-content{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}text-black text-lg mb-4{{else}}terminal-output{{/if}}">
+            {typedText}
+            <span className="{{#if (eq styling 'tailwind')}}animate-pulse{{else}}terminal-cursor{{/if}}">_</span>
+          </div>
+          
+          <div className="{{#if (eq styling 'tailwind')}}space-y-2 text-sm{{else}}system-status{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}status-line{{/if}}">
+              <span className="{{#if (eq styling 'tailwind')}}text-black/60{{else}}status-ok{{/if}}">[OK]</span>
+              <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}status-text{{/if}}">Loading {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}React{{else if (eq framework 'tanstack-router')}}TanStack Router{{else if (eq framework 'tanstack-start')}}TanStack Start{{else if (eq framework 'vue')}}Vue{{else if (eq framework 'svelte')}}Svelte{{else if (eq framework 'solid')}}Solid{{else if (eq framework 'angular')}}Angular{{else if (eq framework 'astro')}}Astro{{else}}{{framework}}{{/if}} framework...</span>
+              <Zap size={14} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+            </div>
+            {{#if backend}}
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}status-line{{/if}}">
+              <span className="{{#if (eq styling 'tailwind')}}text-black/60{{else}}status-ok{{/if}}">[OK]</span>
+              <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}status-text{{/if}}">Connecting to {{backend}} API...</span>
+              <Server size={14} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+            </div>
+            {{/if}}
+            {{#if database}}
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}status-line{{/if}}">
+              <span className="{{#if (eq styling 'tailwind')}}text-black/60{{else}}status-ok{{/if}}">[OK]</span>
+              <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}status-text{{/if}}">Database connection established...</span>
+              <Database size={14} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+            </div>
+            {{/if}}
+            <div className="{{#if (eq styling 'tailwind')}}mt-4 pt-4 border-t-2 border-black/20{{else}}status-summary{{/if}}">
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-bold{{else}}status-label{{/if}}">STATUS: </span>
+              <span className="{{#if (eq styling 'tailwind')}}text-black bg-yellow-400 px-2 py-1{{else}}status-operational{{/if}}">OPERATIONAL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Separator line */}
+      <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-center mb-8{{else}}section-separator{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}h-1 w-20 bg-black{{else}}separator-line{{/if}}"></div>
+        <div className="{{#if (eq styling 'tailwind')}}mx-4 w-2 h-2 bg-yellow-400 border-2 border-black rotate-45{{else}}separator-diamond{{/if}}"></div>
+        <div className="{{#if (eq styling 'tailwind')}}h-1 w-20 bg-black{{else}}separator-line{{/if}}"></div>
+      </div>
+
+      {/* Project title with brutalist style - reduced size */}
+      <div className="{{#if (eq styling 'tailwind')}}text-center mb-8{{else}}project-title{{/if}}">
+        <h1 className="{{#if (eq styling 'tailwind')}}inline-block text-3xl sm:text-4xl lg:text-5xl font-black uppercase text-black bg-yellow-400 px-6 py-3 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150{{else}}hero-title{{/if}}">
+          {APP_CONFIG.displayName.toUpperCase()}
+        </h1>
+      </div>
+
+      {/* Another separator */}
+      <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-center mb-8{{else}}section-separator{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}h-0.5 flex-1 max-w-xs bg-black/20{{else}}separator-line-thin{{/if}}"></div>
+        <div className="{{#if (eq styling 'tailwind')}}mx-4 text-xs font-mono text-black/60 uppercase tracking-wider{{else}}separator-text{{/if}}">Stack</div>
+        <div className="{{#if (eq styling 'tailwind')}}h-0.5 flex-1 max-w-xs bg-black/20{{else}}separator-line-thin{{/if}}"></div>
+      </div>
+
+      {/* Tech stack badges - improved design */}
+      <div className="{{#if (eq styling 'tailwind')}}grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-4xl mx-auto mb-8{{else}}tech-stack-grid{{/if}}">
+        {techStack.map((tech, idx) => (
+          <div
+            key={idx}
+            className="{{#if (eq styling 'tailwind')}}group relative{{else}}tech-card{{/if}}"
+          >
+            <div className="{{#if (eq styling 'tailwind')}}absolute inset-0 bg-black transform translate-x-1 translate-y-1{{else}}tech-card-shadow{{/if}}"></div>
+            <div className="{{#if (eq styling 'tailwind')}}relative bg-white border-2 border-black p-3 hover:translate-x-0.5 hover:translate-y-0.5 transition-all duration-150{{else}}tech-card-content{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}flex flex-col items-center space-y-2{{else}}tech-card-inner{{/if}}">
+                <div className="{{#if (eq styling 'tailwind')}}text-black{{else}}tech-icon{{/if}}">{tech.icon}</div>
+                <span className="{{#if (eq styling 'tailwind')}}font-bold text-xs uppercase tracking-wider text-black text-center{{else}}tech-name{{/if}}">
+                  {tech.name}
+                </span>
+              </div>
+              {/* Active indicator */}
+              <div className="{{#if (eq styling 'tailwind')}}absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 border border-black{{else}}tech-indicator{{/if}}"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* System info bar */}
+      <div className="{{#if (eq styling 'tailwind')}}flex justify-center{{else}}system-info{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}inline-flex items-center space-x-6 px-6 py-3 bg-black text-yellow-400 font-mono text-xs uppercase{{else}}system-bar{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}system-item{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}w-2 h-2 bg-yellow-400 animate-pulse{{else}}status-dot{{/if}}"></div>
+            <span>Port: 5173</span>
+          </div>
+          {{#if backend}}
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}system-item{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}w-2 h-2 bg-yellow-400 animate-pulse{{else}}status-dot{{/if}}"></div>
+            <span>API: 3001</span>
+          </div>
+          {{/if}}
+          {{#if database}}
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}system-item{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}w-2 h-2 bg-yellow-400 animate-pulse{{else}}status-dot{{/if}}"></div>
+            <span>DB: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{/eq}}</span>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  );
+}

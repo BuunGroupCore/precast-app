@@ -50,7 +50,7 @@ function getApiClientConfig(apiClient: string): ApiClientConfig | null {
         {
           path: "hono-rpc/react/use-api.ts.hbs",
           outputPath: "src/hooks/use-api",
-          frameworks: ["react", "next"],
+          frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start"],
         },
       ],
     },
@@ -62,12 +62,26 @@ function getApiClientConfig(apiClient: string): ApiClientConfig | null {
         {
           path: "tanstack-query/react/query-provider.tsx.hbs",
           outputPath: "src/providers/query-provider",
-          frameworks: ["react", "next", "remix"],
+          frameworks: [
+            "react",
+            "next",
+            "remix",
+            "react-router",
+            "tanstack-router",
+            "tanstack-start",
+          ],
         },
         {
           path: "tanstack-query/react/api-hooks.ts.hbs",
           outputPath: "src/hooks/api",
-          frameworks: ["react", "next", "remix"],
+          frameworks: [
+            "react",
+            "next",
+            "remix",
+            "react-router",
+            "tanstack-router",
+            "tanstack-start",
+          ],
         },
       ],
     },
@@ -79,7 +93,7 @@ function getApiClientConfig(apiClient: string): ApiClientConfig | null {
         {
           path: "swr/api-hooks.ts.hbs",
           outputPath: "src/hooks/api",
-          frameworks: ["react", "next"],
+          frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start"],
         },
         {
           path: "swr/fetcher.ts.hbs",
@@ -122,7 +136,7 @@ function getApiClientConfig(apiClient: string): ApiClientConfig | null {
         {
           path: "trpc/react/provider.tsx.hbs",
           outputPath: "src/providers/trpc-provider",
-          frameworks: ["react", "next"],
+          frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start"],
         },
       ],
     },
@@ -138,7 +152,7 @@ function getApiClientConfig(apiClient: string): ApiClientConfig | null {
         {
           path: "apollo-client/react/provider.tsx.hbs",
           outputPath: "src/providers/apollo-provider",
-          frameworks: ["react", "next"],
+          frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start"],
         },
         {
           path: "apollo-client/queries.ts.hbs",
@@ -162,6 +176,9 @@ function getTanStackQueryPackages(framework: string): string[] {
     case "react":
     case "next":
     case "remix":
+    case "react-router":
+    case "tanstack-router":
+    case "tanstack-start":
       return ["@tanstack/react-query", "@tanstack/react-query-devtools"];
     case "vue":
     case "nuxt":

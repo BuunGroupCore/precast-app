@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { FaCode, FaCube, FaWrench, FaJsSquare } from "react-icons/fa";
 
-import { ServiceTooltip } from "@/features/common";
+import { ComicTooltip } from "@/components/ui/ComicTooltip";
 import {
   uiLibraries_frontend,
   metaFrameworks,
@@ -142,9 +142,13 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
               : null;
 
             return (
-              <ServiceTooltip
-                serviceId={framework.id as keyof typeof import("@/features/common").serviceInfo}
+              <ComicTooltip
                 key={framework.id}
+                content={
+                  framework.description ||
+                  `${framework.name} - ${framework.category || "Framework"}`
+                }
+                disabled={!framework.description}
               >
                 <button
                   onClick={() => handleFrameworkSelect(framework.id)}
@@ -168,7 +172,7 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                   )}
                   <span className="text-[10px] sm:text-xs">{framework.name}</span>
                 </button>
-              </ServiceTooltip>
+              </ComicTooltip>
             );
           })}
         </div>
@@ -195,9 +199,10 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {viteCompatibleLibraries.map((library) => (
-                  <ServiceTooltip
-                    serviceId={library.id as keyof typeof import("@/features/common").serviceInfo}
+                  <ComicTooltip
                     key={`vite-${library.id}`}
+                    content={library.description || `${library.name} - UI Library for Vite`}
+                    disabled={!library.description}
                   >
                     <button
                       onClick={() => handleViteLibrarySelect(library.id)}
@@ -213,7 +218,7 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                       {library.icon && <BuilderIcon icon={library.icon} className="text-lg" />}
                       <span className="text-[10px]">{library.name}</span>
                     </button>
-                  </ServiceTooltip>
+                  </ComicTooltip>
                 ))}
               </div>
 

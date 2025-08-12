@@ -1,28 +1,27 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { FaCheck, FaCopy, FaHistory, FaMagic } from "react-icons/fa";
+import { FaHistory, FaMagic, FaDocker } from "react-icons/fa";
 
 import {
   AIAssistanceSection,
   ApiSection,
   AuthSection,
   BackendSection,
-  ColorPaletteSection,
+  CompactSidebar,
   DatabaseSection,
   DeploymentSection,
+  DesignSection,
   ExtendedProjectConfig,
   FeatureTogglesSection,
   FrameworkSection,
   InstallOptionsSection,
   MCPServersSection,
-  PackageManagerSelector,
   PluginsSection,
   PowerUpsSection,
   PreferredStacksDialog,
   PresetTemplatesSection,
   ProjectNameSection,
   RuntimeSection,
-  StackSummarySection,
   StylingSection,
   UILibrariesSection,
 } from "@/components/builder";
@@ -44,7 +43,7 @@ export function BuilderPage() {
     backend: "node",
     database: "postgres",
     databaseDeployment: "local",
-    orm: "prisma",
+    orm: "drizzle",
     styling: "tailwind",
     typescript: true,
     git: true,
@@ -59,14 +58,13 @@ export function BuilderPage() {
     mcpServers: [],
     colorPalette: defaultPalette,
   });
-  const [copied, setCopied] = useState(false);
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
   const [showSaved, setShowSaved] = useState(false);
   const [packageManager, setPackageManager] = useState("npx");
   const [terminalCopied, setTerminalCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showPreferredStacks, setShowPreferredStacks] = useState(false);
-  const [showPmDropdown, setShowPmDropdown] = useState(false);
+  const [showDockerRequiredDialog, setShowDockerRequiredDialog] = useState(false);
 
   const defaultConfig: ExtendedProjectConfig = {
     name: "my-awesome-project",
@@ -74,7 +72,7 @@ export function BuilderPage() {
     backend: "node",
     database: "postgres",
     databaseDeployment: "local",
-    orm: "prisma",
+    orm: "drizzle",
     styling: "tailwind",
     typescript: true,
     git: true,
@@ -101,7 +99,7 @@ export function BuilderPage() {
           backend: userSettings.preferredBackend || "node",
           database: userSettings.preferredDatabase || "postgres",
           databaseDeployment: "local",
-          orm: userSettings.preferredOrm || "prisma",
+          orm: userSettings.preferredOrm || "drizzle",
           styling: userSettings.preferredStyling || "tailwind",
           runtime: userSettings.preferredRuntime || "bun",
           auth: userSettings.preferredAuth || "none",
@@ -149,22 +147,52 @@ export function BuilderPage() {
 
     if (hasBackend && hasFrontend) {
       // Auto-add turborepo if not already present
-      if (!config.powerups?.includes("turborepo")) {
-        setConfig((prev) => ({
-          ...prev,
-          powerups: [...(prev.powerups || []), "turborepo"],
-        }));
-      }
+      setConfig((prev) => {
+        if (!prev.powerups?.includes("turborepo")) {
+          return {
+            ...prev,
+            powerups: [...(prev.powerups || []), "turborepo"],
+          };
+        }
+        return prev;
+      });
     } else {
       // Remove turborepo if frontend or backend is removed
-      if (config.powerups?.includes("turborepo")) {
-        setConfig((prev) => ({
-          ...prev,
-          powerups: prev.powerups?.filter((id) => id !== "turborepo") || [],
-        }));
-      }
+      setConfig((prev) => {
+        if (prev.powerups?.includes("turborepo")) {
+          return {
+            ...prev,
+            powerups: prev.powerups?.filter((id) => id !== "turborepo") || [],
+          };
+        }
+        return prev;
+      });
     }
-  }, [config.backend, config.framework, config.powerups]);
+  }, [config.backend, config.framework]);
+
+  // Auto-enable Docker when local database deployment is selected
+  useEffect(() => {
+    if (config.databaseDeployment === "local" && !config.docker) {
+      setConfig((prev) => ({
+        ...prev,
+        docker: true,
+      }));
+    }
+  }, [config.databaseDeployment, config.docker]);
+
+  const handleDockerToggle = () => {
+    // If trying to disable Docker but have local database, show warning
+    if (config.docker && config.databaseDeployment === "local") {
+      setShowDockerRequiredDialog(true);
+      return;
+    }
+
+    // Otherwise, toggle normally
+    setConfig((prev) => ({
+      ...prev,
+      docker: !prev.docker,
+    }));
+  };
 
   const loadUserSettings = async () => {
     try {
@@ -178,7 +206,7 @@ export function BuilderPage() {
           backend: userSettings.preferredBackend || "node",
           database: userSettings.preferredDatabase || "postgres",
           databaseDeployment: "local",
-          orm: userSettings.preferredOrm || "prisma",
+          orm: userSettings.preferredOrm || "drizzle",
           styling: userSettings.preferredStyling || "tailwind",
           runtime: userSettings.preferredRuntime || "bun",
           auth: userSettings.preferredAuth || "none",
@@ -282,6 +310,16 @@ export function BuilderPage() {
       parts.push(`--auth=${config.auth}`);
     }
 
+    /** UI Library (CLI supports this) */
+    if (config.uiLibrary && config.uiLibrary !== "none") {
+      parts.push(`--ui-library=${config.uiLibrary}`);
+    }
+
+    /** API Client (CLI supports this) */
+    if (config.apiClient && config.apiClient !== "none") {
+      parts.push(`--api-client=${config.apiClient}`);
+    }
+
     if (config.aiAssistant && config.aiAssistant !== "none") {
       parts.push(`--ai=${config.aiAssistant}`);
     }
@@ -330,14 +368,10 @@ export function BuilderPage() {
 
     /** Color Palette */
     if (config.colorPalette && config.colorPalette.id !== "default") {
-      if (config.colorPalette.id === "custom") {
-        // For custom palettes, we'll encode the colors as a base64 JSON string
-        const colorsJson = JSON.stringify(config.colorPalette.colors);
-        const colorsBase64 = btoa(colorsJson);
-        parts.push(`--color-palette=custom:${colorsBase64}`);
-      } else {
-        // For predefined palettes, just pass the ID
-        parts.push(`--color-palette=${config.colorPalette.id}`);
+      // Only include predefined palette IDs that the CLI supports
+      // Custom palettes are not yet supported by the CLI
+      if (config.colorPalette.id !== "custom") {
+        parts.push(`--color-palette ${config.colorPalette.id}`);
       }
     }
 
@@ -357,8 +391,7 @@ export function BuilderPage() {
 
     parts.push("--yes");
 
-    /** These options are not supported by the CLI yet, so we'll comment them out
-     * --ui (uiLibrary)
+    /** Deployment method is not yet supported by the CLI
      * --deploy (deploymentMethod)
      */
 
@@ -368,7 +401,6 @@ export function BuilderPage() {
   const copyToClipboard = async () => {
     const command = generateCommand();
     await navigator.clipboard.writeText(command);
-    setCopied(true);
     setTerminalCopied(true);
 
     // Track analytics
@@ -379,7 +411,6 @@ export function BuilderPage() {
     trackConversion("project_command_generated");
 
     setTimeout(() => {
-      setCopied(false);
       setTerminalCopied(false);
     }, 2000);
   };
@@ -408,19 +439,27 @@ export function BuilderPage() {
               <PresetTemplatesSection config={config} setConfig={setConfig} />
 
               {/* 1. Framework Selection - The foundation */}
-              <FrameworkSection config={config} setConfig={setConfig} />
+              <div data-section="framework">
+                <FrameworkSection config={config} setConfig={setConfig} />
+              </div>
 
               {/* 2. Styling Selection - Visual foundation */}
-              <StylingSection config={config} setConfig={setConfig} />
+              <div data-section="styling">
+                <StylingSection config={config} setConfig={setConfig} />
+              </div>
 
-              {/* 2.5. Color Palette Selection - Theme colors */}
-              <ColorPaletteSection config={config} setConfig={setConfig} />
+              {/* 2.5. Design System - Visual styling and theme customization */}
+              <div data-section="design">
+                <DesignSection config={config} setConfig={setConfig} />
+              </div>
 
               {/* 3. UI Components Section - Component libraries */}
               <UILibrariesSection config={config} setConfig={setConfig} />
 
               {/* 4. Backend Selection - If needed */}
-              <BackendSection config={config} setConfig={setConfig} />
+              <div data-section="backend">
+                <BackendSection config={config} setConfig={setConfig} />
+              </div>
 
               {/* 4.5. API Communication - If backend is selected */}
               <ApiSection config={config} setConfig={setConfig} />
@@ -430,14 +469,20 @@ export function BuilderPage() {
 
               {/* 6. Database Selection - If backend exists */}
               {config.backend && config.backend !== "none" && (
-                <DatabaseSection config={config} setConfig={setConfig} />
+                <div data-section="database">
+                  <DatabaseSection config={config} setConfig={setConfig} />
+                </div>
               )}
 
               {/* 7. Authentication Section - User management (requires backend AND database) */}
               {config.backend &&
                 config.backend !== "none" &&
                 config.database &&
-                config.database !== "none" && <AuthSection config={config} setConfig={setConfig} />}
+                config.database !== "none" && (
+                  <div data-section="auth">
+                    <AuthSection config={config} setConfig={setConfig} />
+                  </div>
+                )}
 
               {/* Show warning when backend is none but trying to use auth */}
               {config.backend === "none" && (
@@ -454,7 +499,11 @@ export function BuilderPage() {
               )}
 
               {/* 8. Power-ups - Development tools and extensions */}
-              <PowerUpsSection config={config} setConfig={setConfig} />
+              <PowerUpsSection
+                config={config}
+                setConfig={setConfig}
+                handleDockerToggle={handleDockerToggle}
+              />
 
               {/* 9. Plugins - Business integrations */}
               <PluginsSection config={config} setConfig={setConfig} />
@@ -468,16 +517,20 @@ export function BuilderPage() {
               )}
 
               {/* 11. Install Options Section - Package management */}
-              <InstallOptionsSection config={config} setConfig={setConfig} />
+              <div data-section="feature">
+                <InstallOptionsSection config={config} setConfig={setConfig} />
+              </div>
 
               {/* 12. CLI Feature Toggles - Control what gets generated */}
-              <FeatureTogglesSection config={config} setConfig={setConfig} />
+              <div data-section="feature">
+                <FeatureTogglesSection config={config} setConfig={setConfig} />
+              </div>
 
               {/* 13. Deployment Options Section - Where to deploy */}
               <DeploymentSection config={config} setConfig={setConfig} />
             </div>
 
-            {/* Right Column - Terminal & Actions */}
+            {/* Right Column - Compact Sidebar */}
             <div className="w-full lg:sticky lg:top-28 h-fit space-y-4">
               {/* Project Name */}
               <ProjectNameSection config={config} setConfig={setConfig} />
@@ -487,152 +540,59 @@ export function BuilderPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="grid grid-cols-2 gap-3"
+                className="grid grid-cols-3 gap-2"
               >
                 {/* Preferred Stacks Button */}
                 <button
                   onClick={() => setShowPreferredStacks(true)}
-                  className="py-2 sm:py-3 bg-comic-blue text-comic-white font-display text-xs sm:text-sm rounded-lg border-2 sm:border-3 border-comic-black hover:bg-comic-darkBlue transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
+                  className="py-2 bg-comic-blue text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkBlue transition-colors flex flex-col items-center justify-center gap-1"
                   title="Choose from pre-configured popular stacks"
                 >
-                  <FaHistory className="text-base sm:text-lg" />
-                  <span className="hidden sm:inline">PREFERRED STACKS</span>
-                  <span className="sm:hidden">STACKS</span>
+                  <FaHistory className="text-sm sm:text-base" />
+                  <span className="hidden sm:inline">STACKS</span>
                 </button>
 
-                {/* Reset Button */}
+                {/* Save Button */}
                 <button
-                  onClick={resetToDefaults}
-                  className="py-2 sm:py-3 bg-comic-orange text-comic-white font-display text-xs sm:text-sm rounded-lg border-2 sm:border-3 border-comic-black hover:bg-comic-red transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2"
-                  title="Reset all options to default values"
+                  onClick={saveProject}
+                  className="py-2 bg-comic-green text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkGreen transition-colors flex flex-col items-center justify-center gap-1"
+                  title="Save current configuration"
                 >
-                  <FaMagic className="text-base sm:text-lg" />
-                  <span className="hidden sm:inline">RESET TO DEFAULTS</span>
-                  <span className="sm:hidden">RESET</span>
+                  <FaMagic className="text-sm sm:text-base" />
+                  <span className="hidden sm:inline">{saved ? "SAVED!" : "SAVE"}</span>
+                </button>
+
+                {/* Load Button */}
+                <button
+                  onClick={() => setShowSaved(true)}
+                  className="py-2 bg-comic-purple text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkPurple transition-colors flex flex-col items-center justify-center gap-1"
+                  title="Load saved configuration"
+                >
+                  <FaHistory className="text-sm sm:text-base" />
+                  <span className="hidden sm:inline">LOAD</span>
                 </button>
               </motion.div>
 
-              {/* Stack Summary */}
-              <StackSummarySection config={config} />
-
-              {/* Terminal with Integrated Package Manager */}
+              {/* Compact Sidebar with Tabs */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="relative"
+                transition={{ delay: 0.2 }}
               >
-                <div
-                  className="comic-panel bg-comic-black border-4 border-comic-black overflow-hidden"
-                  style={{ boxShadow: "6px 6px 0 rgba(0,0,0,0.4)" }}
-                >
-                  {/* Terminal Header */}
-                  <div className="bg-comic-darkGray px-4 py-2 flex items-center justify-between border-b-2 border-comic-black">
-                    <div className="flex gap-2">
-                      <div className="w-3 h-3 rounded-full bg-comic-red border border-comic-black"></div>
-                      <div className="w-3 h-3 rounded-full bg-comic-yellow border border-comic-black"></div>
-                      <div className="w-3 h-3 rounded-full bg-comic-green border border-comic-black"></div>
-                    </div>
-                    <div className="font-comic text-xs text-comic-white/60">TERMINAL</div>
-                  </div>
-
-                  {/* Package Manager Selection */}
-                  <PackageManagerSelector
-                    packageManager={packageManager}
-                    setPackageManager={setPackageManager}
-                    showDropdown={showPmDropdown}
-                    setShowDropdown={setShowPmDropdown}
-                  />
-
-                  {/* Command Display */}
-                  <div
-                    className="p-6 cursor-pointer hover:bg-gray-900 transition-colors"
-                    onClick={copyToClipboard}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-comic-green text-lg font-bold">$</span>
-                      <span className="text-comic-white font-comic text-sm sm:text-base break-all leading-relaxed">
-                        {generateCommand()}
-                      </span>
-                    </div>
-
-                    {/* Copy Hint */}
-                    {!terminalCopied && (
-                      <div className="mt-6 flex items-center justify-center gap-2">
-                        <span className="text-comic-yellow text-sm font-comic font-bold">
-                          CLICK TO COPY COMMAND
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Copied Overlay */}
-                  {terminalCopied && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="absolute inset-0 flex items-center justify-center bg-comic-black/95 z-20"
-                    >
-                      <div className="text-center">
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: [0, 1.2, 1] }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <FaCheck className="text-6xl text-comic-green mx-auto mb-2" />
-                        </motion.div>
-                        <span className="action-text text-4xl text-comic-yellow">COPIED!</span>
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="space-y-3"
-              >
-                <button
-                  onClick={copyToClipboard}
-                  className="w-full py-4 bg-comic-red text-comic-white font-display text-xl rounded-lg border-3 border-comic-black hover:bg-comic-yellow hover:text-comic-black transition-colors flex items-center justify-center gap-3"
-                >
-                  {copied ? (
-                    <>
-                      <FaCheck /> COPIED!
-                    </>
-                  ) : (
-                    <>
-                      <FaCopy /> COPY COMMAND
-                    </>
-                  )}
-                </button>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={saveProject}
-                    className="py-3 bg-comic-green text-comic-white font-comic rounded-lg border-3 border-comic-black hover:bg-comic-blue transition-colors flex items-center justify-center gap-2"
-                  >
-                    {saved ? (
-                      <>
-                        <FaCheck /> Saved!
-                      </>
-                    ) : (
-                      <>
-                        <FaMagic /> Save
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => setShowSaved(true)}
-                    className="py-3 bg-comic-purple text-comic-white font-comic rounded-lg border-3 border-comic-black hover:bg-comic-blue transition-colors flex items-center justify-center gap-2"
-                  >
-                    <FaHistory /> Load
-                  </button>
-                </div>
+                <CompactSidebar
+                  config={config}
+                  setConfig={setConfig}
+                  generateCommand={generateCommand}
+                  copyToClipboard={copyToClipboard}
+                  terminalCopied={terminalCopied}
+                  packageManager={packageManager}
+                  setPackageManager={setPackageManager}
+                  saveProject={saveProject}
+                  resetToDefaults={resetToDefaults}
+                  showPreferredStacks={() => setShowPreferredStacks(true)}
+                  saved={saved}
+                  handleDockerToggle={handleDockerToggle}
+                />
               </motion.div>
             </div>
           </div>
@@ -706,6 +666,33 @@ export function BuilderPage() {
               </div>
             ))
           )}
+        </div>
+      </GenericComicDialog>
+
+      {/* Docker Required Dialog */}
+      <GenericComicDialog
+        isOpen={showDockerRequiredDialog}
+        onClose={() => setShowDockerRequiredDialog(false)}
+        title="DOCKER REQUIRED!"
+        size="sm"
+      >
+        <div className="text-center">
+          <div className="flex justify-center text-5xl mb-4 text-comic-blue">
+            <FaDocker />
+          </div>
+          <div className="font-comic text-lg text-comic-black mb-4">
+            Docker is required to generate the docker-compose file for your local database!
+          </div>
+          <div className="font-comic text-sm text-comic-gray mb-6">
+            When you select local database deployment, Docker automatically sets up containerized
+            databases for development.
+          </div>
+          <button
+            onClick={() => setShowDockerRequiredDialog(false)}
+            className="px-6 py-2 bg-comic-blue text-comic-white font-display text-sm rounded-lg border-2 border-comic-black hover:bg-comic-darkBlue transition-colors"
+          >
+            GOT IT!
+          </button>
         </div>
       </GenericComicDialog>
 

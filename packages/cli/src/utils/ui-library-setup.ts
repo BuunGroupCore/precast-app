@@ -2,6 +2,7 @@ import path from "path";
 
 import { consola } from "consola";
 import { execa } from "execa";
+import fs from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -80,8 +81,6 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
   consola.info("🎯 Initializing shadcn/ui...");
 
   try {
-    const fs = await import("fs-extra");
-
     const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
     if (!(await fs.pathExists(tailwindConfigPath))) {
       consola.error("tailwind.config.js not found!");
@@ -119,12 +118,81 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
 
 /**
  * Setup DaisyUI configuration
- * @param _config - Project configuration (unused)
- * @param _projectPath - Path to the project directory (unused)
+ * @param config - Project configuration
+ * @param projectPath - Path to the project directory
  */
-async function setupDaisyUI(_config: ProjectConfig, _projectPath: string): Promise<void> {
+async function setupDaisyUI(config: ProjectConfig, projectPath: string): Promise<void> {
   consola.info("🌼 Configuring DaisyUI...");
-  consola.success(
-    "🎨 DaisyUI has been installed. Make sure to add it to your tailwind.config.js plugins array."
-  );
+
+  try {
+    const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
+
+    // Check if tailwind.config.js exists
+    if (await fs.pathExists(tailwindConfigPath)) {
+      // Read the config file
+      let tailwindConfig = await fs.readFile(tailwindConfigPath, "utf-8");
+
+      // Check if DaisyUI is already in plugins
+      if (!tailwindConfig.includes("daisyui")) {
+        // Add DaisyUI to plugins array
+        if (tailwindConfig.includes("plugins: [")) {
+          // Plugins array exists, add DaisyUI to it
+          tailwindConfig = tailwindConfig.replace(
+            "plugins: [",
+            'plugins: [\n    require("daisyui"),'
+          );
+        } else if (tailwindConfig.includes("plugins:")) {
+          // Plugins property exists but might be empty
+          tailwindConfig = tailwindConfig.replace(
+            /plugins:\s*\[/,
+            'plugins: [\n    require("daisyui"),'
+          );
+        } else {
+          // No plugins array, need to add it
+          tailwindConfig = tailwindConfig.replace(
+            "module.exports = {",
+            'module.exports = {\n  plugins: [require("daisyui")],'
+          );
+        }
+
+        // Add DaisyUI config if not present
+        if (!tailwindConfig.includes("daisyui:")) {
+          const daisyUIConfig = `
+  daisyui: {
+    themes: ["light", "dark", "cupcake"],
+    darkTheme: "dark",
+    base: true,
+    styled: true,
+    utils: true,
+    prefix: "",
+    logs: true,
+    themeRoot: ":root",
+  },`;
+
+          // Add before the closing brace
+          tailwindConfig = tailwindConfig.replace(/}\s*;?\s*$/, `${daisyUIConfig}\n};`);
+        }
+
+        // Write the updated config back
+        await fs.writeFile(tailwindConfigPath, tailwindConfig);
+        consola.success("✅ DaisyUI has been added to tailwind.config.js");
+      } else {
+        consola.info("DaisyUI is already configured in tailwind.config.js");
+      }
+    } else {
+      consola.warn(
+        "tailwind.config.js not found. Please add DaisyUI manually to your Tailwind configuration."
+      );
+    }
+
+    consola.success(
+      "🎨 DaisyUI setup completed! You can now use DaisyUI classes in your components."
+    );
+    consola.info("💡 Try using classes like: btn, btn-primary, card, modal, etc.");
+  } catch (error) {
+    consola.warn("Failed to automatically configure DaisyUI:", error);
+    consola.info(
+      "Please add 'require(\"daisyui\")' to your tailwind.config.js plugins array manually."
+    );
+  }
 }

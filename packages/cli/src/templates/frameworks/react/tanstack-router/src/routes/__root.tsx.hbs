@@ -1,0 +1,20 @@
+import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { Layout } from '@/components/layout';
+{{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+import { PrecastWidget } from '@/components/precast/PrecastWidget';
+{{/if}}
+
+export const Route = createRootRoute({
+  component: () => (
+    <>
+      <Layout>
+        <Outlet />
+      </Layout>
+      {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+      <PrecastWidget />
+      {{/if}}
+      <TanStackRouterDevtools />
+    </>
+  ),
+});

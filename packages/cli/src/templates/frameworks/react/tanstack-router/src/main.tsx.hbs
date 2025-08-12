@@ -1,0 +1,74 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { routeTree } from './routeTree.gen';
+{{#if (eq styling "tailwind")}}
+import './styles/tailwind.css';
+{{else}}
+import './styles/globals.css';
+{{/if}}
+{{#if (includes apiClient "tanstack-query")}}
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+{{/if}}
+{{#if (eq apiClient "trpc")}}
+import { trpc } from '@/lib/trpc';
+import { httpBatchLink } from '@trpc/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+{{/if}}
+
+// Create a new router instance
+const router = createRouter({ routeTree });
+
+// Register the router instance for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+{{#if (or (includes apiClient "tanstack-query") (eq apiClient "trpc"))}}
+// Create a query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+    },
+  },
+});
+
+{{#if (eq apiClient "trpc")}}
+// Create tRPC client
+const trpcClient = trpc.createClient({
+  links: [
+    httpBatchLink({
+      url: `${import.meta.env.VITE_API_URL || "http://localhost:3001"}/trpc`,
+    }),
+  ],
+});
+{{/if}}
+{{/if}}
+
+const rootElement = document.getElementById('root')!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      {{#if (eq apiClient "trpc")}}
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </trpc.Provider>
+      {{else if (includes apiClient "tanstack-query")}}
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+      {{else}}
+      <RouterProvider router={router} />
+      {{/if}}
+    </React.StrictMode>
+  );
+}

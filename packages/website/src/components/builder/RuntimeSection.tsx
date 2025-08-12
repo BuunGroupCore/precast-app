@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React, { useEffect } from "react";
 import { FaCogs } from "react-icons/fa";
 
-import { Tooltip } from "@/components/ui/Tooltip";
+import { ComicTooltip } from "@/components/ui/ComicTooltip";
 import { runtimes } from "@/lib/stack-config";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -68,7 +68,7 @@ export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfi
             }
 
             return (
-              <Tooltip key={runtime.id} content={tooltipContent}>
+              <ComicTooltip key={runtime.id} content={tooltipContent}>
                 <button
                   onClick={() => isCompatible && setConfig({ ...config, runtime: runtime.id })}
                   data-active={config.runtime === runtime.id}
@@ -87,7 +87,7 @@ export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfi
                   {runtime.icon && <BuilderIcon icon={runtime.icon} className="text-2xl" />}
                   <span className="text-xs">{runtime.name}</span>
                 </button>
-              </Tooltip>
+              </ComicTooltip>
             );
           })}
         </div>

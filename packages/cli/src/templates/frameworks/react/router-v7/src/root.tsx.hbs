@@ -1,0 +1,125 @@
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import type { LinksFunction } from "@react-router/node";
+{{#if (eq styling "tailwind")}}
+import "./styles/tailwind.css";
+{{else}}
+import "./styles/globals.css";
+{{/if}}
+{{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+import { PrecastWidget } from "@/components/precast/PrecastWidget";
+{{/if}}
+{{#if (includes apiClient "tanstack-query")}}
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useState } from "react";
+{{/if}}
+{{#if (eq apiClient "trpc")}}
+import { trpc } from "@/lib/trpc";
+import { httpBatchLink } from "@trpc/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+{{/if}}
+
+export const links: LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.gstatic.com",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+];
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+{{#if (or (includes apiClient "tanstack-query") (eq apiClient "trpc"))}}
+function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000,
+          },
+        },
+      })
+  );
+
+  {{#if (eq apiClient "trpc")}}
+  const [trpcClient] = useState(() =>
+    trpc.createClient({
+      links: [
+        httpBatchLink({
+          url: `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/trpc`,
+        }),
+      ],
+    })
+  );
+
+  return (
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        {{#if (includes apiClient "tanstack-query")}}
+        <ReactQueryDevtools initialIsOpen={false} />
+        {{/if}}
+      </QueryClientProvider>
+    </trpc.Provider>
+  );
+  {{else}}
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  );
+  {{/if}}
+}
+{{/if}}
+
+import { Layout } from "@/components/layout";
+
+export default function App() {
+  {{#if (or (includes apiClient "tanstack-query") (eq apiClient "trpc"))}}
+  return (
+    <Providers>
+      <Layout>
+        <Outlet />
+      </Layout>
+      {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+      <PrecastWidget />
+      {{/if}}
+    </Providers>
+  );
+  {{else}}
+  return (
+    <>
+      <Layout>
+        <Outlet />
+      </Layout>
+      {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+      <PrecastWidget />
+      {{/if}}
+    </>
+  );
+  {{/if}}
+}

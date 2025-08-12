@@ -1,0 +1,13 @@
+import type { MetaFunction } from "@react-router/node";
+import { HomePage } from "@/pages/home";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "{{name}}" },
+    { name: "description", content: "Welcome to {{name}}!" },
+  ];
+};
+
+export default function Index() {
+  return <HomePage />;
+}

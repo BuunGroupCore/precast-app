@@ -140,7 +140,10 @@
       "Bash(packages/cli/dist/cli.js init test-hono-fixed --framework react --backend hono --database postgres --orm prisma --styling tailwind --runtime node --docker --yes)",
       "WebFetch(domain:api.precast.dev)",
       "Bash(npm run deploy:*)",
-      "WebFetch(domain:registry.npmjs.org)"
+      "WebFetch(domain:registry.npmjs.org)",
+      "Bash(for:*)",
+      "Bash(if grep -q 'import { Tooltip } from \"\"@/components/ui/Tooltip\"\"' \"$file\")",
+      "Bash(then)"
     ],
     "deny": []
   }

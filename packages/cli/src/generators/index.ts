@@ -16,7 +16,6 @@ import { generateNoneTemplate } from "./none-template.js";
 import { generateNuxtTemplate } from "./nuxt-template.js";
 import { generateReactNativeTemplate } from "./react-native-template.js";
 import { generateReactTemplate } from "./react-template.js";
-import { generateRemixTemplate } from "./remix-template.js";
 import { generateSolidTemplate } from "./solid-template.js";
 import { generateSvelteTemplate } from "./svelte-template.js";
 import { generateTanStackStartTemplate } from "./tanstack-start-template.js";
@@ -43,6 +42,17 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     case "next":
       await generateNextTemplate(config, projectPath);
       break;
+    case "react-router":
+      const { generateReactRouterTemplate } = await import("./react-router-template.js");
+      await generateReactRouterTemplate(config, projectPath);
+      break;
+    case "tanstack-router":
+      const { generateTanStackRouterTemplate } = await import("./tanstack-router-template.js");
+      await generateTanStackRouterTemplate(config, projectPath);
+      break;
+    case "tanstack-start":
+      await generateTanStackStartTemplate(config, projectPath);
+      break;
     case "svelte":
       await generateSvelteTemplate(config, projectPath);
       break;
@@ -61,9 +71,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     case "astro":
       await generateAstroTemplate(config, projectPath);
       break;
-    case "remix":
-      await generateRemixTemplate(config, projectPath);
-      break;
     case "vite":
       await generateViteTemplate(config, projectPath);
       break;
@@ -72,9 +79,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       break;
     case "react-native":
       await generateReactNativeTemplate(config, projectPath);
-      break;
-    case "tanstack-start":
-      await generateTanStackStartTemplate(config, projectPath);
       break;
     case "none":
       await generateNoneTemplate(config, projectPath);

@@ -15,7 +15,7 @@ import {
   SiFirebase,
   SiAstro,
   SiVite,
-  SiRemix,
+  SiReactrouter,
   SiSolid,
   SiSvelte,
   SiNuxtdotjs,
@@ -182,15 +182,15 @@ export const metaFrameworks: StackOption[] = [
     recommended: ["typescript", "tailwind"],
   },
   {
-    id: "remix",
-    name: "Remix",
-    icon: SiRemix,
-    color: "text-comic-black",
-    description: "Build better websites with Remix",
+    id: "react-router",
+    name: "React Router v7",
+    icon: SiReactrouter,
+    color: "text-comic-red",
+    description:
+      "Full-stack React framework (formerly Remix) with nested routing and server-side rendering",
     category: "meta-framework",
     dependencies: ["react"],
     recommended: ["typescript", "tailwind", "prisma"],
-    disabled: true,
   },
   {
     id: "tanstack-start",
@@ -220,6 +220,20 @@ export const buildTools: StackOption[] = [
       uiLibraries: ["react", "vue", "solid", "svelte"],
       reason:
         "Vite provides excellent development experience with fast HMR for modern UI libraries",
+    },
+  },
+  {
+    id: "tanstack-router",
+    name: "TanStack Router",
+    icon: TanStackIcon,
+    color: "text-comic-orange",
+    description: "Type-safe React router for building SPAs with powerful routing capabilities",
+    category: "build-tool",
+    dependencies: ["react"],
+    recommended: ["typescript", "tailwind"],
+    recommendedFor: {
+      uiLibraries: ["react"],
+      reason: "TanStack Router provides type-safe routing for React SPAs",
     },
   },
 ];
@@ -306,7 +320,8 @@ export const backends: StackOption[] = [
     name: "FastAPI",
     icon: SiFastapi,
     color: "text-comic-green",
-    description: "Modern, fast web framework for building APIs with Python",
+    description:
+      "Modern, fast web framework for building APIs with Python. Uses UV for blazing-fast package management, dependency resolution, and Python environment management",
     language: "Python",
     languageIcon: "python",
     incompatible: ["typescript"],

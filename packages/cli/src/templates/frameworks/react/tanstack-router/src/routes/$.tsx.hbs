@@ -1,0 +1,7 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { NotFoundPage } from '@/pages/not-found';
+
+// Catch-all route for 404 pages
+export const Route = createFileRoute('/$')({
+  component: NotFoundPage,
+});

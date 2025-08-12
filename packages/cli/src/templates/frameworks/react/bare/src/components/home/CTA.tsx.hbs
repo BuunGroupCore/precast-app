@@ -1,0 +1,86 @@
+import { ArrowRight, Github, BookOpen, Zap, Coffee } from "lucide-react";
+
+/**
+ * Call-to-Action component - Brutalist style with strong messaging
+ */
+export function CTA() {
+  return (
+    <section className="{{#if (eq styling 'tailwind')}}mt-20 mb-20{{else}}cta-section{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}max-w-4xl mx-auto{{else}}container{{/if}}">
+        {/* Main CTA Card */}
+        <div className="{{#if (eq styling 'tailwind')}}border-4 border-black bg-yellow-400 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative{{else}}cta-card{{/if}}">
+          {/* Corner accents */}
+          <div className="{{#if (eq styling 'tailwind')}}absolute -top-2 -left-2 w-8 h-8 bg-black{{else}}corner-accent corner-tl{{/if}}"></div>
+          <div className="{{#if (eq styling 'tailwind')}}absolute -top-2 -right-2 w-8 h-8 bg-black{{else}}corner-accent corner-tr{{/if}}"></div>
+          <div className="{{#if (eq styling 'tailwind')}}absolute -bottom-2 -left-2 w-8 h-8 bg-black{{else}}corner-accent corner-bl{{/if}}"></div>
+          <div className="{{#if (eq styling 'tailwind')}}absolute -bottom-2 -right-2 w-8 h-8 bg-black{{else}}corner-accent corner-br{{/if}}"></div>
+          
+          <div className="{{#if (eq styling 'tailwind')}}p-12 text-center{{else}}cta-content{{/if}}">
+            <h2 className="{{#if (eq styling 'tailwind')}}text-5xl font-black uppercase text-black mb-4{{else}}cta-title{{/if}}">
+              SHIP FASTER
+            </h2>
+            <p className="{{#if (eq styling 'tailwind')}}text-xl text-black/80 mb-8 font-mono{{else}}cta-description{{/if}}">
+              YOUR STACK IS CONFIGURED. START BUILDING NOW.
+            </p>
+            
+            {/* Feature badges */}
+            <div className="{{#if (eq styling 'tailwind')}}flex flex-wrap justify-center gap-3 mb-8{{else}}feature-badges{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2 px-3 py-1 bg-black text-yellow-400 font-bold text-xs uppercase{{else}}feature-badge{{/if}}">
+                <Zap size={14} />
+                <span>HOT RELOAD</span>
+              </div>
+              <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2 px-3 py-1 bg-black text-yellow-400 font-bold text-xs uppercase{{else}}feature-badge{{/if}}">
+                <Coffee size={14} />
+                <span>ZERO CONFIG</span>
+              </div>
+              <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2 px-3 py-1 bg-black text-yellow-400 font-bold text-xs uppercase{{else}}feature-badge{{/if}}">
+                <BookOpen size={14} />
+                <span>FULL DOCS</span>
+              </div>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="{{#if (eq styling 'tailwind')}}flex flex-col sm:flex-row gap-4 justify-center{{else}}cta-buttons{{/if}}">
+              <a
+                href="https://precast.dev/docs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="{{#if (eq styling 'tailwind')}}group inline-flex items-center justify-center gap-3 px-8 py-4 bg-black text-yellow-400 font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150{{else}}btn-primary{{/if}}"
+              >
+                <BookOpen size={18} />
+                <span>READ DOCS</span>
+                <ArrowRight size={18} className="{{#if (eq styling 'tailwind')}}group-hover:translate-x-1 transition-transform{{else}}btn-arrow{{/if}}" />
+              </a>
+              
+              <a
+                href="https://github.com/BuunGroupCore/precast-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="{{#if (eq styling 'tailwind')}}group inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-black border-2 border-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150{{else}}btn-secondary{{/if}}"
+              >
+                <Github size={18} />
+                <span>STAR ON GITHUB</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        {/* Stats bar */}
+        <div className="{{#if (eq styling 'tailwind')}}mt-8 grid grid-cols-3 gap-4{{else}}stats-grid{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}border-2 border-black bg-white p-4 text-center{{else}}stat-card{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}text-2xl font-black text-black{{else}}stat-number{{/if}}">100%</div>
+            <div className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-black/60 uppercase{{else}}stat-label{{/if}}">Type Safe</div>
+          </div>
+          <div className="{{#if (eq styling 'tailwind')}}border-2 border-black bg-white p-4 text-center{{else}}stat-card{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}text-2xl font-black text-black{{else}}stat-number{{/if}}">0ms</div>
+            <div className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-black/60 uppercase{{else}}stat-label{{/if}}">Setup Time</div>
+          </div>
+          <div className="{{#if (eq styling 'tailwind')}}border-2 border-black bg-white p-4 text-center{{else}}stat-card{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}text-2xl font-black text-black{{else}}stat-number{{/if}}">∞</div>
+            <div className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-black/60 uppercase{{else}}stat-label{{/if}}">Possibilities</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

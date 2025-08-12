@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
+import { logger } from "./logger.js";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -58,7 +59,7 @@ export async function setupPlugins(
     return;
   }
 
-  consola.info(`🔌 Setting up plugins: ${pluginIds.join(", ")}...`);
+  logger.verbose(`🔌 Setting up plugins: ${pluginIds.join(", ")}...`);
 
   try {
     const isMonorepo = config.backend && config.backend !== "none";
@@ -77,11 +78,11 @@ export async function setupPlugins(
       const pluginConfig = await loadPluginConfig(pluginId);
 
       if (!pluginConfig) {
-        consola.warn(`Plugin configuration not found for: ${pluginId}`);
+        logger.warn(`Plugin configuration not found for: ${pluginId}`);
         continue;
       }
 
-      consola.info(`Setting up ${pluginConfig.name}...`);
+      logger.verbose(`Setting up ${pluginConfig.name}...`);
 
       // Process frontend dependencies
       const framework = config.framework || "react";
@@ -146,21 +147,21 @@ export async function setupPlugins(
 
       // Show post-install instructions
       if (pluginConfig.postInstall?.instructions) {
-        consola.info(`\n📝 ${pluginConfig.name} Setup Instructions:`);
+        logger.verbose(`\n📝 ${pluginConfig.name} Setup Instructions:`);
         pluginConfig.postInstall.instructions.forEach((instruction) => {
-          consola.info(`  ${instruction}`);
+          logger.verbose(`  ${instruction}`);
         });
       }
     }
 
     // Update package.json with plugin dependencies
     if (frontendDeps.size > 0 || frontendDevDeps.size > 0) {
-      consola.info("📦 Adding plugin dependencies to frontend package.json...");
+      logger.verbose("📦 Adding plugin dependencies to frontend package.json...");
       await updatePackageJsonDependencies(frontendPath, frontendDeps, frontendDevDeps);
     }
 
     if (isMonorepo && (backendDeps.size > 0 || backendDevDeps.size > 0)) {
-      consola.info("📦 Adding plugin dependencies to backend package.json...");
+      logger.verbose("📦 Adding plugin dependencies to backend package.json...");
       await updatePackageJsonDependencies(backendPath, backendDeps, backendDevDeps);
     }
 
@@ -168,21 +169,23 @@ export async function setupPlugins(
     if (config.autoInstall) {
       // Install frontend dependencies
       if (frontendDeps.size > 0 || frontendDevDeps.size > 0) {
-        consola.info("📦 Installing plugin frontend dependencies...");
+        logger.verbose("📦 Installing plugin frontend dependencies...");
         await installDependencies([], {
           packageManager: config.packageManager,
           projectPath: frontendPath,
           dev: false,
+          context: "plugins_frontend",
         });
       }
 
       // Install backend dependencies if in monorepo
       if (isMonorepo && (backendDeps.size > 0 || backendDevDeps.size > 0)) {
-        consola.info("📦 Installing plugin backend dependencies...");
+        logger.verbose("📦 Installing plugin backend dependencies...");
         await installDependencies([], {
           packageManager: config.packageManager,
           projectPath: backendPath,
           dev: false,
+          context: "plugins_backend",
         });
       }
     }
@@ -200,7 +203,7 @@ export async function setupPlugins(
       await updatePackageJsonScripts(frontendPath, allScripts);
     }
 
-    consola.success("✅ Plugins setup completed!");
+    logger.verbose("✅ Plugins setup completed!");
   } catch (error) {
     consola.error("Failed to setup plugins:", error);
     throw error;
@@ -224,7 +227,7 @@ async function loadPluginConfig(pluginId: string): Promise<PluginConfig | null> 
         const config = await readJson(configPath);
         return config as PluginConfig;
       } catch (error) {
-        consola.warn(`Failed to load plugin config from ${configPath}:`, error);
+        logger.warn(`Failed to load plugin config from ${configPath}: ${error}`);
       }
     }
   }
@@ -249,17 +252,18 @@ export async function setupPrecastWidget(
 
     // Check if widget templates exist
     if (!(await pathExists(widgetPath))) {
-      consola.warn("Precast widget templates not found");
+      logger.warn("Precast widget templates not found");
       return;
     }
 
     // Install icon dependencies for the widget
-    consola.info("📦 Installing icon libraries for PrecastWidget...");
+    logger.verbose("📦 Installing icon libraries for PrecastWidget...");
     const iconDeps = ["react-icons@^5.0.1", "lucide-react@^0.368.0"];
     await installDependencies(iconDeps, {
       packageManager: config.packageManager,
       projectPath: frontendPath,
       dev: false,
+      context: "icons",
     });
 
     // Add react-icons to the config for template processing
@@ -280,11 +284,14 @@ export async function setupPrecastWidget(
         authProvider: config.authProvider || "none",
       });
 
-      const componentDir = path.join(frontendPath, "src", "components", "precast");
+      const componentDir =
+        config.framework === "tanstack-start"
+          ? path.join(frontendPath, "app", "components", "precast")
+          : path.join(frontendPath, "src", "components", "precast");
       await ensureDir(componentDir);
       await writeFile(path.join(componentDir, "PrecastWidget.tsx"), widgetContent);
     } else {
-      consola.warn("PrecastWidget template not found");
+      logger.warn("PrecastWidget template not found");
       return;
     }
 
@@ -309,10 +316,10 @@ export async function setupPrecastWidget(
     // Note: App.tsx integration is now handled by the template itself using Handlebars conditions
     // The PrecastWidget is conditionally included when plugins or database are configured
 
-    consola.success("✅ Precast validation widget installed");
-    consola.info("   Look for the floating button in the bottom-right corner");
+    logger.verbose("✅ Precast validation widget installed");
+    logger.verbose("   Look for the floating button in the bottom-right corner");
   } catch (error) {
-    consola.warn("Failed to setup admin panel widget:", error);
+    logger.warn(`Failed to setup admin panel widget: ${error}`);
   }
 }
 
@@ -362,7 +369,7 @@ async function setupPluginFiles(
     }
 
     if (!templatePath) {
-      consola.warn(`Template not found: ${file.template} for plugin ${pluginConfig.id}`);
+      logger.warn(`Template not found: ${file.template} for plugin ${pluginConfig.id}`);
       continue;
     }
 
@@ -388,7 +395,7 @@ async function setupPluginFiles(
     // Write file
     await writeFile(outputPath, generatedContent);
 
-    consola.success(`  ✓ Created ${file.output}`);
+    logger.verbose(`  ✓ Created ${file.output}`);
   }
 }
 
@@ -481,7 +488,7 @@ async function updatePackageJsonScripts(
   const packageJsonPath = path.join(targetPath, "package.json");
 
   if (!(await pathExists(packageJsonPath))) {
-    consola.warn("package.json not found, skipping script updates");
+    logger.warn("package.json not found, skipping script updates");
     return;
   }
 
@@ -507,7 +514,7 @@ async function updatePackageJsonDependencies(
   const packageJsonPath = path.join(targetPath, "package.json");
 
   if (!(await pathExists(packageJsonPath))) {
-    consola.warn("package.json not found, skipping dependency updates");
+    logger.warn("package.json not found, skipping dependency updates");
     return;
   }
 

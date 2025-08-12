@@ -1,7 +1,6 @@
 import * as path from "path";
 import { fileURLToPath } from "url";
 
-import { consola } from "consola";
 // eslint-disable-next-line no-restricted-imports
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
@@ -11,6 +10,8 @@ const { copy, ensureDir, pathExists, readdir, readFile, stat, writeFile } = fsEx
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { installDependencies } from "./package-manager.js";
+import { logger } from "./logger.js";
+import { errorCollector } from "./error-collector.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +34,7 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
     }
   }
 
-  consola.info(`🗄️ Setting up ${config.database} database with ${config.orm || "none"}...`);
+  logger.verbose(`🗄️ Setting up ${config.database} database with ${config.orm || "none"}...`);
 
   try {
     const databaseProviderMap: Record<string, string> = {
@@ -62,22 +63,22 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
     const isMonorepo = config.backend && config.backend !== "none";
     const targetPath = isMonorepo ? path.join(projectPath, "apps", "api") : projectPath;
 
-    consola.info(
+    logger.verbose(
       `Setting up ${config.database === "postgres" ? "PostgreSQL" : config.database} configuration...`
     );
     await setupDatabasePackages(config, targetPath);
 
     if (config.orm && config.orm !== "none") {
-      consola.info(`Setting up ${config.orm === "prisma" ? "Prisma" : config.orm} ORM...`);
+      logger.verbose(`Setting up ${config.orm === "prisma" ? "Prisma" : config.orm} ORM...`);
       await setupORM(config, targetPath, context);
     } else if (["neon", "planetscale", "turso", "cloudflare-d1"].includes(config.database || "")) {
       // Setup connection files for modern databases when no ORM is selected
       await setupDatabaseConnection(config, targetPath, context);
     }
 
-    consola.success(`✅ Database setup completed for ${config.database} with ${config.orm}!`);
+    logger.verbose(`✅ Database setup completed for ${config.database} with ${config.orm}!`);
   } catch (error) {
-    consola.error("Failed to setup database configuration:", error);
+    logger.error(`Failed to setup database configuration: ${error}`);
     throw error;
   }
 }
@@ -109,7 +110,7 @@ async function setupORM(
   }
 
   if (!(await pathExists(templateDir))) {
-    consola.warn(`ORM templates not found for ${config.orm}`);
+    logger.warn(`ORM templates not found for ${config.orm}`);
     return;
   }
 
@@ -131,7 +132,7 @@ async function setupORM(
       const template = Handlebars.compile(content);
       const rendered = template(context);
       await writeFile(path.join(prismaDir, "schema.prisma"), rendered);
-      consola.success("Created Prisma schema");
+      logger.verbose("Created Prisma schema");
     }
 
     // Handle client file selection based on database type
@@ -162,7 +163,7 @@ async function setupORM(
       // Write the client file to the lib directory
       const ext = context.typescript ? "ts" : "js";
       await writeFile(path.join(libDir, `prisma.${ext}`), rendered);
-      consola.success(`Created Prisma client (${config.database} configuration)`);
+      logger.verbose(`Created Prisma client (${config.database} configuration)`);
     }
   }
 
@@ -193,7 +194,7 @@ async function setupORM(
       const template = Handlebars.compile(content);
       const rendered = template(context);
       await writeFile(path.join(drizzleDir, "schema.ts"), rendered);
-      consola.success("Created Drizzle schema");
+      logger.verbose("Created Drizzle schema");
     }
 
     const connectionPath = path.join(templateDir, connectionTemplate);
@@ -202,7 +203,7 @@ async function setupORM(
       const template = Handlebars.compile(content);
       const rendered = template(context);
       await writeFile(path.join(drizzleDir, "index.ts"), rendered);
-      consola.success("Created Drizzle connection");
+      logger.verbose("Created Drizzle connection");
     }
   }
 }
@@ -234,7 +235,7 @@ async function setupDatabaseConnection(
   }
 
   if (!(await pathExists(templateDir))) {
-    consola.warn(`Database templates not found for ${config.database}`);
+    logger.warn(`Database templates not found for ${config.database}`);
     return;
   }
 
@@ -250,7 +251,7 @@ async function setupDatabaseConnection(
     const rendered = template(context);
     const ext = context.typescript ? "ts" : "js";
     await writeFile(path.join(libDir, `db.${ext}`), rendered);
-    consola.success(`Created ${config.database} connection file`);
+    logger.verbose(`Created ${config.database} connection file`);
   }
 
   // Process env template
@@ -274,7 +275,7 @@ async function setupDatabaseConnection(
         await writeFile(filePath, existingContent + "\n" + rendered);
       }
     }
-    consola.success("Added environment variables");
+    logger.verbose("Added environment variables");
   }
 }
 
@@ -335,14 +336,14 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
   const devPackages: string[] = [];
 
   if (config.database === "postgres") {
-    consola.info("📦 Installing PostgreSQL packages...");
+    logger.verbose("📦 Installing PostgreSQL packages...");
     packages.push("pg");
     devPackages.push("@types/pg");
   } else if (config.database === "mysql") {
-    consola.info("📦 Installing MySQL packages...");
+    logger.verbose("📦 Installing MySQL packages...");
     packages.push("mysql2");
   } else if (config.database === "mongodb") {
-    consola.info("📦 Installing MongoDB packages...");
+    logger.verbose("📦 Installing MongoDB packages...");
     packages.push("mongodb");
   } else if (config.database === "sqlite") {
     packages.push("better-sqlite3");
@@ -356,7 +357,7 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
   }
 
   if (config.orm === "prisma") {
-    consola.info("📦 Installing Prisma packages...");
+    logger.verbose("📦 Installing Prisma packages...");
     packages.push("@prisma/client");
     devPackages.push("prisma");
 
@@ -369,7 +370,7 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
       packages.push("@prisma/adapter-libsql", "@libsql/client");
     }
   } else if (config.orm === "drizzle") {
-    consola.info("📦 Installing Drizzle packages...");
+    logger.verbose("📦 Installing Drizzle packages...");
     packages.push("drizzle-orm");
     devPackages.push("drizzle-kit");
 
@@ -385,27 +386,41 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
       packages.push("@planetscale/database");
     }
   } else if (config.orm === "typeorm") {
-    consola.info("📦 Installing TypeORM packages...");
+    logger.verbose("📦 Installing TypeORM packages...");
     packages.push("typeorm", "reflect-metadata");
   } else if (config.orm === "mongoose") {
-    consola.info("📦 Installing Mongoose packages...");
+    logger.verbose("📦 Installing Mongoose packages...");
     packages.push("mongoose");
   }
 
   if (packages.length > 0) {
-    await installDependencies(packages, {
-      packageManager: config.packageManager,
-      projectPath: targetPath,
-      dev: false,
-    });
-    consola.success("✅ Dependencies installed successfully with " + config.packageManager);
+    try {
+      await installDependencies(packages, {
+        packageManager: config.packageManager,
+        projectPath: targetPath,
+        dev: false,
+        context: "database",
+      });
+      logger.verbose("✅ Dependencies installed successfully with " + config.packageManager);
+    } catch (error) {
+      logger.error(`Failed to install database packages: ${error}`);
+      errorCollector.addError("Database package installation", error);
+      // Don't throw - let the process continue
+    }
   }
 
   if (devPackages.length > 0) {
-    await installDependencies(devPackages, {
-      packageManager: config.packageManager,
-      projectPath: targetPath,
-      dev: true,
-    });
+    try {
+      await installDependencies(devPackages, {
+        packageManager: config.packageManager,
+        projectPath: targetPath,
+        dev: true,
+        context: "database_dev",
+      });
+    } catch (error) {
+      logger.error(`Failed to install dev packages: ${error}`);
+      errorCollector.addError("Database dev package installation", error);
+      // Don't throw - let the process continue
+    }
   }
 }

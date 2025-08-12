@@ -1,8 +1,7 @@
-import { consola } from "consola";
-
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { generateBackendTemplate } from "./backend-generator.js";
+import { logger } from "../utils/logger.js";
 
 /**
  * Generate backend-only project template (no frontend framework)
@@ -11,7 +10,7 @@ export async function generateNoneTemplate(
   config: ProjectConfig,
   projectPath: string
 ): Promise<void> {
-  consola.info("Creating backend-only project structure...");
+  logger.verbose("Creating backend-only project structure...");
 
   // For backend-only projects, generate the specified backend
   if (config.backend && config.backend !== "none") {
@@ -22,5 +21,5 @@ export async function generateNoneTemplate(
     await generateMinimalNodeTemplate(config, projectPath);
   }
 
-  consola.success("Backend-only project structure created!");
+  logger.verbose("Backend-only project structure created!");
 }

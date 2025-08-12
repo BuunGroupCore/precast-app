@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
+import { logger } from "./logger.js";
 
 const { copy, ensureDir, pathExists, readdir, readFile, readJson, stat, writeFile, writeJson } =
   fsExtra;
@@ -44,23 +45,23 @@ export async function setupDockerCompose(
   const database = config.database;
 
   if (!database || database === "none" || database === "firebase" || database === "supabase") {
-    consola.info("Skipping Docker setup - no local database needed");
+    logger.info("Skipping Docker setup - no local database needed");
     return {};
   }
 
   if (database === "turso") {
-    consola.info("ℹ️ Turso uses SQLite locally, Docker setup not needed");
-    consola.info("   Run 'turso dev' to start a local libSQL server");
+    logger.info("ℹ️ Turso uses SQLite locally, Docker setup not needed");
+    logger.info("   Run 'turso dev' to start a local libSQL server");
     return {};
   }
 
   if (database === "cloudflare-d1") {
-    consola.info("ℹ️ Cloudflare D1 uses Wrangler locally, Docker setup not needed");
-    consola.info("   Run 'wrangler d1 execute' to interact with your local database");
+    logger.info("ℹ️ Cloudflare D1 uses Wrangler locally, Docker setup not needed");
+    logger.info("   Run 'wrangler d1 execute' to interact with your local database");
     return {};
   }
 
-  consola.info(`🐳 Setting up Docker Compose for ${database}...`);
+  logger.verbose(`🐳 Setting up Docker Compose for ${database}...`);
 
   try {
     const dockerDir = path.join(projectPath, "docker");
@@ -110,14 +111,14 @@ export async function setupDockerCompose(
             const outputFileName = file.replace(".hbs", "");
             const outputPath = path.join(dockerDir, outputFileName);
             await writeFile(outputPath, rendered);
-            consola.success(`Created ${outputFileName}`);
+            logger.verbose(`Created ${outputFileName}`);
           } else {
             const outputPath = path.join(dockerDir, file);
             await copy(filePath, outputPath);
           }
         }
       } else {
-        consola.warn(`Docker templates not found for ${database}`);
+        logger.warn(`Docker templates not found for ${database}`);
         return {};
       }
     } else {
@@ -173,7 +174,7 @@ export async function setupDockerCompose(
       await writeFile(waitScriptOutputPath, waitScriptContent);
       // Make script executable
       await fsExtra.chmod(waitScriptOutputPath, 0o755);
-      consola.success("Created wait-for-db.sh script");
+      logger.verbose("Created wait-for-db.sh script");
     }
 
     // URL-encode passwords for database URLs to handle special characters
@@ -237,7 +238,7 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
       };
 
       await writeJson(packageJsonPath, packageJson, { spaces: 2 });
-      consola.success("Added Docker scripts to root package.json");
+      logger.verbose("Added Docker scripts to root package.json");
     }
 
     // For monorepo, also update API package.json
@@ -271,7 +272,7 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
         }
 
         await writeJson(apiPackageJsonPath, apiPackageJson, { spaces: 2 });
-        consola.success("Added database scripts to API package.json");
+        logger.verbose("Added database scripts to API package.json");
       }
     }
 
@@ -320,14 +321,14 @@ Use the connection string from the \`.env\` file in your application.
 
     await writeFile(path.join(dockerDir, "README.md"), readmeContent);
 
-    consola.info("");
-    consola.info("📚 Docker setup complete! Next steps:");
-    consola.info("   1. Review docker/.env and update passwords if needed");
-    consola.info("   2. Start services: npm run docker:up");
-    consola.info("   3. View logs: npm run docker:logs");
-    consola.info("   4. Stop services: npm run docker:down");
-    consola.info("");
-    consola.info("📖 See docker/README.md for detailed instructions");
+    logger.verbose("");
+    logger.verbose("📚 Docker setup complete! Next steps:");
+    logger.verbose("   1. Review docker/.env and update passwords if needed");
+    logger.verbose("   2. Start services: npm run docker:up");
+    logger.verbose("   3. View logs: npm run docker:logs");
+    logger.verbose("   4. Stop services: npm run docker:down");
+    logger.verbose("");
+    logger.verbose("📖 See docker/README.md for detailed instructions");
 
     // Return the generated passwords to be used in env files
     return { passwords };

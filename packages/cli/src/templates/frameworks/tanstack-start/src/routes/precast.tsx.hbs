@@ -1,0 +1,48 @@
+import { createFileRoute } from '@tanstack/react-router';
+
+export const Route = createFileRoute('/precast')({
+  component: () => (
+    <div className="max-w-4xl mx-auto p-8">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          Welcome to Precast
+        </h1>
+        <p className="text-xl text-gray-600">
+          Your project was created with Precast CLI
+        </p>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 className="text-2xl font-semibold mb-4">What's included:</h2>
+        <ul className="space-y-2 text-gray-700">
+          <li>✅ TanStack Start (React framework)</li>
+          {{#if (ne backend "none")}}
+          <li>✅ {{backend}} backend</li>
+          {{/if}}
+          {{#if (ne database "none")}}
+          <li>✅ {{database}} database</li>
+          {{/if}}
+          {{#if (ne orm "none")}}
+          <li>✅ {{orm}} ORM</li>
+          {{/if}}
+          <li>✅ {{styling}} styling</li>
+          <li>✅ TypeScript support</li>
+          {{#if docker}}
+          <li>✅ Docker configuration</li>
+          {{/if}}
+        </ul>
+      </div>
+      
+      <div className="text-center">
+        <a 
+          href="https://precast.dev" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Visit Precast Documentation
+        </a>
+      </div>
+    </div>
+  ),
+});

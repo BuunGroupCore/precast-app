@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import * as path from "path";
 
-import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 // eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
 
@@ -12,6 +12,7 @@ import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
 import { installDependencies } from "../utils/package-manager.js";
 import { getTemplateRoot } from "../utils/template-path.js";
+import { errorCollector } from "../utils/error-collector.js";
 
 interface AuthProvider {
   id: string;
@@ -231,17 +232,17 @@ export async function generateAuthTemplate(
     );
   }
 
-  consola.info(`🔐 Setting up ${provider.name} authentication...`);
+  logger.verbose(`🔐 Setting up ${provider.name} authentication...`);
 
   if (provider.requiresDatabase && config.database === "none") {
-    consola.warn(`⚠️  ${provider.name} requires a database. Please configure a database first.`);
+    logger.warn(`⚠️  ${provider.name} requires a database. Please configure a database first.`);
     return;
   }
 
   if (config.securePasswords !== false) {
-    consola.info("🔑 Generating cryptographically secure JWT secrets...");
+    logger.verbose("🔑 Generating cryptographically secure JWT secrets...");
   } else {
-    consola.warn("⚠️  Using default secrets. Remember to change them in production!");
+    logger.warn("⚠️  Using default secrets. Remember to change them in production!");
   }
 
   await installAuthPackages(config, provider);
@@ -252,7 +253,7 @@ export async function generateAuthTemplate(
     await updatePrismaSchema(config, provider);
   }
 
-  consola.success(`✅ ${provider.name} authentication setup complete!`);
+  logger.verbose(`✅ ${provider.name} authentication setup complete!`);
   showNextSteps(config, provider);
 }
 
@@ -284,7 +285,7 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
 
   // Install packages
   if (packages.length > 0 || devPackages.length > 0) {
-    consola.info(`📦 Installing ${provider.name} packages...`);
+    logger.verbose(`📦 Installing ${provider.name} packages...`);
 
     // Determine the correct installation path
     // For monorepo projects, install in the app directory
@@ -308,6 +309,7 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
         packageManager: config.packageManager,
         projectPath: installPath,
         dev: false,
+        context: "auth",
       });
     }
 
@@ -317,6 +319,7 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
         packageManager: config.packageManager,
         projectPath: installPath,
         dev: true,
+        context: "auth_dev",
       });
     }
   }
@@ -421,9 +424,9 @@ async function copyAuthTemplates(
           path.join(routeDestination, "auth.ts"),
           authContext
         );
-        consola.info(`✓ Created ${provider.name} route handler for ${config.backend}`);
+        logger.verbose(`✓ Created ${provider.name} route handler for ${config.backend}`);
       } else {
-        consola.warn(`⚠️  No ${provider.name} route template found for ${config.backend}`);
+        logger.warn(`⚠️  No ${provider.name} route template found for ${config.backend}`);
       }
     }
 
@@ -453,7 +456,7 @@ async function copyAuthTemplates(
           path.join(migrationDest, "001_auth_tables.sql"),
           authContext
         );
-        consola.info(`✓ Created Auth.js database migration file`);
+        logger.verbose(`✓ Created Auth.js database migration file`);
       }
 
       // Copy setup script
@@ -469,7 +472,7 @@ async function copyAuthTemplates(
           path.join(scriptsDest, "setup-auth-db.ts"),
           authContext
         );
-        consola.info(`✓ Created Auth.js database setup script`);
+        logger.verbose(`✓ Created Auth.js database setup script`);
 
         // Update package.json with db:setup script
         const packageJsonPath = path.join(targetPath, "package.json");
@@ -481,12 +484,13 @@ async function copyAuthTemplates(
           packageJson.scripts["db:setup"] = "tsx scripts/setup-auth-db.ts";
           packageJson.scripts["db:setup:bun"] = "bun run scripts/setup-auth-db.ts";
           await writeJson(packageJsonPath, packageJson, { spaces: 2 });
-          consola.info(`✓ Added db:setup scripts to package.json`);
+          logger.verbose(`✓ Added db:setup scripts to package.json`);
         }
       }
     }
   } catch (error) {
-    consola.warn(`Failed to copy auth templates: ${error}`);
+    logger.warn(`Failed to copy auth templates: ${error}`);
+    errorCollector.addError("Auth template copy", error);
   }
 }
 
@@ -666,7 +670,7 @@ async function updatePrismaSchema(
     : path.join(config.projectPath, "prisma", "schema.prisma");
 
   if (!(await pathExists(schemaPath))) {
-    consola.warn("Prisma schema not found. Skipping schema update.");
+    logger.warn("Prisma schema not found. Skipping schema update.");
     return;
   }
 
@@ -674,7 +678,7 @@ async function updatePrismaSchema(
 
   // Check if auth models already exist
   if (schemaContent.includes("model Account") || schemaContent.includes("model Session")) {
-    consola.info("Auth models already exist in Prisma schema");
+    logger.verbose("Auth models already exist in Prisma schema");
     return;
   }
 
@@ -692,14 +696,14 @@ async function updatePrismaSchema(
     const userModelRegex = /model User\s*\{[^}]*\}/;
     updatedSchema = schemaContent.replace(userModelRegex, "");
     updatedSchema = updatedSchema + "\n\n" + authModels;
-    consola.info("Replaced basic User model with auth User model");
+    logger.verbose("Replaced basic User model with auth User model");
   } else {
     updatedSchema = schemaContent + "\n\n" + authModels;
   }
 
   await writeFile(schemaPath, updatedSchema);
 
-  consola.success("Updated Prisma schema with auth models");
+  logger.verbose("Updated Prisma schema with auth models");
 }
 
 function getAuthJsPrismaModels(): string {
@@ -798,7 +802,7 @@ model Account {
 }
 
 function showNextSteps(config: ProjectConfig, provider: AuthProvider): void {
-  consola.info("\n📝 Next steps for authentication setup:");
+  logger.info("\n📝 Next steps for authentication setup:");
 
   const steps: string[] = [];
 
@@ -833,9 +837,9 @@ function showNextSteps(config: ProjectConfig, provider: AuthProvider): void {
   steps.push(`${steps.length + 1}. Create sign-in and sign-up pages for your application`);
   steps.push(`${steps.length + 1}. Protect your routes using the auth middleware or hooks`);
 
-  steps.forEach((step) => consola.info(`  ${step}`));
+  steps.forEach((step) => logger.info(`  ${step}`));
 
-  consola.info("\n📚 Documentation:");
+  logger.info("\n📚 Documentation:");
   const docs: Record<string, string> = {
     "auth.js": "https://authjs.dev",
     "better-auth": "https://better-auth.com",
@@ -847,6 +851,6 @@ function showNextSteps(config: ProjectConfig, provider: AuthProvider): void {
   };
 
   if (docs[provider.id]) {
-    consola.info(`  ${provider.name}: ${docs[provider.id]}`);
+    logger.info(`  ${provider.name}: ${docs[provider.id]}`);
   }
 }

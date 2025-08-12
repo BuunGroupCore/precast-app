@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { BiPackage } from "react-icons/bi";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { packageManagers } from "./constants";
 import type { ExtendedProjectConfig } from "./types";
@@ -22,7 +23,7 @@ export const InstallOptionsSection: React.FC<InstallOptionsSectionProps> = ({
       transition={{ delay: 0.75 }}
     >
       <CollapsibleSection
-        icon={<BiPackage className="text-3xl" />}
+        icon={<BuilderIcon icon={BiPackage} className="text-3xl" />}
         title={<h3 className="font-display text-2xl">INSTALL OPTIONS</h3>}
         className="bg-comic-green text-comic-white"
       >

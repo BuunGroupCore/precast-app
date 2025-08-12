@@ -142,6 +142,30 @@ export function BuilderPage() {
     loadUserSettings();
   }, []);
 
+  // Auto-select Turborepo when both frontend and backend are selected
+  useEffect(() => {
+    const hasBackend = config.backend && config.backend !== "none";
+    const hasFrontend = config.framework && config.framework !== "vanilla";
+
+    if (hasBackend && hasFrontend) {
+      // Auto-add turborepo if not already present
+      if (!config.powerups?.includes("turborepo")) {
+        setConfig((prev) => ({
+          ...prev,
+          powerups: [...(prev.powerups || []), "turborepo"],
+        }));
+      }
+    } else {
+      // Remove turborepo if frontend or backend is removed
+      if (config.powerups?.includes("turborepo")) {
+        setConfig((prev) => ({
+          ...prev,
+          powerups: prev.powerups?.filter((id) => id !== "turborepo") || [],
+        }));
+      }
+    }
+  }, [config.backend, config.framework, config.powerups]);
+
   const loadUserSettings = async () => {
     try {
       const userSettings = await db.userSettings.orderBy("updatedAt").last();

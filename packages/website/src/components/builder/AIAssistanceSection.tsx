@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { FaBrain, FaChevronDown, FaChevronRight, FaFile } from "react-icons/fa";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { aiAssistants } from "./constants";
 import { PublicIcon } from "./PublicIcon";
@@ -383,7 +384,7 @@ This is a modern {{framework}} application with the following architecture:
       transition={{ delay: 0.6 }}
     >
       <CollapsibleSection
-        icon={<FaBrain className="text-3xl" />}
+        icon={<BuilderIcon icon={FaBrain} className="text-3xl" />}
         title={<h3 className="font-display text-2xl">AI ASSISTANCE</h3>}
         className="bg-comic-purple text-comic-white"
       >
@@ -405,9 +406,9 @@ This is a modern {{framework}} application with the following architecture:
             >
               {ai.icon &&
                 (typeof ai.icon === "string" ? (
-                  <PublicIcon name={ai.icon} className={ai.color} />
+                  <PublicIcon name={ai.icon} className="text-2xl" />
                 ) : (
-                  <ai.icon className={ai.color} />
+                  <BuilderIcon icon={ai.icon} className="text-2xl" />
                 ))}
               <span className="text-xs">{ai.name}</span>
             </button>
@@ -430,12 +431,12 @@ This is a modern {{framework}} application with the following architecture:
                           onClick={() => toggleFile(file)}
                           className="flex items-center gap-2 w-full text-left p-2 bg-comic-white/10 hover:bg-comic-white/20 rounded border border-comic-white/20 transition-colors"
                         >
-                          <FaFile className="text-comic-yellow" />
+                          <BuilderIcon icon={FaFile} className="text-comic-yellow" />
                           <span className="font-mono flex-1">{file}</span>
                           {expandedFiles[file] ? (
-                            <FaChevronDown className="text-xs" />
+                            <BuilderIcon icon={FaChevronDown} className="text-xs" />
                           ) : (
-                            <FaChevronRight className="text-xs" />
+                            <BuilderIcon icon={FaChevronRight} className="text-xs" />
                           )}
                         </button>
                         {expandedFiles[file] && (

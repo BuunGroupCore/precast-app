@@ -4,6 +4,7 @@ import { FaUserShield } from "react-icons/fa";
 
 import { authProviders } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
 
@@ -82,7 +83,7 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
       transition={{ delay: 0.5 }}
     >
       <CollapsibleSection
-        icon={<FaUserShield className="text-3xl" />}
+        icon={<BuilderIcon icon={FaUserShield} className="text-3xl" />}
         title={<h3 className="font-display text-2xl">AUTHENTICATION</h3>}
         className="bg-comic-purple text-comic-white"
       >
@@ -147,7 +148,7 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
                   )}
                 </div>
 
-                {auth.icon && <auth.icon className="text-2xl" />}
+                {auth.icon && <BuilderIcon icon={auth.icon} className="text-2xl" />}
                 <span className="text-xs text-center">{auth.name}</span>
               </button>
             );

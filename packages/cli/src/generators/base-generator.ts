@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -97,7 +98,7 @@ export async function generateBaseTemplate(
     await pluginManager.runGenerate(context);
     await pluginManager.runPostGenerate(context);
 
-    consola.success(
+    logger.verbose(
       `${framework.charAt(0).toUpperCase() + framework.slice(1)} project generated successfully!`
     );
   } catch (error) {
@@ -144,6 +145,7 @@ async function generateSingleAppProject(
     overwrite: false, // Don't overwrite framework-specific files
   });
 
+  // Copy src directory if it exists (for all frameworks including TanStack Start)
   const srcDir = `frameworks/${framework}/src`;
   if (
     await templateEngine
@@ -158,14 +160,11 @@ async function generateSingleAppProject(
   // Copy common components (PrecastBanner, etc.) AFTER framework src
   const commonComponentsDir = `common/components`;
   try {
-    await templateEngine.copyTemplateDirectory(
-      commonComponentsDir,
-      path.join(projectPath, "src/components"),
-      config,
-      {
-        overwrite: false, // Don't overwrite framework-specific components
-      }
-    );
+    const componentsPath = path.join(projectPath, "src/components");
+
+    await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
+      overwrite: false, // Don't overwrite framework-specific components
+    });
   } catch (error) {
     // Log but don't fail if common components don't exist
     consola.debug(`Common components not found or error copying: ${error}`);
@@ -201,7 +200,7 @@ async function generateMonorepoProject(
   projectPath: string,
   templateEngine: any
 ) {
-  consola.info("Generating monorepo structure...");
+  logger.verbose("Generating monorepo structure...");
 
   await templateEngine.copyTemplateDirectory("workspace", projectPath, config, {
     overwrite: true,
@@ -233,28 +232,42 @@ async function generateMonorepoProject(
     }
   );
 
-  const srcDir = `frameworks/${framework}/src`;
-  if (
-    await templateEngine
-      .getAvailableTemplates(`frameworks/${framework}`)
-      .then((dirs: string[]) => dirs.includes("src"))
-  ) {
-    await templateEngine.copyTemplateDirectory(srcDir, path.join(webDir, "src"), config, {
-      overwrite: true,
-    });
+  // Handle TanStack Start's app directory structure
+  if (framework === "tanstack-start") {
+    const appDir = `frameworks/${framework}/app`;
+    if (
+      await templateEngine
+        .getAvailableTemplates(`frameworks/${framework}`)
+        .then((dirs: string[]) => dirs.includes("app"))
+    ) {
+      await templateEngine.copyTemplateDirectory(appDir, path.join(webDir, "app"), config, {
+        overwrite: true,
+      });
+    }
+  } else {
+    const srcDir = `frameworks/${framework}/src`;
+    if (
+      await templateEngine
+        .getAvailableTemplates(`frameworks/${framework}`)
+        .then((dirs: string[]) => dirs.includes("src"))
+    ) {
+      await templateEngine.copyTemplateDirectory(srcDir, path.join(webDir, "src"), config, {
+        overwrite: true,
+      });
+    }
   }
 
-  // Copy common components (PrecastBanner, etc.) AFTER framework src
+  // Copy common components (PrecastBanner, etc.) AFTER framework src/app
   const commonComponentsDir = `common/components`;
   try {
-    await templateEngine.copyTemplateDirectory(
-      commonComponentsDir,
-      path.join(webDir, "src/components"),
-      config,
-      {
-        overwrite: false, // Don't overwrite framework-specific components
-      }
-    );
+    const componentsPath =
+      framework === "tanstack-start"
+        ? path.join(webDir, "app/components")
+        : path.join(webDir, "src/components");
+
+    await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
+      overwrite: false, // Don't overwrite framework-specific components
+    });
   } catch (error) {
     // Log but don't fail if common components don't exist
     consola.debug(`Common components not found or error copying: ${error}`);
@@ -279,5 +292,5 @@ async function generateMonorepoProject(
     await generateBackendTemplate(config.backend, config, apiDir);
   }
 
-  consola.success("Monorepo structure created successfully!");
+  logger.verbose("Monorepo structure created successfully!");
 }

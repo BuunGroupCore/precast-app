@@ -46,16 +46,18 @@ export async function gatherProjectConfig(
     })) as string);
   const framework =
     options.framework ||
-    ((await select({
-      message: "Choose your frontend framework:",
-      options: frameworkDefs
-        .filter((f) => !f.disabled)
-        .map((f) => ({
-          value: f.id,
-          label: f.name,
-          hint: f.description,
-        })),
-    })) as string);
+    (options.yes
+      ? "react"
+      : ((await select({
+          message: "Choose your frontend framework:",
+          options: frameworkDefs
+            .filter((f) => !f.disabled)
+            .map((f) => ({
+              value: f.id,
+              label: f.name,
+              hint: f.description,
+            })),
+        })) as string));
 
   // If Vite is selected, prompt for UI framework
   let uiFramework: string | undefined = options.uiFramework;
@@ -74,30 +76,34 @@ export async function gatherProjectConfig(
 
   const backend =
     options.backend ||
-    ((await select({
-      message: "Choose your backend:",
-      options: backendDefs
-        .filter((b) => !b.disabled)
-        .map((b) => ({
-          value: b.id,
-          label: b.name,
-          hint: b.description,
-        })),
-    })) as string);
+    (options.yes
+      ? "none"
+      : ((await select({
+          message: "Choose your backend:",
+          options: backendDefs
+            .filter((b) => !b.disabled)
+            .map((b) => ({
+              value: b.id,
+              label: b.name,
+              hint: b.description,
+            })),
+        })) as string));
   const database =
     backend === "none"
       ? "none"
       : options.database ||
-        ((await select({
-          message: "Choose your database:",
-          options: databaseDefs
-            .filter((d) => !d.disabled)
-            .map((d) => ({
-              value: d.id,
-              label: d.name,
-              hint: d.description,
-            })),
-        })) as string);
+        (options.yes
+          ? "none"
+          : ((await select({
+              message: "Choose your database:",
+              options: databaseDefs
+                .filter((d) => !d.disabled)
+                .map((d) => ({
+                  value: d.id,
+                  label: d.name,
+                  hint: d.description,
+                })),
+            })) as string));
   const orm =
     database === "none"
       ? "none"

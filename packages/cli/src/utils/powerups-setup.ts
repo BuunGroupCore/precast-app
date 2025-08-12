@@ -141,6 +141,7 @@ export async function setupPowerUpsWithConfig(
         packageManager: config.packageManager,
         projectPath: targetPath,
         dev: false,
+        context: "powerups",
       });
     }
 
@@ -150,6 +151,7 @@ export async function setupPowerUpsWithConfig(
         packageManager: config.packageManager,
         projectPath: targetPath,
         dev: true,
+        context: "powerups_dev",
       });
     }
 

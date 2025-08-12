@@ -7,6 +7,7 @@ import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { getAllRequiredDeps, UI_LIBRARY_COMPATIBILITY } from "./dependency-checker.js";
 import { installDependencies } from "./package-manager.js";
+import { errorCollector } from "./error-collector.js";
 
 /**
  * Setup UI library for the project
@@ -37,11 +38,18 @@ export async function setupUILibrary(config: ProjectConfig, projectPath: string)
     const deps = getAllRequiredDeps([config.uiLibrary], UI_LIBRARY_COMPATIBILITY);
     if (deps.length > 0) {
       consola.info(`Installing ${config.uiLibrary} dependencies...`);
-      await installDependencies(deps, {
-        packageManager: config.packageManager,
-        projectPath,
-        dev: true,
-      });
+      try {
+        await installDependencies(deps, {
+          packageManager: config.packageManager,
+          projectPath,
+          dev: true,
+          context: "ui_library",
+        });
+      } catch (error) {
+        consola.error(`Failed to install ${config.uiLibrary} dependencies:`, error);
+        errorCollector.addError(`${config.uiLibrary} dependency installation`, error);
+        // Continue anyway - the UI library might still work
+      }
     }
     switch (config.uiLibrary) {
       case "shadcn":
@@ -98,11 +106,13 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
         consola.success(`✅ Added ${component} component`);
       } catch (error) {
         consola.warn(`Failed to add ${component} component:`, error);
+        errorCollector.addWarning(`shadcn component ${component} installation`, error);
       }
     }
     consola.success("🎯 shadcn/ui setup completed");
   } catch (error) {
     consola.warn("Failed to initialize shadcn/ui:", error);
+    errorCollector.addError("shadcn/ui initialization", error);
     consola.info("You can manually initialize it later with: npx shadcn@latest init");
   }
 }

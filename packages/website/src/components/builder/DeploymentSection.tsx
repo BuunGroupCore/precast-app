@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import React, { useState, useMemo, useEffect } from "react";
 import { FaRocket, FaServer, FaHtml5, FaLightbulb, FaGlobe, FaCloud } from "react-icons/fa";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { deploymentMethods } from "./constants";
 import { PublicIcon } from "./PublicIcon";
@@ -92,7 +93,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
       transition={{ delay: 0.8 }}
     >
       <CollapsibleSection
-        icon={<FaRocket className="text-3xl text-comic-red" />}
+        icon={<BuilderIcon icon={FaRocket} className="text-3xl text-comic-red" />}
         title={<h3 className="font-display text-2xl">DEPLOYMENT</h3>}
       >
         <p className="font-comic text-sm mb-4 text-comic-gray">
@@ -109,7 +110,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
                 : "bg-comic-white text-comic-gray border-2 border-comic-gray hover:border-comic-black"
             }`}
           >
-            <FaHtml5 className="text-base sm:text-lg" />
+            <BuilderIcon icon={FaHtml5} className="text-base sm:text-lg" />
             <span>Static Sites</span>
           </button>
 
@@ -123,7 +124,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
                 : "bg-comic-white text-comic-gray border-2 border-comic-gray hover:border-comic-black"
             }`}
           >
-            <FaServer className="text-base sm:text-lg" />
+            <BuilderIcon icon={FaServer} className="text-base sm:text-lg" />
             <span>Full-Stack Apps</span>
           </button>
         </div>
@@ -164,9 +165,9 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
 
               {deploy.icon &&
                 (typeof deploy.icon === "string" ? (
-                  <PublicIcon name={deploy.icon} className={`text-2xl ${deploy.color}`} />
+                  <PublicIcon name={deploy.icon} className="text-2xl" />
                 ) : (
-                  <deploy.icon className={`text-2xl ${deploy.color}`} />
+                  <BuilderIcon icon={deploy.icon} className="text-2xl" />
                 ))}
               <span className="text-xs text-center">{deploy.name}</span>
             </button>
@@ -176,7 +177,7 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
         {config.deploymentMethod && config.deploymentMethod !== "none" && (
           <div className="mt-3 p-3 bg-comic-purple/10 rounded-lg border border-comic-purple/20">
             <p className="text-xs font-comic text-comic-purple flex items-start gap-2">
-              <FaLightbulb className="text-sm flex-shrink-0 mt-0.5" />
+              <BuilderIcon icon={FaLightbulb} className="text-sm flex-shrink-0 mt-0.5" />
               <span>
                 {deploymentMethods.find((d) => d.id === config.deploymentMethod)?.description}
               </span>
@@ -188,12 +189,12 @@ export const DeploymentSection: React.FC<DeploymentSectionProps> = ({ config, se
         <div className="mt-3 text-xs font-comic text-comic-gray">
           {isStatic ? (
             <p className="flex items-center gap-2">
-              <FaGlobe className="text-sm" />
+              <BuilderIcon icon={FaGlobe} className="text-sm" />
               <span>Showing platforms optimized for static sites and SPAs</span>
             </p>
           ) : (
             <p className="flex items-center gap-2">
-              <FaCloud className="text-sm" />
+              <BuilderIcon icon={FaCloud} className="text-sm" />
               <span>Showing platforms that support server-side rendering and APIs</span>
             </p>
           )}

@@ -1,8 +1,8 @@
-name: Update Analytics Data
+name: Update PostHog Analytics Data
 
 # Security: This workflow is restricted to only modify files in the data/ directory
 # - Path validation prevents writing outside data/ directory
-# - File validation only allows analytics.json and analytics.csv
+# - File validation only allows posthog-analytics.json and posthog-analytics.csv
 # - Git operations are limited to data/ directory files only
 # - Minimal permissions granted to workflow
 
@@ -15,8 +15,8 @@ on:
     branches:
       - main
     paths:
-      - "scripts/fetch-analytics.js"
-      - ".github/workflows/update-analytics.yml"
+      - "scripts/fetch-posthog-analytics.js"
+      - ".github/workflows/update-posthog-analytics.yml"
 
 jobs:
   fetch-analytics:
@@ -53,11 +53,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Fetch GA4 Analytics Data
+      - name: Fetch PostHog Analytics Data
         env:
-          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
-          GA_SERVICE_ACCOUNT_KEY: ${{ secrets.GA_SERVICE_ACCOUNT_KEY }}
-        run: node scripts/fetch-analytics.js
+          POSTHOG_PROJECT_ID: ${{ secrets.POSTHOG_PROJECT_ID }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+        run: node scripts/fetch-posthog-analytics.js
 
       - name: Check for changes in data directory only
         id: verify-changed
@@ -94,8 +95,8 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          # Only add files from data/ directory
-          git add data/analytics.json data/analytics.csv
+          # Only add PostHog analytics files from data/ directory
+          git add data/posthog-analytics.json data/posthog-analytics.csv
 
           # Verify staging area only contains data/ files
           STAGED_FILES=$(git diff --cached --name-only)
@@ -107,14 +108,14 @@ jobs:
             exit 1
           fi
 
-          git commit -m "📊 Update analytics data [skip ci]"
+          git commit -m "📊 Update PostHog analytics data [skip ci]"
           git push
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: analytics-data
+          name: posthog-analytics-data
           path: |
-            data/analytics.json
-            data/analytics.csv
+            data/posthog-analytics.json
+            data/posthog-analytics.csv
           retention-days: 90

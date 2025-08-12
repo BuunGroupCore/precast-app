@@ -6,6 +6,7 @@ import { SiTypescript } from "react-icons/si";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { powerUps, powerUpCategories } from "@/lib/powerups-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import type { ExtendedProjectConfig } from "./types";
 
 interface PowerUpsSectionProps {
@@ -139,7 +140,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <FaTools className="text-3xl text-comic-darkBlue" />
+          <BuilderIcon icon={FaTools} className="text-3xl text-comic-darkBlue" />
           <h3 className="font-display text-2xl text-comic-darkBlue">POWER-UPS</h3>
         </div>
         <button
@@ -147,7 +148,11 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
           className="p-2 rounded-full hover:bg-comic-gray/20 transition-colors"
           aria-label={isExpanded ? "Collapse" : "Expand"}
         >
-          {isExpanded ? <FaChevronUp className="text-xl" /> : <FaChevronDown className="text-xl" />}
+          {isExpanded ? (
+            <BuilderIcon icon={FaChevronUp} className="text-xl" />
+          ) : (
+            <BuilderIcon icon={FaChevronDown} className="text-xl" />
+          )}
         </button>
       </div>
       <div className="border-t-3 border-comic-gray mb-3"></div>
@@ -168,11 +173,11 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
           style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
           title="Add type safety and better developer experience"
         >
-          <div className="flex items-center gap-2 mb-1">
-            <SiTypescript className="text-lg" />
+          <div className="flex items-center gap-2 mb-1 pr-1">
+            <BuilderIcon icon={SiTypescript} className="text-lg" />
             <span className="font-display text-sm">TypeScript</span>
           </div>
-          <p className="font-comic text-xs text-left line-clamp-2">
+          <p className="font-comic text-xs text-left line-clamp-2 pr-1">
             Add type safety and better developer experience
           </p>
         </button>
@@ -187,11 +192,11 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
           style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
           title="Initialize version control with Git repository"
         >
-          <div className="flex items-center gap-2 mb-1">
-            <FaGitAlt className="text-lg" />
+          <div className="flex items-center gap-2 mb-1 pr-1">
+            <BuilderIcon icon={FaGitAlt} className="text-lg" />
             <span className="font-display text-sm">Git</span>
           </div>
-          <p className="font-comic text-xs text-left line-clamp-2">
+          <p className="font-comic text-xs text-left line-clamp-2 pr-1">
             Initialize version control with Git repository
           </p>
         </button>
@@ -206,11 +211,11 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
           style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
           title="Add containerization support with Dockerfile"
         >
-          <div className="flex items-center gap-2 mb-1">
-            <FaDocker className="text-lg" />
+          <div className="flex items-center gap-2 mb-1 pr-1">
+            <BuilderIcon icon={FaDocker} className="text-lg" />
             <span className="font-display text-sm">Docker</span>
           </div>
-          <p className="font-comic text-xs text-left line-clamp-2">
+          <p className="font-comic text-xs text-left line-clamp-2 pr-1">
             Add containerization support with Dockerfile
           </p>
         </button>
@@ -224,12 +229,12 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
         >
           {isExpanded ? (
             <>
-              <FaChevronUp className="text-sm" />
+              <BuilderIcon icon={FaChevronUp} className="text-sm" />
               Show Less
             </>
           ) : (
             <>
-              <FaChevronDown className="text-sm" />
+              <BuilderIcon icon={FaChevronDown} className="text-sm" />
               Show {additionalPowerUpsCount} More Power-ups
             </>
           )}
@@ -268,7 +273,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
                         : "bg-comic-gray/20 hover:bg-comic-gray/30"
                     }`}
                   >
-                    <Icon className="text-sm" />
+                    <BuilderIcon icon={Icon} className="text-sm" />
                     {category.name}
                   </button>
                 );
@@ -325,13 +330,14 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({ config, setCon
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mb-1 flex-shrink-0">
-                      <Icon
+                    <div className="flex items-center gap-2 mb-1 flex-shrink-0 pr-1">
+                      <BuilderIcon
+                        icon={Icon}
                         className={`text-lg flex-shrink-0 ${!isAvailable ? "opacity-50" : ""}`}
                       />
-                      <span className="font-display text-sm truncate">{powerup.name}</span>
+                      <span className="font-display text-sm truncate pr-1">{powerup.name}</span>
                     </div>
-                    <p className="font-comic text-xs text-left line-clamp-2 overflow-hidden">
+                    <p className="font-comic text-xs text-left line-clamp-2 pr-1">
                       {isAvailable
                         ? powerup.description
                         : `Requires ${powerup.missingRequirements?.join(" and ")}`}

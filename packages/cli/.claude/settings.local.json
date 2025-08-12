@@ -16,7 +16,11 @@
       "WebFetch(domain:javascript.plainenglish.io)",
       "WebFetch(domain:www.techiediaries.com)",
       "WebFetch(domain:turbo.build)",
-      "WebFetch(domain:turborepo.com)"
+      "WebFetch(domain:turborepo.com)",
+      "WebFetch(domain:tanstack.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:blog.logrocket.com)",
+      "Bash(./dist/cli.js init:*)"
     ],
     "deny": []
   }

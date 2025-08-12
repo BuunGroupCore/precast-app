@@ -4,6 +4,7 @@ import { FaPaintBrush } from "react-icons/fa";
 
 import { Tooltip } from "@/components/ui/Tooltip";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { uiLibraries } from "./constants";
 import { PublicIcon } from "./PublicIcon";
@@ -70,7 +71,7 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
       transition={{ delay: 0.55 }}
     >
       <CollapsibleSection
-        icon={<FaPaintBrush className="text-3xl text-comic-blue" />}
+        icon={<BuilderIcon icon={FaPaintBrush} className="text-3xl text-comic-blue" />}
         title={<h3 className="font-display text-2xl text-comic-blue">UI COMPONENTS</h3>}
       >
         <p className="font-comic text-sm mb-4 text-comic-gray">
@@ -107,9 +108,9 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
                   >
                     {lib.icon &&
                       (typeof lib.icon === "string" ? (
-                        <PublicIcon name={lib.icon} className={`text-2xl ${lib.color}`} />
+                        <PublicIcon name={lib.icon} className="text-2xl" />
                       ) : (
-                        <lib.icon className={`text-2xl ${lib.color}`} />
+                        <BuilderIcon icon={lib.icon} className="text-2xl" />
                       ))}
                     <span className="text-xs">{lib.name}</span>
                   </button>

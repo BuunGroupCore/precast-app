@@ -15,6 +15,7 @@ import {
   runtimes,
 } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { aiAssistants, deploymentMethods, uiLibraries } from "./constants";
 import { FolderStructureDialog } from "./FolderStructureDialog";
 import { PublicIcon } from "./PublicIcon";
@@ -93,8 +94,13 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
         <span className="absolute top-0.5 right-0.5 text-[7px] min-[320px]:text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full z-10">
           {categoryLabels[type]}
         </span>
-        {Icon && <Icon className="text-xl min-[320px]:text-2xl text-white flex-shrink-0" />}
-        <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal">
+        {Icon && (
+          <BuilderIcon
+            icon={Icon}
+            className="text-xl min-[320px]:text-2xl text-white flex-shrink-0"
+          />
+        )}
+        <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal text-white">
           {displayName}
         </span>
       </div>
@@ -143,7 +149,10 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
               title="Preview folder structure"
             >
               <div className="flex items-center gap-2">
-                <FaFolderOpen className="text-base sm:text-lg" />
+                <BuilderIcon
+                  icon={FaFolderOpen}
+                  className="text-base sm:text-lg text-comic-black"
+                />
                 <span className="font-comic font-bold text-xs sm:text-sm">VIEW STRUCTURE</span>
               </div>
             </motion.button>
@@ -183,7 +192,7 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                   />
                 ))}
               </div>
-              <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal">
+              <span className="text-[10px] min-[320px]:text-xs font-comic text-left min-[320px]:text-center truncate min-[320px]:break-normal text-white">
                 {config.colorPalette.name}
               </span>
             </div>
@@ -206,12 +215,12 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                     typeof uiLib.icon === "string" ? (
                       <PublicIcon name={uiLib.icon} className="w-5 h-5 brightness-0 invert" />
                     ) : (
-                      <uiLib.icon className="text-2xl text-white" />
+                      <BuilderIcon icon={uiLib.icon} className="text-2xl text-white" />
                     )
                   ) : (
-                    <FaPaintBrush className="text-2xl text-white" />
+                    <BuilderIcon icon={FaPaintBrush} className="text-2xl text-white" />
                   )}
-                  <span className="text-xs font-comic text-center">
+                  <span className="text-xs font-comic text-center text-white">
                     {uiLib?.name || config.uiLibrary}
                   </span>
                 </div>
@@ -227,8 +236,10 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                   <span className="absolute top-0.5 right-0.5 text-[8px] font-comic bg-comic-yellow text-comic-black px-1 rounded-full">
                     UI Framework
                   </span>
-                  {uiFramework?.icon && <uiFramework.icon className="text-2xl text-white" />}
-                  <span className="text-xs font-comic text-center">
+                  {uiFramework?.icon && (
+                    <BuilderIcon icon={uiFramework.icon} className="text-2xl text-white" />
+                  )}
+                  <span className="text-xs font-comic text-center text-white">
                     {uiFramework?.name || config.uiFramework}
                   </span>
                 </div>
@@ -249,12 +260,12 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                     typeof aiAssistant.icon === "string" ? (
                       <PublicIcon name={aiAssistant.icon} className="w-5 h-5 brightness-0 invert" />
                     ) : (
-                      <aiAssistant.icon className="text-2xl text-white" />
+                      <BuilderIcon icon={aiAssistant.icon} className="text-2xl text-white" />
                     )
                   ) : (
                     <span className="text-2xl">🤖</span>
                   )}
-                  <span className="text-xs font-comic text-center">
+                  <span className="text-xs font-comic text-center text-white">
                     {aiAssistant?.name || config.aiAssistant}
                   </span>
                 </div>
@@ -277,12 +288,12 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                     typeof deployment.icon === "string" ? (
                       <PublicIcon name={deployment.icon} className="w-5 h-5 brightness-0 invert" />
                     ) : (
-                      <deployment.icon className="text-2xl text-white" />
+                      <BuilderIcon icon={deployment.icon} className="text-2xl text-white" />
                     )
                   ) : (
                     <span className="text-2xl">🚀</span>
                   )}
-                  <span className="text-xs font-comic text-center">
+                  <span className="text-xs font-comic text-center text-white">
                     {deployment?.name || config.deploymentMethod}
                   </span>
                 </div>
@@ -303,12 +314,12 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                     typeof auth.icon === "string" ? (
                       <PublicIcon name={auth.icon} className="w-5 h-5 brightness-0 invert" />
                     ) : (
-                      <auth.icon className="text-2xl text-white" />
+                      <BuilderIcon icon={auth.icon} className="text-2xl text-white" />
                     )
                   ) : (
                     <span className="text-2xl">🔐</span>
                   )}
-                  <span className="text-xs font-comic text-center">
+                  <span className="text-xs font-comic text-center text-white">
                     {auth?.name || config.auth}
                   </span>
                 </div>
@@ -333,8 +344,8 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                     className="comic-panel p-2 bg-comic-purple/20 hover:bg-comic-purple/30 transition-colors cursor-pointer flex flex-col items-center gap-1"
                     title={plugin.description}
                   >
-                    <Icon className="text-2xl text-white" />
-                    <span className="text-xs font-comic text-center">{plugin.name}</span>
+                    <BuilderIcon icon={Icon} className="text-2xl text-white" />
+                    <span className="text-xs font-comic text-center text-white">{plugin.name}</span>
                   </div>
                 );
               })}
@@ -352,20 +363,20 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
             <div className="flex flex-wrap justify-center gap-3 max-h-20 overflow-y-auto pb-2">
               {config.typescript && (
                 <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
-                  <SiTypescript className="text-2xl text-white" />
-                  <span className="text-xs font-comic text-center">TypeScript</span>
+                  <BuilderIcon icon={SiTypescript} className="text-2xl text-white" />
+                  <span className="text-xs font-comic text-center text-white">TypeScript</span>
                 </div>
               )}
               {config.git && (
                 <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
-                  <FaGitAlt className="text-2xl text-white" />
-                  <span className="text-xs font-comic text-center">Git</span>
+                  <BuilderIcon icon={FaGitAlt} className="text-2xl text-white" />
+                  <span className="text-xs font-comic text-center text-white">Git</span>
                 </div>
               )}
               {config.docker && (
                 <div className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1">
-                  <FaDocker className="text-2xl text-white" />
-                  <span className="text-xs font-comic text-center">Docker</span>
+                  <BuilderIcon icon={FaDocker} className="text-2xl text-white" />
+                  <span className="text-xs font-comic text-center text-white">Docker</span>
                 </div>
               )}
               {/* Additional Power-ups */}
@@ -379,8 +390,10 @@ export const StackSummarySection: React.FC<StackSummarySectionProps> = ({ config
                     className="comic-panel p-2 bg-comic-white/10 hover:bg-comic-white/20 transition-colors cursor-pointer flex flex-col items-center gap-1"
                     title={powerup.description}
                   >
-                    <Icon className="text-2xl text-white" />
-                    <span className="text-xs font-comic text-center">{powerup.name}</span>
+                    <BuilderIcon icon={Icon} className="text-2xl text-white" />
+                    <span className="text-xs font-comic text-center text-white">
+                      {powerup.name}
+                    </span>
                   </div>
                 );
               })}

@@ -10,6 +10,15 @@ const options = {
   api_host: ANALYTICS.POSTHOG_HOST,
   capture_pageview: false,
   capture_pageleave: true,
+  disable_session_recording: true,
+  disable_compression: true,
+  advanced_disable_decide: true,
+  loaded: (posthog: { config?: { disable_session_recording?: boolean } }) => {
+    // Disable session recording and other features that require external scripts
+    if (posthog.config) {
+      posthog.config.disable_session_recording = true;
+    }
+  },
 };
 
 /**

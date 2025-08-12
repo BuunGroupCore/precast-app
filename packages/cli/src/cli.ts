@@ -77,6 +77,9 @@ program
     "--color-palette <palette>",
     "Color palette theme (minimal-pro, monochrome, gradient, midnight, breeze, electric, nature, sunset, developer, arctic)"
   )
+  .option("--debug", "Enable debug mode for verbose output")
+  .option("--debug-analytics", "Enable debug logging for analytics events")
+  .option("-v, --verbose", "Show detailed installation logs")
   .action(async (projectName, options) => {
     await initCommand(projectName, {
       yes: options.yes,
@@ -104,6 +107,9 @@ program
       powerups: options.powerups ? options.powerups.split(",") : undefined,
       plugins: options.plugins ? options.plugins.split(",") : undefined,
       colorPalette: options.colorPalette,
+      debug: options.debug,
+      debugAnalytics: options.debugAnalytics,
+      verbose: options.verbose,
     });
   });
 program
@@ -130,8 +136,9 @@ program
 program
   .command("status [path]")
   .description("Show the status and configuration of a Precast project")
-  .action(async (projectPath) => {
-    await statusCommand(projectPath);
+  .option("--debug", "Enable debug mode for verbose output")
+  .action(async (projectPath, options) => {
+    await statusCommand(projectPath, options);
   });
 
 program

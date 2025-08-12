@@ -2,6 +2,9 @@ import path from "path";
 import { consola } from "consola";
 import { execa } from "execa";
 import fsExtra from "fs-extra";
+import { logger, isVerbose } from "./logger.js";
+import { trackError, trackFallback, trackDependencyInstall } from "./analytics.js";
+import { errorCollector } from "./error-collector.js";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
@@ -124,10 +127,12 @@ export async function installDependencies(
     projectPath: string;
     dev?: boolean;
     exact?: boolean;
+    context?: string;
   }
 ): Promise<void> {
   if (dependencies.length === 0) return;
 
+  const startTime = Date.now();
   const pm = getPackageManagerConfig(options.packageManager);
   const args = [pm.addCommand, ...dependencies];
 
@@ -147,7 +152,7 @@ export async function installDependencies(
   };
   const pmIcon = pmIcons[pm.id] || "📦";
 
-  consola.info(`${pmIcon} Installing dependencies with ${pm.id}...`);
+  logger.verbose(`${pmIcon} Installing dependencies with ${pm.id}...`);
   consola.debug(`Command: ${pm.id} ${args.join(" ")}`);
 
   try {
@@ -171,7 +176,7 @@ export async function installDependencies(
             cwd: options.projectPath,
             stdio: "inherit",
           });
-          consola.success("Dependencies installed successfully with npm (fallback)");
+          logger.verbose("Dependencies installed successfully with npm (fallback)");
           return;
         } catch {
           consola.warn("npm not available either, continuing with bun...");
@@ -182,22 +187,55 @@ export async function installDependencies(
     // For Bun, add --ignore-scripts flag to avoid postinstall script failures
     if (pm.id === "bun" && !args.includes("--ignore-scripts")) {
       args.push("--ignore-scripts");
-      consola.info("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
+      logger.verbose("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
     }
+
+    // Show output only in verbose mode
+    const stdio = isVerbose() ? "inherit" : "pipe";
 
     await execa(pm.id, args, {
       cwd: options.projectPath,
-      stdio: "inherit",
+      stdio,
     });
-    consola.success(`✅ Dependencies installed successfully with ${pm.id}`);
+
+    if (!isVerbose()) {
+      logger.verbose(`✅ Dependencies installed successfully with ${pm.id}`);
+    }
+
+    // Track successful installation
+    await trackDependencyInstall(
+      pm.id,
+      Date.now() - startTime,
+      true,
+      dependencies.length,
+      options.context || "core"
+    );
   } catch (error) {
     consola.error(`❌ Failed to install dependencies with ${pm.id}:`, error);
+
+    // Collect the error
+    errorCollector.addError(`Installing ${dependencies.join(", ")} with ${pm.id}`, error);
+
+    // Track the initial failure
+    await trackError("dependency_install_failed", {
+      packageManager: pm.id,
+      packages: dependencies.join(","),
+      errorMessage: error instanceof Error ? error.message : String(error),
+      dev: options.dev || false,
+    });
 
     // If bun failed and npm is available, try fallback
     if (pm.id === "bun") {
       try {
         await execa("npm", ["--version"], { stdio: "ignore" });
         consola.info("Attempting fallback to npm...");
+
+        // Track fallback attempt
+        await trackFallback("bun_to_npm", {
+          originalPackageManager: "bun",
+          fallbackPackageManager: "npm",
+          packages: "all",
+        });
         const npmPm = getPackageManagerConfig("npm");
         const npmArgs = [npmPm.addCommand, ...dependencies];
         if (options.dev) npmArgs.push(npmPm.devFlag);
@@ -205,12 +243,35 @@ export async function installDependencies(
 
         await execa("npm", npmArgs, {
           cwd: options.projectPath,
-          stdio: "inherit",
+          stdio: isVerbose() ? "inherit" : "pipe",
         });
-        consola.success("Dependencies installed successfully with npm (fallback)");
+        if (!isVerbose()) {
+          logger.verbose("Dependencies installed successfully with npm (fallback)");
+        }
+
+        // Track successful fallback
+        await trackDependencyInstall(
+          "npm",
+          Date.now() - startTime,
+          true,
+          dependencies.length,
+          options.context || "core_fallback"
+        );
         return;
       } catch (fallbackError) {
         consola.error("Fallback to npm also failed:", fallbackError);
+
+        // Collect the fallback error
+        errorCollector.addError(`Fallback npm install for all dependencies`, fallbackError);
+
+        // Track fallback failure
+        await trackError("dependency_install_fallback_failed", {
+          originalPackageManager: "bun",
+          fallbackPackageManager: "npm",
+          packages: "all",
+          errorMessage:
+            fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
+        });
       }
     }
 
@@ -295,7 +356,7 @@ export async function installAllDependencies(options: {
     const installArgs = ["install"];
     if (actualPm.id === "bun") {
       installArgs.push("--ignore-scripts");
-      consola.info("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
+      logger.verbose("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
     }
 
     // For pnpm, check if we're in a workspace and add --ignore-workspace flag
@@ -315,9 +376,11 @@ export async function installAllDependencies(options: {
 
     await execa(actualPm.id, installArgs, {
       cwd: options.projectPath,
-      stdio: "inherit",
+      stdio: isVerbose() ? "inherit" : "pipe",
     });
-    consola.success(`✅ Dependencies installed successfully with ${actualPm.id}`);
+    if (!isVerbose()) {
+      logger.verbose(`✅ Dependencies installed successfully with ${actualPm.id}`);
+    }
   } catch (error) {
     consola.error(`❌ Failed to install dependencies with ${actualPm.id}:`, error);
 
@@ -332,13 +395,34 @@ export async function installAllDependencies(options: {
         await execa("npm", ["--version"], { stdio: "ignore" });
         consola.info("Attempting fallback to npm...");
 
+        // Track fallback attempt
+        await trackFallback("bun_to_npm", {
+          originalPackageManager: "bun",
+          fallbackPackageManager: "npm",
+          packages: "all",
+        });
+
         await execa("npm", ["install"], {
           cwd: options.projectPath,
-          stdio: "inherit",
+          stdio: isVerbose() ? "inherit" : "pipe",
         });
-        consola.success("✅ Dependencies installed successfully with npm (fallback)");
+        if (!isVerbose()) {
+          logger.verbose("✅ Dependencies installed successfully with npm (fallback)");
+        }
       } catch (fallbackError) {
         consola.error("Fallback to npm also failed:", fallbackError);
+
+        // Collect the fallback error
+        errorCollector.addError(`Fallback npm install for all dependencies`, fallbackError);
+
+        // Track fallback failure
+        await trackError("dependency_install_fallback_failed", {
+          originalPackageManager: "bun",
+          fallbackPackageManager: "npm",
+          packages: "all",
+          errorMessage:
+            fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
+        });
         throw error;
       }
     } else {

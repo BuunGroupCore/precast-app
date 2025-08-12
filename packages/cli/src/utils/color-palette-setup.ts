@@ -1,6 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 
+import chalk from "chalk";
+
 import { getColorPaletteById } from "../../../shared/src/color-palettes.js";
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
@@ -49,7 +51,18 @@ export async function setupColorPalette(config: ProjectConfig, projectPath: stri
     return;
   }
 
-  logger.info(`Setting up color palette: ${palette.name}`);
+  // Get preview colors or use main colors
+  const previewColors = palette.preview || [
+    palette.colors.primary,
+    palette.colors.secondary,
+    palette.colors.accent,
+    palette.colors.background,
+  ];
+
+  // Create colored circles display
+  const colorDisplay = previewColors.map((color) => chalk.hex(color)("●")).join(" ");
+
+  logger.info(`Setting up color palette: ${colorDisplay} ${palette.name}`);
 
   const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);

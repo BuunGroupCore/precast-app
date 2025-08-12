@@ -2,6 +2,7 @@ import path from "path";
 
 import consola from "consola";
 import fs from "fs-extra";
+import { logger } from "./logger.js";
 
 import { ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -922,14 +923,14 @@ export async function generateEnvFiles(
         await updateGitignore(apiPath);
       }
 
-      consola.success("Generated environment files:");
+      logger.verbose("Generated environment files:");
       if (await fs.pathExists(webPath)) {
-        consola.info("  📁 web/.env (with defaults), web/.env.example (template)");
+        logger.verbose("  📁 web/.env (with defaults), web/.env.example (template)");
       }
       if (await fs.pathExists(apiPath)) {
-        consola.info("  📁 api/.env (with defaults), api/.env.example (template)");
+        logger.verbose("  📁 api/.env (with defaults), api/.env.example (template)");
       }
-      consola.info("  💡 Update .env files with your actual API keys and credentials");
+      logger.verbose("  💡 Update .env files with your actual API keys and credentials");
     } else {
       // For single package projects: generate both .env and .env.example at root
       const allVars = envConfig.variables;
@@ -957,16 +958,16 @@ export async function generateEnvFiles(
       // Update root .gitignore
       await updateGitignore(config.projectPath);
 
-      consola.success("Generated environment files: .env (with defaults), .env.example (template)");
-      consola.info("  💡 Update .env with your actual API keys and credentials");
-      consola.info("  📝 .env.example serves as a template for team members");
+      logger.verbose("Generated environment files: .env (with defaults), .env.example (template)");
+      logger.verbose("  💡 Update .env with your actual API keys and credentials");
+      logger.verbose("  📝 .env.example serves as a template for team members");
     }
 
     // Log notes if any
     if (envConfig.additionalNotes && envConfig.additionalNotes.length > 0) {
-      consola.info("Environment setup notes:");
+      logger.verbose("Environment setup notes:");
       for (const note of envConfig.additionalNotes) {
-        consola.info(`  • ${note}`);
+        logger.verbose(`  • ${note}`);
       }
     }
   } catch (error) {

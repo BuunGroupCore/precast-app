@@ -31,7 +31,7 @@ export function MetricsHeader({ loading, refreshTime }: MetricsHeaderProps) {
           >
             <div className="speech-bubble text-sm">
               <p className="font-comic">
-                Live data • Updates every 30 seconds • Last:{" "}
+                Live data • GitHub: 30 minutes • Analytics: 6 hours • Last:{" "}
                 <strong>{refreshTime.toLocaleTimeString()}</strong>
                 {loading && " • Refreshing..."}
               </p>

@@ -1,8 +1,7 @@
 import * as path from "path";
 
+import chalk from "chalk";
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
-const { pathExists, readFile } = fsExtra;
 
 import {
   theme,
@@ -16,6 +15,9 @@ import {
   statusSymbols,
   actionSymbols,
 } from "../utils/cli-theme.js";
+
+// eslint-disable-next-line import/no-named-as-default-member
+const { pathExists, readFile } = fsExtra;
 
 interface PrecastConfig {
   name: string;
@@ -43,6 +45,41 @@ interface PrecastConfig {
   createdAt?: string;
   lastModified?: string;
   [key: string]: any;
+}
+
+/**
+ * Get color palette display with colored circles
+ */
+async function getColorPaletteDisplay(paletteId: string): Promise<string | null> {
+  try {
+    // Dynamically import the color palette module
+    const { getColorPaletteById } = await import("../../../shared/src/color-palettes.js");
+    const palette = getColorPaletteById(paletteId);
+
+    if (!palette) return null;
+
+    // Get preview colors or use main colors
+    const previewColors = palette.preview || [
+      palette.colors.primary,
+      palette.colors.secondary,
+      palette.colors.accent,
+      palette.colors.background,
+    ];
+
+    // Create colored circles with hex codes
+    const colorDisplay = previewColors
+      .map((color) => {
+        // Use chalk to color the circle with the hex color
+        const coloredCircle = chalk.hex(color)("●");
+        return `${coloredCircle} ${theme.dim(color)}`;
+      })
+      .join("  ");
+
+    return `${theme.accent("◇")} ${palette.name} palette\n     ${colorDisplay}`;
+  } catch (error) {
+    // If we can't load the palette, just return the name
+    return null;
+  }
 }
 
 /**
@@ -82,9 +119,6 @@ function createTechStackDisplay(config: PrecastConfig): string {
   }
   if (config.uiLibrary && config.uiLibrary !== "none") {
     uiItems.push(`${techBadge(config.uiLibrary)}`);
-  }
-  if (config.colorPalette) {
-    uiItems.push(`${theme.accent("◇")} ${config.colorPalette} palette`);
   }
 
   if (uiItems.length > 0) {
@@ -219,8 +253,14 @@ function createQuickCommands(
  * Display the status and configuration of a Precast project.
  * Reads the precast.jsonc file and presents project information in a formatted display.
  * @param projectPath - Optional path to the project directory (defaults to current directory)
+ * @param options - Command options including debug mode
  */
-export async function statusCommand(projectPath?: string): Promise<void> {
+export async function statusCommand(
+  projectPath?: string,
+  options?: { debug?: boolean }
+): Promise<void> {
+  const debug = options?.debug || process.env.DEBUG === "true";
+
   try {
     const targetPath = projectPath ? path.resolve(projectPath) : process.cwd();
     const precastConfigPath = path.join(targetPath, "precast.jsonc");
@@ -249,6 +289,11 @@ export async function statusCommand(projectPath?: string): Promise<void> {
     jsonContent = jsonContent.replace(/,\s*([}\]])/g, "$1"); // Trailing commas
 
     const config: PrecastConfig = JSON.parse(jsonContent);
+
+    if (debug) {
+      console.log(theme.dim("[DEBUG] Loaded config from:"), theme.dim(precastConfigPath));
+      console.log(theme.dim("[DEBUG] Config keys:"), theme.dim(Object.keys(config).join(", ")));
+    }
 
     // Create beautiful header with ASCII art
     console.log();
@@ -281,6 +326,16 @@ export async function statusCommand(projectPath?: string): Promise<void> {
       const stackBox = createFancyBox(techStackDisplay, "⚙ Tech Stack");
       console.log(stackBox);
       console.log();
+    }
+
+    // Color Palette Section (if configured)
+    if (config.colorPalette) {
+      const paletteDisplay = await getColorPaletteDisplay(config.colorPalette);
+      if (paletteDisplay) {
+        const paletteBox = createFancyBox(paletteDisplay, "🎨 Color Theme");
+        console.log(paletteBox);
+        console.log();
+      }
     }
 
     // Health Check Section

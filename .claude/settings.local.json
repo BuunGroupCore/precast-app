@@ -137,7 +137,10 @@
       "Bash(packages/cli/dist/cli.js init test-eslint-final --framework react --backend express --database postgres --orm drizzle --styling tailwind --runtime node --yes)",
       "Bash(./test-runner.sh:*)",
       "Bash(docker:*)",
-      "Bash(packages/cli/dist/cli.js init test-hono-fixed --framework react --backend hono --database postgres --orm prisma --styling tailwind --runtime node --docker --yes)"
+      "Bash(packages/cli/dist/cli.js init test-hono-fixed --framework react --backend hono --database postgres --orm prisma --styling tailwind --runtime node --docker --yes)",
+      "WebFetch(domain:api.precast.dev)",
+      "Bash(npm run deploy:*)",
+      "WebFetch(domain:registry.npmjs.org)"
     ],
     "deny": []
   }

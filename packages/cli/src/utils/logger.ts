@@ -1,5 +1,36 @@
 import chalk from "chalk";
 
+let verboseMode = false;
+let suppressOutput = false;
+
+/**
+ * Set verbose mode for logging
+ */
+export function setVerboseMode(verbose: boolean) {
+  verboseMode = verbose;
+}
+
+/**
+ * Check if verbose mode is enabled
+ */
+export function isVerbose(): boolean {
+  return verboseMode || process.env.VERBOSE === "true";
+}
+
+/**
+ * Set output suppression mode (for task runner)
+ */
+export function setSuppressOutput(suppress: boolean) {
+  suppressOutput = suppress;
+}
+
+/**
+ * Check if output should be suppressed
+ */
+export function isSuppressed(): boolean {
+  return suppressOutput && !isVerbose();
+}
+
 /**
  * Logger utility for formatted console output
  */
@@ -9,27 +40,34 @@ export const logger = {
    * @param message - Header text to display
    */
   header: (message: string) => {
-    console.log("\n" + chalk.bold.bgYellow.black(` ${message} `) + "\n");
+    if (!isSuppressed()) {
+      console.log("\n" + chalk.bold.bgYellow.black(` ${message} `) + "\n");
+    }
   },
   /**
    * Display an informational message
    * @param message - Info text to display
    */
   info: (message: string) => {
-    console.log(message);
+    if (!isSuppressed()) {
+      console.log(message);
+    }
   },
   /**
    * Display a success message with checkmark
    * @param message - Success text to display
    */
   success: (message: string) => {
-    console.log(chalk.green("✓") + " " + message);
+    if (!isSuppressed()) {
+      console.log(chalk.green("✓") + " " + message);
+    }
   },
   /**
    * Display an error message with X mark
    * @param message - Error text to display
    */
   error: (message: string) => {
+    // Never suppress errors
     console.log(chalk.red("✗") + " " + message);
   },
   /**
@@ -37,7 +75,9 @@ export const logger = {
    * @param message - Warning text to display
    */
   warn: (message: string) => {
-    console.log(chalk.yellow("⚠") + " " + message);
+    if (!isSuppressed()) {
+      console.log(chalk.yellow("⚠") + " " + message);
+    }
   },
   /**
    * Display a debug message (only when DEBUG env var is set)
@@ -46,6 +86,24 @@ export const logger = {
   debug: (message: string) => {
     if (process.env.DEBUG) {
       console.log(chalk.gray("[DEBUG]") + " " + message);
+    }
+  },
+  /**
+   * Display a verbose message (only when --verbose flag is used)
+   * @param message - Verbose text to display
+   */
+  verbose: (message: string) => {
+    if (isVerbose() && !isSuppressed()) {
+      console.log(chalk.gray("ℹ") + " " + message);
+    }
+  },
+  /**
+   * Display a plain message without prefix
+   * @param message - Message text to display
+   */
+  message: (message: string) => {
+    if (!isSuppressed()) {
+      console.log(message);
     }
   },
 };

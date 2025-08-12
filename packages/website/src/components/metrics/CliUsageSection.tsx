@@ -10,7 +10,22 @@ import {
   FaClock,
 } from "react-icons/fa";
 
+import {
+  FrameworkUsageChart,
+  EventTimelineChart,
+  StackCombinationsTable,
+  DeveloperExperienceChart,
+  UserJourneyFlow,
+  ProjectTimelineChart,
+  PlatformDistributionChart,
+  CLIVersionChart,
+  WeeklyTrendsChart,
+  TemplateUsageChart,
+  UserPreferencesChart,
+} from "@/components/metrics";
+import { getTechIcon } from "@/components/metrics/tech-icons";
 import { ComicLoader } from "@/features/common";
+import type { AnalyticsMetrics } from "@/hooks/usePrecastAPI";
 
 interface CliAnalytics {
   updated: string;
@@ -75,9 +90,20 @@ interface CliAnalytics {
 interface CliUsageSectionProps {
   cliAnalytics: CliAnalytics;
   formatNumber: (num: number) => string;
+  postHogAnalytics?: AnalyticsMetrics | null;
+  analyticsLoading?: boolean;
+  analyticsError?: Error | null;
+  refetchAnalytics?: () => void;
 }
 
-export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionProps) {
+export function CliUsageSection({
+  cliAnalytics,
+  formatNumber,
+  postHogAnalytics,
+  analyticsLoading,
+  analyticsError: _analyticsError,
+  refetchAnalytics: _refetchAnalytics,
+}: CliUsageSectionProps) {
   return (
     <>
       {/* Comic Separator */}
@@ -118,9 +144,13 @@ export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionP
             >
               <FaRocket className="text-4xl mx-auto mb-2 text-comic-white" />
               <div className="action-text text-3xl text-comic-white">
-                {cliAnalytics ? formatNumber(cliAnalytics.totals.projects) : "..."}
+                {postHogAnalytics?.usage?.eventsLast30Days
+                  ? formatNumber(postHogAnalytics.usage.eventsLast30Days)
+                  : cliAnalytics
+                    ? formatNumber(cliAnalytics.totals.projects)
+                    : "..."}
               </div>
-              <div className="font-display text-lg text-comic-white">PROJECTS CREATED</div>
+              <div className="font-display text-lg text-comic-white">CLI EVENTS (30D)</div>
             </motion.div>
 
             <motion.div
@@ -132,9 +162,13 @@ export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionP
             >
               <FaUsers className="text-4xl mx-auto mb-2 text-comic-white" />
               <div className="action-text text-3xl text-comic-white">
-                {cliAnalytics ? formatNumber(cliAnalytics.totals.users) : "..."}
+                {postHogAnalytics?.usage?.activeUsersLast30Days
+                  ? formatNumber(postHogAnalytics.usage.activeUsersLast30Days)
+                  : cliAnalytics
+                    ? formatNumber(cliAnalytics.totals.users)
+                    : "..."}
               </div>
-              <div className="font-display text-lg text-comic-white">ACTIVE DEVELOPERS</div>
+              <div className="font-display text-lg text-comic-white">ACTIVE USERS (30D)</div>
             </motion.div>
 
             <motion.div
@@ -146,9 +180,13 @@ export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionP
             >
               <FaCogs className="text-4xl mx-auto mb-2 text-comic-white" />
               <div className="action-text text-3xl text-comic-white">
-                {cliAnalytics ? formatNumber(cliAnalytics.totals.totalEvents) : "..."}
+                {postHogAnalytics?.usage?.totalEvents
+                  ? formatNumber(postHogAnalytics.usage.totalEvents)
+                  : cliAnalytics
+                    ? formatNumber(cliAnalytics.totals.totalEvents)
+                    : "..."}
               </div>
-              <div className="font-display text-lg text-comic-white">TOTAL EVENTS</div>
+              <div className="font-display text-lg text-comic-white">TOTAL CLI EVENTS</div>
             </motion.div>
           </div>
 
@@ -164,26 +202,57 @@ export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionP
                 <FaLayerGroup /> POPULAR FRAMEWORKS
               </h3>
               <div className="space-y-3">
-                {cliAnalytics && Object.keys(cliAnalytics.frameworks).length > 0 ? (
+                {postHogAnalytics?.frameworks?.topFrameworks &&
+                postHogAnalytics.frameworks.topFrameworks.length > 0 ? (
+                  postHogAnalytics.frameworks.topFrameworks.slice(0, 5).map((framework) => {
+                    const Icon = getTechIcon("framework", framework.name);
+                    return (
+                      <div
+                        key={framework.name}
+                        className="flex items-center justify-between p-3 rounded-lg bg-comic-purple bg-opacity-10"
+                      >
+                        <div className="flex items-center gap-2">
+                          {Icon && <Icon className="text-xl text-comic-purple" />}
+                          <span className="font-comic font-bold text-comic-purple capitalize">
+                            {framework.name}
+                          </span>
+                        </div>
+                        <span className="action-text text-xl text-comic-red">
+                          {framework.count}
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : cliAnalytics && Object.keys(cliAnalytics.frameworks).length > 0 ? (
                   Object.entries(cliAnalytics.frameworks)
                     .sort(([, a], [, b]) => b - a)
                     .slice(0, 5)
-                    .map(([framework, count]) => (
-                      <div
-                        key={framework}
-                        className="flex items-center justify-between p-3 rounded-lg bg-comic-purple bg-opacity-10"
-                      >
-                        <span className="font-comic font-bold text-comic-purple capitalize">
-                          {framework}
-                        </span>
-                        <span className="action-text text-xl text-comic-red">{count}</span>
-                      </div>
-                    ))
+                    .map(([framework, count]) => {
+                      const Icon = getTechIcon("framework", framework);
+                      return (
+                        <div
+                          key={framework}
+                          className="flex items-center justify-between p-3 rounded-lg bg-comic-purple bg-opacity-10"
+                        >
+                          <div className="flex items-center gap-2">
+                            {Icon && <Icon className="text-xl text-comic-purple" />}
+                            <span className="font-comic font-bold text-comic-purple capitalize">
+                              {framework}
+                            </span>
+                          </div>
+                          <span className="action-text text-xl text-comic-red">{count}</span>
+                        </div>
+                      );
+                    })
                 ) : (
                   <div className="text-center py-8">
                     <ComicLoader
                       message={
-                        cliAnalytics.loading ? "LOADING CLI DATA..." : "NO FRAMEWORK DATA YET"
+                        analyticsLoading
+                          ? "LOADING ENHANCED DATA..."
+                          : cliAnalytics.loading
+                            ? "LOADING CLI DATA..."
+                            : "NO FRAMEWORK DATA YET"
                       }
                       color="purple"
                       size="lg"
@@ -203,26 +272,67 @@ export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionP
                 <FaDatabase /> DATABASE CHOICES
               </h3>
               <div className="space-y-3">
-                {cliAnalytics && Object.keys(cliAnalytics.databases).length > 0 ? (
+                {postHogAnalytics?.stackCombinations ? (
+                  (() => {
+                    const databaseCounts: Record<string, number> = {};
+                    postHogAnalytics.stackCombinations.forEach((stack) => {
+                      if (stack.database && stack.database !== "none") {
+                        databaseCounts[stack.database] =
+                          (databaseCounts[stack.database] || 0) + stack.frequency;
+                      }
+                    });
+
+                    return Object.entries(databaseCounts)
+                      .sort(([, a], [, b]) => b - a)
+                      .slice(0, 5)
+                      .map(([database, count]) => {
+                        const Icon = getTechIcon("database", database);
+                        return (
+                          <div
+                            key={database}
+                            className="flex items-center justify-between p-3 rounded-lg bg-comic-blue bg-opacity-10"
+                          >
+                            <div className="flex items-center gap-2">
+                              {Icon && <Icon className="text-xl text-comic-blue" />}
+                              <span className="font-comic font-bold text-comic-blue capitalize">
+                                {database}
+                              </span>
+                            </div>
+                            <span className="action-text text-xl text-comic-red">{count}</span>
+                          </div>
+                        );
+                      });
+                  })()
+                ) : cliAnalytics && Object.keys(cliAnalytics.databases).length > 0 ? (
                   Object.entries(cliAnalytics.databases)
                     .sort(([, a], [, b]) => b - a)
                     .slice(0, 5)
-                    .map(([database, count]) => (
-                      <div
-                        key={database}
-                        className="flex items-center justify-between p-3 rounded-lg bg-comic-blue bg-opacity-10"
-                      >
-                        <span className="font-comic font-bold text-comic-blue capitalize">
-                          {database}
-                        </span>
-                        <span className="action-text text-xl text-comic-red">{count}</span>
-                      </div>
-                    ))
+                    .map(([database, count]) => {
+                      const Icon = getTechIcon("database", database);
+                      return (
+                        <div
+                          key={database}
+                          className="flex items-center justify-between p-3 rounded-lg bg-comic-blue bg-opacity-10"
+                        >
+                          <div className="flex items-center gap-2">
+                            {Icon && <Icon className="text-xl text-comic-blue" />}
+                            <span className="font-comic font-bold text-comic-blue capitalize">
+                              {database}
+                            </span>
+                          </div>
+                          <span className="action-text text-xl text-comic-red">{count}</span>
+                        </div>
+                      );
+                    })
                 ) : (
                   <div className="text-center py-8">
                     <ComicLoader
                       message={
-                        cliAnalytics.loading ? "LOADING DATABASE DATA..." : "NO DATABASE DATA YET"
+                        analyticsLoading
+                          ? "LOADING ENHANCED DATA..."
+                          : cliAnalytics.loading
+                            ? "LOADING DATABASE DATA..."
+                            : "NO DATABASE DATA YET"
                       }
                       color="blue"
                       size="lg"
@@ -244,25 +354,62 @@ export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionP
               <FaPalette /> STYLING PREFERENCES
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {cliAnalytics && Object.keys(cliAnalytics.styling).length > 0 ? (
+              {postHogAnalytics?.stackCombinations ? (
+                (() => {
+                  const stylingCounts: Record<string, number> = {};
+                  postHogAnalytics.stackCombinations.forEach((stack) => {
+                    if (stack.styling) {
+                      stylingCounts[stack.styling] =
+                        (stylingCounts[stack.styling] || 0) + stack.frequency;
+                    }
+                  });
+
+                  return Object.entries(stylingCounts)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 8)
+                    .map(([styling, count]) => {
+                      const Icon = getTechIcon("styling", styling);
+                      return (
+                        <div
+                          key={styling}
+                          className="comic-panel p-4 bg-comic-green bg-opacity-10 text-center"
+                        >
+                          {Icon && <Icon className="text-2xl mx-auto mb-1 text-comic-green" />}
+                          <div className="action-text text-2xl text-comic-green mb-1">{count}</div>
+                          <div className="font-comic text-sm text-comic-black capitalize">
+                            {styling}
+                          </div>
+                        </div>
+                      );
+                    });
+                })()
+              ) : cliAnalytics && Object.keys(cliAnalytics.styling).length > 0 ? (
                 Object.entries(cliAnalytics.styling)
                   .sort(([, a], [, b]) => b - a)
-                  .map(([styling, count]) => (
-                    <div
-                      key={styling}
-                      className="comic-panel p-4 bg-comic-green bg-opacity-10 text-center"
-                    >
-                      <div className="action-text text-2xl text-comic-green mb-1">{count}</div>
-                      <div className="font-comic text-sm text-comic-black capitalize">
-                        {styling}
+                  .map(([styling, count]) => {
+                    const Icon = getTechIcon("styling", styling);
+                    return (
+                      <div
+                        key={styling}
+                        className="comic-panel p-4 bg-comic-green bg-opacity-10 text-center"
+                      >
+                        {Icon && <Icon className="text-2xl mx-auto mb-1 text-comic-green" />}
+                        <div className="action-text text-2xl text-comic-green mb-1">{count}</div>
+                        <div className="font-comic text-sm text-comic-black capitalize">
+                          {styling}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
               ) : (
                 <div className="col-span-full text-center py-8">
                   <ComicLoader
                     message={
-                      cliAnalytics.loading ? "LOADING STYLING DATA..." : "NO STYLING DATA YET"
+                      analyticsLoading
+                        ? "LOADING ENHANCED DATA..."
+                        : cliAnalytics.loading
+                          ? "LOADING STYLING DATA..."
+                          : "NO STYLING DATA YET"
                     }
                     color="green"
                     size="lg"
@@ -281,19 +428,34 @@ export function CliUsageSection({ cliAnalytics, formatNumber }: CliUsageSectionP
           >
             <p className="font-comic text-lg text-comic-black">
               <FaClock className="inline mr-2" />
-              CLI analytics update every <strong>6 hours</strong> •
-              {cliAnalytics?.lastUpdatedFormatted && (
-                <span className="ml-2">
-                  Last updated: <strong>{cliAnalytics.lastUpdatedFormatted}</strong>
-                </span>
-              )}
-              {(!cliAnalytics || cliAnalytics.totals.projects === 0) && (
-                <span className="ml-2">
-                  No data available yet - start creating projects with the CLI!
-                </span>
+              CLI analytics update in <strong>real-time</strong> •
+              <span className="ml-2">
+                Powered by <strong>PostHog Analytics</strong>
+              </span>
+              {!postHogAnalytics && !analyticsLoading && (
+                <span className="ml-2">• Start creating projects with the CLI!</span>
               )}
             </p>
           </motion.div>
+
+          {/* Enhanced Analytics Charts */}
+          {postHogAnalytics && !analyticsLoading && (
+            <>
+              <div className="mt-8">
+                <FrameworkUsageChart analytics={postHogAnalytics} />
+              </div>
+              <ProjectTimelineChart analytics={postHogAnalytics} />
+              <WeeklyTrendsChart />
+              <EventTimelineChart analytics={postHogAnalytics} />
+              <PlatformDistributionChart />
+              <CLIVersionChart />
+              <StackCombinationsTable analytics={postHogAnalytics} />
+              <DeveloperExperienceChart analytics={postHogAnalytics} />
+              <UserJourneyFlow />
+              <TemplateUsageChart />
+              <UserPreferencesChart />
+            </>
+          )}
         </div>
       </section>
     </>

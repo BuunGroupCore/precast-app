@@ -20,6 +20,7 @@ import {
   getRecommendedPlugins,
 } from "@/lib/plugins-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
 
@@ -69,7 +70,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
       <CollapsibleSection
         icon={
           <div className="p-2 bg-comic-purple rounded-lg transform -rotate-3">
-            <FaPlug className="text-3xl text-white" />
+            <BuilderIcon icon={FaPlug} className="text-3xl text-white" />
           </div>
         }
         title={
@@ -101,7 +102,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
             className="comic-panel bg-comic-yellow/20 border-3 border-comic-yellow mb-4 p-3 transform -rotate-1"
           >
             <div className="flex items-center gap-2 mb-2">
-              <FaStar className="text-comic-yellow text-xl" />
+              <BuilderIcon icon={FaStar} className="text-comic-yellow text-xl" />
               <h4 className="font-display text-sm text-comic-darkBlue">
                 RECOMMENDED FOR YOUR STACK!
               </h4>
@@ -123,9 +124,9 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                     }`}
                     style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
                   >
-                    <Icon className="text-lg" />
+                    <BuilderIcon icon={Icon} className="text-lg" />
                     <span className="font-comic font-bold text-xs">{plugin.name}</span>
-                    {isSelected && <FaCheck className="text-sm" />}
+                    {isSelected && <BuilderIcon icon={FaCheck} className="text-sm" />}
                   </motion.button>
                 );
               })}
@@ -140,12 +141,12 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
         >
           {isExpanded ? (
             <>
-              <FaChevronUp className="text-sm" />
+              <BuilderIcon icon={FaChevronUp} className="text-sm" />
               Hide Plugins
             </>
           ) : (
             <>
-              <FaChevronDown className="text-sm" />
+              <BuilderIcon icon={FaChevronDown} className="text-sm" />
               Show All {plugins.length} Plugins
             </>
           )}
@@ -238,7 +239,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                           className="absolute -top-2 -right-2 z-10"
                         >
                           <div className="w-8 h-8 bg-comic-green rounded-full flex items-center justify-center border-2 border-comic-black">
-                            <FaCheck className="text-white text-sm" />
+                            <BuilderIcon icon={FaCheck} className="text-white text-sm" />
                           </div>
                         </motion.div>
                       )}
@@ -252,7 +253,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                           className="absolute -top-2 -left-2"
                         >
                           <div className="bg-comic-yellow px-2 py-1 rounded-full border-2 border-comic-black transform -rotate-12">
-                            <FaStar className="text-comic-black text-xs" />
+                            <BuilderIcon icon={FaStar} className="text-comic-black text-xs" />
                           </div>
                         </motion.div>
                       )}
@@ -266,7 +267,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                             isSelected ? "bg-comic-purple/30" : "bg-comic-gray/10"
                           }`}
                         >
-                          <Icon className="text-2xl text-comic-purple" />
+                          <BuilderIcon icon={Icon} className="text-2xl text-comic-purple" />
                         </motion.div>
 
                         <div className="flex-1">
@@ -292,7 +293,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                           {/* Environment Variables Badge */}
                           {plugin.envVariables.length > 0 && (
                             <div className="inline-flex items-center gap-1 px-2 py-1 bg-comic-gray/10 rounded mb-2">
-                              <FaKey className="text-xs text-comic-darkBlue" />
+                              <BuilderIcon icon={FaKey} className="text-xs text-comic-darkBlue" />
                               <p className="font-comic text-xs text-comic-darkBlue">
                                 {plugin.envVariables.length} ENV VAR
                                 {plugin.envVariables.length > 1 ? "S" : ""}

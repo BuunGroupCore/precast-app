@@ -5,6 +5,7 @@ import { setupAuthentication } from "../utils/auth-setup.js";
 import { setupClaudeIntegration } from "../utils/claude-setup.js";
 import { logger } from "../utils/logger.js";
 import { getTemplateRoot } from "../utils/template-path.js";
+import { errorCollector } from "../utils/error-collector.js";
 
 import { generateAngularTemplate } from "./angular-template.js";
 import { generateAstroTemplate } from "./astro-template.js";
@@ -94,6 +95,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await setupMCPConfiguration(projectPath, config);
     } catch (error) {
       logger.warn(`Failed to setup MCP configuration: ${error}`);
+      errorCollector.addError("MCP configuration setup", error);
     }
   }
 
@@ -112,6 +114,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await setupColorPalette(config, projectPath);
     } catch (error) {
       logger.warn(`Failed to setup color palette: ${error}`);
+      errorCollector.addError("Color palette setup", error);
     }
   }
 
@@ -122,6 +125,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await setupDatabase(config, projectPath);
     } catch (error) {
       logger.warn(`Failed to setup database configuration: ${error}`);
+      errorCollector.addError("Database configuration setup", error);
     }
   }
 
@@ -136,6 +140,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await setupPowerUps(projectPath, config.framework, config.powerups, config.typescript);
     } catch (error) {
       logger.warn(`Failed to setup powerups: ${error}`);
+      errorCollector.addError("Powerups setup", error);
     }
   }
 
@@ -146,6 +151,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await setupPlugins(config, projectPath, config.plugins);
     } catch (error) {
       logger.warn(`Failed to setup plugins: ${error}`);
+      errorCollector.addError("Plugins setup", error);
     }
   }
 
@@ -161,32 +167,30 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await setupPrecastWidget(config, projectPath);
     } catch (error) {
       logger.warn(`Failed to setup admin panel: ${error}`);
+      errorCollector.addError("Admin panel setup", error);
     }
   }
 
   // Setup Docker configuration first if requested (to get generated passwords)
   let dockerPasswords: Record<string, string> | undefined;
   if (config.docker && config.database && config.database !== "none") {
-    logger.info(`🐳 Setting up Docker compose for ${config.database}...`);
     try {
       const { setupDockerCompose } = await import("../utils/docker-setup.js");
       const result = await setupDockerCompose(config, projectPath);
       dockerPasswords = result.passwords;
-      logger.success("✅ Docker setup completed!");
     } catch (error) {
       logger.warn(`Failed to setup Docker configuration: ${error}`);
-      console.error("Docker setup error:", error);
+      errorCollector.addError("Docker configuration setup", error);
     }
-  } else {
-    logger.debug(`Docker setup skipped - docker: ${config.docker}, database: ${config.database}`);
   }
 
   // Generate environment files based on all configured features
   try {
     const { generateEnvFiles } = await import("../utils/env-setup.js");
     await generateEnvFiles(config, dockerPasswords);
-    logger.success("✅ Environment files generated (.env, .env.example)");
+    logger.verbose("✅ Environment files generated (.env, .env.example)");
   } catch (error) {
     logger.warn(`Failed to generate environment files: ${error}`);
+    errorCollector.addError("Environment file generation", error);
   }
 }

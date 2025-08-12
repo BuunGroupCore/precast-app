@@ -5,6 +5,7 @@ import { FaDatabase } from "react-icons/fa";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { databases, orms, type StackOption } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { DatabaseDeploymentModal } from "./DatabaseDeploymentModal";
 import { PublicIcon } from "./PublicIcon";
@@ -93,7 +94,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
       transition={{ delay: 0.4 }}
     >
       <CollapsibleSection
-        icon={<FaDatabase className="text-3xl" />}
+        icon={<BuilderIcon icon={FaDatabase} className="text-3xl" />}
         title={<h3 className="font-display text-2xl">DATABASE</h3>}
         className="bg-comic-green text-comic-white"
       >
@@ -151,7 +152,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                       (typeof db.icon === "string" ? (
                         <PublicIcon name={db.icon} className="text-2xl" />
                       ) : (
-                        <db.icon className="text-2xl" />
+                        <BuilderIcon icon={db.icon} className="text-2xl" />
                       ))}
                     <span className="text-xs">{db.name}</span>
                   </button>
@@ -187,7 +188,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                           (typeof orm.icon === "string" ? (
                             <PublicIcon name={orm.icon} className="text-xl" />
                           ) : (
-                            <orm.icon className="text-xl" />
+                            <BuilderIcon icon={orm.icon} className="text-xl" />
                           ))}
                         <span className="text-xs">{orm.name}</span>
                       </button>

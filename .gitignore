@@ -4,6 +4,7 @@ node_modules
 
 /example_repo
 /crush
+**/**/**/test-*
 
 # Build outputs
 dist
@@ -20,6 +21,7 @@ out
 .env.production.local
 .env.development.local
 .env.test.local
+.dev.vars
 
 # IDE
 .vscode/*

@@ -1,11 +1,11 @@
 import path from "path";
 
-import { consola } from "consola";
 import fsExtra from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { generatePackageJson } from "./base-generator.js";
+import { logger } from "../utils/logger.js";
 
 // eslint-disable-next-line import/no-named-as-default-member
 const { writeFile, ensureDir } = fsExtra;
@@ -17,7 +17,7 @@ export async function generateMinimalNodeTemplate(
   config: ProjectConfig,
   projectPath: string
 ): Promise<void> {
-  consola.info("Creating minimal Node.js project structure...");
+  logger.verbose("Creating minimal Node.js project structure...");
 
   /** Create directory structure for minimal project */
   const directories = ["src", "src/routes", "src/middleware", "src/utils", "tests"];
@@ -172,5 +172,5 @@ npx create-precast-app add-features
     await writeFile(path.join(projectPath, "tsconfig.json"), JSON.stringify(tsConfig, null, 2));
   }
 
-  consola.success("Minimal Node.js project structure created!");
+  logger.verbose("Minimal Node.js project structure created!");
 }

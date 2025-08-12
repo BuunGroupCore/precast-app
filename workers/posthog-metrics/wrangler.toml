@@ -1,0 +1,43 @@
+name = "posthog-metrics-worker"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+
+# Scheduled trigger - every 6 hours
+[triggers]
+crons = ["0 */6 * * *"]
+
+[observability.logs]
+enabled = true
+
+# Production environment
+[env.production]
+name = "posthog-metrics-worker"
+
+# Routes - using the same domain as GitHub metrics but different paths
+routes = [
+  { pattern = "api.precast.dev/analytics/*", zone_name = "precast.dev" },
+  { pattern = "api.precast.dev/analytics", zone_name = "precast.dev" }
+]
+
+# R2 bucket binding
+[[env.production.r2_buckets]]
+binding = "METRICS_BUCKET"
+bucket_name = "precast-analytics-data"
+
+# Environment variables (secrets configured via dashboard)
+# wrangler secret put POSTHOG_PROJECT_ID --env production
+# wrangler secret put POSTHOG_API_KEY --env production
+# wrangler secret put POSTHOG_HOST --env production
+
+# Development environment (for local testing)
+[env.development]
+name = "posthog-metrics-worker-dev"
+
+[[env.development.r2_buckets]]
+binding = "METRICS_BUCKET"
+bucket_name = "precast-analytics-data-dev"
+
+# For local development, create a .dev.vars file with:
+# POSTHOG_PROJECT_ID=your_project_id
+# POSTHOG_API_KEY=your_api_key
+# POSTHOG_HOST=https://app.posthog.com

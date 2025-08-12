@@ -12,14 +12,17 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
+    "isolatedModules": true,{{#if (ne backend "none")}}
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,{{else}}
+    "noEmit": true,{{/if}}
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./app/*"]
     }
   },
-  "include": ["app"],
-  "exclude": ["node_modules", "dist", ".vinxi"]
+  "include": ["app{{#if (ne backend "none")}}", "src{{/if}}"],
+  "exclude": ["node_modules", "dist", ".vite"]
 }{{/if}}

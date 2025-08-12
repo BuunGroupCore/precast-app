@@ -1,6 +1,6 @@
 import path from "path";
 
-import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -17,7 +17,7 @@ export async function generateConvexTemplate(config: ProjectConfig, projectPath:
   const templateEngine = createTemplateEngine(templateRoot);
 
   try {
-    consola.info("Generating Convex backend...");
+    logger.verbose("Generating Convex backend...");
 
     // Copy base Convex files
     await templateEngine.copyTemplateDirectory(`backends/convex/base`, projectPath, config, {
@@ -36,9 +36,9 @@ export async function generateConvexTemplate(config: ProjectConfig, projectPath:
       });
     }
 
-    consola.success("Convex backend generated successfully!");
+    logger.verbose("Convex backend generated successfully!");
   } catch (error) {
-    consola.error("Failed to generate Convex backend:", error);
+    logger.error(`Failed to generate Convex backend: ${error}`);
     throw error;
   }
 }

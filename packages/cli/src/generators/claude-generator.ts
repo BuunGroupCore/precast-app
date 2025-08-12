@@ -1,6 +1,6 @@
 import * as path from "path";
 
-import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 // eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
 
@@ -23,7 +23,7 @@ export async function generateClaudeTemplate(
     return;
   }
 
-  consola.info("🤖 Setting up Claude Code integration...");
+  logger.verbose("🤖 Setting up Claude Code integration...");
 
   try {
     const templateRoot = getTemplateRoot();
@@ -42,12 +42,12 @@ export async function generateClaudeTemplate(
     // Add to .gitignore
     await addToGitignore(config.projectPath, ".claude/settings.local.json");
 
-    consola.success("✅ Claude Code integration configured successfully");
+    logger.verbose("✅ Claude Code integration configured successfully");
 
     // Show next steps
     showNextSteps(config);
   } catch (error) {
-    consola.warn("Failed to setup Claude Code integration:", error);
+    logger.warn(`Failed to setup Claude Code integration: ${error}`);
   }
 }
 
@@ -222,7 +222,7 @@ async function addToGitignore(projectPath: string, pattern: string): Promise<voi
 }
 
 function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void {
-  consola.info("\n📝 Next steps for Claude Code integration:");
+  logger.info("\n📝 Next steps for Claude Code integration:");
 
   const steps: string[] = [];
 
@@ -236,13 +236,13 @@ function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void 
 
   steps.push(`${steps.length + 1}. Start coding with AI assistance!`);
 
-  steps.forEach((step) => consola.info(`  ${step}`));
+  steps.forEach((step) => logger.info(`  ${step}`));
 
-  consola.info("\n📚 Documentation:");
-  consola.info("  Claude Code: https://claude.ai/code");
+  logger.info("\n📚 Documentation:");
+  logger.info("  Claude Code: https://claude.ai/code");
 
   if (config.mcpServers && config.mcpServers.length > 0) {
-    consola.info("  MCP Servers: https://modelcontextprotocol.io");
+    logger.info("  MCP Servers: https://modelcontextprotocol.io");
   }
 }
 

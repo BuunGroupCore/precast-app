@@ -10,6 +10,7 @@ import {
   specialFrameworks,
 } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
 
@@ -162,7 +163,9 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                     </div>
                   )}
 
-                  {framework.icon && <framework.icon className="text-lg sm:text-2xl" />}
+                  {framework.icon && (
+                    <BuilderIcon icon={framework.icon} className="text-lg sm:text-2xl" />
+                  )}
                   <span className="text-[10px] sm:text-xs">{framework.name}</span>
                 </button>
               </ServiceTooltip>
@@ -207,7 +210,7 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                             : "var(--comic-white)",
                       }}
                     >
-                      {library.icon && <library.icon className="text-lg" />}
+                      {library.icon && <BuilderIcon icon={library.icon} className="text-lg" />}
                       <span className="text-[10px]">{library.name}</span>
                     </button>
                   </ServiceTooltip>

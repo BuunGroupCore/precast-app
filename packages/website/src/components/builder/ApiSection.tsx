@@ -6,6 +6,7 @@ import { SiTrpc, SiGraphql, SiAxios, SiApollographql, SiReactquery } from "react
 import { HonoIconBlack } from "@/components/icons/HonoIconBlack";
 import { backends } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import type { ExtendedProjectConfig } from "./types";
 
 interface ApiSectionProps {
@@ -146,7 +147,7 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-comic-darkBlue rounded-full" />
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <FaPlug className="text-3xl text-comic-darkBlue" />
+          <BuilderIcon icon={FaPlug} className="text-3xl text-comic-darkBlue" />
           <h3 className="font-display text-2xl text-comic-darkBlue">API COMMUNICATION</h3>
         </div>
         <button
@@ -155,9 +156,9 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
           aria-label={isCollapsed ? "Expand" : "Collapse"}
         >
           {isCollapsed ? (
-            <FaChevronDown className="text-xl" />
+            <BuilderIcon icon={FaChevronDown} className="text-xl" />
           ) : (
-            <FaChevronUp className="text-xl" />
+            <BuilderIcon icon={FaChevronUp} className="text-xl" />
           )}
         </button>
       </div>
@@ -185,7 +186,7 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
               style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
             >
               <div className="flex items-center gap-2 mb-1">
-                <FaTimes className="text-lg" />
+                <BuilderIcon icon={FaTimes} className="text-lg" />
                 <span className="font-display text-sm">None</span>
               </div>
               <p className="font-comic text-xs text-center">
@@ -256,7 +257,7 @@ export const ApiSection: React.FC<ApiSectionProps> = ({ config, setConfig }) => 
                       </span>
                     )}
                     <div className="flex items-center gap-2 mb-1">
-                      <Icon className="text-lg" />
+                      <BuilderIcon icon={Icon} className="text-lg" />
                       <span className="font-display text-sm">{option.name}</span>
                     </div>
                     <p className="font-comic text-xs text-left line-clamp-2">

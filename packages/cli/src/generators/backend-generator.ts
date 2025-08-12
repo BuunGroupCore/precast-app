@@ -1,6 +1,7 @@
 import path from "path";
 
 import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -19,7 +20,7 @@ export async function generateBackendTemplate(
   projectPath: string
 ) {
   if (backend === "next-api") {
-    consola.info("Next.js API routes are integrated into the Next.js framework");
+    logger.verbose("Next.js API routes are integrated into the Next.js framework");
     return;
   }
 
@@ -47,7 +48,7 @@ export async function generateBackendTemplate(
   const templateEngine = createTemplateEngine(templateRoot);
 
   try {
-    consola.info(`Generating ${backend} backend...`);
+    logger.verbose(`Generating ${backend} backend...`);
 
     await templateEngine.copyTemplateDirectory(`backends/${backend}/base`, projectPath, config, {
       overwrite: true,
@@ -74,7 +75,7 @@ export async function generateBackendTemplate(
       });
     }
 
-    consola.success(`${backend} backend generated successfully!`);
+    logger.verbose(`${backend} backend generated successfully!`);
   } catch (error) {
     consola.error(`Failed to generate ${backend} backend:`, error);
     throw error;

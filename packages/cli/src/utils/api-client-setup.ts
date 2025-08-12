@@ -213,6 +213,7 @@ export async function setupApiClient(config: ProjectConfig, projectPath: string)
       packageManager: config.packageManager,
       projectPath: targetPath,
       dev: false,
+      context: "api_client",
     });
   }
 
@@ -221,6 +222,7 @@ export async function setupApiClient(config: ProjectConfig, projectPath: string)
       packageManager: config.packageManager,
       projectPath: targetPath,
       dev: true,
+      context: "api_client_dev",
     });
   }
 

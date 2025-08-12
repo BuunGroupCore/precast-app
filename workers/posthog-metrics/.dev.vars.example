@@ -1,0 +1,12 @@
+# PostHog Configuration
+# Copy this file to .dev.vars and fill in your actual values
+
+# Your PostHog project ID (found in project settings)
+POSTHOG_PROJECT_ID="your_project_id_here"
+
+# Your PostHog API key (create a Personal API Key in PostHog)
+# Required permissions: project:read, insight:read, event_definition:read, person:read, cohort:read, query:read
+POSTHOG_API_KEY="phx_your_api_key_here"
+
+# PostHog host (usually https://app.posthog.com unless self-hosted)
+POSTHOG_HOST="https://app.posthog.com"

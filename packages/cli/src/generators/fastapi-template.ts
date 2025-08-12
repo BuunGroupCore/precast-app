@@ -1,6 +1,6 @@
 import path from "path";
 
-import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 import fsExtra from "fs-extra";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
@@ -20,7 +20,7 @@ export async function generateFastApiTemplate(config: ProjectConfig, projectPath
   const templateEngine = createTemplateEngine(templateRoot);
 
   try {
-    consola.info("Generating FastAPI backend...");
+    logger.verbose("Generating FastAPI backend...");
 
     // Copy base FastAPI files
     await templateEngine.copyTemplateDirectory(`backends/fastapi/base`, projectPath, config, {
@@ -110,9 +110,9 @@ Generated with [Precast CLI](https://precast.dev) 🚀
     // Create empty __init__.py
     await writeFile(path.join(projectPath, "app", "__init__.py"), "");
 
-    consola.success("FastAPI backend generated successfully!");
+    logger.verbose("FastAPI backend generated successfully!");
   } catch (error) {
-    consola.error("Failed to generate FastAPI backend:", error);
+    logger.error(`Failed to generate FastAPI backend: ${error}`);
     throw error;
   }
 }

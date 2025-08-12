@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.dev.vars
+.env
+.env.local
+
+# Build outputs
+dist/
+.wrangler/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+.nyc_output/

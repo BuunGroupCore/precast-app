@@ -5,6 +5,7 @@ import { FaCogs } from "react-icons/fa";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { runtimes } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import type { ExtendedProjectConfig } from "./types";
 
@@ -47,7 +48,7 @@ export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfi
       transition={{ delay: 0.45 }}
     >
       <CollapsibleSection
-        icon={<FaCogs className="text-3xl" />}
+        icon={<BuilderIcon icon={FaCogs} className="text-3xl" />}
         title={<h3 className="font-display text-2xl">RUNTIME</h3>}
         className="bg-comic-yellow text-comic-black"
       >
@@ -83,7 +84,7 @@ export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfi
                       RECOMMENDED
                     </span>
                   )}
-                  {runtime.icon && <runtime.icon className="text-2xl" />}
+                  {runtime.icon && <BuilderIcon icon={runtime.icon} className="text-2xl" />}
                   <span className="text-xs">{runtime.name}</span>
                 </button>
               </Tooltip>

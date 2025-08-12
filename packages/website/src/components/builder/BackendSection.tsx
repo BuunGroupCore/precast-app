@@ -5,6 +5,7 @@ import { FaServer, FaCloud } from "react-icons/fa";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { backends } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { PublicIcon } from "./PublicIcon";
 import type { ExtendedProjectConfig } from "./types";
@@ -22,7 +23,7 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
       transition={{ delay: 0.3 }}
     >
       <CollapsibleSection
-        icon={<FaServer className="text-3xl" />}
+        icon={<BuilderIcon icon={FaServer} className="text-3xl" />}
         title={<h3 className="font-display text-2xl">BACKEND POWER</h3>}
         className="bg-comic-blue text-comic-white"
       >
@@ -61,7 +62,7 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
                   >
                     {be.serverless && (
                       <div className="absolute top-1 right-7 w-5 h-5 bg-comic-purple text-comic-white rounded border border-comic-black flex items-center justify-center p-0.5">
-                        <FaCloud className="text-[10px]" />
+                        <BuilderIcon icon={FaCloud} className="text-[10px]" />
                       </div>
                     )}
                     {be.uvBadge && (
@@ -77,7 +78,7 @@ export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfi
                         />
                       </div>
                     )}
-                    {be.icon && <be.icon className="text-2xl" />}
+                    {be.icon && <BuilderIcon icon={be.icon} className="text-2xl" />}
                     <span className="text-xs">{be.name}</span>
                   </button>
                 </Tooltip>

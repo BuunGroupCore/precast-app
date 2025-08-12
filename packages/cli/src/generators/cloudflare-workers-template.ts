@@ -1,6 +1,6 @@
 import path from "path";
 
-import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 
@@ -20,7 +20,7 @@ export async function generateCloudflareWorkersTemplate(
   const templateEngine = createTemplateEngine(templateRoot);
 
   try {
-    consola.info("Generating Cloudflare Workers backend...");
+    logger.verbose("Generating Cloudflare Workers backend...");
 
     await templateEngine.copyTemplateDirectory(
       "backends/cloudflare-workers/base",
@@ -42,9 +42,9 @@ export async function generateCloudflareWorkersTemplate(
       });
     }
 
-    consola.success("Cloudflare Workers backend generated successfully!");
+    logger.verbose("Cloudflare Workers backend generated successfully!");
   } catch (error) {
-    consola.error("Failed to generate Cloudflare Workers backend:", error);
+    logger.error(`Failed to generate Cloudflare Workers backend: ${error}`);
     throw error;
   }
 }

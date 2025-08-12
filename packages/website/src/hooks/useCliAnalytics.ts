@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
-
-import { DATA_URLS } from "@/config/constants";
+import { useState } from "react";
 
 interface CliAnalytics {
   updated: string;
@@ -62,16 +60,16 @@ interface CliAnalytics {
   error: Error | null;
 }
 
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-
 /**
- * Custom hook to fetch CLI analytics data from GitHub repository.
- * Data is updated every 6 hours via GitHub Actions.
+ * Custom hook for CLI analytics - now using PostHog data instead of GitHub analytics file.
+ * Kept for backwards compatibility but returns empty state.
+ * Use usePrecastAnalytics hook for actual analytics data.
  */
 export function useCliAnalytics() {
-  const [analytics, setAnalytics] = useState<CliAnalytics>({
+  // Return empty state - analytics now come from PostHog via usePrecastAnalytics
+  const [analytics] = useState<CliAnalytics>({
     updated: new Date().toISOString(),
-    lastUpdatedFormatted: "No data available yet",
+    lastUpdatedFormatted: "Using PostHog analytics",
     totals: { projects: 0, users: 0, totalEvents: 0 },
     frameworks: {},
     backends: {},
@@ -81,87 +79,9 @@ export function useCliAnalytics() {
     features: {},
     popularStacks: [],
     topCombinations: { reactStacks: [], fullStack: [], frontendOnly: [] },
-    loading: true,
+    loading: false,
     error: null,
   });
-
-  useEffect(() => {
-    let mounted = true;
-    const cacheKey = "cli_analytics";
-    const cached = localStorage.getItem(cacheKey);
-
-    // Check cache first
-    if (cached) {
-      try {
-        const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < CACHE_DURATION) {
-          setAnalytics({ ...data, loading: false, error: null });
-          return;
-        }
-      } catch (error) {
-        console.warn("Failed to parse cached CLI analytics:", error);
-        localStorage.removeItem(cacheKey);
-      }
-    }
-
-    const fetchAnalytics = async () => {
-      try {
-        const response = await fetch(DATA_URLS.ANALYTICS_JSON);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch CLI analytics: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!mounted) return;
-
-        const analyticsData: CliAnalytics = {
-          ...data,
-          loading: false,
-          error: null,
-        };
-
-        // Cache the data
-        localStorage.setItem(
-          cacheKey,
-          JSON.stringify({
-            data: analyticsData,
-            timestamp: Date.now(),
-          })
-        );
-
-        setAnalytics(analyticsData);
-      } catch (error) {
-        if (mounted) {
-          // Set empty state when no data is available
-          const emptyState: CliAnalytics = {
-            updated: new Date().toISOString(),
-            lastUpdatedFormatted: "No data available yet",
-            totals: { projects: 0, users: 0, totalEvents: 0 },
-            frameworks: {},
-            backends: {},
-            databases: {},
-            styling: {},
-            uiLibraries: {},
-            features: {},
-            popularStacks: [],
-            topCombinations: { reactStacks: [], fullStack: [], frontendOnly: [] },
-            loading: false,
-            error: error instanceof Error ? error : new Error("Failed to fetch CLI analytics"),
-          };
-
-          setAnalytics(emptyState);
-        }
-      }
-    };
-
-    fetchAnalytics();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   return { analytics };
 }

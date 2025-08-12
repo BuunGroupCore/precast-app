@@ -11,7 +11,7 @@ import {
   PerformanceMetricsSection,
 } from "@/components/metrics";
 import { useCliAnalytics } from "@/hooks";
-import { usePrecastAPI } from "@/hooks/usePrecastAPI";
+import { usePrecastAPI, usePrecastAnalytics } from "@/hooks/usePrecastAPI";
 
 interface IssueBreakdown {
   label: string;
@@ -167,6 +167,14 @@ export function MetricsPage() {
     loading: precastLoading,
   } = usePrecastAPI();
   const { analytics: cliAnalytics } = useCliAnalytics();
+
+  // Use PostHog analytics hook
+  const {
+    analytics: postHogAnalytics,
+    loading: analyticsLoading,
+    error: analyticsError,
+    refetch: refetchAnalytics,
+  } = usePrecastAnalytics();
 
   // Transform Precast API data to match existing interfaces
   const githubStats: GitHubStats | undefined = githubMetrics
@@ -350,37 +358,58 @@ export function MetricsPage() {
   // Combine loading states
   const combinedLoading = loading || precastLoading;
 
+  // PostHog analytics components will handle their own loading/error states inline
+
   return (
     <div className="min-h-screen py-20">
       <MetricsHeader loading={combinedLoading} refreshTime={refreshTime} />
 
-      <NpmDownloadsSection
-        npmStats={npmStats}
-        downloadHistory={downloadHistory}
-        loading={loading}
-        formatNumber={formatNumber}
-      />
+      {/* Existing GitHub/NPM Metrics */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Repository Metrics
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            GitHub activity, NPM downloads, and community engagement metrics.
+          </p>
+        </div>
 
-      <GitHubActivitySection commitHistory={commitHistory} loading={precastLoading} />
+        <NpmDownloadsSection
+          npmStats={npmStats}
+          downloadHistory={downloadHistory}
+          loading={loading}
+          formatNumber={formatNumber}
+        />
 
-      <GitHubStatsSection
-        githubStats={githubStats}
-        formatDate={formatDate}
-        calculateProjectAge={calculateProjectAge}
-      />
+        <GitHubActivitySection commitHistory={commitHistory} loading={precastLoading} />
 
-      <IssueBreakdownSection
-        issueBreakdown={githubStats?.issueBreakdown}
-        loading={precastLoading}
-      />
+        <GitHubStatsSection
+          githubStats={githubStats}
+          formatDate={formatDate}
+          calculateProjectAge={calculateProjectAge}
+        />
 
-      <CliUsageSection cliAnalytics={cliAnalytics} formatNumber={formatNumber} />
+        <IssueBreakdownSection
+          issueBreakdown={githubStats?.issueBreakdown}
+          loading={precastLoading}
+        />
 
-      <PerformanceMetricsSection
-        githubStats={githubStats}
-        npmStats={npmStats}
-        formatNumber={formatNumber}
-      />
+        <CliUsageSection
+          cliAnalytics={cliAnalytics}
+          formatNumber={formatNumber}
+          postHogAnalytics={postHogAnalytics}
+          analyticsLoading={analyticsLoading}
+          analyticsError={analyticsError}
+          refetchAnalytics={refetchAnalytics}
+        />
+
+        <PerformanceMetricsSection
+          githubStats={githubStats}
+          npmStats={npmStats}
+          formatNumber={formatNumber}
+        />
+      </div>
     </div>
   );
 }

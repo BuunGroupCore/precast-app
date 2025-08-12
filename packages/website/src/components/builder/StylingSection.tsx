@@ -5,6 +5,7 @@ import { FaPaintBrush } from "react-icons/fa";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { stylings } from "@/lib/stack-config";
 
+import { BuilderIcon } from "./BuilderIcon";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { PublicIcon } from "./PublicIcon";
 import type { ExtendedProjectConfig } from "./types";
@@ -42,7 +43,7 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
       transition={{ delay: 0.5 }}
     >
       <CollapsibleSection
-        icon={<FaPaintBrush className="text-3xl" />}
+        icon={<BuilderIcon icon={FaPaintBrush} className="text-3xl" />}
         title={<h3 className="font-display text-2xl">STYLING POWERS</h3>}
         className="bg-comic-yellow"
       >
@@ -91,7 +92,10 @@ export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfi
                     (typeof style.icon === "string" ? (
                       <PublicIcon name={style.icon} className="text-xl sm:text-2xl flex-shrink-0" />
                     ) : (
-                      <style.icon className="text-xl sm:text-2xl flex-shrink-0" />
+                      <BuilderIcon
+                        icon={style.icon}
+                        className="text-xl sm:text-2xl flex-shrink-0"
+                      />
                     ))}
                   <span className="text-xs truncate">{style.name}</span>
                 </button>

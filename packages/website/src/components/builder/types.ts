@@ -3,6 +3,8 @@ import { IconType } from "react-icons";
 import { type ColorPalette } from "@/lib/color-palettes";
 import { type SavedProject } from "@/lib/db";
 
+import { type DesignSystemConfig } from "./DesignSystemSelector";
+
 /**
  * Extended project configuration including all builder options and integrations.
  */
@@ -23,6 +25,7 @@ export interface ExtendedProjectConfig
   apiClient?: string;
   databaseDeployment?: "local" | "cloud";
   colorPalette?: ColorPalette; // New: Color palette configuration
+  designSystem?: DesignSystemConfig; // Design system configuration for styling
   // CLI Feature Toggles
   prettier?: boolean;
   eslint?: boolean;

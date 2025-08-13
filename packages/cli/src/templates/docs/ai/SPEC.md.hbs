@@ -1,0 +1,200 @@
+# {{name}} - Technical Specification
+
+## Project Overview
+
+_[Provide a brief technical overview of the project]_
+
+## Architecture
+
+### Application Structure
+
+_[Describe the high-level architecture and folder structure]_
+
+```
+{{name}}/
+├── src/           # _[Source code]_
+├── public/        # _[Static assets]_
+├── tests/         # _[Test files]_
+└── ...            # _[Other directories]_
+```
+
+### Technology Stack
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Frontend Framework | {{framework}} | UI rendering and state management |
+| Language | {{#if typescript}}TypeScript{{else}}JavaScript{{/if}} | Development language |
+| Package Manager | {{packageManager}} | Dependency management |
+{{#if (ne backend 'none')}}| Backend | {{backend}} | API and business logic |{{/if}}
+{{#if (ne database 'none')}}| Database | {{database}} | Data persistence |{{/if}}
+{{#if (ne orm 'none')}}| ORM/Query Builder | {{orm}} | Database abstraction |{{/if}}
+| Styling | {{styling}} | UI styling and design system |
+{{#if uiLibrary}}| UI Components | {{uiLibrary}} | Pre-built UI components |{{/if}}
+
+## Technical Requirements
+
+### Performance Requirements
+- _[Define initial page load target]_
+- _[Define route transition target]_
+- _[Define API response time target]_
+- _[Define bundle size limit]_
+
+### Browser Support
+- _[List supported browsers and versions]_
+
+### Security Requirements
+- _[Define security requirement 1]_
+- _[Define security requirement 2]_
+- _[Define security requirement 3]_
+- _[Define security requirement 4]_
+
+## API Specifications
+
+{{#if (ne backend 'none')}}
+### API Design
+
+Base URL: _[Define base URL]_
+
+#### Endpoint Structure
+```
+METHOD /resource
+METHOD /resource/:id
+METHOD /resource/:id/sub-resource
+```
+
+#### Example Endpoints
+- `GET /example` - _[Description]_
+- `POST /example` - _[Description]_
+- `PUT /example/:id` - _[Description]_
+- `DELETE /example/:id` - _[Description]_
+
+### Response Format
+```json
+{
+  "data": "_[Response data structure]_",
+  "meta": "_[Metadata if applicable]_"
+}
+```
+{{else}}
+_No backend API - frontend only application_
+{{/if}}
+
+## Database Schema
+
+{{#if (ne database 'none')}}
+### Database Design
+
+#### Example Table Structure
+```sql
+-- Example table definition
+CREATE TABLE table_name (
+  id _[PRIMARY KEY TYPE]_,
+  field1 _[TYPE AND CONSTRAINTS]_,
+  field2 _[TYPE AND CONSTRAINTS]_,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+_[Add additional tables and relationships as needed]_
+
+#### Sessions
+```sql
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  token VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+{{/if}}
+
+## Deployment
+
+### Environment Configuration
+- **Development**: Local development server
+- **Staging**: Preview environment for testing
+- **Production**: Live application
+
+### CI/CD Pipeline
+1. Code commit triggers build
+2. Run automated tests
+3. Build optimization
+4. Deploy to staging
+5. Run integration tests
+6. Deploy to production (on approval)
+
+## Testing Strategy
+
+### Unit Tests
+- Component testing with Jest/Vitest
+- Utility function testing
+- API endpoint testing
+
+### Integration Tests
+- E2E testing with Playwright
+- API integration testing
+- Database integration testing
+
+### Performance Testing
+- Lighthouse CI for performance metrics
+- Load testing for API endpoints
+- Bundle size monitoring
+
+## Monitoring and Logging
+
+### Application Monitoring
+- Error tracking and reporting
+- Performance monitoring
+- User analytics
+- Uptime monitoring
+
+### Logging Strategy
+- Structured logging format
+- Log levels: ERROR, WARN, INFO, DEBUG
+- Centralized log aggregation
+- Log retention policies
+
+## Security Considerations
+
+### Authentication & Authorization
+- JWT-based authentication
+- Role-based access control
+- Session management
+- Password policies
+
+### Data Protection
+- Input sanitization
+- SQL injection prevention
+- XSS protection
+- CSRF protection
+- Rate limiting
+
+### Infrastructure Security
+- HTTPS enforcement
+- Security headers
+- Regular security audits
+- Dependency vulnerability scanning
+
+## Appendix
+
+### Technology Stack Reference
+
+| Component | Technology | Version |
+|-----------|------------|---------|  
+| Frontend | {{framework}} | _[Version]_ |
+{{#if (ne backend 'none')}}| Backend | {{backend}} | _[Version]_ |{{/if}}
+{{#if (ne database 'none')}}| Database | {{database}} | _[Version]_ |{{/if}}
+{{#if (ne orm 'none')}}| ORM/ODM | {{orm}} | _[Version]_ |{{/if}}
+| Styling | {{styling}} | _[Version]_ |
+{{#if uiLibrary}}| UI Library | {{uiLibrary}} | _[Version]_ |{{/if}}
+{{#if auth}}| Authentication | {{auth}} | _[Version]_ |{{/if}}
+| Package Manager | {{packageManager}} | _[Version]_ |
+| Language | {{#if typescript}}TypeScript{{else}}JavaScript{{/if}} | _[Version]_ |
+
+### Additional Resources
+- _[Add relevant documentation links]_
+- _[Add relevant tutorials or guides]_
+- _[Add team documentation]_
+- _[Add architectural decision records]_

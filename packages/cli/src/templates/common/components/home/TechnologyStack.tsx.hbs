@@ -1,7 +1,9 @@
 import { Code2, Layers, Package2 } from "lucide-react";
 import { 
-  {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router') (eq framework 'tanstack-router') (eq framework 'tanstack-start'))}}
+  {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
   SiReact, 
+  {{else if (or (eq framework 'tanstack-router') (eq framework 'tanstack-start'))}}
+  SiReact as SiTanstack, 
   {{else if (eq framework 'vue')}}
   SiVuedotjs as SiVue,
   {{else if (eq framework 'svelte')}}
@@ -77,9 +79,9 @@ export function TechnologyStack() {
         {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
         { name: "React", icon: <SiReact size={24} />, version: "18.3", port: "5173" },
         {{else if (eq framework 'tanstack-router')}}
-        { name: "TanStack Router", icon: <SiReact size={24} />, version: "1.0", port: "5173" },
+        { name: "TanStack Router", icon: <SiTanstack size={24} />, version: "1.0", port: "5173" },
         {{else if (eq framework 'tanstack-start')}}
-        { name: "TanStack Start", icon: <SiReact size={24} />, version: "1.0", port: "5173" },
+        { name: "TanStack Start", icon: <SiTanstack size={24} />, version: "1.0", port: "5173" },
         {{else if (eq framework 'vue')}}
         { name: "Vue", icon: <SiVue size={24} />, version: "3.4", port: "5173" },
         {{else if (eq framework 'svelte')}}

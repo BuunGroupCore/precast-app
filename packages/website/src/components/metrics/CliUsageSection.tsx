@@ -106,12 +106,12 @@ export function CliUsageSection({
 }: CliUsageSectionProps) {
   return (
     <>
-      {/* Comic Separator */}
-      <div className="max-w-7xl mx-auto px-4 mb-12">
+      {/* Comic Separator - Mobile Responsive */}
+      <div className="max-w-7xl mx-auto px-4 mb-8 sm:mb-12">
         <div className="relative">
           <div className="h-2 bg-comic-black rounded-full"></div>
-          <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
-            <div className="action-text text-2xl text-comic-green bg-comic-black px-4 py-1 rounded-full border-4 border-comic-green">
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-3 sm:-top-4">
+            <div className="action-text text-sm sm:text-lg md:text-2xl text-comic-green bg-comic-black px-2 sm:px-3 md:px-4 py-0.5 sm:py-1 rounded-full border-2 sm:border-3 md:border-4 border-comic-green whitespace-nowrap">
               CLI STATS!
             </div>
           </div>
@@ -127,30 +127,34 @@ export function CliUsageSection({
             className="mb-8"
           >
             <div className="inline-block">
-              <h2 className="action-text text-4xl md:text-6xl text-comic-purple flex items-center gap-4">
-                <FaTerminal /> CLI USAGE STATS
+              <h2 className="action-text text-2xl sm:text-3xl md:text-4xl lg:text-6xl text-comic-purple flex items-center gap-2 sm:gap-3 md:gap-4">
+                <FaTerminal className="text-xl sm:text-2xl md:text-3xl lg:text-4xl" />
+                <span className="break-words">CLI USAGE STATS</span>
               </h2>
             </div>
           </motion.div>
 
-          {/* CLI Stats Overview */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {/* CLI Stats Overview - Mobile Responsive */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.5 }}
               whileHover={{ scale: 1.05 }}
-              className="comic-panel p-6 bg-comic-purple text-center"
+              className="comic-panel p-4 sm:p-6 bg-comic-purple text-center"
             >
-              <FaRocket className="text-4xl mx-auto mb-2 text-comic-white" />
-              <div className="action-text text-3xl text-comic-white">
+              <FaRocket className="text-2xl sm:text-3xl md:text-4xl mx-auto mb-2 text-comic-white" />
+              <div className="action-text text-xl sm:text-2xl md:text-3xl text-comic-white break-words">
                 {postHogAnalytics?.usage?.eventsLast30Days
                   ? formatNumber(postHogAnalytics.usage.eventsLast30Days)
                   : cliAnalytics
                     ? formatNumber(cliAnalytics.totals.projects)
                     : "..."}
               </div>
-              <div className="font-display text-lg text-comic-white">CLI EVENTS (30D)</div>
+              <div className="font-display text-xs sm:text-sm md:text-lg text-comic-white">
+                CLI EVENTS
+                <span className="block sm:inline"> (30D)</span>
+              </div>
             </motion.div>
 
             <motion.div
@@ -158,17 +162,20 @@ export function CliUsageSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.6 }}
               whileHover={{ scale: 1.05 }}
-              className="comic-panel p-6 bg-comic-blue text-center"
+              className="comic-panel p-4 sm:p-6 bg-comic-blue text-center"
             >
-              <FaUsers className="text-4xl mx-auto mb-2 text-comic-white" />
-              <div className="action-text text-3xl text-comic-white">
+              <FaUsers className="text-2xl sm:text-3xl md:text-4xl mx-auto mb-2 text-comic-white" />
+              <div className="action-text text-xl sm:text-2xl md:text-3xl text-comic-white break-words">
                 {postHogAnalytics?.usage?.activeUsersLast30Days
                   ? formatNumber(postHogAnalytics.usage.activeUsersLast30Days)
                   : cliAnalytics
                     ? formatNumber(cliAnalytics.totals.users)
                     : "..."}
               </div>
-              <div className="font-display text-lg text-comic-white">ACTIVE USERS (30D)</div>
+              <div className="font-display text-xs sm:text-sm md:text-lg text-comic-white">
+                ACTIVE USERS
+                <span className="block sm:inline"> (30D)</span>
+              </div>
             </motion.div>
 
             <motion.div
@@ -176,30 +183,33 @@ export function CliUsageSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.7 }}
               whileHover={{ scale: 1.05 }}
-              className="comic-panel p-6 bg-comic-green text-center"
+              className="comic-panel p-4 sm:p-6 bg-comic-green text-center col-span-1 sm:col-span-2 md:col-span-1"
             >
-              <FaCogs className="text-4xl mx-auto mb-2 text-comic-white" />
-              <div className="action-text text-3xl text-comic-white">
+              <FaCogs className="text-2xl sm:text-3xl md:text-4xl mx-auto mb-2 text-comic-white" />
+              <div className="action-text text-xl sm:text-2xl md:text-3xl text-comic-white break-words">
                 {postHogAnalytics?.usage?.totalEvents
                   ? formatNumber(postHogAnalytics.usage.totalEvents)
                   : cliAnalytics
                     ? formatNumber(cliAnalytics.totals.totalEvents)
                     : "..."}
               </div>
-              <div className="font-display text-lg text-comic-white">TOTAL CLI EVENTS</div>
+              <div className="font-display text-xs sm:text-sm md:text-lg text-comic-white">
+                TOTAL EVENTS
+              </div>
             </motion.div>
           </div>
 
-          {/* Framework and Tech Stack Breakdown */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Framework and Tech Stack Breakdown - Mobile Responsive */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.8 }}
-              className="comic-panel p-6"
+              className="comic-panel p-4 sm:p-6"
             >
-              <h3 className="font-display text-2xl mb-4 text-comic-purple flex items-center gap-2">
-                <FaLayerGroup /> POPULAR FRAMEWORKS
+              <h3 className="font-display text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 text-comic-purple flex items-center gap-2">
+                <FaLayerGroup className="text-base sm:text-lg md:text-xl" />
+                <span className="truncate">POPULAR FRAMEWORKS</span>
               </h3>
               <div className="space-y-3">
                 {postHogAnalytics?.frameworks?.topFrameworks &&
@@ -209,15 +219,17 @@ export function CliUsageSection({
                     return (
                       <div
                         key={framework.name}
-                        className="flex items-center justify-between p-3 rounded-lg bg-comic-purple bg-opacity-10"
+                        className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-comic-purple bg-opacity-10"
                       >
-                        <div className="flex items-center gap-2">
-                          {Icon && <Icon className="text-xl text-comic-purple" />}
-                          <span className="font-comic font-bold text-comic-purple capitalize">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {Icon && (
+                            <Icon className="text-base sm:text-lg md:text-xl text-comic-purple flex-shrink-0" />
+                          )}
+                          <span className="font-comic font-bold text-xs sm:text-sm text-comic-purple capitalize truncate">
                             {framework.name}
                           </span>
                         </div>
-                        <span className="action-text text-xl text-comic-red">
+                        <span className="action-text text-sm sm:text-lg md:text-xl text-comic-red flex-shrink-0">
                           {framework.count}
                         </span>
                       </div>
@@ -232,15 +244,19 @@ export function CliUsageSection({
                       return (
                         <div
                           key={framework}
-                          className="flex items-center justify-between p-3 rounded-lg bg-comic-purple bg-opacity-10"
+                          className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-comic-purple bg-opacity-10"
                         >
-                          <div className="flex items-center gap-2">
-                            {Icon && <Icon className="text-xl text-comic-purple" />}
-                            <span className="font-comic font-bold text-comic-purple capitalize">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {Icon && (
+                              <Icon className="text-base sm:text-lg md:text-xl text-comic-purple flex-shrink-0" />
+                            )}
+                            <span className="font-comic font-bold text-xs sm:text-sm text-comic-purple capitalize truncate">
                               {framework}
                             </span>
                           </div>
-                          <span className="action-text text-xl text-comic-red">{count}</span>
+                          <span className="action-text text-sm sm:text-lg md:text-xl text-comic-red flex-shrink-0">
+                            {count}
+                          </span>
                         </div>
                       );
                     })
@@ -266,10 +282,11 @@ export function CliUsageSection({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.9 }}
-              className="comic-panel p-6"
+              className="comic-panel p-4 sm:p-6"
             >
-              <h3 className="font-display text-2xl mb-4 text-comic-blue flex items-center gap-2">
-                <FaDatabase /> DATABASE CHOICES
+              <h3 className="font-display text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 text-comic-blue flex items-center gap-2">
+                <FaDatabase className="text-base sm:text-lg md:text-xl" />
+                <span className="truncate">DATABASE CHOICES</span>
               </h3>
               <div className="space-y-3">
                 {postHogAnalytics?.stackCombinations ? (
@@ -290,15 +307,19 @@ export function CliUsageSection({
                         return (
                           <div
                             key={database}
-                            className="flex items-center justify-between p-3 rounded-lg bg-comic-blue bg-opacity-10"
+                            className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-comic-blue bg-opacity-10"
                           >
-                            <div className="flex items-center gap-2">
-                              {Icon && <Icon className="text-xl text-comic-blue" />}
-                              <span className="font-comic font-bold text-comic-blue capitalize">
+                            <div className="flex items-center gap-2 min-w-0">
+                              {Icon && (
+                                <Icon className="text-base sm:text-lg md:text-xl text-comic-blue flex-shrink-0" />
+                              )}
+                              <span className="font-comic font-bold text-xs sm:text-sm text-comic-blue capitalize truncate">
                                 {database}
                               </span>
                             </div>
-                            <span className="action-text text-xl text-comic-red">{count}</span>
+                            <span className="action-text text-sm sm:text-lg md:text-xl text-comic-red flex-shrink-0">
+                              {count}
+                            </span>
                           </div>
                         );
                       });
@@ -312,15 +333,19 @@ export function CliUsageSection({
                       return (
                         <div
                           key={database}
-                          className="flex items-center justify-between p-3 rounded-lg bg-comic-blue bg-opacity-10"
+                          className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-comic-blue bg-opacity-10"
                         >
-                          <div className="flex items-center gap-2">
-                            {Icon && <Icon className="text-xl text-comic-blue" />}
-                            <span className="font-comic font-bold text-comic-blue capitalize">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {Icon && (
+                              <Icon className="text-base sm:text-lg md:text-xl text-comic-blue flex-shrink-0" />
+                            )}
+                            <span className="font-comic font-bold text-xs sm:text-sm text-comic-blue capitalize truncate">
                               {database}
                             </span>
                           </div>
-                          <span className="action-text text-xl text-comic-red">{count}</span>
+                          <span className="action-text text-sm sm:text-lg md:text-xl text-comic-red flex-shrink-0">
+                            {count}
+                          </span>
                         </div>
                       );
                     })
@@ -343,17 +368,18 @@ export function CliUsageSection({
             </motion.div>
           </div>
 
-          {/* Styling Preferences */}
+          {/* Styling Preferences - Mobile Responsive */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.0 }}
-            className="comic-panel p-6 mb-8"
+            className="comic-panel p-4 sm:p-6 mb-8"
           >
-            <h3 className="font-display text-2xl mb-4 text-comic-green flex items-center gap-2">
-              <FaPalette /> STYLING PREFERENCES
+            <h3 className="font-display text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 text-comic-green flex items-center gap-2">
+              <FaPalette className="text-base sm:text-lg md:text-xl" />
+              <span className="truncate">STYLING PREFERENCES</span>
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
               {postHogAnalytics?.stackCombinations ? (
                 (() => {
                   const stylingCounts: Record<string, number> = {};
@@ -372,11 +398,15 @@ export function CliUsageSection({
                       return (
                         <div
                           key={styling}
-                          className="comic-panel p-4 bg-comic-green bg-opacity-10 text-center"
+                          className="comic-panel p-2 sm:p-3 md:p-4 bg-comic-green bg-opacity-10 text-center"
                         >
-                          {Icon && <Icon className="text-2xl mx-auto mb-1 text-comic-green" />}
-                          <div className="action-text text-2xl text-comic-green mb-1">{count}</div>
-                          <div className="font-comic text-sm text-comic-black capitalize">
+                          {Icon && (
+                            <Icon className="text-lg sm:text-xl md:text-2xl mx-auto mb-1 text-comic-green" />
+                          )}
+                          <div className="action-text text-sm sm:text-lg md:text-2xl text-comic-green mb-1">
+                            {count}
+                          </div>
+                          <div className="font-comic text-[10px] sm:text-xs md:text-sm text-comic-black capitalize truncate">
                             {styling}
                           </div>
                         </div>
@@ -391,11 +421,15 @@ export function CliUsageSection({
                     return (
                       <div
                         key={styling}
-                        className="comic-panel p-4 bg-comic-green bg-opacity-10 text-center"
+                        className="comic-panel p-2 sm:p-3 md:p-4 bg-comic-green bg-opacity-10 text-center"
                       >
-                        {Icon && <Icon className="text-2xl mx-auto mb-1 text-comic-green" />}
-                        <div className="action-text text-2xl text-comic-green mb-1">{count}</div>
-                        <div className="font-comic text-sm text-comic-black capitalize">
+                        {Icon && (
+                          <Icon className="text-lg sm:text-xl md:text-2xl mx-auto mb-1 text-comic-green" />
+                        )}
+                        <div className="action-text text-sm sm:text-lg md:text-2xl text-comic-green mb-1">
+                          {count}
+                        </div>
+                        <div className="font-comic text-[10px] sm:text-xs md:text-sm text-comic-black capitalize truncate">
                           {styling}
                         </div>
                       </div>

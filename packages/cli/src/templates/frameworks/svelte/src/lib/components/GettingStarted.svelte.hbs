@@ -1,0 +1,172 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import { Terminal, Play, Settings } from 'lucide-svelte';
+  
+  let activeTab = 'development';
+  
+  const commands = {
+    development: [
+      {
+        command: 'npm run dev',
+        description: 'Start development server with hot reload'
+      },
+      {{#if backend}}
+      {
+        command: 'npm run dev:api',
+        description: 'Start backend API server'
+      },
+      {{/if}}
+      {{#if database}}
+      {
+        command: 'npm run docker:up',
+        description: 'Start database container'
+      },
+      {{/if}}
+      {{#if orm}}
+      {{#if (eq orm 'prisma')}}
+      {
+        command: 'npx prisma studio',
+        description: 'Open Prisma Studio for database management'
+      },
+      {{else if (eq orm 'drizzle')}}
+      {
+        command: 'npx drizzle-kit studio',
+        description: 'Open Drizzle Studio for database management'
+      },
+      {{/if}}
+      {{/if}}
+    ],
+    production: [
+      {
+        command: 'npm run build',
+        description: 'Build for production'
+      },
+      {
+        command: 'npm run preview',
+        description: 'Preview production build'
+      },
+      {{#if docker}}
+      {
+        command: 'docker compose up -d',
+        description: 'Deploy with Docker'
+      },
+      {{/if}}
+    ],
+    testing: [
+      {
+        command: 'npm test',
+        description: 'Run test suite'
+      },
+      {
+        command: 'npm run test:watch',
+        description: 'Run tests in watch mode'
+      },
+      {
+        command: 'npm run lint',
+        description: 'Run ESLint checks'
+      },
+      {
+        command: 'npm run type-check',
+        description: 'Run TypeScript type checking'
+      }
+    ]
+  };
+
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }
+</script>
+
+<section class="getting-started-section">
+  <div class="section-header">
+    <h2 class="brutalist-title">GETTING STARTED</h2>
+  </div>
+
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="tab-buttons">
+        <button 
+          class="tab-btn" 
+          class:active={activeTab === 'development'}
+          data-active={activeTab === 'development'}
+          data-type="development"
+          on:click={() => activeTab = 'development'}
+        >
+          <Play size={12} />
+          DEVELOPMENT
+        </button>
+        <button 
+          class="tab-btn"
+          class:active={activeTab === 'production'}
+          data-active={activeTab === 'production'}
+          data-type="production"
+          on:click={() => activeTab = 'production'}
+        >
+          <Settings size={12} />
+          PRODUCTION
+        </button>
+        <button 
+          class="tab-btn"
+          class:active={activeTab === 'testing'}
+          data-active={activeTab === 'testing'}
+          data-type="testing"
+          on:click={() => activeTab = 'testing'}
+        >
+          <Terminal size={12} />
+          TESTING
+        </button>
+      </div>
+    </div>
+
+    <div class="terminal-content">
+      <div class="commands-list">
+        {#each commands[activeTab] as { command, description }}
+          <div class="command-item">
+            <Terminal size={14} class="command-icon" />
+            <div class="command-content">
+              <div class="command-line">
+                <span class="prompt">$</span>
+                <code class="command-text">{command}</code>
+              </div>
+              <p class="command-desc">{description}</p>
+            </div>
+            <button 
+              class="copy-btn"
+              on:click={() => copyToClipboard(command)}
+            >
+              COPY
+            </button>
+          </div>
+        {/each}
+      </div>
+
+      <div class="pro-tip">
+        <div class="tip-content">
+          <span class="tip-label">PRO TIP:</span>
+          <span class="tip-text">
+            {#if activeTab === 'development'}
+              Use <code class="inline-code">npm run dev</code> to start all services concurrently with Turbo
+            {:else if activeTab === 'production'}
+              Always run <code class="inline-code">npm run type-check</code> before building for production
+            {:else}
+              Configure pre-commit hooks to run tests automatically before each commit
+            {/if}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .active {
+    background-color: var(--color-primary) !important;
+    color: var(--color-dark) !important;
+  }
+  
+  /* Rest of styles are in globals.css */
+</style>

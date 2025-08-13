@@ -180,6 +180,7 @@ export const metaFrameworks: StackOption[] = [
     description: "Build faster websites with Astro's next-gen island architecture",
     category: "meta-framework",
     recommended: ["typescript", "tailwind"],
+    disabled: true, // Disabled for future support
   },
   {
     id: "react-router",
@@ -259,6 +260,7 @@ export const specialFrameworks: StackOption[] = [
     color: "text-comic-yellow",
     description: "Plain JavaScript, no framework",
     category: "vanilla",
+    disabled: true, // Disabled for future support
   },
   {
     id: "none",

@@ -7,8 +7,6 @@ import {
   FaFile,
   FaFolder,
   FaFolderOpen,
-  FaToggleOff,
-  FaToggleOn,
   FaFileAlt,
   FaClipboardList,
 } from "react-icons/fa";
@@ -779,7 +777,407 @@ This is a modern {{framework}} application with the following architecture:
       },
     };
 
-    const template = templates[aiId]?.[filePath];
+    // Add documentation templates for all AI assistants
+    const documentationTemplates: { [key: string]: string } = {
+      "docs/ai/SPEC.md": `# {{name}} - Technical Specification
+
+## Project Overview
+
+_[Provide a brief technical overview of the project]_
+
+## Architecture
+
+### Application Structure
+
+_[Describe the high-level architecture and folder structure]_
+
+\`\`\`
+{{name}}/
+├── src/           # _[Source code]_
+├── public/        # _[Static assets]_
+├── tests/         # _[Test files]_
+└── ...            # _[Other directories]_
+\`\`\`
+
+### Technology Stack
+
+| Component | Technology | Version |
+|-----------|------------|---------|
+| Frontend | {{framework}} | _[Version]_ |
+{{#if (ne backend 'none')}}| Backend | {{backend}} | _[Version]_ |{{/if}}
+{{#if (ne database 'none')}}| Database | {{database}} | _[Version]_ |{{/if}}
+{{#if (ne orm 'none')}}| ORM/ODM | {{orm}} | _[Version]_ |{{/if}}
+| Styling | {{styling}} | _[Version]_ |
+{{#if uiLibrary}}| UI Library | {{uiLibrary}} | _[Version]_ |{{/if}}
+{{#if auth}}| Authentication | {{auth}} | _[Version]_ |{{/if}}
+| Package Manager | {{packageManager}} | _[Version]_ |
+| Language | {{#if typescript}}TypeScript{{else}}JavaScript{{/if}} | _[Version]_ |
+
+## Technical Requirements
+
+### Performance Requirements
+- _[Define initial page load target]_
+- _[Define route transition target]_
+- _[Define API response time target]_
+- _[Define bundle size limit]_
+
+### Browser Support
+- _[List supported browsers and versions]_
+
+### Security Requirements
+- _[Define security requirement 1]_
+- _[Define security requirement 2]_
+- _[Define security requirement 3]_
+- _[Define security requirement 4]_
+
+## API Specifications
+
+{{#if (ne backend 'none')}}
+### API Design
+
+Base URL: _[Define base URL]_
+
+#### Endpoint Structure
+\`\`\`
+METHOD /resource
+METHOD /resource/:id
+METHOD /resource/:id/sub-resource
+\`\`\`
+
+#### Example Endpoints
+- \`GET /example\` - _[Description]_
+- \`POST /example\` - _[Description]_
+- \`PUT /example/:id\` - _[Description]_
+- \`DELETE /example/:id\` - _[Description]_
+
+### Response Format
+\`\`\`json
+{
+  "data": "_[Response data structure]_",
+  "meta": "_[Metadata if applicable]_"
+}
+\`\`\`
+{{else}}
+_No backend API - frontend only application_
+{{/if}}
+
+## Database Schema
+
+{{#if (ne database 'none')}}
+### Database Design
+
+#### Example Table Structure
+\`\`\`sql
+-- Example table definition
+CREATE TABLE table_name (
+  id _[PRIMARY KEY TYPE]_,
+  field1 _[TYPE AND CONSTRAINTS]_,
+  field2 _[TYPE AND CONSTRAINTS]_,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+\`\`\`
+
+_[Add additional tables and relationships as needed]_
+{{else}}
+_No database required - frontend only application_
+{{/if}}
+
+## Deployment
+
+### Environment Configuration
+- **Development**: _[Define dev environment]_
+- **Staging**: _[Define staging environment]_
+- **Production**: _[Define production environment]_
+
+### CI/CD Pipeline
+1. _[Define step 1]_
+2. _[Define step 2]_
+3. _[Define step 3]_
+4. _[Define step 4]_
+5. _[Define step 5]_
+
+## Testing Strategy
+
+### Unit Tests
+- _[Define unit test approach]_
+- _[Define what to test]_
+- _[Define test coverage goals]_
+
+### Integration Tests
+- _[Define integration test approach]_
+- _[Define integration scenarios]_
+- _[Define test environments]_
+
+### Performance Testing
+- _[Define performance test approach]_
+- _[Define performance benchmarks]_
+- _[Define monitoring strategy]_
+
+## Monitoring and Logging
+
+### Application Monitoring
+- _[Define monitoring approach]_
+- _[Define metrics to track]_
+- _[Define alerting rules]_
+- _[Define monitoring tools]_
+
+### Logging Strategy
+- _[Define logging approach]_
+- _[Define log levels]_
+- _[Define log storage]_
+- _[Define retention policy]_
+
+## Security Considerations
+
+### Authentication & Authorization
+{{#if auth}}
+- **Auth Provider**: {{auth}}
+- _[Define authentication flow]_
+- _[Define authorization strategy]_
+- _[Define session management]_
+{{else}}
+- _[Define authentication approach]_
+- _[Define authorization approach]_
+{{/if}}
+
+### Data Protection
+- _[Define data protection measures]_
+- _[Define input validation]_
+- _[Define encryption strategy]_
+- _[Define compliance requirements]_
+
+### Infrastructure Security
+- _[Define infrastructure security measures]_
+- _[Define network security]_
+- _[Define audit procedures]_
+- _[Define incident response]_
+
+## Additional Resources
+- _[Add relevant documentation links]_
+- _[Add relevant tutorials or guides]_
+- _[Add team documentation]_
+- _[Add architectural decision records]_`,
+
+      "docs/ai/PRD.md": `# {{name}} - Product Requirements Document
+
+## Product Overview
+
+### Vision Statement
+_[Describe the overall vision and purpose of the application]_
+
+### Target Audience
+- **Primary Users**: _[Define primary user group]_
+- **Secondary Users**: _[Define secondary user group]_
+- **Technical Users**: _[Define technical stakeholders]_
+
+## Business Objectives
+
+### Primary Goals
+1. _[Define primary business goal]_
+2. _[Define secondary business goal]_
+3. _[Define tertiary business goal]_
+4. _[Define additional goals as needed]_
+
+### Success Metrics
+- _[Define key metric 1]_
+- _[Define key metric 2]_
+- _[Define key metric 3]_
+- _[Define key metric 4]_
+
+## Features and Requirements
+
+### Core Features
+
+#### Feature Category 1
+- **Feature 1.1**: _[Description]_
+- **Feature 1.2**: _[Description]_
+- **Feature 1.3**: _[Description]_
+- **Feature 1.4**: _[Description]_
+
+#### Feature Category 2
+- **Feature 2.1**: _[Description]_
+- **Feature 2.2**: _[Description]_
+- **Feature 2.3**: _[Description]_
+- **Feature 2.4**: _[Description]_
+
+### Technical Requirements
+
+#### Frontend Stack
+- **Framework**: {{framework}}
+- **Styling**: {{styling}}
+{{#if uiLibrary}}- **UI Library**: {{uiLibrary}}{{/if}}
+{{#if typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
+- **Additional Requirements**: _[Add specific frontend requirements]_
+
+#### Backend Stack
+{{#if (ne backend 'none')}}
+- **Framework**: {{backend}}
+{{#if auth}}- **Authentication**: {{auth}}{{/if}}
+- **Additional Requirements**: _[Add specific backend requirements]_
+{{else}}
+- **Backend**: Not applicable (frontend-only application)
+{{/if}}
+
+#### Data Layer
+{{#if (ne database 'none')}}
+- **Database**: {{database}}
+{{#if (ne orm 'none')}}- **ORM/ODM**: {{orm}}{{/if}}
+- **Additional Requirements**: _[Add specific database requirements]_
+{{else}}
+- **Database**: Not applicable
+{{/if}}
+
+## User Stories
+
+### Epic 1: _[Epic Title]_
+**_[Epic Description]_**
+
+- **US001**: _[User story description]_
+  - Acceptance Criteria:
+    - _[Criterion 1]_
+    - _[Criterion 2]_
+    - _[Criterion 3]_
+
+- **US002**: _[User story description]_
+  - Acceptance Criteria:
+    - _[Criterion 1]_
+    - _[Criterion 2]_
+    - _[Criterion 3]_
+
+### Epic 2: _[Epic Title]_
+**_[Epic Description]_**
+
+- **US003**: _[User story description]_
+  - Acceptance Criteria:
+    - _[Criterion 1]_
+    - _[Criterion 2]_
+    - _[Criterion 3]_
+
+## Design and User Experience
+
+### Design Principles
+1. _[Define design principle 1]_
+2. _[Define design principle 2]_
+3. _[Define design principle 3]_
+4. _[Define design principle 4]_
+
+### User Interface Guidelines
+- **Color Scheme**: _[Define color palette]_
+- **Typography**: _[Define font choices]_
+- **Layout**: _[Define layout approach]_
+- **Interactions**: _[Define interaction patterns]_
+
+### Mobile Experience
+- _[Define mobile strategy]_
+- _[Define touch optimization]_
+- _[Define performance requirements]_
+- _[Define offline capabilities]_
+
+## Technical Constraints
+
+### Browser Support
+- _[Define supported browsers]_
+- _[Define mobile browser support]_
+- _[Define legacy browser strategy]_
+
+### Performance Requirements
+- **Loading Time**: _[Define target]_
+- **Bundle Size**: _[Define limit]_
+- **Memory Usage**: _[Define constraints]_
+- **Network**: _[Define requirements]_
+
+### Security Requirements
+- **Data Protection**: _[Define approach]_
+- **Input Validation**: _[Define strategy]_
+- **Authentication**: _[Define method]_
+- **Privacy**: _[Define compliance needs]_
+
+## Development and Deployment
+
+### Technology Stack
+- **Frontend**: {{framework}} with {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}
+- **Styling**: {{styling}}{{#if uiLibrary}} + {{uiLibrary}}{{/if}}
+{{#if (ne backend 'none')}}
+- **Backend**: {{backend}}
+{{/if}}
+{{#if (ne database 'none')}}
+- **Database**: {{database}}{{#if (ne orm 'none')}} with {{orm}}{{/if}}
+{{/if}}
+- **Package Manager**: {{packageManager}}
+
+### Development Workflow
+1. **Version Control**: Git with feature branches
+2. **Code Review**: Pull request reviews required
+3. **Testing**: Automated unit and integration tests
+4. **CI/CD**: Automated build and deployment pipeline
+
+### Deployment Strategy
+- **Environments**: _[Define environments]_
+- **Monitoring**: _[Define monitoring approach]_
+- **Logging**: _[Define logging strategy]_
+- **Backup**: _[Define backup procedures]_
+
+## Risk Management
+
+### Technical Risks
+- **Risk 1**: _[Description and impact]_
+- **Risk 2**: _[Description and impact]_
+- **Risk 3**: _[Description and impact]_
+- **Risk 4**: _[Description and impact]_
+
+### Mitigation Strategies
+- **Strategy 1**: _[Mitigation approach]_
+- **Strategy 2**: _[Mitigation approach]_
+- **Strategy 3**: _[Mitigation approach]_
+- **Strategy 4**: _[Mitigation approach]_
+
+## Timeline and Milestones
+
+### Phase 1: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+### Phase 2: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+### Phase 3: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+### Phase 4: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+## Appendix
+
+### Technology Stack Reference
+
+| Component | Technology | Version |
+|-----------|------------|---------|  
+| Frontend | {{framework}} | _[Version]_ |
+{{#if (ne backend 'none')}}| Backend | {{backend}} | _[Version]_ |{{/if}}
+{{#if (ne database 'none')}}| Database | {{database}} | _[Version]_ |{{/if}}
+{{#if (ne orm 'none')}}| ORM/ODM | {{orm}} | _[Version]_ |{{/if}}
+| Styling | {{styling}} | _[Version]_ |
+{{#if uiLibrary}}| UI Library | {{uiLibrary}} | _[Version]_ |{{/if}}
+{{#if auth}}| Authentication | {{auth}} | _[Version]_ |{{/if}}
+| Package Manager | {{packageManager}} | _[Version]_ |
+| Language | {{#if typescript}}TypeScript{{else}}JavaScript{{/if}} | _[Version]_ |
+
+### Additional Resources
+- _[Add relevant documentation links]_
+- _[Add relevant tutorials or guides]_
+- _[Add team documentation]_
+- _[Add architectural decision records]_`,
+    };
+
+    const template = templates[aiId]?.[filePath] || documentationTemplates[filePath];
     if (!template) {
       return `# ${filePath}\n\n// Content will be generated by Precast CLI`;
     }
@@ -791,8 +1189,19 @@ This is a modern {{framework}} application with the following architecture:
     const ai = aiAssistants.find((a) => a.id === aiId);
     if (!ai || !ai.files) return [];
 
+    // Start with base AI files
+    const allFiles = [...ai.files];
+
+    // Add documentation files if enabled
+    if (config.generateSpec ?? true) {
+      allFiles.push("docs/ai/SPEC.md");
+    }
+    if (config.generatePrd ?? true) {
+      allFiles.push("docs/ai/PRD.md");
+    }
+
     // Only show mcp.json if MCP servers are selected
-    const filteredFiles = ai.files.filter((file) => {
+    const filteredFiles = allFiles.filter((file) => {
       if (file === ".claude/mcp.json") {
         return config.mcpServers && config.mcpServers.length > 0;
       }
@@ -931,54 +1340,82 @@ This is a modern {{framework}} application with the following architecture:
               {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.description}
             </p>
 
-            {/* Documentation Options */}
-            <div className="mt-3 pt-3 border-t border-comic-white/20">
-              <p className="text-xs font-bold mb-2 text-comic-white">Documentation Generation:</p>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-2 bg-comic-black/20 rounded border border-comic-white/10">
-                  <div className="flex items-center gap-2">
-                    <BuilderIcon icon={FaFileAlt} className="text-comic-blue text-sm" />
-                    <span className="text-xs font-mono">SPEC.md</span>
-                    <span className="text-[10px] text-comic-white/70">Technical Specification</span>
-                  </div>
+            {/* Documentation Options - Comic Style */}
+            <div className="mt-4">
+              <div
+                className="comic-panel bg-comic-yellow p-3 border-2 border-comic-black"
+                style={{ boxShadow: "3px 3px 0 var(--comic-black)" }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-display text-sm text-comic-black flex items-center gap-2">
+                    <BuilderIcon icon={FaFileAlt} className="text-comic-red" />
+                    AI DOCUMENTATION
+                  </h4>
+                  <button
+                    onClick={() => {
+                      const bothEnabled =
+                        (config.generateSpec ?? true) && (config.generatePrd ?? true);
+                      setConfig({
+                        ...config,
+                        generateSpec: !bothEnabled,
+                        generatePrd: !bothEnabled,
+                      });
+                    }}
+                    className={`px-2 py-1 rounded-lg font-comic text-xs border-2 border-comic-black transition-all ${
+                      (config.generateSpec ?? true) || (config.generatePrd ?? true)
+                        ? "bg-comic-green text-comic-white"
+                        : "bg-comic-white text-comic-black"
+                    }`}
+                    style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
+                  >
+                    {(config.generateSpec ?? true) || (config.generatePrd ?? true)
+                      ? "ENABLED"
+                      : "DISABLED"}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() =>
                       setConfig({ ...config, generateSpec: !(config.generateSpec ?? true) })
                     }
-                    className={`p-1 rounded transition-colors ${
-                      (config.generateSpec ?? true) ? "text-comic-green" : "text-comic-red"
+                    className={`p-2 rounded-lg border-2 border-comic-black transition-all ${
+                      (config.generateSpec ?? true)
+                        ? "bg-comic-blue text-comic-white"
+                        : "bg-comic-white text-comic-black hover:bg-comic-blue/10"
                     }`}
-                    title={`${(config.generateSpec ?? true) ? "Disable" : "Enable"} SPEC.md generation`}
+                    style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
                   >
-                    {(config.generateSpec ?? true) ? (
-                      <BuilderIcon icon={FaToggleOn} className="text-lg" />
-                    ) : (
-                      <BuilderIcon icon={FaToggleOff} className="text-lg" />
-                    )}
+                    <div className="flex flex-col items-center gap-1">
+                      <BuilderIcon icon={FaFileAlt} className="text-lg" />
+                      <span className="font-comic text-xs font-bold">SPEC.md</span>
+                      <span className="font-comic text-[10px]">Technical</span>
+                    </div>
                   </button>
-                </div>
 
-                <div className="flex items-center justify-between p-2 bg-comic-black/20 rounded border border-comic-white/10">
-                  <div className="flex items-center gap-2">
-                    <BuilderIcon icon={FaClipboardList} className="text-comic-orange text-sm" />
-                    <span className="text-xs font-mono">PRD.md</span>
-                    <span className="text-[10px] text-comic-white/70">Product Requirements</span>
-                  </div>
                   <button
                     onClick={() =>
                       setConfig({ ...config, generatePrd: !(config.generatePrd ?? true) })
                     }
-                    className={`p-1 rounded transition-colors ${
-                      (config.generatePrd ?? true) ? "text-comic-green" : "text-comic-red"
+                    className={`p-2 rounded-lg border-2 border-comic-black transition-all ${
+                      (config.generatePrd ?? true)
+                        ? "bg-comic-orange text-comic-white"
+                        : "bg-comic-white text-comic-black hover:bg-comic-orange/10"
                     }`}
-                    title={`${(config.generatePrd ?? true) ? "Disable" : "Enable"} PRD.md generation`}
+                    style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
                   >
-                    {(config.generatePrd ?? true) ? (
-                      <BuilderIcon icon={FaToggleOn} className="text-lg" />
-                    ) : (
-                      <BuilderIcon icon={FaToggleOff} className="text-lg" />
-                    )}
+                    <div className="flex flex-col items-center gap-1">
+                      <BuilderIcon icon={FaClipboardList} className="text-lg" />
+                      <span className="font-comic text-xs font-bold">PRD.md</span>
+                      <span className="font-comic text-[10px]">Product</span>
+                    </div>
                   </button>
+                </div>
+
+                <div className="mt-2 p-2 bg-comic-white/80 rounded border border-comic-black">
+                  <p className="font-comic text-[10px] text-comic-black text-center">
+                    Generate comprehensive project documentation for AI assistants
+                  </p>
                 </div>
               </div>
             </div>

@@ -22,6 +22,9 @@ export interface TemplateOptions {
 export class TemplateEngine {
   private templateRoot: string;
   private helpers: Map<string, handlebars.HelperDelegate> = new Map();
+  private partials: Map<string, string> = new Map();
+  private partialsRegistered = false;
+
   constructor(templateRoot: string) {
     this.templateRoot = templateRoot;
     this.registerDefaultHelpers();
@@ -64,6 +67,39 @@ export class TemplateEngine {
   }
 
   /**
+   * Register default Handlebars partials
+   */
+  private async registerDefaultPartials() {
+    if (this.partialsRegistered) return;
+
+    try {
+      // Register common partials
+      const partialsPath = path.join(this.templateRoot, "common");
+
+      // Register common/styles/globals.css.hbs as a partial
+      const globalsStylePath = path.join(partialsPath, "styles", "globals.css.hbs");
+      if (await pathExists(globalsStylePath)) {
+        const content = await readFile(globalsStylePath, "utf-8");
+        handlebars.registerPartial("common/styles/globals.css.hbs", content);
+        this.partials.set("common/styles/globals.css.hbs", content);
+      }
+
+      // Register common/styles/globals.scss.hbs as a partial
+      const globalsScssPath = path.join(partialsPath, "styles", "globals.scss.hbs");
+      if (await pathExists(globalsScssPath)) {
+        const content = await readFile(globalsScssPath, "utf-8");
+        handlebars.registerPartial("common/styles/globals.scss.hbs", content);
+        this.partials.set("common/styles/globals.scss.hbs", content);
+      }
+
+      this.partialsRegistered = true;
+    } catch (error) {
+      consola.debug("Error registering partials:", error);
+      // Non-critical error, continue without partials
+    }
+  }
+
+  /**
    * Register a custom Handlebars helper
    * @param name - Helper name
    * @param helper - Helper function
@@ -87,6 +123,9 @@ export class TemplateEngine {
     options: TemplateOptions = {}
   ): Promise<void> {
     try {
+      // Ensure partials are registered before processing
+      await this.registerDefaultPartials();
+
       if (await pathExists(outputPath)) {
         if (options.skipIfExists) {
           consola.debug(`Skipping existing file: ${outputPath}`);

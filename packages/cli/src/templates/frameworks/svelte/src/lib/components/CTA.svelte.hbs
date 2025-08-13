@@ -1,0 +1,74 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import { ArrowRight, Github, FileText, Zap, Shield, Layers } from 'lucide-svelte';
+</script>
+
+<section class="cta-section">
+  <div class="cta-card">
+    <div class="corner-accent corner-tl"></div>
+    <div class="corner-accent corner-tr"></div>
+    <div class="corner-accent corner-bl"></div>
+    <div class="corner-accent corner-br"></div>
+    
+    <div class="cta-content">
+      <h2 class="cta-title">SHIP FASTER</h2>
+      <p class="cta-description">
+        Your production-ready stack is configured and ready to scale
+      </p>
+      
+      <div class="feature-badges">
+        <div class="feature-badge">
+          <Zap size={12} />
+          <span>OPTIMIZED</span>
+        </div>
+        <div class="feature-badge">
+          <Shield size={12} />
+          <span>SECURE</span>
+        </div>
+        <div class="feature-badge">
+          <Layers size={12} />
+          <span>SCALABLE</span>
+        </div>
+      </div>
+      
+      <div class="cta-buttons">
+        <a 
+          href="https://github.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-primary"
+        >
+          <Github size={16} />
+          VIEW ON GITHUB
+          <ArrowRight size={16} class="btn-arrow" />
+        </a>
+        
+        <a 
+          href="/docs"
+          class="btn-secondary"
+        >
+          <FileText size={16} />
+          READ DOCS
+        </a>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">TYPE SAFE</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">0ms</div>
+          <div class="stat-label">COLD START</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">A+</div>
+          <div class="stat-label">SECURITY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Styles are already in globals.css via the partial */
+</style>

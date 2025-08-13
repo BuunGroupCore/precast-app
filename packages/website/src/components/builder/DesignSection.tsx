@@ -4,6 +4,7 @@ import { FaBrush } from "react-icons/fa";
 
 import { CollapsibleSection } from "./CollapsibleSection";
 import { ColorPaletteSection } from "./ColorPaletteSection";
+import { DesignSystemSelector, type DesignSystemConfig } from "./DesignSystemSelector";
 import type { ExtendedProjectConfig } from "./types";
 
 interface DesignSectionProps {
@@ -16,6 +17,47 @@ interface DesignSectionProps {
  * This section will expand to include component styling, theme customization, and more design features.
  */
 export const DesignSection: React.FC<DesignSectionProps> = ({ config, setConfig }) => {
+  // Initialize design system config with defaults if not present
+  const designSystemConfig: DesignSystemConfig = config.designSystem || {
+    borders: "subtle",
+    shadows: "md",
+    radius: "md",
+    spacing: "comfortable",
+    typography: "sans",
+    animations: "smooth",
+    stylingLibrary:
+      config.styling === "tailwind"
+        ? "tailwind"
+        : config.styling === "scss"
+          ? "scss"
+          : config.styling === "styled-components"
+            ? "styled-components"
+            : "css",
+  };
+
+  const handleDesignSystemChange = (newConfig: DesignSystemConfig) => {
+    setConfig((prev) => ({
+      ...prev,
+      designSystem: newConfig,
+    }));
+  };
+
+  // Generate summary text for collapsed view
+  const getDesignSummary = () => {
+    if (config.colorPalette || config.designSystem) {
+      const items = [];
+      if (config.colorPalette) {
+        items.push(config.colorPalette.name);
+      }
+      if (config.designSystem) {
+        items.push(`${config.designSystem.borders} borders`);
+        items.push(`${config.designSystem.shadows} shadows`);
+      }
+      return items.join(" • ");
+    }
+    return undefined;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -34,20 +76,22 @@ export const DesignSection: React.FC<DesignSectionProps> = ({ config, setConfig 
         icon={<FaBrush className="text-2xl text-comic-purple" />}
         defaultCollapsed={false}
         summary={
-          config.colorPalette ? (
+          config.colorPalette || config.designSystem ? (
             <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                {Object.values(config.colorPalette.colors)
-                  .slice(0, 4)
-                  .map((color, idx) => (
-                    <div
-                      key={idx}
-                      className="w-4 h-4 rounded-full border-2 border-comic-black"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-              </div>
-              <span className="font-comic text-xs">{config.colorPalette.name}</span>
+              {config.colorPalette && (
+                <div className="flex gap-1">
+                  {Object.values(config.colorPalette.colors)
+                    .slice(0, 4)
+                    .map((color, idx) => (
+                      <div
+                        key={idx}
+                        className="w-4 h-4 rounded-full border-2 border-comic-black"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                </div>
+              )}
+              <span className="font-comic text-xs">{getDesignSummary()}</span>
             </div>
           ) : undefined
         }
@@ -56,15 +100,12 @@ export const DesignSection: React.FC<DesignSectionProps> = ({ config, setConfig 
           {/* Color Palette Section - directly integrated */}
           <ColorPaletteSection config={config} setConfig={setConfig} />
 
-          {/* Future Design Options - Minimal comic-style placeholder */}
-          <div className="text-center py-6">
-            <div className="action-text text-xl text-comic-purple mb-2 transform -rotate-1">
-              MORE COMING SOON!
-            </div>
-            <div className="font-comic text-xs text-comic-gray">
-              Typography • Components • Animations • Themes
-            </div>
-          </div>
+          {/* Design System Selector - new addition */}
+          <DesignSystemSelector
+            value={designSystemConfig}
+            onChange={handleDesignSystemChange}
+            colorPalette={config.colorPalette}
+          />
         </div>
       </CollapsibleSection>
     </motion.div>

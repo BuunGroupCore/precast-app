@@ -1,0 +1,16 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import Hero from '$lib/components/Hero.svelte';
+  import GettingStarted from '$lib/components/GettingStarted.svelte';
+  import TechnologyStack from '$lib/components/TechnologyStack.svelte';
+  import CTA from '$lib/components/CTA.svelte';
+</script>
+
+<svelte:head>
+  <title>{{name}}</title>
+  <meta name="description" content="{{name}} - Built with Precast" />
+</svelte:head>
+
+<Hero />
+<GettingStarted />
+<TechnologyStack />
+<CTA />

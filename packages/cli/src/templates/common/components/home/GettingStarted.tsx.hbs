@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Terminal, Play, Database{{#if docker}}, Server{{/if}}, Globe, Package } from "lucide-react";
+import { Terminal, Play, Database{{#if docker}}, Server{{/if}}{{#if (eq orm 'prisma')}}, Globe{{/if}}, Package } from "lucide-react";
 
 /**
  * Getting Started component - Console-style command reference

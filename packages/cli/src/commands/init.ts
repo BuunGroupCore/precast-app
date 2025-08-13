@@ -68,6 +68,7 @@ export interface InitOptions {
   auth?: string;
   apiClient?: string;
   ai?: string;
+  aiDocs?: boolean;
   mcpServers?: string[];
   powerups?: string[];
   plugins?: string[];
@@ -242,7 +243,7 @@ function validateCliOptions(options: InitOptions): { valid: boolean; errors: str
 
   // Validate API client
   if (options.apiClient && options.apiClient !== "none") {
-    const knownApiClients = ["tanstack-query", "swr", "axios", "trpc", "apollo-client"];
+    const knownApiClients = ["tanstack-query", "swr", "axios", "trpc", "apollo-client", "hono-rpc"];
     if (!knownApiClients.includes(options.apiClient)) {
       errors.push(
         `Invalid API client "${theme.bold(options.apiClient)}"\n\n` +

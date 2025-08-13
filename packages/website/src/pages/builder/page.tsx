@@ -392,6 +392,13 @@ export function BuilderPage() {
       parts.push("--no-generate");
     }
 
+    /** AI Documentation Generation */
+    if (config.aiAssistant && config.aiAssistant !== "none") {
+      if (config.generateSpec || config.generatePrd) {
+        parts.push("--ai-docs");
+      }
+    }
+
     parts.push("--yes");
 
     /** Deployment method is not yet supported by the CLI

@@ -1,0 +1,84 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import { onMount } from 'svelte';
+  {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+  import AdminWidget from '@/components/admin/AdminWidget.svelte';
+  {{/if}}
+  {{#if (includes plugins 'stripe')}}
+  import StripeWidget from '@/components/widgets/StripeWidget.svelte';
+  {{/if}}
+  {{#if (includes plugins 'analytics')}}
+  import AnalyticsWidget from '@/components/widgets/AnalyticsWidget.svelte';
+  {{/if}}
+  {{#if (includes plugins 'monitoring')}}
+  import MonitoringWidget from '@/components/widgets/MonitoringWidget.svelte';
+  {{/if}}
+
+  /**
+   * Widget Manager - Manages multiple floating widgets
+   * Handles positioning, stacking, and collision detection
+   */
+  
+  let widgetPositions = {};
+  
+  // Framework-specific environment check
+  {{#if (eq framework "svelte")}}
+  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+  {{else}}
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  {{/if}}
+  
+  // Calculate positions to avoid overlapping
+  onMount(() => {
+    const positions = {};
+    let currentBottom = 24; // Start at 24px from bottom
+    const spacing = 72; // Space between widgets
+    
+    {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+    positions.admin = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    {{#if (includes plugins 'stripe')}}
+    positions.stripe = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    {{#if (includes plugins 'analytics')}}
+    positions.analytics = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    {{#if (includes plugins 'monitoring')}}
+    positions.monitoring = { bottom: currentBottom, right: 24 };
+    currentBottom += spacing;
+    {{/if}}
+    
+    widgetPositions = positions;
+  });
+</script>
+
+{#if isDevelopment}
+  {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+  <div style="position: fixed; bottom: {widgetPositions.admin?.bottom || 24}px; right: {widgetPositions.admin?.right || 24}px; z-index: 50;">
+    <AdminWidget />
+  </div>
+  {{/if}}
+  
+  {{#if (includes plugins 'stripe')}}
+  <div style="position: fixed; bottom: {widgetPositions.stripe?.bottom || 96}px; right: {widgetPositions.stripe?.right || 24}px; z-index: 50;">
+    <StripeWidget />
+  </div>
+  {{/if}}
+  
+  {{#if (includes plugins 'analytics')}}
+  <div style="position: fixed; bottom: {widgetPositions.analytics?.bottom || 168}px; right: {widgetPositions.analytics?.right || 24}px; z-index: 50;">
+    <AnalyticsWidget />
+  </div>
+  {{/if}}
+  
+  {{#if (includes plugins 'monitoring')}}
+  <div style="position: fixed; bottom: {widgetPositions.monitoring?.bottom || 240}px; right: {widgetPositions.monitoring?.right || 24}px; z-index: 50;">
+    <MonitoringWidget />
+  </div>
+  {{/if}}
+{/if}

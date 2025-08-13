@@ -1,6 +1,5 @@
 {{#if typescript}}import { createFileRoute } from '@tanstack/react-router';
-
-import { Welcome } from '@/components/Welcome';
+import { Hero, GettingStarted, TechnologyStack, CTA } from "@/components/home";
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -8,16 +7,19 @@ export const Route = createFileRoute('/')({
 
 /**
  * Home page component
+ * Main landing page showcasing the generated stack
  */
 function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <Welcome projectName="{{name}}" />
+    <div className="{{#if (eq styling 'tailwind')}}max-w-6xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8{{else}}page-container{{/if}}">
+      <Hero />
+      <GettingStarted />
+      <TechnologyStack />
+      <CTA />
     </div>
   );
 }{{else}}import { createFileRoute } from '@tanstack/react-router';
-
-import { Welcome } from '@/components/Welcome';
+import { Hero, GettingStarted, TechnologyStack, CTA } from "@/components/home";
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -25,11 +27,15 @@ export const Route = createFileRoute('/')({
 
 /**
  * Home page component
+ * Main landing page showcasing the generated stack
  */
 function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <Welcome projectName="{{name}}" />
+    <div className="{{#if (eq styling 'tailwind')}}max-w-6xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8{{else}}page-container{{/if}}">
+      <Hero />
+      <GettingStarted />
+      <TechnologyStack />
+      <CTA />
     </div>
   );
 }{{/if}}

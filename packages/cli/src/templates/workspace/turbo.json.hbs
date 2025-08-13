@@ -8,7 +8,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"{{#if (eq framework 'svelte')}}, ".svelte-kit/**", "build/**"{{/if}}{{#if (eq framework 'nuxt')}}, ".nuxt/**", ".output/**"{{/if}}{{#if (eq framework 'astro')}}, "dist/**"{{/if}}{{#if (eq framework 'vite')}}, "dist/**"{{/if}}{{#if (eq framework 'solid')}}, "dist/**"{{/if}}],
       "outputLogs": "new-only"
     },
     "dev": {

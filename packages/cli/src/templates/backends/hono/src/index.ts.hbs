@@ -6,7 +6,7 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
-import healthApp from "@/api/routes/health{{#if typescript}}.js{{/if}}";
+import healthApp from "@/api/routes/health";
 {{/if}}
 {{#if (includes plugins 'resend')}}
 import emailApp from "@/api/routes/email{{#if typescript}}.js{{/if}}";
@@ -14,7 +14,7 @@ import emailApp from "@/api/routes/email{{#if typescript}}.js{{/if}}";
 {{#if authProvider}}
 import authApp from "@/api/routes/auth{{#if typescript}}.js{{/if}}";
 {{/if}}
-{{#if (eq apiClient "hono-rpc")}}import rpcApp from "@/routes/rpc";{{/if}}
+{{#if (eq apiClient "hono-rpc")}}import rpcApp from "./routes/rpc";{{/if}}
 {{#if (and (eq database "mongodb") (eq orm "mongoose"))}}import { connectDB } from "@/lib/mongoose";{{/if}}
 
 config();
@@ -25,7 +25,7 @@ const PORT = parseInt(process.env.PORT || "3001", 10);
 // Middleware
 app.use("*", logger());
 app.use("*", cors({
-  origin: process.env.CLIENT_URL || "http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}",
+  origin: process.env.CLIENT_URL || "http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "tanstack-start")}}7000{{else if (eq framework "tanstack-router")}}5173{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}",
   credentials: true,
 }));
 app.use("*", prettyJSON());

@@ -1,0 +1,750 @@
+# Design System & Styling Guide
+
+This document defines the complete visual design system for this project, including color palette, design elements, and styling preferences. It serves as a reference for developers and AI assistants to maintain consistent styling throughout the application.
+
+## Overview
+
+**Styling Library:** {{styling}}
+{{#if colorPalette}}**Color Palette:** {{colorPalette.name}} - {{colorPalette.description}}{{/if}}
+{{#if designSystem}}**Design Elements:** Custom configured design tokens{{/if}}
+
+---
+
+{{#if colorPalette}}
+## Color System
+
+### {{colorPalette.name}} Palette
+
+> {{colorPalette.description}}
+
+#### Core Brand Colors
+
+| Color | Name | Hex Code | Usage |
+|-------|------|----------|---------|
+| ![Primary](https://via.placeholder.com/15/{{stripHash colorPalette.colors.primary}}/{{stripHash colorPalette.colors.primary}}.png) | **Primary** | `{{colorPalette.colors.primary}}` | Main brand color, primary buttons, links |
+| ![Primary Dark](https://via.placeholder.com/15/{{stripHash colorPalette.colors.primaryDark}}/{{stripHash colorPalette.colors.primaryDark}}.png) | **Primary Dark** | `{{colorPalette.colors.primaryDark}}` | Hover states, pressed buttons |
+| ![Secondary](https://via.placeholder.com/15/{{stripHash colorPalette.colors.secondary}}/{{stripHash colorPalette.colors.secondary}}.png) | **Secondary** | `{{colorPalette.colors.secondary}}` | Supporting brand color, secondary actions |
+| ![Secondary Dark](https://via.placeholder.com/15/{{stripHash colorPalette.colors.secondaryDark}}/{{stripHash colorPalette.colors.secondaryDark}}.png) | **Secondary Dark** | `{{colorPalette.colors.secondaryDark}}` | Secondary hover states |
+| ![Accent](https://via.placeholder.com/15/{{stripHash colorPalette.colors.accent}}/{{stripHash colorPalette.colors.accent}}.png) | **Accent** | `{{colorPalette.colors.accent}}` | Call-to-action, highlights, badges |
+| ![Accent Dark](https://via.placeholder.com/15/{{stripHash colorPalette.colors.accentDark}}/{{stripHash colorPalette.colors.accentDark}}.png) | **Accent Dark** | `{{colorPalette.colors.accentDark}}` | Accent hover states |
+
+#### Surface Colors
+
+| Color | Name | Hex Code | Usage |
+|-------|------|----------|---------|
+| ![Background](https://via.placeholder.com/15/{{stripHash colorPalette.colors.background}}/{{stripHash colorPalette.colors.background}}.png) | **Background** | `{{colorPalette.colors.background}}` | Main page background |
+| ![Surface](https://via.placeholder.com/15/{{stripHash colorPalette.colors.surface}}/{{stripHash colorPalette.colors.surface}}.png) | **Surface** | `{{colorPalette.colors.surface}}` | Cards, panels, modals |
+
+#### Text Colors
+
+| Color | Name | Hex Code | Usage |
+|-------|------|----------|---------|
+| ![Text](https://via.placeholder.com/15/{{stripHash colorPalette.colors.text}}/{{stripHash colorPalette.colors.text}}.png) | **Text** | `{{colorPalette.colors.text}}` | Primary text, headings |
+| ![Text Secondary](https://via.placeholder.com/15/{{stripHash colorPalette.colors.textSecondary}}/{{stripHash colorPalette.colors.textSecondary}}.png) | **Text Secondary** | `{{colorPalette.colors.textSecondary}}` | Captions, labels, muted text |
+
+#### Status Colors
+
+| Color | Name | Hex Code | Usage |
+|-------|------|----------|---------|
+| ![Success](https://via.placeholder.com/15/{{stripHash colorPalette.colors.success}}/{{stripHash colorPalette.colors.success}}.png) | **Success** | `{{colorPalette.colors.success}}` | Success messages, checkmarks |
+| ![Warning](https://via.placeholder.com/15/{{stripHash colorPalette.colors.warning}}/{{stripHash colorPalette.colors.warning}}.png) | **Warning** | `{{colorPalette.colors.warning}}` | Warnings, caution states |
+| ![Error](https://via.placeholder.com/15/{{stripHash colorPalette.colors.error}}/{{stripHash colorPalette.colors.error}}.png) | **Error** | `{{colorPalette.colors.error}}` | Error messages, destructive actions |
+| ![Info](https://via.placeholder.com/15/{{stripHash colorPalette.colors.info}}/{{stripHash colorPalette.colors.info}}.png) | **Info** | `{{colorPalette.colors.info}}` | Information, tips, notifications |
+
+{{/if}}
+
+{{#if designSystem}}
+
+## Design System Configuration
+
+### Border Styles
+- **Style:** {{designSystem.borders}}
+{{#eq designSystem.borders "none"}}
+- No borders used in components
+{{/eq}}
+{{#eq designSystem.borders "subtle"}}
+- Light, subtle borders (1px solid #e5e7eb)
+- Used for subtle separation between elements
+{{/eq}}
+{{#eq designSystem.borders "normal"}}
+- Standard borders (2px solid #9ca3af)
+- Clear visual boundaries between components
+{{/eq}}
+{{#eq designSystem.borders "bold"}}
+- Bold, prominent borders (4px solid #4b5563)
+- Strong emphasis on component boundaries
+{{/eq}}
+{{#eq designSystem.borders "double"}}
+- Double line borders (4px double #4b5563)
+- Decorative, distinctive appearance
+{{/eq}}
+{{#eq designSystem.borders "dashed"}}
+- Dashed borders (2px dashed #6b7280)
+- Used for placeholder or interactive areas
+{{/eq}}
+
+### Shadow Effects
+- **Style:** {{designSystem.shadows}}
+{{#eq designSystem.shadows "none"}}
+- Flat design with no shadows
+- Clean, minimalist appearance
+{{/eq}}
+{{#eq designSystem.shadows "sm"}}
+- Small, subtle shadows
+- Light depth (0 1px 2px rgba(0,0,0,0.05))
+{{/eq}}
+{{#eq designSystem.shadows "md"}}
+- Medium shadows for moderate depth
+- Standard elevation (0 4px 6px rgba(0,0,0,0.1))
+{{/eq}}
+{{#eq designSystem.shadows "lg"}}
+- Large shadows for prominent elements
+- High elevation (0 10px 15px rgba(0,0,0,0.1))
+{{/eq}}
+{{#eq designSystem.shadows "xl"}}
+- Extra large shadows for maximum depth
+- Floating effect (0 20px 25px rgba(0,0,0,0.1))
+{{/eq}}
+{{#eq designSystem.shadows "inner"}}
+- Inner shadows for recessed effect
+- Inset appearance (inset 0 2px 4px rgba(0,0,0,0.06))
+{{/eq}}
+{{#eq designSystem.shadows "brutal"}}
+- Brutalist/Neo-brutalist shadows
+- Hard offset shadows (4px 4px 0px rgba(0,0,0,1))
+{{/eq}}
+
+### Border Radius
+- **Style:** {{designSystem.radius}}
+{{#eq designSystem.radius "none"}}
+- Sharp corners (0px radius)
+- Modern, angular design
+{{/eq}}
+{{#eq designSystem.radius "sm"}}
+- Small radius (2px)
+- Slightly softened corners
+{{/eq}}
+{{#eq designSystem.radius "md"}}
+- Medium radius (6px)
+- Balanced, friendly appearance
+{{/eq}}
+{{#eq designSystem.radius "lg"}}
+- Large radius (8px)
+- Soft, approachable design
+{{/eq}}
+{{#eq designSystem.radius "xl"}}
+- Extra large radius (12px)
+- Very rounded, playful appearance
+{{/eq}}
+{{#eq designSystem.radius "full"}}
+- Fully rounded (9999px)
+- Pills and circular elements
+{{/eq}}
+
+### Spacing System
+- **Style:** {{designSystem.spacing}}
+{{#eq designSystem.spacing "compact"}}
+- Compact spacing (8px base unit)
+- Dense information display
+- Padding: 0.5rem, Gap: 0.5rem
+{{/eq}}
+{{#eq designSystem.spacing "comfortable"}}
+- Comfortable spacing (16px base unit)
+- Balanced whitespace
+- Padding: 1rem, Gap: 1rem
+{{/eq}}
+{{#eq designSystem.spacing "spacious"}}
+- Spacious layout (24px base unit)
+- Generous whitespace
+- Padding: 1.5rem, Gap: 1.5rem
+{{/eq}}
+{{#eq designSystem.spacing "relaxed"}}
+- Relaxed spacing (32px base unit)
+- Maximum breathing room
+- Padding: 2rem, Gap: 2rem
+{{/eq}}
+
+### Typography
+- **Style:** {{designSystem.typography}}
+{{#eq designSystem.typography "sans"}}
+- Sans-serif font family
+- Clean, modern appearance
+- Font: system-ui, -apple-system, sans-serif
+{{/eq}}
+{{#eq designSystem.typography "serif"}}
+- Serif font family
+- Traditional, editorial style
+- Font: Georgia, serif
+{{/eq}}
+{{#eq designSystem.typography "mono"}}
+- Monospace font family
+- Technical, code-like appearance
+- Font: 'Courier New', monospace
+{{/eq}}
+{{#eq designSystem.typography "display"}}
+- Display font family
+- Bold, attention-grabbing headers
+- Font: 'Bebas Neue', sans-serif
+{{/eq}}
+{{#eq designSystem.typography "modern"}}
+- Modern font family
+- Contemporary, clean design
+- Font: 'Inter', sans-serif
+{{/eq}}
+
+### Animation Preferences
+- **Style:** {{designSystem.animations}}
+{{#eq designSystem.animations "none"}}
+- No animations or transitions
+- Instant state changes
+{{/eq}}
+{{#eq designSystem.animations "subtle"}}
+- Subtle animations (150ms ease-in-out)
+- Minimal motion
+{{/eq}}
+{{#eq designSystem.animations "smooth"}}
+- Smooth transitions (300ms ease-in-out)
+- Fluid state changes
+{{/eq}}
+{{#eq designSystem.animations "bouncy"}}
+- Spring-based animations
+- Playful, energetic feel
+{{/eq}}
+{{#eq designSystem.animations "energetic"}}
+- Fast, snappy animations (100ms)
+- Quick, responsive interactions
+{{/eq}}
+
+{{#if colorPalette}}
+
+### Color Implementation
+
+{{#eq styling "tailwind"}}
+#### Tailwind CSS Configuration
+
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '{{colorPalette.colors.primary}}',
+          dark: '{{colorPalette.colors.primaryDark}}',
+        },
+        secondary: {
+          DEFAULT: '{{colorPalette.colors.secondary}}',
+          dark: '{{colorPalette.colors.secondaryDark}}',
+        },
+        accent: {
+          DEFAULT: '{{colorPalette.colors.accent}}',
+          dark: '{{colorPalette.colors.accentDark}}',
+        },
+        background: '{{colorPalette.colors.background}}',
+        surface: '{{colorPalette.colors.surface}}',
+        text: {
+          DEFAULT: '{{colorPalette.colors.text}}',
+          secondary: '{{colorPalette.colors.textSecondary}}',
+        },
+        error: '{{colorPalette.colors.error}}',
+        warning: '{{colorPalette.colors.warning}}',
+        success: '{{colorPalette.colors.success}}',
+        info: '{{colorPalette.colors.info}}',
+      }
+    }
+  }
+}
+```
+{{else}}
+#### CSS Variables
+
+```css
+:root {
+  --color-primary: {{colorPalette.colors.primary}};
+  --color-primary-dark: {{colorPalette.colors.primaryDark}};
+  --color-secondary: {{colorPalette.colors.secondary}};
+  --color-secondary-dark: {{colorPalette.colors.secondaryDark}};
+  --color-accent: {{colorPalette.colors.accent}};
+  --color-accent-dark: {{colorPalette.colors.accentDark}};
+  --color-background: {{colorPalette.colors.background}};
+  --color-surface: {{colorPalette.colors.surface}};
+  --color-text: {{colorPalette.colors.text}};
+  --color-text-secondary: {{colorPalette.colors.textSecondary}};
+  --color-error: {{colorPalette.colors.error}};
+  --color-warning: {{colorPalette.colors.warning}};
+  --color-success: {{colorPalette.colors.success}};
+  --color-info: {{colorPalette.colors.info}};
+}
+```
+{{/eq}}
+
+{{/if}}
+
+## Complete Component Examples
+
+### Card Component
+{{#eq styling "tailwind"}}
+```jsx
+<div className="{{#if designSystem}}{{designSystem.borders.preview}} {{designSystem.shadows.preview}} {{designSystem.radius.preview}} {{designSystem.spacing.padding}}{{else}}border rounded-lg shadow-md p-4{{/if}} {{#if colorPalette}}bg-surface text-text{{else}}bg-white{{/if}}">
+  <h3 className="{{#if designSystem}}{{typographyStyles.designSystem.typography.className}}{{/if}} text-lg font-bold mb-2 {{#if colorPalette}}text-text{{/if}}">Card Title</h3>
+  <p className="{{#if colorPalette}}text-text-secondary{{else}}text-gray-600{{/if}}">Card content goes here</p>
+</div>
+```
+{{/eq}}
+{{#eq styling "css"}}
+```css
+.card {
+  {{#if designSystem}}
+  {{designSystem.borders.css}}
+  {{designSystem.shadows.css}}
+  {{designSystem.radius.css}}
+  padding: {{designSystem.spacing.css}};
+  {{else}}
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  {{/if}}
+  {{#if colorPalette}}
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  {{else}}
+  background-color: white;
+  {{/if}}
+}
+
+.card h3 {
+  {{#if colorPalette}}color: var(--color-text);{{/if}}
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  {{#if colorPalette}}color: var(--color-text-secondary);{{else}}color: #6b7280;{{/if}}
+}
+```
+{{/eq}}
+{{#eq styling "scss"}}
+```scss
+.card {
+  {{#if designSystem}}
+  {{designSystem.borders.css}}
+  {{designSystem.shadows.css}}
+  {{designSystem.radius.css}}
+  padding: {{designSystem.spacing.css}};
+  {{else}}
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  {{/if}}
+  {{#if colorPalette}}
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  {{else}}
+  background-color: white;
+  {{/if}}
+
+  h3 {
+    {{#if colorPalette}}color: var(--color-text);{{/if}}
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    {{#if colorPalette}}color: var(--color-text-secondary);{{else}}color: #6b7280;{{/if}}
+  }
+}
+```
+{{/eq}}
+{{#eq styling "styled-components"}}
+```javascript
+import styled from 'styled-components';
+
+export const Card = styled.div`
+  {{#if designSystem}}
+  {{designSystem.borders.css}}
+  {{designSystem.shadows.css}}
+  {{designSystem.radius.css}}
+  padding: {{designSystem.spacing.css}};
+  {{else}}
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  {{/if}}
+  {{#if colorPalette}}
+  background-color: {{colorPalette.colors.surface}};
+  color: {{colorPalette.colors.text}};
+  {{else}}
+  background-color: white;
+  {{/if}}
+
+  h3 {
+    {{#if colorPalette}}color: {{colorPalette.colors.text}};{{/if}}
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    {{#if colorPalette}}color: {{colorPalette.colors.textSecondary}};{{else}}color: #6b7280;{{/if}}
+  }
+`;
+```
+{{/eq}}
+
+### Button Components
+{{#eq styling "tailwind"}}
+```jsx
+// Primary Button
+<button className="{{#if designSystem}}{{designSystem.radius.preview}} {{designSystem.spacing.padding}} {{designSystem.shadows.preview}}{{else}}rounded px-4 py-2 shadow{{/if}} {{#if colorPalette}}bg-primary hover:bg-primary-dark text-white{{else}}bg-blue-500 hover:bg-blue-600 text-white{{/if}} transition-all {{#if designSystem.animations}}{{#eq designSystem.animations "none"}}{{else}}duration-{{#eq designSystem.animations "subtle"}}150{{/eq}}{{#eq designSystem.animations "smooth"}}300{{/eq}}{{#eq designSystem.animations "bouncy"}}200{{/eq}}{{#eq designSystem.animations "energetic"}}100{{/eq}}{{/eq}}{{/if}}">
+  Primary Action
+</button>
+
+// Secondary Button
+<button className="{{#if designSystem}}{{designSystem.radius.preview}} {{designSystem.spacing.padding}} {{designSystem.shadows.preview}}{{else}}rounded px-4 py-2 shadow{{/if}} {{#if colorPalette}}bg-secondary hover:bg-secondary-dark text-white{{else}}bg-gray-500 hover:bg-gray-600 text-white{{/if}} transition-all">
+  Secondary Action
+</button>
+
+// Accent Button
+<button className="{{#if designSystem}}{{designSystem.radius.preview}} {{designSystem.spacing.padding}} {{designSystem.shadows.preview}}{{else}}rounded px-4 py-2 shadow{{/if}} {{#if colorPalette}}bg-accent hover:bg-accent-dark text-white{{else}}bg-orange-500 hover:bg-orange-600 text-white{{/if}} transition-all">
+  Call to Action
+</button>
+
+// Outline Button
+<button className="{{#if designSystem}}{{designSystem.borders.preview}} {{designSystem.radius.preview}} {{designSystem.spacing.padding}}{{else}}border-2 rounded px-4 py-2{{/if}} {{#if colorPalette}}border-primary text-primary hover:bg-primary hover:text-white{{else}}border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white{{/if}} transition-all">
+  Outline Action
+</button>
+```
+{{/eq}}
+{{#eq styling "css"}}
+```css
+.btn-primary {
+  {{#if designSystem}}
+  {{designSystem.radius.css}}
+  padding: {{designSystem.spacing.buttonPadding}};
+  {{designSystem.shadows.css}}
+  {{else}}
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  {{/if}}
+  {{#if colorPalette}}
+  background-color: var(--color-primary);
+  {{else}}
+  background-color: #3b82f6;
+  {{/if}}
+  color: white;
+  border: none;
+  cursor: pointer;
+  {{#if designSystem}}
+  {{#eq designSystem.animations "subtle"}}transition: all 0.15s ease-in-out;{{/eq}}
+  {{#eq designSystem.animations "smooth"}}transition: all 0.3s ease-in-out;{{/eq}}
+  {{#eq designSystem.animations "bouncy"}}transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);{{/eq}}
+  {{#eq designSystem.animations "energetic"}}transition: all 0.1s ease-in-out;{{/eq}}
+  {{else}}
+  transition: all 0.2s;
+  {{/if}}
+}
+
+.btn-primary:hover {
+  {{#if colorPalette}}
+  background-color: var(--color-primary-dark);
+  {{else}}
+  background-color: #2563eb;
+  {{/if}}
+  {{#if designSystem}}
+  {{#eq designSystem.animations "bouncy"}}transform: translateY(-2px);{{/eq}}
+  {{#eq designSystem.animations "energetic"}}transform: scale(1.05);{{/eq}}
+  {{/if}}
+}
+```
+{{/eq}}
+{{#eq styling "scss"}}
+```scss
+.btn-primary {
+  {{#if designSystem}}
+  {{designSystem.radius.css}}
+  padding: {{designSystem.spacing.buttonPadding}};
+  {{designSystem.shadows.css}}
+  {{else}}
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  {{/if}}
+  {{#if colorPalette}}
+  background-color: var(--color-primary);
+  {{else}}
+  background-color: #3b82f6;
+  {{/if}}
+  color: white;
+  border: none;
+  cursor: pointer;
+  {{#if designSystem}}
+  {{#eq designSystem.animations "subtle"}}transition: all 0.15s ease-in-out;{{/eq}}
+  {{#eq designSystem.animations "smooth"}}transition: all 0.3s ease-in-out;{{/eq}}
+  {{#eq designSystem.animations "bouncy"}}transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);{{/eq}}
+  {{#eq designSystem.animations "energetic"}}transition: all 0.1s ease-in-out;{{/eq}}
+  {{else}}
+  transition: all 0.2s;
+  {{/if}}
+  
+  &:hover {
+    {{#if colorPalette}}
+    background-color: var(--color-primary-dark);
+    {{else}}
+    background-color: #2563eb;
+    {{/if}}
+    {{#if designSystem}}
+    {{#eq designSystem.animations "bouncy"}}transform: translateY(-2px);{{/eq}}
+    {{#eq designSystem.animations "energetic"}}transform: scale(1.05);{{/eq}}
+    {{/if}}
+  }
+}
+```
+{{/eq}}
+{{#eq styling "styled-components"}}
+```javascript
+export const Button = styled.button`
+  {{#if designSystem}}
+  {{designSystem.radius.css}}
+  padding: {{designSystem.spacing.buttonPadding}};
+  {{designSystem.shadows.css}}
+  {{else}}
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  {{/if}}
+  {{#if colorPalette}}
+  background-color: {{colorPalette.colors.primary}};
+  {{else}}
+  background-color: #3b82f6;
+  {{/if}}
+  color: white;
+  border: none;
+  cursor: pointer;
+  {{#if designSystem}}
+  {{#eq designSystem.animations "subtle"}}transition: all 0.15s ease-in-out;{{/eq}}
+  {{#eq designSystem.animations "smooth"}}transition: all 0.3s ease-in-out;{{/eq}}
+  {{#eq designSystem.animations "bouncy"}}transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);{{/eq}}
+  {{#eq designSystem.animations "energetic"}}transition: all 0.1s ease-in-out;{{/eq}}
+  {{else}}
+  transition: all 0.2s;
+  {{/if}}
+  
+  &:hover {
+    {{#if colorPalette}}
+    background-color: {{colorPalette.colors.primaryDark}};
+    {{else}}
+    background-color: #2563eb;
+    {{/if}}
+    {{#if designSystem}}
+    {{#eq designSystem.animations "bouncy"}}transform: translateY(-2px);{{/eq}}
+    {{#eq designSystem.animations "energetic"}}transform: scale(1.05);{{/eq}}
+    {{/if}}
+  }
+`;
+```
+{{/eq}}
+
+### Status Alert Components
+{{#if colorPalette}}
+{{#eq styling "tailwind"}}
+```jsx
+// Success Alert
+<div className="{{#if designSystem}}{{designSystem.borders.preview}} {{designSystem.radius.preview}} {{designSystem.spacing.padding}}{{else}}border rounded p-4{{/if}} bg-success/10 border-success text-success">
+  <strong>Success!</strong> Operation completed successfully.
+</div>
+
+// Warning Alert
+<div className="{{#if designSystem}}{{designSystem.borders.preview}} {{designSystem.radius.preview}} {{designSystem.spacing.padding}}{{else}}border rounded p-4{{/if}} bg-warning/10 border-warning text-warning">
+  <strong>Warning!</strong> Please review before continuing.
+</div>
+
+// Error Alert
+<div className="{{#if designSystem}}{{designSystem.borders.preview}} {{designSystem.radius.preview}} {{designSystem.spacing.padding}}{{else}}border rounded p-4{{/if}} bg-error/10 border-error text-error">
+  <strong>Error!</strong> Something went wrong.
+</div>
+
+// Info Alert
+<div className="{{#if designSystem}}{{designSystem.borders.preview}} {{designSystem.radius.preview}} {{designSystem.spacing.padding}}{{else}}border rounded p-4{{/if}} bg-info/10 border-info text-info">
+  <strong>Info:</strong> Here's some helpful information.
+</div>
+```
+{{/eq}}
+{{#eq styling "css"}}
+```css
+.alert {
+  {{#if designSystem}}
+  {{designSystem.borders.css}}
+  {{designSystem.radius.css}}
+  padding: {{designSystem.spacing.css}};
+  {{else}}
+  border: 1px solid;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  {{/if}}
+}
+
+.alert-success {
+  background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.alert-warning {
+  background-color: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.alert-error {
+  background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.alert-info {
+  background-color: color-mix(in srgb, var(--color-info) 10%, transparent);
+  border-color: var(--color-info);
+  color: var(--color-info);
+}
+```
+{{/eq}}
+{{/if}}
+
+## Responsive Design
+
+### Breakpoints
+- **Mobile:** < 640px
+- **Tablet:** 640px - 1024px
+- **Desktop:** > 1024px
+
+### Mobile-First Approach
+All components should be designed with mobile devices in mind first, then enhanced for larger screens.
+
+## Accessibility Guidelines
+
+1. **Color Contrast:** Maintain WCAG AA compliance (4.5:1 for normal text, 3:1 for large text)
+2. **Focus States:** Visible focus indicators on all interactive elements
+3. **Touch Targets:** Minimum 44x44px touch targets on mobile
+4. **Semantic HTML:** Use appropriate HTML elements and ARIA labels
+
+## Design Principles
+
+1. **Consistency:** Maintain consistent spacing, colors, and interactions
+2. **Clarity:** Clear visual hierarchy and readable typography
+3. **Responsiveness:** Adapt gracefully to all screen sizes
+4. **Performance:** Optimize for fast load times and smooth interactions
+5. **Accessibility:** Ensure usability for all users
+
+## Quick Reference
+
+{{#if colorPalette}}
+### Color Variables
+```javascript
+const designColors = {
+  // Brand Colors
+  primary: '{{colorPalette.colors.primary}}',
+  primaryDark: '{{colorPalette.colors.primaryDark}}',
+  secondary: '{{colorPalette.colors.secondary}}',
+  secondaryDark: '{{colorPalette.colors.secondaryDark}}',
+  accent: '{{colorPalette.colors.accent}}',
+  accentDark: '{{colorPalette.colors.accentDark}}',
+  
+  // Surface Colors
+  background: '{{colorPalette.colors.background}}',
+  surface: '{{colorPalette.colors.surface}}',
+  
+  // Text Colors
+  text: '{{colorPalette.colors.text}}',
+  textSecondary: '{{colorPalette.colors.textSecondary}}',
+  
+  // Status Colors
+  success: '{{colorPalette.colors.success}}',
+  warning: '{{colorPalette.colors.warning}}',
+  error: '{{colorPalette.colors.error}}',
+  info: '{{colorPalette.colors.info}}'
+};
+```
+{{/if}}
+
+{{#if designSystem}}
+### Design Tokens
+```javascript
+const designTokens = {
+  borders: '{{designSystem.borders}}', // {{borderStyles.[designSystem.borders].name}}
+  shadows: '{{designSystem.shadows}}', // {{shadowStyles.[designSystem.shadows].name}}
+  radius: '{{designSystem.radius}}', // {{radiusStyles.[designSystem.radius].name}}
+  spacing: '{{designSystem.spacing}}', // {{spacingStyles.[designSystem.spacing].name}}
+  typography: '{{designSystem.typography}}', // {{typographyStyles.[designSystem.typography].name}}
+  animations: '{{designSystem.animations}}' // {{animationStyles.[designSystem.animations].name}}
+};
+```
+{{/if}}
+
+## Usage Guidelines for Developers & AI Assistants
+
+When working with this design system, please:
+
+### Core Principles
+1. **Consistency First:** Always use the defined color palette and design tokens
+2. **Responsive Design:** Implement mobile-first approach with proper breakpoints
+3. **Accessibility:** Maintain WCAG AA compliance for contrast ratios
+4. **Performance:** Optimize animations and transitions based on user preferences
+
+### Implementation Checklist
+{{#if colorPalette}}
+- ✅ Use `{{colorPalette.colors.primary}}` for primary actions and brand elements
+- ✅ Use `{{colorPalette.colors.secondary}}` for secondary actions  
+- ✅ Use `{{colorPalette.colors.accent}}` for call-to-action elements
+- ✅ Use `{{colorPalette.colors.surface}}` for card and panel backgrounds
+- ✅ Use `{{colorPalette.colors.text}}` and `{{colorPalette.colors.textSecondary}}` for text hierarchy
+- ✅ Use status colors (`success`, `warning`, `error`, `info`) appropriately
+{{/if}}
+{{#if designSystem}}
+- ✅ Apply `{{designSystem.borders}}` border style consistently
+- ✅ Use `{{designSystem.shadows}}` shadows for depth and elevation
+- ✅ Implement `{{designSystem.radius}}` border radius on interactive elements
+- ✅ Follow `{{designSystem.spacing}}` spacing system for layouts
+- ✅ Use `{{designSystem.typography}}` font family throughout
+- ✅ Implement `{{designSystem.animations}}` animation preferences
+{{/if}}
+
+### Code Generation Guidelines
+{{#eq styling "tailwind"}}
+- Use Tailwind utility classes with custom color tokens
+- Implement responsive prefixes (sm:, md:, lg:) consistently
+- Leverage arbitrary value syntax for custom design tokens
+{{/eq}}
+{{#eq styling "css"}}
+- Use CSS custom properties (--color-*) for theming
+- Implement proper cascade and specificity
+- Use modern CSS features (grid, flexbox, color-mix)
+{{/eq}}
+{{#eq styling "scss"}}
+- Leverage SCSS variables and mixins for consistency
+- Use nesting appropriately (max 3 levels deep)
+- Implement modular, component-based styles
+{{/eq}}
+{{#eq styling "styled-components"}}
+- Create reusable styled components with props
+- Use theme provider for consistent design tokens
+- Implement proper TypeScript interfaces
+{{/eq}}
+
+### Testing & Quality Assurance
+1. **Visual Testing:** Verify components match design system specifications
+2. **Responsive Testing:** Test across mobile, tablet, and desktop breakpoints  
+3. **Accessibility Testing:** Check color contrast ratios and keyboard navigation
+4. **Performance Testing:** Ensure animations don't impact performance
+
+---
+
+**Design System Summary:**
+{{#if colorPalette}}🎨 **{{colorPalette.name}}** color palette{{/if}}{{#if designSystem}} • 🎯 Custom design tokens configured{{/if}} • 🛠️ **{{styling}}** styling library
+
+*Generated by [Precast](https://precast.dev) • Integrated Design System & Color Palette Documentation*

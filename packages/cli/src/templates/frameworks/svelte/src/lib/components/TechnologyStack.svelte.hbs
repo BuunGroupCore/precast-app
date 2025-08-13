@@ -1,0 +1,178 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import { ChevronRight, Package, Server, Database as DatabaseIcon, Palette } from 'lucide-svelte';
+
+  const categories = [
+    {
+      label: 'FRONTEND',
+      items: [
+        { 
+          name: '{{framework}}',
+          version: 'latest',
+          status: 'ACTIVE',
+          description: 'UI Framework'
+        },
+        {{#if typescript}}
+        {
+          name: 'TypeScript',
+          version: '5.x',
+          status: 'ACTIVE',
+          description: 'Type Safety'
+        },
+        {{/if}}
+        {{#if (eq styling 'tailwind')}}
+        {
+          name: 'Tailwind CSS',
+          version: '3.x',
+          status: 'ACTIVE',
+          description: 'Utility-First CSS'
+        },
+        {{/if}}
+      ]
+    },
+    {{#if backend}}
+    {
+      label: 'BACKEND',
+      items: [
+        {
+          name: '{{backend}}',
+          version: 'latest',
+          status: 'ACTIVE',
+          description: 'Server Framework'
+        },
+        {{#if orm}}
+        {
+          name: '{{orm}}',
+          version: 'latest',
+          status: 'ACTIVE',
+          description: 'ORM/Database Toolkit'
+        },
+        {{/if}}
+      ]
+    },
+    {{/if}}
+    {{#if database}}
+    {
+      label: 'DATABASE',
+      items: [
+        {
+          name: '{{database}}',
+          version: 'latest',
+          status: 'ACTIVE',
+          description: 'Data Storage'
+        }
+      ]
+    },
+    {{/if}}
+    {
+      label: 'DEVTOOLS',
+      items: [
+        {{#if eslint}}
+        {
+          name: 'ESLint',
+          version: 'latest',
+          status: 'CONFIGURED',
+          description: 'Code Linting'
+        },
+        {{/if}}
+        {{#if prettier}}
+        {
+          name: 'Prettier',
+          version: 'latest',
+          status: 'CONFIGURED',
+          description: 'Code Formatting'
+        },
+        {{/if}}
+        {
+          name: 'Vite',
+          version: '5.x',
+          status: 'ACTIVE',
+          description: 'Build Tool'
+        }
+      ]
+    }
+  ];
+
+  function getIconForCategory(label) {
+    switch(label) {
+      case 'FRONTEND': return Palette;
+      case 'BACKEND': return Server;
+      case 'DATABASE': return DatabaseIcon;
+      case 'DEVTOOLS': return Package;
+      default: return Package;
+    }
+  }
+</script>
+
+<section class="technology-section">
+  <div class="section-header">
+    <h2 class="brutalist-title">TECHNOLOGY STACK</h2>
+  </div>
+
+  <div class="tech-grid">
+    {#each categories as category}
+      <div class="tech-category">
+        <div class="category-header">
+          <span class="category-label">{category.label}</span>
+          <div class="category-line"></div>
+        </div>
+        
+        <div class="tech-cards">
+          {#each category.items as item}
+            <div class="tech-card">
+              <div class="card-shadow"></div>
+              <div class="card-content">
+                <div class="card-inner">
+                  <div class="card-header">
+                    <div class="tech-icon">
+                      <svelte:component this={getIconForCategory(category.label)} size={16} />
+                    </div>
+                    <h3 class="tech-name">{item.name}</h3>
+                  </div>
+                  
+                  <div class="tech-stats">
+                    <div class="stat-row">
+                      <span class="stat-key">VERSION</span>
+                      <span class="stat-value">{item.version}</span>
+                    </div>
+                    <div class="stat-row">
+                      <span class="stat-key">STATUS</span>
+                      <span class="stat-value">{item.status}</span>
+                    </div>
+                    <div class="stat-row">
+                      <span class="stat-key">TYPE</span>
+                      <span class="stat-value">{item.description}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="accent-bar"></div>
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/each}
+  </div>
+
+  <div class="system-diagram">
+    <div class="diagram-content">
+      <div class="diagram-item">
+        <div class="diagram-icon"></div>
+        <span class="diagram-label">CLIENT</span>
+      </div>
+      <ChevronRight size={16} class="diagram-arrow" />
+      <div class="diagram-item">
+        <div class="diagram-icon"></div>
+        <span class="diagram-label">SERVER</span>
+      </div>
+      <ChevronRight size={16} class="diagram-arrow" />
+      <div class="diagram-item">
+        <div class="diagram-icon"></div>
+        <span class="diagram-label">DATABASE</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Styles are already in globals.css via the partial */
+</style>

@@ -1,8 +1,10 @@
 import { APP_CONFIG } from "@/config/constants";
 import { Terminal, Zap, Database, Server } from "lucide-react";
 import { 
-  {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router') (eq framework 'tanstack-router') (eq framework 'tanstack-start'))}}
+  {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
   SiReact, 
+  {{else if (or (eq framework 'tanstack-router') (eq framework 'tanstack-start'))}}
+  SiReact as SiTanstack, 
   {{else if (eq framework 'vue')}}
   SiVuedotjs as SiVue,
   {{else if (eq framework 'svelte')}}
@@ -79,9 +81,9 @@ export function Hero() {
     {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
     { name: "REACT", icon: <SiReact size={20} />, color: "text-black" },
     {{else if (eq framework 'tanstack-router')}}
-    { name: "TANSTACK", icon: <SiReact size={20} />, color: "text-black" },
+    { name: "TANSTACK", icon: <SiTanstack size={20} />, color: "text-black" },
     {{else if (eq framework 'tanstack-start')}}
-    { name: "TANSTACK", icon: <SiReact size={20} />, color: "text-black" },
+    { name: "TANSTACK", icon: <SiTanstack size={20} />, color: "text-black" },
     {{else if (eq framework 'vue')}}
     { name: "VUE", icon: <SiVue size={20} />, color: "text-black" },
     {{else if (eq framework 'svelte')}}

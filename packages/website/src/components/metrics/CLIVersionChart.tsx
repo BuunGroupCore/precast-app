@@ -181,27 +181,44 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
       transition={{ delay: 2.5 }}
       className="comic-panel p-6 mb-8"
     >
-      <h3 className="font-display text-2xl mb-4 text-comic-green flex items-center gap-2">
-        <FaCodeBranch /> CLI VERSION DISTRIBUTION
+      <h3 className="font-display text-lg sm:text-xl md:text-2xl mb-4 text-comic-green flex items-center gap-2">
+        <FaCodeBranch className="text-base sm:text-lg md:text-xl" />
+        <span>CLI VERSION DISTRIBUTION</span>
       </h3>
 
-      {/* Version Stats */}
-      <div className="grid md:grid-cols-4 gap-4 mb-6">
-        <div className="comic-panel p-3 bg-comic-green bg-opacity-10 text-center">
-          <div className="action-text text-2xl text-comic-green">v{latestVersion}</div>
-          <div className="font-comic text-sm text-comic-black">Latest Version</div>
+      {/* Version Stats - Mobile Responsive */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6">
+        <div className="comic-panel p-2 sm:p-3 bg-comic-green bg-opacity-10 text-center">
+          <div className="action-text text-sm sm:text-lg md:text-2xl text-comic-green break-all">
+            v{latestVersion}
+          </div>
+          <div className="font-comic text-[10px] sm:text-xs md:text-sm text-comic-black">
+            Latest<span className="hidden sm:inline"> Version</span>
+          </div>
         </div>
-        <div className="comic-panel p-3 bg-comic-blue bg-opacity-10 text-center">
-          <div className="action-text text-2xl text-comic-blue">{adoptionRate}%</div>
-          <div className="font-comic text-sm text-comic-black">On Latest</div>
+        <div className="comic-panel p-2 sm:p-3 bg-comic-blue bg-opacity-10 text-center">
+          <div className="action-text text-base sm:text-xl md:text-2xl text-comic-blue">
+            {adoptionRate}%
+          </div>
+          <div className="font-comic text-[10px] sm:text-xs md:text-sm text-comic-black">
+            On Latest
+          </div>
         </div>
-        <div className="comic-panel p-3 bg-comic-purple bg-opacity-10 text-center">
-          <div className="action-text text-2xl text-comic-purple">{versionData.length}</div>
-          <div className="font-comic text-sm text-comic-black">Active Versions</div>
+        <div className="comic-panel p-2 sm:p-3 bg-comic-purple bg-opacity-10 text-center">
+          <div className="action-text text-base sm:text-xl md:text-2xl text-comic-purple">
+            {versionData.length}
+          </div>
+          <div className="font-comic text-[10px] sm:text-xs md:text-sm text-comic-black">
+            Active<span className="hidden sm:inline"> Versions</span>
+          </div>
         </div>
-        <div className="comic-panel p-3 bg-comic-yellow bg-opacity-10 text-center">
-          <div className="action-text text-2xl text-comic-red">{usersNeedingUpdate}</div>
-          <div className="font-comic text-sm text-comic-black">Need Update</div>
+        <div className="comic-panel p-2 sm:p-3 bg-comic-yellow bg-opacity-10 text-center">
+          <div className="action-text text-base sm:text-xl md:text-2xl text-comic-red">
+            {usersNeedingUpdate}
+          </div>
+          <div className="font-comic text-[10px] sm:text-xs md:text-sm text-comic-black">
+            Need Update
+          </div>
         </div>
       </div>
 
@@ -246,7 +263,7 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
               key={version.version}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`flex items-center justify-between p-3 rounded-lg ${
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-2 sm:p-3 rounded-lg gap-2 sm:gap-0 ${
                 version.status === "latest"
                   ? "bg-comic-green bg-opacity-10"
                   : version.status === "supported"
@@ -254,9 +271,9 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
                     : "bg-comic-red bg-opacity-10"
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 sm:gap-3 flex-wrap">
                 <FaCodeBranch
-                  className={`text-lg ${
+                  className={`text-sm sm:text-lg flex-shrink-0 ${
                     version.status === "latest"
                       ? "text-green-600"
                       : version.status === "supported"
@@ -265,7 +282,7 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
                   }`}
                 />
                 <span
-                  className={`font-comic font-bold ${
+                  className={`font-comic font-bold text-xs sm:text-sm ${
                     version.status === "latest"
                       ? "text-green-600"
                       : version.status === "supported"
@@ -276,20 +293,20 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
                   v{version.version}
                 </span>
                 {version.status === "latest" && (
-                  <span className="comic-panel px-2 py-1 bg-comic-green text-comic-white text-xs font-comic">
+                  <span className="comic-panel px-1 sm:px-2 py-0.5 sm:py-1 bg-comic-green text-comic-white text-[10px] sm:text-xs font-comic">
                     LATEST
                   </span>
                 )}
                 {version.status === "outdated" && (
-                  <span className="comic-panel px-2 py-1 bg-comic-red text-comic-white text-xs font-comic">
+                  <span className="comic-panel px-1 sm:px-2 py-0.5 sm:py-1 bg-comic-red text-comic-white text-[10px] sm:text-xs font-comic">
                     OUTDATED
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
+              <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <div className="text-right flex-shrink-0">
                   <div
-                    className={`action-text text-lg ${
+                    className={`action-text text-sm sm:text-lg ${
                       version.status === "latest"
                         ? "text-green-600"
                         : version.status === "supported"
@@ -299,9 +316,9 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
                   >
                     {version.users}
                   </div>
-                  <div className="font-comic text-xs text-gray-700">users</div>
+                  <div className="font-comic text-[10px] sm:text-xs text-gray-700">users</div>
                 </div>
-                <div className="w-24 bg-comic-black bg-opacity-10 rounded-full h-4 overflow-hidden">
+                <div className="w-16 sm:w-24 bg-comic-black bg-opacity-10 rounded-full h-3 sm:h-4 overflow-hidden flex-shrink-0">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${version.percentage}%` }}
@@ -316,7 +333,7 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
                   />
                 </div>
                 <span
-                  className={`font-comic text-sm w-10 text-right ${
+                  className={`font-comic text-[10px] sm:text-sm w-8 sm:w-10 text-right flex-shrink-0 ${
                     version.status === "latest"
                       ? "text-green-600"
                       : version.status === "supported"

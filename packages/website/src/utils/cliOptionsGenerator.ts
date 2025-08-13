@@ -144,6 +144,11 @@ export function generateCliOptions(): CliOption[] {
       description: "AI assistant integration",
     },
     {
+      flag: "--ai-docs",
+      values: "-",
+      description: "Generate AI documentation files (SPEC.md, PRD.md) in docs/ai/ folder",
+    },
+    {
       flag: "--mcp-servers",
       values:
         "filesystem, memory, github-official, github-api, gitlab, postgresql, supabase, mongodb, cloudflare, aws-mcp, azure-mcp",

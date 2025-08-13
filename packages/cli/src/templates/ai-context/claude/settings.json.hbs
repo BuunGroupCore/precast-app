@@ -5,5 +5,18 @@
       "{{this}}"{{#unless @last}},{{/unless}}
       {{/each}}
     ]
-  }
+  }{{#if hasLintHook}},
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/lint-check.sh"
+          }
+        ]
+      }
+    ]
+  }{{/if}}
 }

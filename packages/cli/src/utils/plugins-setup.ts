@@ -281,13 +281,11 @@ export async function setupPrecastWidget(
         ...updatedConfig,
         plugins: config.plugins || [],
         database: config.database || "none",
-        authProvider: config.authProvider || "none",
+        authProvider:
+          config.authProvider && config.authProvider !== "none" ? config.authProvider : undefined,
       });
 
-      const componentDir =
-        config.framework === "tanstack-start"
-          ? path.join(frontendPath, "app", "components", "precast")
-          : path.join(frontendPath, "src", "components", "precast");
+      const componentDir = path.join(frontendPath, "src", "components", "precast");
       await ensureDir(componentDir);
       await writeFile(path.join(componentDir, "PrecastWidget.tsx"), widgetContent);
     } else {

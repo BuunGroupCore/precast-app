@@ -4,6 +4,7 @@ export * from "./PublicIcon";
 export * from "./CollapsibleSection";
 export * from "./ColorPaletteSection";
 export * from "./DesignSection";
+export * from "./DesignSystemSelector";
 export * from "./AIAssistanceSection";
 export * from "./ApiSection";
 export * from "./UILibrariesSection";

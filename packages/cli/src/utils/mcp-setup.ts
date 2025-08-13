@@ -254,7 +254,10 @@ export async function setupMCPConfiguration(
       consola.info(`  🔌 ${server.name}`);
     });
 
-    consola.info("💡 Configure your environment variables in .env to use MCP servers");
+    consola.info("💡 MCP servers use standard environment variables when available");
+    consola.info(
+      "   Check .env.mcp for required variables (many may already be set in your shell)"
+    );
   } catch (error) {
     consola.error("Failed to setup MCP configuration:", error);
   }
@@ -315,19 +318,48 @@ async function createMCPConfigFromTemplate(
  */
 async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): Promise<void> {
   const envExamplePath = path.join(projectPath, ".env.example");
+  const envMcpPath = path.join(projectPath, ".env.mcp");
 
-  const envVars: Array<{ key: string; comment: string; defaultValue: string }> = [];
+  const envVars: Array<{
+    key: string;
+    comment: string;
+    defaultValue: string;
+    isStandard: boolean;
+  }> = [];
   const processedKeys = new Set<string>();
+
+  // Standard environment variables that users likely already have
+  const standardEnvVars = {
+    GITHUB_TOKEN: "GitHub Personal Access Token",
+    DATABASE_URL: "PostgreSQL connection string",
+    MONGODB_URI: "MongoDB connection string",
+    SUPABASE_URL: "Supabase project URL",
+    SUPABASE_ANON_KEY: "Supabase anonymous key",
+    CLOUDFLARE_API_TOKEN: "Cloudflare API token",
+    BRAVE_API_KEY: "Brave Search API key",
+  };
 
   for (const server of servers) {
     if (server.config.env) {
       for (const [key, value] of Object.entries(server.config.env)) {
-        if (!processedKeys.has(key)) {
-          processedKeys.add(key);
+        // Extract the primary environment variable name from the value
+        const envVarMatch = value.match(/\$\{([^:}]+)/);
+        const primaryKey = envVarMatch ? envVarMatch[1] : key;
+
+        if (!processedKeys.has(primaryKey)) {
+          processedKeys.add(primaryKey);
+
+          // Extract default value from the template string
+          const defaultMatch = value.match(/:-([^}]+)\}/);
+          const defaultValue = defaultMatch ? defaultMatch[1] : "";
+
           envVars.push({
-            key,
-            comment: `${server.name} - ${server.description}`,
-            defaultValue: value.replace(/\$\{[^}]+\}/g, "") || "",
+            key: primaryKey,
+            comment:
+              (standardEnvVars as Record<string, string>)[primaryKey] ||
+              `${server.name} - ${server.description}`,
+            defaultValue: defaultValue,
+            isStandard: primaryKey in standardEnvVars,
           });
         }
       }
@@ -337,6 +369,33 @@ async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): 
   if (envVars.length === 0) {
     return;
   }
+
+  // Create .env.mcp with helpful instructions
+  const mcpEnvContent = `# MCP (Model Context Protocol) Environment Variables
+# ============================================
+# 
+# This file contains environment variables needed for MCP servers.
+# Many of these use standard names that you may already have configured.
+#
+# To use these variables:
+# 1. Copy any missing variables to your .env.local file
+# 2. Or export them in your shell profile (~/.bashrc, ~/.zshrc, etc.)
+# 3. Claude Code will automatically use them via environment expansion
+#
+# Standard variables (you may already have these set):
+${envVars
+  .filter((v) => v.isStandard)
+  .map((v) => `# ${v.key}=${v.defaultValue || `<your-${v.key.toLowerCase().replace(/_/g, "-")}>`}`)
+  .join("\n")}
+#
+# MCP-specific variables:
+${envVars
+  .filter((v) => !v.isStandard)
+  .map((v) => `# ${v.key}=${v.defaultValue || `<your-${v.key.toLowerCase().replace(/_/g, "-")}>`}`)
+  .join("\n")}
+`;
+
+  await writeFile(envMcpPath, mcpEnvContent);
 
   let existingContent = "";
   if (await pathExists(envExamplePath)) {

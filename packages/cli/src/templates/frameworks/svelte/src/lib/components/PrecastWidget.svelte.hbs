@@ -1,0 +1,1005 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import { onMount } from 'svelte';
+  import { 
+    Terminal, Shield, Package, Database, Server, Mail, Activity, 
+    Container, Layers, AlertTriangle, User, X, Minimize2, Maximize2 
+  } from 'lucide-svelte';
+  
+  // State variables
+  let isOpen = false;
+  let isMinimized = false;
+  let activeTab = "{{#if database}}database{{else}}api{{/if}}";
+  let testResults = {};
+  let loading = {};
+  let systemInfo = null;
+  
+  {{#if authProvider}}
+  // Auth testing state
+  let authMode = 'signup';
+  let authEmail = 'test@example.com';
+  let authPassword = 'TestPassword123!';
+  let authName = 'Test User';
+  {{/if}}
+  
+  // Framework-specific environment variable access
+  const getApiUrl = () => {
+    {{#if (eq framework "next")}}
+    return process.env.NEXT_PUBLIC_API_URL;
+    {{else if (eq framework "nuxt")}}
+    return process.env.NUXT_PUBLIC_API_URL;
+    {{else if (eq framework "react-router")}}
+    return process.env.REACT_APP_API_URL;
+    {{else}}
+    return import.meta.env.VITE_API_URL;
+    {{/if}}
+  };
+  
+  // Only show in development
+  {{#if (eq framework "next")}}
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  {{else if (eq framework "nuxt")}}
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  {{else if (eq framework "react-router")}}
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  {{else}}
+  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+  {{/if}}
+  
+  // Service icon mapping
+  const getServiceIcon = (service, size = 16) => {
+    const iconMap = {
+      postgres: Database,
+      postgresql: Database,
+      mysql: Database,
+      mongodb: Database,
+      prisma: Package,
+      docker: Container,
+      redis: Database,
+      supabase: Database,
+      stripe: Package,
+      mail: Mail,
+      server: Server,
+      database: Database,
+      container: Container,
+      api: Activity,
+      auth: Shield,
+      user: User,
+    };
+    return iconMap[service.toLowerCase()] || Layers;
+  };
+  
+  // Dynamically build services based on what's configured
+  const buildServices = () => {
+    const detectedServices = {};
+    
+    {{#if backend}}
+    // API service
+    const apiUrl = getApiUrl();
+    if (apiUrl) {
+      detectedServices.api = {
+        name: "API",
+        type: "{{backend}}",
+        port: apiUrl.includes(":") ? parseInt(apiUrl.split(":").pop() || "3001") : 3001,
+        icon: "server",
+        testEndpoint: "/health"
+      };
+    }
+    {{/if}}
+    
+    {{#if database}}
+    // Database service
+    detectedServices.database = {
+      name: "DATABASE",
+      type: "{{database}}",
+      port: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}},
+      icon: "{{database}}",
+      testEndpoint: "/health/database"
+    };
+    {{/if}}
+    
+    {{#if docker}}
+    // Docker services
+    detectedServices.docker = {
+      name: "DOCKER",
+      type: "compose",
+      icon: "docker",
+      containers: [
+        {{#if (eq database 'postgres')}}
+        { name: "postgres:16-alpine", port: 5432, icon: "postgres" },
+        { name: "pgadmin4", port: 5050, icon: "database" }
+        {{else if (eq database 'mysql')}}
+        { name: "mysql:8", port: 3306, icon: "mysql" },
+        { name: "phpmyadmin", port: 8080, icon: "database" }
+        {{else if (eq database 'mongodb')}}
+        { name: "mongodb:7", port: 27017, icon: "mongodb" },
+        { name: "mongo-express", port: 8081, icon: "database" }
+        {{/if}}
+      ]
+    };
+    {{/if}}
+    
+    {{#if (includes plugins 'resend')}}
+    // Email service
+    detectedServices.email = {
+      name: "EMAIL",
+      type: "resend",
+      icon: "mail"
+    };
+    {{/if}}
+
+    {{#if (includes plugins 'stripe')}}
+    // Payment service
+    detectedServices.payment = {
+      name: "PAYMENT",
+      type: "stripe",
+      icon: "stripe"
+    };
+    {{/if}}
+    
+    {{#if authProvider}}
+    // Authentication service
+    detectedServices.auth = {
+      name: "AUTH",
+      type: "{{authProvider}}",
+      icon: "auth"
+    };
+    {{/if}}
+    
+    return detectedServices;
+  };
+  
+  const services = buildServices();
+  
+  onMount(() => {
+    // Check if admin panel should be open by default (from localStorage)
+    const savedState = localStorage.getItem("adminPanelOpen");
+    if (savedState === "true") {
+      isOpen = true;
+    }
+    
+    // Fetch system info
+    fetchSystemInfo();
+    
+    {{#if docker}}
+    // Check Docker status on mount if Docker is configured
+    if (services.docker) {
+      testDockerHealth();
+    }
+    {{/if}}
+    
+    {{#if authProvider}}
+    // Check auth status on mount if auth is configured
+    if (services.auth) {
+      testAuthStatus();
+    }
+    {{/if}}
+  });
+  
+  const fetchSystemInfo = async () => {
+    try {
+      const apiUrl = getApiUrl() || "";
+      const response = await fetch(`${apiUrl}/api/health`);
+      if (response.ok) {
+        const data = await response.json();
+        systemInfo = {
+          uptime: data.uptime || 0,
+          environment: data.environment || 'development',
+          apiPort: {{#if backend}}3001{{else}}undefined{{/if}},
+          dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+        };
+      }
+    } catch (error) {
+      console.error("Failed to fetch system info:", error);
+      // Set default system info when API is unavailable
+      systemInfo = {
+        uptime: 0,
+        environment: 'development',
+        apiPort: {{#if backend}}3001{{else}}undefined{{/if}},
+        dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+      };
+    }
+  };
+  
+  const addTestResult = (service, result) => {
+    testResults = {
+      ...testResults,
+      [service]: {
+        ...result,
+        timestamp: new Date().toISOString(),
+      },
+    };
+  };
+  
+  {{#if database}}
+  // Database Connection Test
+  const testDatabaseConnection = async () => {
+    loading = { ...loading, database: true };
+    try {
+      const apiUrl = getApiUrl() || "";
+      const response = await fetch(`${apiUrl}/api/health/database`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        addTestResult("database", {
+          success: true,
+          message: "DATABASE CONNECTED",
+          details: data,
+        });
+      } else {
+        addTestResult("database", {
+          success: false,
+          message: "CONNECTION FAILED",
+          details: data.error,
+        });
+      }
+    } catch (error) {
+      addTestResult("database", {
+        success: false,
+        message: "NETWORK ERROR",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      loading = { ...loading, database: false };
+    }
+  };
+  {{/if}}
+  
+  {{#if backend}}
+  // API Health Check
+  const testApiHealth = async () => {
+    loading = { ...loading, api: true };
+    try {
+      const apiUrl = getApiUrl() || "";
+      const response = await fetch(`${apiUrl}/api/health`);
+      const data = await response.json();
+
+      if (response.ok) {
+        addTestResult("api", {
+          success: true,
+          message: "API HEALTHY",
+          details: data,
+        });
+        systemInfo = {
+          uptime: data.uptime || 0,
+          environment: data.environment || 'development',
+          apiPort: 3001,
+          dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+        };
+      } else {
+        addTestResult("api", {
+          success: false,
+          message: "API UNHEALTHY",
+          details: data,
+        });
+      }
+    } catch (error) {
+      addTestResult("api", {
+        success: false,
+        message: "API UNREACHABLE",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      loading = { ...loading, api: false };
+    }
+  };
+  {{/if}}
+  
+  {{#if docker}}
+  // Docker Health Check
+  const testDockerHealth = async () => {
+    loading = { ...loading, docker: true };
+    try {
+      // Check if database is accessible (which indicates Docker is running)
+      const apiUrl = getApiUrl() || "";
+      const response = await fetch(`${apiUrl}/api/health/database`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        addTestResult("docker", {
+          success: true,
+          message: "DOCKER RUNNING",
+          details: {
+            status: "Containers are running",
+            database: data.database || "Connected",
+            services: services.docker?.containers || []
+          },
+        });
+      } else if (response.status === 500 || response.status === 503) {
+        // Database connection failed - likely Docker is not running
+        addTestResult("docker", {
+          success: false,
+          message: "DOCKER NOT RUNNING",
+          details: "Docker containers may not be running. Run: cd docker && docker compose up -d",
+        });
+      } else {
+        addTestResult("docker", {
+          success: false,
+          message: "DOCKER STATUS UNKNOWN",
+          details: "Unable to determine Docker status",
+        });
+      }
+    } catch (error) {
+      addTestResult("docker", {
+        success: false,
+        message: "DOCKER CHECK FAILED",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      loading = { ...loading, docker: false };
+    }
+  };
+  {{/if}}
+  
+  {{#if (includes plugins 'resend')}}
+  // Email Service Test
+  const testEmailService = async () => {
+    loading = { ...loading, email: true };
+    try {
+      const apiUrl = getApiUrl() || "";
+      
+      // First test email service health
+      const healthResponse = await fetch(`${apiUrl}/api/email/health`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (!healthResponse.ok) {
+        throw new Error("Email service unavailable");
+      }
+
+      // Then send a test email
+      const testResponse = await fetch(`${apiUrl}/api/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          type: "notification",
+          to: "test@example.com",
+          subject: "{{name}} - Email Service Test",
+          title: "Email Service Test",
+          message: "This is a test email from your {{name}} application. Email service is working correctly!"
+        }),
+      });
+
+      const data = await testResponse.json();
+
+      if (testResponse.ok) {
+        addTestResult("email", {
+          success: true,
+          message: "EMAIL SERVICE ACTIVE",
+          details: {
+            provider: "Resend",
+            status: "Email sent successfully",
+            id: data.id,
+          },
+        });
+      } else {
+        addTestResult("email", {
+          success: false,
+          message: "EMAIL SEND FAILED",
+          details: data.error || "Failed to send test email",
+        });
+      }
+    } catch (error) {
+      addTestResult("email", {
+        success: false,
+        message: "EMAIL SERVICE ERROR",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      loading = { ...loading, email: false };
+    }
+  };
+  {{/if}}
+  
+  {{#if authProvider}}
+  // Test authentication status endpoint
+  const testAuthStatus = async () => {
+    loading = { ...loading, authStatus: true };
+    try {
+      const apiUrl = getApiUrl() || "";
+      
+      {{#if (eq authProvider 'better-auth')}}
+      // Try Better Auth's built-in ok endpoint
+      const okResponse = await fetch(`${apiUrl}/api/auth/ok`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (okResponse.ok) {
+        const data = await okResponse.text();
+        addTestResult("authStatus", {
+          success: true,
+          message: "AUTH SERVICE HEALTHY",
+          details: {
+            endpoint: "/api/auth/ok",
+            response: data,
+            status: "Better Auth is responding correctly"
+          },
+        });
+      } else {
+        addTestResult("authStatus", {
+          success: false,
+          message: "AUTH SERVICE UNHEALTHY",
+          details: `Auth health check returned ${okResponse.status}`,
+        });
+      }
+      {{else if (eq authProvider 'auth.js')}}
+      // Test Auth.js providers endpoint
+      const response = await fetch(`${apiUrl}/api/auth/providers`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      
+      if (response.ok) {
+        const providers = await response.json();
+        addTestResult("authStatus", {
+          success: true,
+          message: "AUTH.JS SERVICE HEALTHY",
+          details: {
+            endpoint: "/api/auth/providers",
+            providers: providers.providers || [],
+            status: "Auth.js is responding correctly"
+          },
+        });
+      } else {
+        addTestResult("authStatus", {
+          success: false,
+          message: "AUTH.JS SERVICE UNHEALTHY",
+          details: `Auth.js health check returned ${response.status}`,
+        });
+      }
+      {{else}}
+      // Generic auth health check
+      const response = await fetch(`${apiUrl}/api/health/auth`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        addTestResult("authStatus", {
+          success: true,
+          message: "AUTH SERVICE HEALTHY",
+          details: data
+        });
+      } else {
+        addTestResult("authStatus", {
+          success: false,
+          message: "AUTH SERVICE UNHEALTHY",
+          details: `Auth health check returned ${response.status}`,
+        });
+      }
+      {{/if}}
+    } catch (error) {
+      addTestResult("authStatus", {
+        success: false,
+        message: "AUTH SERVICE UNREACHABLE",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      loading = { ...loading, authStatus: false };
+    }
+  };
+  
+  // Test authentication endpoints with user input
+  const testAuthService = async () => {
+    loading = { ...loading, auth: true };
+    try {
+      const apiUrl = getApiUrl() || "";
+      let response;
+      let responseData;
+      
+      {{#if (eq authProvider 'better-auth')}}
+      if (authMode === 'signup') {
+        // Test registration endpoint
+        response = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            name: authName
+          }),
+        });
+      } else {
+        // Test signin endpoint
+        response = await fetch(`${apiUrl}/api/auth/sign-in/email`, {
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword
+          }),
+        });
+      }
+      {{else if (eq authProvider 'auth.js')}}
+      if (authMode === 'signup') {
+        // Auth.js doesn't have built-in signup, use custom endpoint
+        response = await fetch(`${apiUrl}/api/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            name: authName
+          }),
+        });
+      } else {
+        // Get CSRF token first
+        const csrfResponse = await fetch(`${apiUrl}/api/auth/csrf`, {
+          credentials: "include",
+        });
+        const { csrfToken } = await csrfResponse.json();
+        
+        // Test signin endpoint with credentials provider
+        response = await fetch(`${apiUrl}/api/auth/callback/credentials`, {
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            csrfToken,
+            redirect: false,
+            json: true
+          }),
+        });
+      }
+      {{else}}
+      // Generic auth test for other providers
+      if (authMode === 'signup') {
+        response = await fetch(`${apiUrl}/api/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword,
+            name: authName
+          }),
+        });
+      } else {
+        response = await fetch(`${apiUrl}/api/auth/signin`, {
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: authEmail,
+            password: authPassword
+          }),
+        });
+      }
+      {{/if}}
+
+      try {
+        responseData = await response.json();
+      } catch {
+        responseData = await response.text();
+      }
+
+      if (response.ok) {
+        addTestResult("auth", {
+          success: true,
+          message: authMode === 'signup' ? "SIGN-UP SUCCESSFUL" : "SIGN-IN SUCCESSFUL",
+          details: {
+            email: authEmail,
+            response: responseData,
+            status: response.status
+          },
+        });
+        
+        // Test session after successful auth
+        const sessionResponse = await fetch(`${apiUrl}/api/auth/get-session`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          addTestResult("authSession", {
+            success: true,
+            message: "SESSION ACTIVE",
+            details: sessionData,
+          });
+        }
+      } else {
+        addTestResult("auth", {
+          success: false,
+          message: authMode === 'signup' ? "SIGN-UP FAILED" : "SIGN-IN FAILED",
+          details: {
+            status: response.status,
+            error: responseData,
+            hint: response.status === 401 ? "Invalid credentials or user doesn't exist" : 
+                  response.status === 409 ? "User already exists" : 
+                  response.status === 403 ? "CORS issue - check trustedOrigins" : 
+                  "Check server logs for details"
+          },
+        });
+      }
+    } catch (error) {
+      addTestResult("auth", {
+        success: false,
+        message: "AUTH REQUEST FAILED",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      loading = { ...loading, auth: false };
+    }
+  };
+  {{/if}}
+  
+  const togglePanel = () => {
+    const newState = !isOpen;
+    isOpen = newState;
+    localStorage.setItem("adminPanelOpen", String(newState));
+    if (newState) {
+      isMinimized = false;
+      fetchSystemInfo();
+    }
+  };
+  
+  // Component for displaying results
+  let expandedResults = {};
+  
+  const toggleResultExpanded = (service) => {
+    expandedResults = {
+      ...expandedResults,
+      [service]: !expandedResults[service]
+    };
+  };
+</script>
+
+{#if isDevelopment}
+  <!-- Floating Button - Minimalistic Bold Design with Logo -->
+  {#if !isOpen}
+    <button
+      on:click={togglePanel}
+      class="precast-floating-btn"
+      title="Open Precast Validator"
+    >
+      <div class="btn-icon">
+        <img 
+          src="https://precast.dev/logo.png" 
+          alt="Precast" 
+          class="logo-img"
+          on:error={(e) => {
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+          }}
+        />
+        <Terminal size={24} class="hidden" />
+      </div>
+    </button>
+  {/if}
+
+  <!-- Floating Panel with Side Tabs -->
+  {#if isOpen}
+    <div class="precast-panel-container">
+      <!-- Side Tab Navigation -->
+      {#if !isMinimized}
+        <div class="side-tabs">
+          {#each Object.entries(services) as [key, service]}
+            <button
+              on:click={() => activeTab = key}
+              class="side-tab"
+              data-active={activeTab === key}
+              title={service.name}
+            >
+              <div class="tab-icon">
+                <svelte:component this={getServiceIcon(service.icon, 20)} />
+              </div>
+            </button>
+          {/each}
+        </div>
+      {/if}
+
+      <!-- Main Panel -->
+      <div
+        class="precast-main-panel"
+        data-minimized={isMinimized}
+      >
+        <!-- Header -->
+        <div class="panel-header">
+          <div class="header-title">
+            <div class="header-logo">
+              <img 
+                src="https://precast.dev/logo.png" 
+                alt="Precast" 
+                class="logo-img"
+                on:error={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <div class="logo-fallback hidden"></div>
+            </div>
+            <div>
+              <h3 class="panel-title">PRECAST</h3>
+              <p class="panel-subtitle">
+                {systemInfo?.environment ? `ENV: ${systemInfo.environment.toUpperCase()}` : "VALIDATOR_v1.0"}
+              </p>
+            </div>
+          </div>
+          <div class="header-controls">
+            <button
+              on:click={() => isMinimized = !isMinimized}
+              class="control-btn"
+              title={isMinimized ? "Expand" : "Minimize"}
+            >
+              <span class="control-icon">
+                {isMinimized ? "+" : "-"}
+              </span>
+            </button>
+            <button
+              on:click={togglePanel}
+              class="control-btn control-close"
+              title="Close"
+            >
+              <span class="close-icon">✕</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Content -->
+        {#if !isMinimized}
+          <div class="panel-content">
+            <!-- Dynamic tab content based on active service -->
+            {#each Object.entries(services) as [key, service]}
+              {#if activeTab === key}
+                <div class="tab-content">
+                  <div class="service-card">
+                    <div class="service-header">
+                      <div class="service-info">
+                        <div class="service-icon">
+                          <svelte:component this={getServiceIcon(service.icon, 20)} />
+                        </div>
+                        <div>
+                          <h3 class="service-name">
+                            {service.type?.toUpperCase() || service.name}
+                          </h3>
+                          {#if service.port}
+                            <p class="service-port">
+                              PORT: {service.port}
+                            </p>
+                          {/if}
+                        </div>
+                      </div>
+                      <span
+                        class="status-badge"
+                        data-success={(key === 'auth' ? testResults.authStatus?.success : testResults[key]?.success)}
+                      >
+                        {(key === 'auth' ? testResults.authStatus?.success : testResults[key]?.success) ? "ONLINE" : "UNKNOWN"}
+                      </span>
+                    </div>
+                    
+                    <!-- Test buttons for services that support testing -->
+                    {#if key === 'database' || key === 'api' || key === 'email' || key === 'docker'}
+                      <button
+                        on:click={() => {
+                          if (key === 'database') testDatabaseConnection();
+                          else if (key === 'api') testApiHealth();
+                          else if (key === 'docker') testDockerHealth();
+                          else if (key === 'email') testEmailService();
+                        }}
+                        disabled={loading[key]}
+                        class="test-btn"
+                      >
+                        {#if loading[key]}
+                          <span class="loading">
+                            <span class="spinner"></span>
+                            TESTING...
+                          </span>
+                        {:else}
+                          RUN {key === 'database' ? 'CONNECTION' : key === 'api' ? 'HEALTH' : key === 'docker' ? 'DOCKER' : key === 'email' ? 'EMAIL' : 'SERVICE'} TEST
+                        {/if}
+                      </button>
+                    {/if}
+
+                    <!-- Enhanced Auth Testing UI -->
+                    {{#if authProvider}}
+                    {#if key === 'auth'}
+                      <div class="auth-test-container">
+                        <!-- Mode selector -->
+                        <div class="auth-mode-selector">
+                          <button
+                            on:click={() => authMode = 'signup'}
+                            class="auth-mode-btn"
+                            data-active={authMode === 'signup'}
+                          >
+                            SIGN UP
+                          </button>
+                          <button
+                            on:click={() => authMode = 'signin'}
+                            class="auth-mode-btn"
+                            data-active={authMode === 'signin'}
+                          >
+                            SIGN IN
+                          </button>
+                        </div>
+
+                        <!-- Input fields -->
+                        <div class="auth-inputs">
+                          <input
+                            type="email"
+                            bind:value={authEmail}
+                            placeholder="Email"
+                            class="input-field"
+                          />
+                          <input
+                            type="password"
+                            bind:value={authPassword}
+                            placeholder="Password"
+                            class="input-field"
+                          />
+                          {#if authMode === 'signup'}
+                            <input
+                              type="text"
+                              bind:value={authName}
+                              placeholder="Name"
+                              class="input-field"
+                            />
+                          {/if}
+                        </div>
+
+                        <!-- Test button -->
+                        <button
+                          on:click={() => testAuthService()}
+                          disabled={loading.auth}
+                          class="test-btn"
+                        >
+                          {#if loading.auth}
+                            <span class="loading">
+                              <span class="spinner"></span>
+                              TESTING...
+                            </span>
+                          {:else}
+                            TEST {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
+                          {/if}
+                        </button>
+                      </div>
+                    {/if}
+                    {{/if}}
+
+                    <!-- Auth status test button -->
+                    {{#if authProvider}}
+                    {#if key === 'auth'}
+                      <button
+                        on:click={() => testAuthStatus()}
+                        disabled={loading.authStatus}
+                        class="test-btn status-btn"
+                      >
+                        {#if loading.authStatus}
+                          <span class="loading">
+                            <span class="spinner"></span>
+                            CHECKING...
+                          </span>
+                        {:else}
+                          CHECK STATUS ENDPOINT
+                        {/if}
+                      </button>
+                    {/if}
+                    {{/if}}
+                    
+                    <!-- Docker containers list -->
+                    {#if key === 'docker' && service.containers && Array.isArray(service.containers)}
+                      <div class="containers-list">
+                        {#each service.containers as container}
+                          <div class="container-item">
+                            <div class="container-info">
+                              <div class="container-name">
+                                <svelte:component this={getServiceIcon(container.icon, 14)} />
+                                <span class="container-text">{container.name}</span>
+                              </div>
+                              <span class="container-port">
+                                {container.port}
+                              </span>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    {/if}
+                    
+                    <!-- Result Display -->
+                    {#if testResults[key]}
+                      {@const result = testResults[key]}
+                      {@const isAuthResult = key === 'auth' || key === 'authSession'}
+                      {@const hasLargeDetails = result.details && typeof result.details === "object" && Object.keys(result.details).length > 3}
+                      {@const shouldCollapse = isAuthResult && result.success && hasLargeDetails}
+                      
+                      <div
+                        class="result-display"
+                        style="background-color: {result.success ? 'var(--color-light)' : 'var(--color-primary)'}"
+                      >
+                        <div class="result-content">
+                          <div class="result-icon">
+                            {#if result.success}
+                              <Activity size={12} class="icon-primary" />
+                            {:else}
+                              <AlertTriangle size={12} class="icon-primary" />
+                            {/if}
+                          </div>
+                          <div class="result-details">
+                            <p class="result-message">
+                              {result.message}
+                            </p>
+                            <p class="result-timestamp">
+                              {new Date(result.timestamp).toLocaleTimeString()}
+                            </p>
+                            
+                            {#if result.details && typeof result.details === "object" && result.details !== null}
+                              {#if shouldCollapse}
+                                <div class="collapsible-details">
+                                  <button
+                                    on:click={() => toggleResultExpanded(key)}
+                                    class="expand-btn"
+                                  >
+                                    <span class="expand-text">
+                                      {expandedResults[key] ? 'Hide' : 'Show'} Response Details
+                                    </span>
+                                    <span class="expand-arrow">
+                                      {expandedResults[key] ? '▼' : '▶'}
+                                    </span>
+                                  </button>
+                                  
+                                  {#if expandedResults[key]}
+                                    <div class="code-block">
+                                      <pre class="json-highlighted">
+                                        <code>{JSON.stringify(result.details, null, 2)}</code>
+                                      </pre>
+                                    </div>
+                                  {/if}
+                                  
+                                  {#if !expandedResults[key] && result.details}
+                                    <div class="summary-box">
+                                      <p class="summary-text">
+                                        ✓ User: {result.details.email || result.details.user?.email || 'Authenticated'}
+                                        {#if result.details.session}<br />✓ Session created{/if}
+                                        {#if result.details.token}<br />✓ Token received{/if}
+                                      </p>
+                                    </div>
+                                  {/if}
+                                </div>
+                              {:else}
+                                <div class="result-json">
+                                  <pre class="json-content">
+                                    {JSON.stringify(result.details, null, 2)}
+                                  </pre>
+                                </div>
+                              {/if}
+                            {/if}
+                          </div>
+                        </div>
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </div>
+  {/if}
+{/if}
+
+<style>
+  /* Styles are already in globals.css via the partial */
+</style>

@@ -15,7 +15,7 @@ import { getTemplateRoot } from "../utils/template-path.js";
  * Generate Claude Code integration for the project using templates
  */
 export async function generateClaudeTemplate(
-  config: ProjectConfig & { mcpServers?: string[] }
+  config: ProjectConfig & { mcpServers?: string[]; aiDocs?: boolean }
 ): Promise<void> {
   // Check for both ai and aiAssistant for backward compatibility
   const aiAssistant = (config as any).aiAssistant || (config as any).ai;
@@ -45,6 +45,14 @@ export async function generateClaudeTemplate(
     // Generate commands
     await generateClaudeCommands(config, templateEngine);
 
+    // Generate hooks if needed
+    await generateClaudeHooks(config, templateEngine);
+
+    // Generate AI documentation if requested
+    if (config.aiDocs) {
+      await generateAiDocumentation(config, templateEngine);
+    }
+
     // Add to .gitignore
     await addToGitignore(config.projectPath, ".claude/settings.local.json");
 
@@ -66,9 +74,13 @@ async function generateClaudeSettings(
   // Determine which tools are permitted based on project configuration
   const allowedTools = getClaudePermissions(config);
 
+  // Check if we should include the lint hook
+  const hasLintHook = config.eslint || config.prettier;
+
   const claudeContext = {
     ...config,
     allowedTools,
+    hasLintHook,
     hasMcpServers: config.mcpServers && config.mcpServers.length > 0,
     mcpServers: config.mcpServers && config.mcpServers.length > 0 ? config.mcpServers : undefined,
   };
@@ -330,6 +342,89 @@ async function generateClaudeCommands(
   logger.verbose("✅ Claude commands generated");
 }
 
+async function generateClaudeHooks(
+  config: ProjectConfig & { mcpServers?: string[] },
+  templateEngine: any
+): Promise<void> {
+  // Only generate hooks if ESLint or Prettier are enabled
+  if (!config.eslint && !config.prettier) {
+    return;
+  }
+
+  const hooksDir = path.join(config.projectPath, ".claude/hooks");
+  await ensureDir(hooksDir);
+
+  // Generate lint-check hook
+  const hookPath = path.join(hooksDir, "lint-check.sh");
+  await templateEngine.processTemplate(
+    "ai-context/claude/hooks/lint-check.sh.hbs",
+    hookPath,
+    config
+  );
+
+  // Make the hook executable
+  try {
+    await fsExtra.chmod(hookPath, 0o755);
+  } catch (error) {
+    logger.verbose(`Could not set hook permissions: ${error}`);
+  }
+
+  logger.verbose("✅ Claude hooks generated");
+}
+
+async function generateAiDocumentation(
+  config: ProjectConfig & { mcpServers?: string[]; aiDocs?: boolean },
+  templateEngine: any
+): Promise<void> {
+  const docsDir = path.join(config.projectPath, "docs/ai");
+  await ensureDir(docsDir);
+
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
+  // Prepare context for documentation templates
+  const docContext = {
+    ...config,
+    projectName: config.name,
+    isFullstack: config.backend && config.backend !== "none",
+    isMonorepo,
+    hasDatabase: config.database && config.database !== "none",
+    hasAuth: config.authProvider && config.authProvider !== "none",
+    hasDocker: config.docker === true,
+    hasMcpServers: config.mcpServers && config.mcpServers.length > 0,
+    mcpServers: config.mcpServers && config.mcpServers.length > 0 ? config.mcpServers : undefined,
+    techStack: getTechStackDescription(config),
+    // TODO: Add designSystem and colorPalette once frontend passes these via CLI flags
+    // designSystem: config.designSystem, // Will contain borders, shadows, radius, spacing, typography, animations
+    // colorPalette: config.colorPalette, // Will contain color scheme from palette selection
+    projectStructure: getProjectStructureDescription(config),
+    keyCommands: getKeyCommands(config),
+  };
+
+  // Generate SPEC.md
+  await templateEngine.processTemplate(
+    "docs/ai/SPEC.md.hbs",
+    path.join(docsDir, "SPEC.md"),
+    docContext
+  );
+
+  // Generate PRD.md
+  await templateEngine.processTemplate(
+    "docs/ai/PRD.md.hbs",
+    path.join(docsDir, "PRD.md"),
+    docContext
+  );
+
+  // TODO: Generate STYLING.md once designSystem and colorPalette are passed from frontend
+  // This will be generated when the design system UI is fully tested and backend implementation is complete
+  // await templateEngine.processTemplate(
+  //   "docs/STYLING.md.hbs",
+  //   path.join(docsDir, "STYLING.md"),
+  //   docContext
+  // );
+
+  logger.verbose("✅ AI documentation generated");
+}
+
 async function addToGitignore(projectPath: string, pattern: string): Promise<void> {
   const gitignorePath = path.join(projectPath, ".gitignore");
   if (await pathExists(gitignorePath)) {
@@ -340,7 +435,7 @@ async function addToGitignore(projectPath: string, pattern: string): Promise<voi
   }
 }
 
-function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void {
+function showNextSteps(config: ProjectConfig & { mcpServers?: string[]; aiDocs?: boolean }): void {
   logger.info("\n📝 Next steps for Claude Code integration:");
 
   const steps: string[] = [];
@@ -349,7 +444,14 @@ function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void 
   steps.push("1. Open your project in Claude Code");
   steps.push("2. Claude will automatically detect the .claude/settings.json file");
 
-  steps.push("3. Use intelligent agents:");
+  if (config.aiDocs) {
+    steps.push("3. Review the generated AI documentation:");
+    steps.push("   - docs/ai/SPEC.md: Technical specification and architecture");
+    steps.push("   - docs/ai/PRD.md: Product requirements and user stories");
+  }
+
+  const nextStepNum = config.aiDocs ? "4" : "3";
+  steps.push(`${nextStepNum}. Use intelligent agents:`);
   steps.push("   - web-research: Research best practices and current patterns");
   steps.push("   - code-reviewer: Review code against standards");
   steps.push("   - architecture-guide: Architectural guidance");
@@ -361,14 +463,17 @@ function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void 
     steps.push("   - monorepo-guide: Cross-package coordination");
   }
 
-  steps.push("4. Use intelligent orchestrators (recommended):");
+  const orchestratorStepNum = config.aiDocs ? "5" : "4";
+  const commandStepNum = config.aiDocs ? "6" : "5";
+
+  steps.push(`${orchestratorStepNum}. Use intelligent orchestrators (recommended):`);
   steps.push("   - /orchestrate: Smart command that analyzes any request and");
   steps.push("     automatically delegates to the right agents and workflows");
   steps.push("   - /optimize: Specialized performance optimization orchestrator");
   steps.push("   - Example: '/orchestrate implement secure user auth'");
   steps.push("   - Example: '/optimize bundle size and performance'");
   steps.push("");
-  steps.push("5. Or use specific commands directly:");
+  steps.push(`${commandStepNum}. Or use specific commands directly:`);
   steps.push("   - /review: Research-driven code review");
   steps.push("   - /implement: Best-practice implementation");
   steps.push("   - /refactor: Modern refactoring patterns");
@@ -384,8 +489,10 @@ function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void 
   }
 
   if (config.mcpServers && config.mcpServers.length > 0) {
-    steps.push("5. Configure MCP server environment variables in .env");
-    steps.push("6. Restart Claude Code to enable MCP servers");
+    const mcpStepNum1 = config.aiDocs ? "7" : "6";
+    const mcpStepNum2 = config.aiDocs ? "8" : "7";
+    steps.push(`${mcpStepNum1}. Configure MCP server environment variables in .env`);
+    steps.push(`${mcpStepNum2}. Restart Claude Code to enable MCP servers`);
   }
 
   steps.push(`${steps.length + 1}. Start coding with context-aware AI assistance!`);

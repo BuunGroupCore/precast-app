@@ -178,7 +178,7 @@ const rpcApp = new Hono()
     }
     {{else}}
     // TODO: Implement database query
-    return c.json({ success: true });
+    return c.json({ success: true, deletedId: id });
     {{/if}}
   })
   // Posts endpoints (example of another resource)

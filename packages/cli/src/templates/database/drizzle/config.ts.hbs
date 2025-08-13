@@ -8,15 +8,19 @@
   schema: './src/db/schema.{{#if typescript}}ts{{else}}js{{/if}}',
   out: './src/db/migrations',
   {{#if (eq database "postgres")}}
-  driver: 'pg',
+  dialect: 'postgresql',
   {{else if (eq database "mysql")}}
-  driver: 'mysql2',
+  dialect: 'mysql',
+  {{else if (eq database "sqlite")}}
+  dialect: 'sqlite',
   {{/if}}
   dbCredentials: {
     {{#if (eq database "postgres")}}
-    connectionString: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
+    url: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
     {{else if (eq database "mysql")}}
-    connectionString: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
+    url: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
+    {{else if (eq database "sqlite")}}
+    url: process.env.DATABASE_URL{{#unless typescript}} || 'sqlite.db'{{/unless}},
     {{/if}}
   },
   verbose: true,

@@ -1,0 +1,219 @@
+# {{name}} - Product Requirements Document
+
+## Product Overview
+
+### Vision Statement
+_[Describe the overall vision and purpose of the application]_
+
+### Target Audience
+- **Primary Users**: _[Define primary user group]_
+- **Secondary Users**: _[Define secondary user group]_
+- **Technical Users**: _[Define technical stakeholders]_
+
+## Business Objectives
+
+### Primary Goals
+1. _[Define primary business goal]_
+2. _[Define secondary business goal]_
+3. _[Define tertiary business goal]_
+4. _[Define additional goals as needed]_
+
+### Success Metrics
+- _[Define key metric 1]_
+- _[Define key metric 2]_
+- _[Define key metric 3]_
+- _[Define key metric 4]_
+
+## Features and Requirements
+
+### Core Features
+
+#### Feature Category 1
+- **Feature 1.1**: _[Description]_
+- **Feature 1.2**: _[Description]_
+- **Feature 1.3**: _[Description]_
+- **Feature 1.4**: _[Description]_
+
+#### Feature Category 2
+- **Feature 2.1**: _[Description]_
+- **Feature 2.2**: _[Description]_
+- **Feature 2.3**: _[Description]_
+- **Feature 2.4**: _[Description]_
+
+### Technical Requirements
+
+#### Frontend Stack
+- **Framework**: {{framework}}
+- **Styling**: {{styling}}
+{{#if uiLibrary}}- **UI Library**: {{uiLibrary}}{{/if}}
+{{#if typescript}}- **Language**: TypeScript{{else}}- **Language**: JavaScript{{/if}}
+- **Additional Requirements**: _[Add specific frontend requirements]_
+
+#### Backend Stack
+{{#if (ne backend 'none')}}
+- **Framework**: {{backend}}
+{{#if auth}}- **Authentication**: {{auth}}{{/if}}
+- **Additional Requirements**: _[Add specific backend requirements]_
+{{else}}
+- **Backend**: Not applicable (frontend-only application)
+{{/if}}
+
+#### Data Layer
+{{#if (ne database 'none')}}
+- **Database**: {{database}}
+{{#if (ne orm 'none')}}- **ORM/ODM**: {{orm}}{{/if}}
+- **Additional Requirements**: _[Add specific database requirements]_
+{{else}}
+- **Database**: Not applicable
+{{/if}}
+
+## User Stories
+
+### Epic 1: _[Epic Title]_
+**_[Epic Description]_**
+
+- **US001**: _[User story description]_
+  - Acceptance Criteria:
+    - _[Criterion 1]_
+    - _[Criterion 2]_
+    - _[Criterion 3]_
+
+- **US002**: _[User story description]_
+  - Acceptance Criteria:
+    - _[Criterion 1]_
+    - _[Criterion 2]_
+    - _[Criterion 3]_
+
+### Epic 2: _[Epic Title]_
+**_[Epic Description]_**
+
+- **US003**: _[User story description]_
+  - Acceptance Criteria:
+    - _[Criterion 1]_
+    - _[Criterion 2]_
+    - _[Criterion 3]_
+
+## Design and User Experience
+
+### Design Principles
+1. _[Define design principle 1]_
+2. _[Define design principle 2]_
+3. _[Define design principle 3]_
+4. _[Define design principle 4]_
+
+### User Interface Guidelines
+- **Color Scheme**: _[Define color palette]_
+- **Typography**: _[Define font choices]_
+- **Layout**: _[Define layout approach]_
+- **Interactions**: _[Define interaction patterns]_
+
+### Mobile Experience
+- _[Define mobile strategy]_
+- _[Define touch optimization]_
+- _[Define performance requirements]_
+- _[Define offline capabilities]_
+
+## Technical Constraints
+
+### Browser Support
+- _[Define supported browsers]_
+- _[Define mobile browser support]_
+- _[Define legacy browser strategy]_
+
+### Performance Requirements
+- **Loading Time**: _[Define target]_
+- **Bundle Size**: _[Define limit]_
+- **Memory Usage**: _[Define constraints]_
+- **Network**: _[Define requirements]_
+
+### Security Requirements
+- **Data Protection**: _[Define approach]_
+- **Input Validation**: _[Define strategy]_
+- **Authentication**: _[Define method]_
+- **Privacy**: _[Define compliance needs]_
+
+## Development and Deployment
+
+### Technology Stack
+- **Frontend**: {{framework}} with {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}
+- **Styling**: {{styling}}{{#if uiLibrary}} + {{uiLibrary}}{{/if}}
+{{#if (ne backend 'none')}}
+- **Backend**: {{backend}}
+{{/if}}
+{{#if (ne database 'none')}}
+- **Database**: {{database}}{{#if (ne orm 'none')}} with {{orm}}{{/if}}
+{{/if}}
+- **Package Manager**: {{packageManager}}
+
+### Development Workflow
+1. **Version Control**: Git with feature branches
+2. **Code Review**: Pull request reviews required
+3. **Testing**: Automated unit and integration tests
+4. **CI/CD**: Automated build and deployment pipeline
+
+### Deployment Strategy
+- **Environments**: Development, Staging, Production
+- **Monitoring**: Application performance monitoring
+- **Logging**: Centralized logging and error tracking
+- **Backup**: Regular data backups and recovery procedures
+
+## Risk Management
+
+### Technical Risks
+- **Risk 1**: _[Description and impact]_
+- **Risk 2**: _[Description and impact]_
+- **Risk 3**: _[Description and impact]_
+- **Risk 4**: _[Description and impact]_
+
+### Mitigation Strategies
+- **Strategy 1**: _[Mitigation approach]_
+- **Strategy 2**: _[Mitigation approach]_
+- **Strategy 3**: _[Mitigation approach]_
+- **Strategy 4**: _[Mitigation approach]_
+
+## Timeline and Milestones
+
+### Phase 1: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+### Phase 2: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+### Phase 3: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+### Phase 4: _[Phase Name]_ (_[Duration]_)
+- _[Deliverable 1]_
+- _[Deliverable 2]_
+- _[Deliverable 3]_
+
+## Appendix
+
+### Glossary
+- **{{framework}}**: The frontend framework used for building the user interface
+{{#if (ne backend 'none')}}
+- **{{backend}}**: The backend framework used for API development
+{{/if}}
+{{#if (ne database 'none')}}
+- **{{database}}**: The database system used for data storage
+{{/if}}
+{{#if (ne orm 'none')}}
+- **{{orm}}**: The Object-Relational Mapping tool used for database operations
+{{/if}}
+
+### References
+- [{{framework}} Documentation](https://{{framework}}.dev)
+{{#if (ne backend 'none')}}
+- [{{backend}} Documentation](https://{{backend}}.js.org)
+{{/if}}
+{{#if (ne database 'none')}}
+- [{{database}} Documentation](https://{{database}}.org)
+{{/if}}
+- [Web Content Accessibility Guidelines (WCAG)](https://www.w3.org/WAI/WCAG21/quickref/)
+- [OWASP Security Guidelines](https://owasp.org/www-project-top-ten/)

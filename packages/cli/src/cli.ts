@@ -62,6 +62,7 @@ program
     "API client library (tanstack-query, swr, axios, trpc, apollo-client)"
   )
   .option("--ai <assistant>", "AI assistant (claude, cursor, copilot, gemini)")
+  .option("--ai-docs", "Generate AI documentation files (SPEC.md, PRD.md) in docs/ai/ folder")
   .option(
     "--mcp-servers <servers...>",
     "MCP servers to include when using Claude AI (filesystem, memory, github-official, github-api, gitlab, postgresql, supabase, mongodb, cloudflare, aws-mcp, azure-mcp, etc.)"
@@ -105,6 +106,7 @@ program
       auth: options.auth,
       apiClient: options.apiClient,
       ai: options.ai,
+      aiDocs: options.aiDocs,
       mcpServers: options.mcpServers,
       powerups: options.powerups ? options.powerups.split(",") : undefined,
       plugins: options.plugins ? options.plugins.split(",") : undefined,

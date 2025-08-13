@@ -144,7 +144,10 @@
       "Bash(for:*)",
       "Bash(if grep -q 'import { Tooltip } from \"\"@/components/ui/Tooltip\"\"' \"$file\")",
       "Bash(then)",
-      "Bash(./test-tunneling-features.sh:*)"
+      "Bash(./test-tunneling-features.sh:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run typecheck:*)"
     ],
     "deny": []
   }

@@ -9,9 +9,9 @@ export default defineConfig({
   },
   plugins: [
     tsConfigPaths(),
-    react(),
     tanstackStart({
       customViteReactPlugin: true,
     }),
+    react(),
   ],
 });

@@ -1,33 +1,79 @@
-{{#if typescript}}import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+{{#if typescript}}import { createRootRoute, Link, Outlet, HeadContent, Scripts } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { Layout } from '@/components/layout';
+{{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+import { PrecastWidget } from '@/components/precast/PrecastWidget';
+{{/if}}
+{{#if (eq styling "tailwind")}}
+import appCss from '@/styles/tailwind.css?url';
+{{else}}
+import appCss from '@/styles/globals.css?url';
+{{/if}}
 
 export const Route = createRootRoute({
-  component: () => (
-    <>
-      <div className="p-2 flex gap-2">
-        <Link to="/" className="[&.active]:font-bold">
-          Home
-        </Link>
-      </div>
-      <hr />
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});{{else}}import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+  head: () => ({
+    links: [
+      { rel: 'stylesheet', href: appCss },
+    ],
+  }),
+  component: RootComponent,
+});
+
+function RootComponent() {
+  return (
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <Layout>
+          <Outlet />
+        </Layout>
+        {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+        <PrecastWidget />
+        {{/if}}
+        <TanStackRouterDevtools />
+        <Scripts />
+      </body>
+    </html>
+  );
+}{{else}}import { createRootRoute, Link, Outlet, HeadContent, Scripts } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { Layout } from '@/components/layout';
+{{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+import { PrecastWidget } from '@/components/precast/PrecastWidget';
+{{/if}}
+{{#if (eq styling "tailwind")}}
+import appCss from '@/styles/tailwind.css?url';
+{{else}}
+import appCss from '@/styles/globals.css?url';
+{{/if}}
 
 export const Route = createRootRoute({
-  component: () => (
-    <>
-      <div className="p-2 flex gap-2">
-        <Link to="/" className="[&.active]:font-bold">
-          Home
-        </Link>
-      </div>
-      <hr />
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});{{/if}}
+  head: () => ({
+    links: [
+      { rel: 'stylesheet', href: appCss },
+    ],
+  }),
+  component: RootComponent,
+});
+
+function RootComponent() {
+  return (
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <Layout>
+          <Outlet />
+        </Layout>
+        {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+        <PrecastWidget />
+        {{/if}}
+        <TanStackRouterDevtools />
+        <Scripts />
+      </body>
+    </html>
+  );
+}{{/if}}

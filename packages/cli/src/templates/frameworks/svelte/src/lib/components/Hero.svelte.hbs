@@ -1,0 +1,173 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import { Terminal, Zap, Database, Server, Code2, Layers, Package } from 'lucide-svelte';
+  import { onMount } from 'svelte';
+
+  const APP_CONFIG = {
+    name: '{{name}}',
+    displayName: '{{name}}',
+    version: '1.0.0'
+  };
+
+  // Typing animation state
+  let typedText = '';
+  const fullText = `> INITIALIZING ${APP_CONFIG.displayName.toUpperCase()}...`;
+  
+  onMount(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= fullText.length) {
+        typedText = fullText.slice(0, index);
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 50);
+    
+    return () => clearInterval(timer);
+  });
+
+  const techStack = [
+    {{#if (eq framework 'svelte')}}
+    { name: 'SVELTE', icon: Code2, color: '#ff3e00' },
+    {{/if}}
+    {{#if typescript}}
+    { name: 'TYPESCRIPT', icon: Code2, color: '#3178c6' },
+    {{/if}}
+    {{#if (eq styling 'tailwind')}}
+    { name: 'TAILWIND', icon: Layers, color: '#06b6d4' },
+    {{/if}}
+    {{#if (and backend (ne backend 'none'))}}
+    { name: '{{#if (eq backend 'hono')}}HONO{{else if (eq backend 'express')}}EXPRESS{{else if (eq backend 'fastify')}}FASTIFY{{else if (eq backend 'nestjs')}}NESTJS{{else if (eq backend 'koa')}}KOA{{else if (eq backend 'node')}}NODE{{/if}}', icon: Server, color: '#000000' },
+    {{/if}}
+    {{#if (and database (ne database 'none'))}}
+    { name: '{{#if (eq database 'postgres')}}POSTGRES{{else if (eq database 'mysql')}}MYSQL{{else if (eq database 'mongodb')}}MONGODB{{/if}}', icon: Database, color: '{{#if (eq database 'postgres')}}#336791{{else if (eq database 'mysql')}}#00758f{{else if (eq database 'mongodb')}}#47a248{{else}}#000000{{/if}}' },
+    {{/if}}
+    {{#if (and orm (ne orm 'none'))}}
+    { name: '{{#if (eq orm 'prisma')}}PRISMA{{else if (eq orm 'drizzle')}}DRIZZLE{{else if (eq orm 'typeorm')}}TYPEORM{{else if (eq orm 'mongoose')}}MONGOOSE{{/if}}', icon: Package, color: '#2d3748' },
+    {{/if}}
+  ];
+
+  const systemStatus = [
+    { label: 'Framework', status: 'OPERATIONAL' },
+    { label: 'Database', status: 'CONNECTED' },
+    { label: 'API', status: 'READY' },
+    { label: 'Cache', status: 'ACTIVE' }
+  ];
+</script>
+
+<section class="hero-section">
+  <div class="project-title">
+    <h1 class="hero-title">{APP_CONFIG.name}</h1>
+  </div>
+
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="terminal-title-group">
+        <Terminal size={16} class="icon-primary" />
+        <span class="terminal-title">System Terminal v1.0</span>
+      </div>
+      <div class="terminal-controls">
+        <div class="control-dot control-yellow"></div>
+        <div class="control-dot control-yellow"></div>
+        <div class="control-dot control-yellow"></div>
+      </div>
+    </div>
+    
+    <div class="terminal-content">
+      <div class="terminal-output">
+        {typedText}
+        <span class="terminal-cursor animate-pulse">_</span>
+      </div>
+      
+      <div class="system-status">
+        <div class="status-line">
+          <span class="status-ok">[OK]</span>
+          <span class="status-text">Loading Svelte framework...</span>
+          <Zap size={14} class="icon-primary" />
+        </div>
+        {{#if backend}}
+        <div class="status-line">
+          <span class="status-ok">[OK]</span>
+          <span class="status-text">Connecting to {{backend}} API...</span>
+          <Server size={14} class="icon-primary" />
+        </div>
+        {{/if}}
+        {{#if database}}
+        <div class="status-line">
+          <span class="status-ok">[OK]</span>
+          <span class="status-text">Database connection established...</span>
+          <Database size={14} class="icon-primary" />
+        </div>
+        {{/if}}
+        <div class="status-summary">
+          <span class="status-label">STATUS: </span>
+          <span class="status-operational">OPERATIONAL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Separator line -->
+  <div class="section-separator">
+    <div class="separator-line"></div>
+    <div class="separator-diamond"></div>
+    <div class="separator-line"></div>
+  </div>
+
+  <!-- Project title with brutalist style -->
+  <div class="project-title">
+    <h1 class="hero-title">
+      {APP_CONFIG.displayName.toUpperCase()}
+    </h1>
+  </div>
+
+  <!-- Another separator -->
+  <div class="section-separator">
+    <div class="separator-line-thin"></div>
+    <span class="separator-text">Stack</span>
+    <div class="separator-line-thin"></div>
+  </div>
+
+  <div class="tech-stack-grid">
+    {#each techStack as tech}
+      <div class="tech-card">
+        <div class="tech-card-shadow"></div>
+        <div class="tech-card-content">
+          <div class="tech-card-inner">
+            <div class="tech-icon" style="color: {tech.color};">
+              <svelte:component this={tech.icon} size={24} />
+            </div>
+            <span class="tech-name">{tech.name}</span>
+          </div>
+          <div class="tech-indicator"></div>
+        </div>
+      </div>
+    {/each}
+  </div>
+
+  <!-- System info bar -->
+  <div class="system-info">
+    <div class="system-bar">
+      <div class="system-item">
+        <div class="status-dot"></div>
+        <span>Port: 5173</span>
+      </div>
+      {{#if backend}}
+      <div class="system-item">
+        <div class="status-dot"></div>
+        <span>API: 3001</span>
+      </div>
+      {{/if}}
+      {{#if database}}
+      <div class="system-item">
+        <div class="status-dot"></div>
+        <span>DB: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{/eq}}</span>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Styles are already in globals.css via the partial */
+</style>

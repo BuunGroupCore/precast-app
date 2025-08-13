@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { FaChartLine, FaChartArea, FaRocket, FaReact, FaVial } from "react-icons/fa";
+import { FaChartLine, FaChartArea, FaRocket, FaReact, FaVial, FaCaretDown } from "react-icons/fa";
 import { SiTypescript } from "react-icons/si";
 import {
   LineChart,
@@ -47,6 +47,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 
 export function WeeklyTrendsChart(_props: WeeklyTrendsChartProps) {
   const [metricType, setMetricType] = useState<MetricType>("all");
+  const [showDropdown, setShowDropdown] = useState(false);
   const { analytics, loading, error } = usePrecastAnalytics();
 
   if (loading) {
@@ -266,11 +267,13 @@ export function WeeklyTrendsChart(_props: WeeklyTrendsChartProps) {
       transition={{ delay: 2.6 }}
       className="comic-panel p-6 mb-8"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-2xl text-comic-red flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <h3 className="font-display text-xl sm:text-2xl text-comic-red flex items-center gap-2">
           <FaChartLine /> WEEKLY TRENDS
         </h3>
-        <div className="flex items-center gap-2">
+
+        {/* Desktop tabs */}
+        <div className="hidden sm:flex items-center gap-2">
           <FaChartArea className="text-comic-red" />
           <button
             onClick={() => setMetricType("all")}
@@ -313,41 +316,106 @@ export function WeeklyTrendsChart(_props: WeeklyTrendsChartProps) {
             Success Rate
           </button>
         </div>
+
+        {/* Mobile dropdown */}
+        <div className="sm:hidden relative">
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="w-full px-4 py-2 bg-comic-red text-white rounded font-comic text-sm flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <FaChartArea />
+              {metricType === "all" && "Overview"}
+              {metricType === "frameworks" && "Frameworks"}
+              {metricType === "features" && "Features"}
+              {metricType === "success" && "Success Rate"}
+            </span>
+            <FaCaretDown className={`transition-transform ${showDropdown ? "rotate-180" : ""}`} />
+          </button>
+          {showDropdown && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-comic-black rounded-lg shadow-lg z-10">
+              <button
+                onClick={() => {
+                  setMetricType("all");
+                  setShowDropdown(false);
+                }}
+                className={`w-full px-4 py-2 text-left font-comic text-sm hover:bg-comic-red hover:text-white transition-colors ${
+                  metricType === "all" ? "bg-comic-red text-white" : ""
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => {
+                  setMetricType("frameworks");
+                  setShowDropdown(false);
+                }}
+                className={`w-full px-4 py-2 text-left font-comic text-sm hover:bg-comic-red hover:text-white transition-colors ${
+                  metricType === "frameworks" ? "bg-comic-red text-white" : ""
+                }`}
+              >
+                Frameworks
+              </button>
+              <button
+                onClick={() => {
+                  setMetricType("features");
+                  setShowDropdown(false);
+                }}
+                className={`w-full px-4 py-2 text-left font-comic text-sm hover:bg-comic-red hover:text-white transition-colors ${
+                  metricType === "features" ? "bg-comic-red text-white" : ""
+                }`}
+              >
+                Features
+              </button>
+              <button
+                onClick={() => {
+                  setMetricType("success");
+                  setShowDropdown(false);
+                }}
+                className={`w-full px-4 py-2 text-left font-comic text-sm hover:bg-comic-red hover:text-white transition-colors rounded-b-lg ${
+                  metricType === "success" ? "bg-comic-red text-white" : ""
+                }`}
+              >
+                Success Rate
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Growth Indicators */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        <div className="comic-panel p-3 bg-comic-purple bg-opacity-10 text-center">
-          <FaRocket className="text-2xl mx-auto mb-1 text-comic-purple" />
-          <div className="action-text text-xl text-comic-purple">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6">
+        <div className="comic-panel p-2 sm:p-3 bg-comic-purple bg-opacity-10 text-center">
+          <FaRocket className="text-lg sm:text-2xl mx-auto mb-1 text-comic-purple" />
+          <div className="action-text text-sm sm:text-xl text-comic-purple">
             {calculateGrowth("projects") >= 0 ? "+" : ""}
             {calculateGrowth("projects")}%
           </div>
-          <div className="font-comic text-xs text-comic-red">Projects Growth</div>
+          <div className="font-comic text-[10px] sm:text-xs text-comic-red">Projects</div>
         </div>
-        <div className="comic-panel p-3 bg-comic-blue bg-opacity-10 text-center">
-          <FaReact className="text-2xl mx-auto mb-1 text-comic-blue" />
-          <div className="action-text text-xl text-comic-blue">
+        <div className="comic-panel p-2 sm:p-3 bg-comic-blue bg-opacity-10 text-center">
+          <FaReact className="text-lg sm:text-2xl mx-auto mb-1 text-comic-blue" />
+          <div className="action-text text-sm sm:text-xl text-comic-blue">
             {calculateGrowth("react") >= 0 ? "+" : ""}
             {calculateGrowth("react")}%
           </div>
-          <div className="font-comic text-xs text-comic-red">React Growth</div>
+          <div className="font-comic text-[10px] sm:text-xs text-comic-red">React</div>
         </div>
-        <div className="comic-panel p-3 bg-comic-green bg-opacity-10 text-center">
-          <SiTypescript className="text-2xl mx-auto mb-1 text-comic-green" />
-          <div className="action-text text-xl text-comic-green">
+        <div className="comic-panel p-2 sm:p-3 bg-comic-green bg-opacity-10 text-center">
+          <SiTypescript className="text-lg sm:text-2xl mx-auto mb-1 text-comic-green" />
+          <div className="action-text text-sm sm:text-xl text-comic-green">
             {calculateGrowth("typescript") >= 0 ? "+" : ""}
             {calculateGrowth("typescript")}%
           </div>
-          <div className="font-comic text-xs text-comic-red">TypeScript Growth</div>
+          <div className="font-comic text-[10px] sm:text-xs text-comic-red">TypeScript</div>
         </div>
-        <div className="comic-panel p-3 bg-comic-yellow bg-opacity-10 text-center">
-          <FaVial className="text-2xl mx-auto mb-1 text-comic-red" />
-          <div className="action-text text-xl text-comic-red">
+        <div className="comic-panel p-2 sm:p-3 bg-comic-yellow bg-opacity-10 text-center">
+          <FaVial className="text-lg sm:text-2xl mx-auto mb-1 text-comic-red" />
+          <div className="action-text text-sm sm:text-xl text-comic-red">
             {calculateGrowth("testing") >= 0 ? "+" : ""}
             {calculateGrowth("testing")}%
           </div>
-          <div className="font-comic text-xs text-comic-red">Testing Growth</div>
+          <div className="font-comic text-[10px] sm:text-xs text-comic-red">Testing</div>
         </div>
       </div>
 

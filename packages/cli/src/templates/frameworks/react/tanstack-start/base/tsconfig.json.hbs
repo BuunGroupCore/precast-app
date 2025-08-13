@@ -20,9 +20,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["app{{#if (ne backend "none")}}", "src{{/if}}"],
+  "include": ["src{{#if (ne backend "none")}}", "../api/src{{/if}}"],
   "exclude": ["node_modules", "dist", ".vite"]
 }{{/if}}

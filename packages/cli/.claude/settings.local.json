@@ -22,7 +22,13 @@
       "WebFetch(domain:blog.logrocket.com)",
       "Bash(./dist/cli.js init:*)",
       "Bash(timeout:*)",
-      "WebFetch(domain:docs.anthropic.com)"
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:lobehub.com)",
+      "WebFetch(domain:www.postgresql.org)",
+      "WebFetch(domain:awslabs.github.io)",
+      "Bash(pnpm update:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs"
     ],
     "deny": []
   }

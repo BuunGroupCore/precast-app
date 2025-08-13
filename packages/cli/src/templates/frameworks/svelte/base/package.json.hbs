@@ -21,7 +21,7 @@
     "vite": "^5.4.0"{{#if typescript}},
     "@sveltejs/adapter-static": "^3.0.5",
     "svelte-check": "^4.0.4",
-    "typescript": "^5.7.2"{{/if}}{{#if (eq styling "tailwind")}},
+    "typescript": "^5.7.2"{{/if}}{{#if (eq styling 'tailwind')}},
     "tailwindcss": "^3.4.13",
     "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},
@@ -29,6 +29,7 @@
     "prisma": "^6.14.0"{{/if}}
   },
   "dependencies": {
+    "lucide-svelte": "^0.408.0"{{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq orm "prisma")}},{{/ifAny}}
     {{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}}
     "axios": "^1.7.7"{{#if (eq orm "prisma")}},{{/if}}{{/ifAny}}{{#if (eq orm "prisma")}}
     "@prisma/client": "^6.14.0"{{/if}}

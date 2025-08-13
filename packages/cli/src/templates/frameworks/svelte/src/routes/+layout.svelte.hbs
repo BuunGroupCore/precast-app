@@ -1,0 +1,18 @@
+<script{{#if typescript}} lang="ts"{{/if}}>
+  import '../styles/globals.{{#if (eq styling 'scss')}}scss{{else}}css{{/if}}';
+  import Footer from '$lib/components/Footer.svelte';
+  import PrecastWidget from '$lib/components/PrecastWidget.svelte';
+</script>
+
+<div class="layout">
+  <div class="layout-accent-top"></div>
+  <div class="layout-accent-left"></div>
+  <div class="grid-background"></div>
+  
+  <main>
+    <slot />
+  </main>
+  
+  <Footer />
+  <PrecastWidget />
+</div>

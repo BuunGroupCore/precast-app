@@ -29,6 +29,9 @@ export interface ExtendedProjectConfig
   dockerCompose?: boolean;
   gitignore?: boolean;
   generate?: boolean;
+  // AI Documentation Toggles
+  generateSpec?: boolean;
+  generatePrd?: boolean;
 }
 
 /**

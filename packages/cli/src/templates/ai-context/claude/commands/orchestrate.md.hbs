@@ -1,0 +1,269 @@
+---
+description: Intelligent command orchestrator that analyzes requests and delegates to appropriate agents
+allowed-tools: Read, Write, Edit, Glob, Grep, Task, Bash, WebSearch, WebFetch
+---
+
+Intelligent orchestrator that analyzes your request and automatically delegates to the most appropriate agents and commands for this {{framework}} project.
+
+## How the Orchestrator Works
+
+The orchestrator acts as your intelligent assistant that:
+1. **Analyzes your request** to understand the intent and scope
+2. **Determines required agents** based on the task complexity  
+3. **Plans the workflow** with optimal agent coordination
+4. **Executes in parallel** when possible for efficiency
+5. **Synthesizes results** into cohesive recommendations
+
+## Usage Examples
+
+### Simple Request Analysis
+```
+/orchestrate optimize my React components for better performance
+
+→ The orchestrator will:
+1. Use web-research agent to find latest React performance patterns
+2. Use architecture-guide agent to analyze current structure
+3. Use refactor command to implement optimizations  
+4. Use code-reviewer agent to validate changes
+```
+
+### Complex Multi-Domain Requests
+```
+/orchestrate implement secure user authentication with modern best practices
+
+→ The orchestrator will:
+1. Use web-research agent to research latest auth security practices
+2. Use security/audit command to analyze current security posture
+3. Use implement command to create auth system
+4. Use standards-enforcer to ensure code quality compliance
+5. Use monorepo commands if needed for cross-package coordination
+```
+
+## Orchestration Logic
+
+### Request Analysis Process
+1. **Parse the user request** to identify:
+   - Primary intent (implement, optimize, audit, refactor, etc.)
+   - Domain focus (security, performance, architecture, etc.)
+   - Scope (single component, full feature, system-wide, etc.)
+   - Technology context ({{framework}}, {{backend}}, {{database}}, etc.)
+
+2. **Determine agent requirements**:
+   - **Research needed?** → web-research agent
+   - **Code changes required?** → standards-enforcer + code-reviewer
+   - **Architecture implications?** → architecture-guide agent
+   - **Security concerns?** → security/audit command
+   - **Performance focus?** → web-research + refactor commands
+   - **Cross-package work?** → monorepo-guide agent
+
+3. **Plan execution strategy**:
+   - **Sequential dependencies** (research before implementation)
+   - **Parallel opportunities** (multiple agents on different aspects)
+   - **Coordination points** (where agent outputs feed into others)
+
+## Intelligent Request Routing
+
+### Performance Optimization Requests
+**Keywords**: optimize, performance, speed, slow, bundle, loading
+```
+Example: "optimize my app's loading performance"
+
+Orchestration Plan:
+1. web-research: Latest performance optimization techniques
+2. architecture-guide: Analyze current performance bottlenecks  
+3. refactor: Implement performance improvements
+4. monorepo/optimize: If monorepo, optimize build pipeline
+```
+
+### Security Implementation Requests  
+**Keywords**: secure, security, auth, authentication, vulnerability, audit
+```
+Example: "make my app more secure and add authentication"
+
+Orchestration Plan:
+1. security/audit: Comprehensive security assessment
+2. web-research: Latest security best practices for auth
+3. implement: Create secure authentication system
+4. standards-enforcer: Ensure security code standards
+```
+
+### Feature Implementation Requests
+**Keywords**: implement, create, add, build, feature
+```
+Example: "implement a user dashboard with real-time updates"
+
+Orchestration Plan:
+1. web-research: Modern dashboard and real-time patterns
+2. architecture-guide: Plan feature architecture
+3. implement: Create dashboard components
+4. code-reviewer: Review implementation quality
+```
+
+### Code Quality Requests
+**Keywords**: refactor, clean, improve, standards, quality
+```
+Example: "improve code quality and modernize patterns"
+
+Orchestration Plan:  
+1. web-research: Latest code quality standards and patterns
+2. standards-enforcer: Identify current violations
+3. refactor: Apply modern patterns and improvements
+4. code-reviewer: Validate improvements
+```
+
+### Migration Requests
+**Keywords**: upgrade, migrate, update, modernize, version
+```
+Example: "upgrade to React 18 and modern patterns"
+
+Orchestration Plan:
+1. web-research: React 18 migration guides and breaking changes
+2. monorepo/migrate: Plan and execute framework migration
+3. standards-enforcer: Update to new coding standards
+4. code-reviewer: Ensure migration quality
+```
+
+## Orchestrator Execution
+
+### Phase 1: Request Analysis and Planning
+```
+Analyzing request: "$ARGUMENTS"
+
+Based on the request, I'll orchestrate the following workflow:
+
+**Identified Intent**: [Primary goal from the request]
+**Required Domains**: [Security, Performance, Architecture, etc.]
+**Scope Assessment**: [Component-level, Feature-level, System-wide]
+**Technology Context**: {{framework}}, {{backend}}, {{database}}
+
+**Planned Agent Workflow**:
+1. [Agent Name]: [Specific task and rationale]
+2. [Agent Name]: [Specific task and rationale]
+3. [Agent Name]: [Specific task and rationale]
+
+**Coordination Strategy**: [Sequential vs Parallel execution plan]
+```
+
+### Phase 2: Parallel Agent Execution
+```
+Use Task tool to spawn multiple agents simultaneously:
+
+1. **web-research agent**:
+   Research [specific domain] best practices and current standards for: [request context]
+
+2. **[domain-specific agent]**:
+   [Specific task based on request analysis]
+
+3. **[additional agents as needed]**:
+   [Coordinated tasks for comprehensive coverage]
+
+Execute agents in parallel for efficiency, then coordinate results.
+```
+
+### Phase 3: Results Coordination and Synthesis
+```
+Coordinating findings from all agents:
+
+**Research Insights**: [Key findings from web-research]
+**Implementation Strategy**: [Recommended approach from architecture/implementation agents]  
+**Quality Assurance**: [Standards and review feedback]
+**Risk Assessment**: [Security and performance considerations]
+
+**Unified Recommendation**:
+[Synthesized approach combining all agent insights]
+
+**Next Steps**:
+[Prioritized action items with specific implementation guidance]
+```
+
+## Smart Context Detection
+
+### Project Context Awareness
+The orchestrator automatically considers:
+- **Framework**: {{framework}} - specific patterns and best practices
+- **Backend**: {{#if backend}}{{backend}} - server-side considerations{{else}}Frontend-only - client-side focus{{/if}}
+- **Database**: {{#if database}}{{database}} - data layer implications{{else}}No database - stateless considerations{{/if}}
+- **Styling**: {{styling}} - UI/UX implementation approach
+- **Architecture**: {{#if (and backend (ne backend "none"))}}Monorepo - cross-package coordination{{else}}Single app - focused implementation{{/if}}
+
+### Request Complexity Assessment
+**Simple Requests** (single agent sufficient):
+- Basic code review
+- Simple component creation
+- Documentation updates
+
+**Medium Requests** (2-3 agents):
+- Feature implementation with best practices
+- Performance optimization
+- Security improvements
+
+**Complex Requests** (4+ agents):
+- Major architecture changes
+- Framework migrations
+- Comprehensive system overhauls
+
+## Advanced Orchestration Patterns
+
+### Sequential Dependency Chain
+```
+Research → Plan → Implement → Review → Validate
+│          │       │          │        │
+web-res.   arch.   implement  code-    standards
+agent      guide   command    reviewer enforcer
+```
+
+### Parallel Domain Analysis
+```
+┌─ Security Assessment ──┐
+│                        ├─→ Synthesis
+├─ Performance Analysis ─┤
+│                        │
+└─ Architecture Review ──┘
+```
+
+### Iterative Refinement
+```
+Initial Analysis → Implementation → Feedback → Refinement → Final Review
+```
+
+## Quality Assurance Integration
+
+Every orchestrated workflow includes:
+- **Research validation** from authoritative sources
+- **Code quality enforcement** via standards-enforcer
+- **Security consideration** for sensitive operations
+- **Performance impact assessment** for optimization requests
+- **Documentation updates** for significant changes
+
+## Usage Tips
+
+### Best Request Formats
+```
+✅ Good: "Optimize my React app's performance focusing on bundle size"
+✅ Good: "Implement secure JWT authentication with refresh tokens"  
+✅ Good: "Refactor my API layer to use modern async patterns"
+✅ Good: "Audit security vulnerabilities and implement fixes"
+
+❌ Vague: "Make it better"
+❌ Vague: "Fix the code"  
+❌ Too broad: "Do everything"
+```
+
+### Request Enhancement Tips
+- **Be specific** about the domain (performance, security, architecture)
+- **Mention context** when relevant (user-facing, API, database)
+- **Include constraints** if any (no breaking changes, specific timeline)
+- **Specify scope** (component, feature, system-wide)
+
+## Orchestrator Commands
+
+The orchestrator intelligently handles these request types:
+
+- **Performance**: `/orchestrate optimize [specific area] performance`
+- **Security**: `/orchestrate audit and secure [specific component]`
+- **Implementation**: `/orchestrate implement [feature] with [requirements]`
+- **Refactoring**: `/orchestrate modernize [codebase area] using current patterns`
+- **Migration**: `/orchestrate upgrade [technology] to [version/pattern]`
+- **Architecture**: `/orchestrate restructure [component] for [goal]`
+
+Remember: The orchestrator is designed to be your intelligent project assistant. Describe what you want to accomplish, and it will coordinate the right agents to get the job done efficiently and thoroughly.

@@ -3,33 +3,79 @@ description: Implement a new feature following project conventions
 allowed-tools: Read, Write, Edit, Glob, Grep, Task
 ---
 
-Implement a new feature for this {{framework}} project following established patterns.
+Implement a new feature for this {{framework}} project following established patterns and modern best practices.
 
-## Implementation Checklist
+## Research-Driven Implementation Process
 
+### Phase 1: Context and Pattern Analysis
 Before implementing, ensure you:
 1. Read @README.md for project structure
 2. Read @CLAUDE.md for coding guidelines
 3. Study similar existing features for patterns
 4. Check {{#if typescript}}types in src/types{{else}}existing interfaces{{/if}}
 
-## Implementation Steps
+### Phase 2: Research Best Practices
+**Research modern implementation patterns** using the web-research agent:
 
-### 1. Understand Context
 ```
-First, let me understand the existing patterns by examining:
-- Similar components/features
-- Current file organization  
-- Styling approach ({{styling}})
-- State management patterns
-{{#if authProvider}}- Authentication flow{{/if}}
-{{#if database}}- Data fetching patterns{{/if}}
+Use the Task tool to spawn the web-research agent:
+
+Research modern implementation patterns and best practices for: $ARGUMENTS
+
+Focus research on:
+- {{framework}} implementation patterns 2024
+- Component/feature architecture best practices
+- Performance optimization for {{framework}} features
+- Accessibility implementation standards
+- Testing strategies for new features
+{{#if authProvider}}- {{authProvider}} integration patterns{{/if}}
+{{#if database}}- {{database}} data layer best practices{{/if}}
+
+Provide evidence-based implementation examples and patterns.
 ```
 
-### 2. Plan Implementation
-Use the architecture-guide agent to ensure proper structure:
+### Phase 3: Multi-Agent Planning
+**Launch parallel agents for comprehensive planning:**
+
 ```
-Based on the project architecture, plan the implementation of: $ARGUMENTS
+Use Task tool to spawn multiple agents simultaneously:
+
+1. **web-research agent**:
+   Research latest {{framework}} implementation patterns and modern development practices
+
+2. **architecture-guide agent**:
+   Plan architectural integration and ensure consistency with project structure for: $ARGUMENTS
+
+3. **standards-enforcer agent**:
+   Define code quality requirements and linting standards for implementation
+
+Synthesize findings into unified implementation strategy.
+```
+
+### Implementation Steps
+
+#### 1. Understand Context (Research-Enhanced)
+```
+Examine existing patterns and research findings:
+- Similar components/features (existing + researched patterns)
+- Current file organization (validated against modern standards)
+- Styling approach ({{styling}} + latest best practices)
+- State management patterns (current + modern approaches)
+{{#if authProvider}}- Authentication flow (current + security best practices){{/if}}
+{{#if database}}- Data fetching patterns (current + performance optimizations){{/if}}
+```
+
+#### 2. Plan Implementation (Research-Informed)
+Use architecture-guide agent with research backing:
+```
+Based on project architecture and researched best practices, plan the implementation of: $ARGUMENTS
+
+Consider:
+- Modern architectural patterns from research
+- Performance implications and optimizations
+- Security considerations and latest practices
+- Accessibility requirements and standards
+- Testing strategy and coverage requirements
 ```
 
 ### 3. Create Feature

@@ -1,0 +1,223 @@
+---
+description: Migrate monorepo to modern patterns, tools, or versions using research-guided strategies
+allowed-tools: Read, Write, Edit, Glob, Grep, Task, Bash
+---
+
+Migrate the monorepo to modern patterns, updated dependencies, or new tooling for this {{packageManager}}-based {{framework}} project.
+
+## Research-Driven Migration Strategy
+
+### Phase 1: Migration Assessment
+1. Read @README.md and @CLAUDE.md for current setup
+2. Analyze current versions and patterns
+3. Identify migration requirements and constraints
+4. Document current functionality for preservation
+
+### Phase 2: Research Migration Paths
+**Research modern migration strategies** using the web-research agent:
+
+```
+Use the Task tool to spawn the web-research agent:
+
+Research migration strategies and best practices for: $ARGUMENTS
+
+Focus research on:
+- {{framework}} migration guides and breaking changes
+- {{packageManager}} workspace migration patterns
+- Modern monorepo tooling alternatives (Turborepo, Nx, etc.)
+- Dependency migration strategies and compatibility
+- Database migration patterns (if applicable)
+- CI/CD pipeline migration approaches
+- Security considerations during migration
+
+Provide step-by-step migration roadmaps with risk mitigation.
+```
+
+### Phase 3: Multi-Agent Migration Planning
+**Launch parallel migration analysis:**
+
+```
+Use Task tool to spawn multiple agents simultaneously:
+
+1. **web-research agent**:
+   Research migration paths, breaking changes, and modern alternatives
+
+2. **monorepo-guide agent**:
+   Analyze current structure and plan migration strategy maintaining boundaries
+
+3. **architecture-guide agent**:
+   Assess architectural implications and modernization opportunities
+
+4. **standards-enforcer agent**:
+   Define quality gates and standards for migrated code
+
+Synthesize findings into comprehensive migration plan.
+```
+
+## Migration Types
+
+### 1. Framework/Library Migration
+**Research-informed version upgrades:**
+```
+Examples:
+- React 17 → React 18/19
+- Vue 2 → Vue 3
+- Angular version upgrades
+- Node.js version migration
+- TypeScript version updates
+```
+
+### 2. Package Manager Migration
+**Modern package manager adoption:**
+```
+Examples:
+- npm → pnpm/bun for performance
+- yarn v1 → yarn v4 for modern features
+- Optimize workspace configuration
+```
+
+### 3. Build System Migration
+**Modern build tooling adoption:**
+```
+Examples:
+- Webpack → Vite for development speed
+- Add Turborepo for build optimization
+- Migrate to modern bundlers
+```
+
+### 4. Monorepo Tooling Migration
+**Advanced monorepo tools:**
+```
+Examples:
+- Lerna → Changeset for versioning
+- Manual builds → Turborepo/Nx
+- Custom scripts → Modern task runners
+```
+
+## Migration Process
+
+### Phase 1: Preparation and Research
+1. **Backup current state**
+2. **Research migration requirements**
+3. **Plan rollback strategy**
+4. **Identify breaking changes**
+
+### Phase 2: Incremental Migration
+**Apply research-backed migration steps:**
+
+```
+Based on research findings, implement migration incrementally:
+
+1. **Dependencies first**: Update non-breaking dependencies
+2. **Tooling second**: Migrate build and development tools
+3. **Code third**: Update application code with breaking changes
+4. **Configuration last**: Update CI/CD and deployment configs
+
+Test at each step to ensure functionality preservation.
+```
+
+### Phase 3: Validation and Optimization
+**Post-migration optimization:**
+1. Run comprehensive tests
+2. Validate performance improvements
+3. Update documentation
+4. Train team on new patterns
+
+## Specific Migration Scenarios
+
+### Framework Migration Example
+```markdown
+# React 17 → React 18 Migration
+1. Research React 18 breaking changes and new features
+2. Update package.json dependencies
+3. Migrate ReactDOM.render to createRoot
+4. Update Suspense and Error Boundary patterns
+5. Test for concurrent features compatibility
+6. Update TypeScript types
+```
+
+### Package Manager Migration Example
+```markdown
+# npm → pnpm Migration
+1. Research pnpm workspace benefits and configuration
+2. Create pnpm-workspace.yaml
+3. Update CI/CD scripts
+4. Migrate lockfile (npm-shrinkwrap.json → pnpm-lock.yaml)
+5. Update development documentation
+6. Validate build and test performance improvements
+```
+
+### Monorepo Tool Migration Example
+```markdown
+# Add Turborepo for Build Optimization
+1. Research Turborepo benefits for {{packageManager}} workspaces
+2. Install and configure turbo.json
+3. Update package.json scripts to use turbo
+4. Configure caching strategies
+5. Update CI/CD to leverage Turborepo
+6. Measure and document performance improvements
+```
+
+## Migration Safety Checklist
+
+### Pre-Migration
+- [ ] **Full backup** of current state
+- [ ] **Research documentation** reviewed
+- [ ] **Breaking changes** identified and planned
+- [ ] **Rollback strategy** defined
+- [ ] **Team notification** and training scheduled
+
+### During Migration
+- [ ] **Incremental steps** with testing at each stage
+- [ ] **Functionality validation** after each change
+- [ ] **Performance monitoring** throughout process
+- [ ] **Documentation updates** as changes are made
+
+### Post-Migration
+- [ ] **Comprehensive testing** of all features
+- [ ] **Performance benchmarking** against baseline
+- [ ] **Documentation updates** completed
+- [ ] **Team training** on new patterns/tools
+- [ ] **CI/CD validation** in all environments
+
+## Common Migration Patterns
+
+### 1. Gradual Migration
+```markdown
+**Best for**: Large changes with high risk
+**Strategy**: Migrate packages/features one by one
+**Benefits**: Lower risk, easier rollback
+```
+
+### 2. Big Bang Migration
+```markdown
+**Best for**: Small changes with clear migration path
+**Strategy**: Migrate everything simultaneously
+**Benefits**: Faster completion, no mixed states
+```
+
+### 3. Parallel Branch Migration
+```markdown
+**Best for**: Experimental or uncertain migrations
+**Strategy**: Create migration branch for validation
+**Benefits**: No impact on main development
+```
+
+## Risk Mitigation
+
+### 1. Automated Testing
+- Comprehensive test suite before migration
+- Automated regression testing during migration
+- Performance testing for critical paths
+
+### 2. Rollback Planning
+- Document exact rollback steps
+- Test rollback procedure before migration
+- Maintain working backups
+
+### 3. Incremental Validation
+- Test after each migration step
+- Validate functionality in staging environment
+- Monitor performance and error rates
+
+Remember: Use research findings to choose the safest and most effective migration path. Document everything and measure improvements to validate the migration's success.

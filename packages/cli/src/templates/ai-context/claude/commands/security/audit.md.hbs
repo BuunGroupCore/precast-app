@@ -1,0 +1,251 @@
+---
+description: Perform comprehensive security audit using latest vulnerability research and best practices
+allowed-tools: Read, Grep, Glob, Task, Bash, WebSearch, WebFetch
+---
+
+Conduct a comprehensive security audit of this {{framework}} project using current security research and vulnerability databases.
+
+## Research-Driven Security Audit
+
+### Phase 1: Security Context Analysis
+1. Read @README.md and @CLAUDE.md for security requirements
+2. Analyze current security configurations
+3. Review authentication and authorization patterns
+4. Identify sensitive data handling
+
+### Phase 2: Research Current Threats
+**Research latest security vulnerabilities** using the web-research agent:
+
+```
+Use the Task tool to spawn the web-research agent:
+
+Research current security threats and best practices for: {{framework}} applications
+
+Focus research on:
+- {{framework}} security vulnerabilities 2025
+- OWASP Top 10 2024 for web applications
+- Node.js security best practices
+{{#if authProvider}}- {{authProvider}} security vulnerabilities and mitigations{{/if}}
+{{#if database}}- {{database}} injection prevention techniques{{/if}}
+- Package dependency security scanning
+- Modern authentication/authorization patterns
+- Frontend security headers and configurations
+
+Provide evidence-based security recommendations with severity levels.
+```
+
+### Phase 3: Multi-Agent Security Analysis
+**Launch parallel security assessment:**
+
+```
+Use Task tool to spawn multiple agents simultaneously:
+
+1. **web-research agent**:
+   Research latest CVEs, security bulletins, and best practices for tech stack
+
+2. **architecture-guide agent**:
+   Analyze architectural security patterns and potential weaknesses
+
+3. **standards-enforcer agent**:
+   Review code for security anti-patterns and vulnerable patterns
+
+4. **code-reviewer agent**:
+   Perform security-focused code review with emphasis on input validation
+
+Coordinate findings for comprehensive security assessment.
+```
+
+## Security Audit Areas
+
+### 1. Dependency Security
+**Research-informed dependency analysis:**
+```bash
+# Run dependency audit
+{{packageManager}} audit
+
+# Check for known vulnerabilities
+npm audit --audit-level moderate
+```
+
+**Research current vulnerability patterns:**
+- CVE databases for used packages
+- GitHub Security Advisories
+- Snyk vulnerability database
+- Package maintainer security practices
+
+### 2. Authentication & Authorization
+**Evidence-based auth security review:**
+{{#if authProvider}}
+- {{authProvider}} implementation security
+- Session management patterns
+- Token storage and handling
+- Password security requirements
+{{else}}
+- Custom authentication security
+- Session management implementation
+- CSRF protection mechanisms
+{{/if}}
+
+### 3. Input Validation & Sanitization
+**Modern input security patterns:**
+- XSS prevention techniques
+- SQL injection protection (if using database)
+- Command injection prevention
+- File upload security
+- API input validation
+
+### 4. Data Protection
+**Current data privacy standards:**
+- Sensitive data encryption
+- PII handling compliance
+- Data transmission security
+- Storage security patterns
+- GDPR/privacy compliance
+
+### 5. Infrastructure Security
+**Modern deployment security:**
+- Environment variable security
+- Secrets management
+- HTTPS configuration
+- Security headers implementation
+- CORS configuration
+
+## Security Testing Strategy
+
+### 1. Automated Security Scanning
+```bash
+# Dependency vulnerability scanning
+{{packageManager}} audit
+
+# Static analysis security testing (if configured)
+{{packageManager}} run security:scan
+
+# Code quality security checks
+{{packageManager}} run lint:security
+```
+
+### 2. Manual Security Review
+**Research-guided manual testing:**
+- Authentication bypass attempts
+- Authorization boundary testing
+- Input validation testing
+- Session management testing
+- Error handling review
+
+### 3. Infrastructure Security
+**Current best practice validation:**
+- Environment configuration review
+- Secrets management validation
+- Network security assessment
+- Deployment security review
+
+## Security Checklist
+
+### Authentication Security
+- [ ] **Strong password policies** implemented
+- [ ] **Multi-factor authentication** available
+- [ ] **Session timeout** configured appropriately
+- [ ] **Account lockout** protection enabled
+- [ ] **Password reset** security validated
+
+### Authorization Security  
+- [ ] **Role-based access control** properly implemented
+- [ ] **Privilege escalation** prevention verified
+- [ ] **Resource access controls** validated
+- [ ] **API authorization** consistently applied
+
+### Input Security
+- [ ] **XSS protection** implemented across all inputs
+- [ ] **SQL injection** prevention verified
+- [ ] **Command injection** protection enabled
+- [ ] **File upload** security validated
+- [ ] **API input validation** comprehensive
+
+### Data Security
+- [ ] **Sensitive data encryption** at rest and in transit
+- [ ] **PII handling** compliant with regulations
+- [ ] **Data retention** policies implemented
+- [ ] **Backup security** validated
+
+### Infrastructure Security
+- [ ] **Environment variables** secured
+- [ ] **Secrets management** properly configured
+- [ ] **HTTPS** enforced everywhere
+- [ ] **Security headers** implemented
+- [ ] **CORS** configured restrictively
+- [ ] **Error handling** doesn't leak sensitive information
+
+## Vulnerability Assessment
+
+### High Severity Issues
+**Immediate attention required:**
+- Authentication bypasses
+- Authorization failures
+- Data exposure vulnerabilities
+- Code execution vulnerabilities
+
+### Medium Severity Issues
+**Should be addressed soon:**
+- Information disclosure
+- Session management weaknesses
+- Input validation gaps
+- Configuration vulnerabilities
+
+### Low Severity Issues
+**Good to fix when possible:**
+- Security header optimizations
+- Error message improvements
+- Logging security enhancements
+
+## Security Improvement Implementation
+
+### 1. Critical Fixes
+Implement high-severity fixes immediately:
+```bash
+# Update vulnerable dependencies
+{{packageManager}} update
+
+# Apply security patches
+{{packageManager}} run security:fix
+```
+
+### 2. Security Hardening
+Apply research-backed security improvements:
+- Implement missing security headers
+- Strengthen authentication mechanisms
+- Improve input validation
+- Enhance error handling
+
+### 3. Monitoring and Alerting
+Set up security monitoring:
+- Dependency vulnerability alerts
+- Authentication failure monitoring
+- Suspicious activity detection
+- Security log analysis
+
+## Continuous Security
+
+### 1. Automated Security Checks
+```json
+{
+  "scripts": {
+    "security:audit": "{{packageManager}} audit",
+    "security:scan": "npm audit --audit-level moderate",
+    "security:fix": "{{packageManager}} audit fix"
+  }
+}
+```
+
+### 2. Regular Security Reviews
+- Monthly dependency audits
+- Quarterly code security reviews
+- Annual penetration testing
+- Continuous threat monitoring
+
+### 3. Security Documentation
+- Document security decisions
+- Maintain security runbooks
+- Update incident response procedures
+- Train team on security practices
+
+Remember: Security is an ongoing process. Use research findings to stay current with emerging threats and implement evidence-based security measures appropriate for your application's risk profile.

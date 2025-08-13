@@ -5,26 +5,61 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Task
 
 Refactor existing code to improve quality while maintaining functionality in this {{framework}} project.
 
-## Refactoring Guidelines
+## Research-Driven Refactoring Process
 
-### Pre-Refactoring Analysis
+### Phase 1: Context and Research Analysis
 1. Read @README.md and @CLAUDE.md for project standards
 2. Understand the current implementation fully
 3. Identify all dependencies and usages
 4. Document current behavior
 
+**Research current best practices** using the web-research agent:
+```
+Use the Task tool to spawn the web-research agent:
+
+Research modern refactoring patterns and best practices for: $ARGUMENTS
+
+Focus research on:
+- {{framework}} refactoring patterns 2024
+- Performance optimization techniques for {{framework}}
+- Modern code organization strategies
+- Security improvements during refactoring
+- Testing strategies for refactored code
+
+Provide evidence-based recommendations with implementation examples.
+```
+
+### Phase 2: Multi-Agent Analysis
+**Spawn parallel agents for comprehensive analysis:**
+
+```
+Use Task tool to launch multiple agents simultaneously:
+
+1. **web-research agent**: 
+   Research latest {{framework}} refactoring best practices and performance patterns
+
+2. **architecture-guide agent**:
+   Analyze current architecture and recommend structural improvements for: $ARGUMENTS
+
+3. **standards-enforcer agent**:
+   Review current code against modern standards and identify violations to fix
+
+Coordinate findings for unified refactoring strategy.
+```
+
 ### Refactoring Approach
 
-Use the standards-enforcer agent to guide the refactoring:
+Based on research findings, apply standards-enforcer guidance:
 ```
 Analyze and refactor: $ARGUMENTS
 
-Focus on:
-- Code organization and structure
-- Type safety improvements
-- Performance optimizations
-- Removing duplication
-- Improving readability
+Apply research-backed improvements:
+- Code organization and structure (based on web-research findings)
+- Type safety improvements (modern TypeScript patterns)
+- Performance optimizations (evidence-based techniques)
+- Security enhancements (latest security practices)
+- Removing duplication (current best practices)
+- Improving readability (modern conventions)
 ```
 
 ## Refactoring Checklist

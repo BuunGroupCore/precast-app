@@ -226,22 +226,22 @@ async function generateClaudeAgents(
 
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
+  // Generate core agents that are always included
+  const coreAgents = ["web-research", "code-reviewer", "architecture-guide", "standards-enforcer"];
+
+  for (const agent of coreAgents) {
+    await templateEngine.processTemplate(
+      `ai-context/claude/agents/${agent}.md.hbs`,
+      path.join(agentsDir, `${agent}.md`),
+      config
+    );
+  }
+
   if (isMonorepo) {
     // Generate monorepo-specific agents
     const monorepoAgents = ["web-context", "api-context", "monorepo-guide"];
 
     for (const agent of monorepoAgents) {
-      await templateEngine.processTemplate(
-        `ai-context/claude/agents/${agent}.md.hbs`,
-        path.join(agentsDir, `${agent}.md`),
-        config
-      );
-    }
-  } else {
-    // Generate single-app agents
-    const singleAppAgents = ["code-reviewer", "architecture-guide", "standards-enforcer"];
-
-    for (const agent of singleAppAgents) {
       await templateEngine.processTemplate(
         `ai-context/claude/agents/${agent}.md.hbs`,
         path.join(agentsDir, `${agent}.md`),
@@ -262,8 +262,45 @@ async function generateClaudeCommands(
 
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
+  // Generate core commands that are always included
+  const coreCommands = ["orchestrate", "optimize", "review", "implement", "refactor"];
+
+  for (const command of coreCommands) {
+    await templateEngine.processTemplate(
+      `ai-context/claude/commands/${command}.md.hbs`,
+      path.join(commandsDir, `${command}.md`),
+      config
+    );
+  }
+
+  // Generate specialized command directories
+  const monorepoCommandsDir = path.join(commandsDir, "monorepo");
+  const securityCommandsDir = path.join(commandsDir, "security");
+  await ensureDir(monorepoCommandsDir);
+  await ensureDir(securityCommandsDir);
+
+  // Generate monorepo-specific commands (useful for all projects, but especially monorepos)
+  const monorepoCommands = ["optimize", "migrate"];
+  for (const command of monorepoCommands) {
+    await templateEngine.processTemplate(
+      `ai-context/claude/commands/monorepo/${command}.md.hbs`,
+      path.join(monorepoCommandsDir, `${command}.md`),
+      config
+    );
+  }
+
+  // Generate security commands (useful for all projects)
+  const securityCommands = ["audit"];
+  for (const command of securityCommands) {
+    await templateEngine.processTemplate(
+      `ai-context/claude/commands/security/${command}.md.hbs`,
+      path.join(securityCommandsDir, `${command}.md`),
+      config
+    );
+  }
+
   if (isMonorepo) {
-    // Create subdirectories for monorepo commands
+    // Create subdirectories for monorepo-specific commands
     const webCommandsDir = path.join(commandsDir, "web");
     const apiCommandsDir = path.join(commandsDir, "api");
     await ensureDir(webCommandsDir);
@@ -285,17 +322,6 @@ async function generateClaudeCommands(
       await templateEngine.processTemplate(
         `ai-context/claude/commands/api/${command}.md.hbs`,
         path.join(apiCommandsDir, `${command}.md`),
-        config
-      );
-    }
-  } else {
-    // Generate single-app commands
-    const singleAppCommands = ["review", "implement", "refactor"];
-
-    for (const command of singleAppCommands) {
-      await templateEngine.processTemplate(
-        `ai-context/claude/commands/${command}.md.hbs`,
-        path.join(commandsDir, `${command}.md`),
         config
       );
     }
@@ -323,25 +349,38 @@ function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void 
   steps.push("1. Open your project in Claude Code");
   steps.push("2. Claude will automatically detect the .claude/settings.json file");
 
+  steps.push("3. Use intelligent agents:");
+  steps.push("   - web-research: Research best practices and current patterns");
+  steps.push("   - code-reviewer: Review code against standards");
+  steps.push("   - architecture-guide: Architectural guidance");
+  steps.push("   - standards-enforcer: Enforce coding standards");
+
   if (isMonorepo) {
-    steps.push("3. Use project-specific agents:");
     steps.push("   - web-context: Frontend development assistance");
     steps.push("   - api-context: Backend development assistance");
     steps.push("   - monorepo-guide: Cross-package coordination");
-    steps.push("4. Use slash commands:");
+  }
+
+  steps.push("4. Use intelligent orchestrators (recommended):");
+  steps.push("   - /orchestrate: Smart command that analyzes any request and");
+  steps.push("     automatically delegates to the right agents and workflows");
+  steps.push("   - /optimize: Specialized performance optimization orchestrator");
+  steps.push("   - Example: '/orchestrate implement secure user auth'");
+  steps.push("   - Example: '/optimize bundle size and performance'");
+  steps.push("");
+  steps.push("5. Or use specific commands directly:");
+  steps.push("   - /review: Research-driven code review");
+  steps.push("   - /implement: Best-practice implementation");
+  steps.push("   - /refactor: Modern refactoring patterns");
+  steps.push("   - /monorepo/optimize: Performance optimization");
+  steps.push("   - /monorepo/migrate: Safe migration strategies");
+  steps.push("   - /security/audit: Comprehensive security analysis");
+
+  if (isMonorepo) {
     steps.push("   - /web/component: Create web components");
     steps.push("   - /web/feature: Implement web features");
     steps.push("   - /api/endpoint: Create API endpoints");
     steps.push("   - /api/service: Implement services");
-  } else {
-    steps.push("3. Use project-specific agents:");
-    steps.push("   - code-reviewer: Review code against standards");
-    steps.push("   - architecture-guide: Architectural guidance");
-    steps.push("   - standards-enforcer: Enforce coding standards");
-    steps.push("4. Use slash commands:");
-    steps.push("   - /review: Review code changes");
-    steps.push("   - /implement: Implement features");
-    steps.push("   - /refactor: Refactor code");
   }
 
   if (config.mcpServers && config.mcpServers.length > 0) {

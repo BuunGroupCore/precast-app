@@ -5,19 +5,62 @@ allowed-tools: Read, Grep, Glob, Task
 
 Review the code changes to ensure they follow this {{framework}} project's established patterns and standards.
 
-## Pre-Review Context
+## Research-Enhanced Review Process
 
+### Phase 1: Pre-Review Context
 BEFORE reviewing, read these essential files:
-- @README.md - Project overview and guidelines
+- @README.md - Project overview and guidelines  
 - @CLAUDE.md - AI collaboration standards
 - Any existing similar files to understand patterns
 
-## Review Process
-
-Use the code-reviewer agent to perform a comprehensive review:
+### Phase 2: Research Current Standards
+**Research latest best practices** using the web-research agent:
 
 ```
-Review the recent changes focusing on:
+Use the Task tool to spawn the web-research agent:
+
+Research current code review best practices and standards for: $ARGUMENTS
+
+Focus research on:
+- {{framework}} code review checklists 2024
+- Security vulnerability patterns to watch for
+- Performance anti-patterns in {{framework}}
+- Modern TypeScript/JavaScript review criteria
+{{#if authProvider}}- {{authProvider}} security review guidelines{{/if}}
+{{#if database}}- {{database}} query optimization review points{{/if}}
+
+Provide evidence-based review criteria and red flags to identify.
+```
+
+### Phase 3: Multi-Agent Review Analysis
+**Launch parallel review agents for comprehensive analysis:**
+
+```
+Use Task tool to spawn multiple agents simultaneously:
+
+1. **web-research agent**:
+   Research industry-standard review criteria for {{framework}} and identify latest security/performance concerns
+
+2. **code-reviewer agent**:
+   Perform detailed code review against project standards: $ARGUMENTS
+
+3. **standards-enforcer agent**: 
+   Validate code against linting rules and formatting standards
+
+4. **architecture-guide agent**:
+   Assess architectural consistency and design pattern adherence
+
+Synthesize findings into comprehensive review feedback.
+```
+
+### Enhanced Review Process
+
+The code-reviewer agent will perform research-informed analysis:
+
+```
+Review the recent changes with research-backed criteria:
+
+**Core Review Areas:**
 1. Consistency with existing code patterns
 2. TypeScript type safety {{#if typescript}}(no any types){{/if}}
 3. {{styling}} styling conventions
@@ -27,10 +70,15 @@ Review the recent changes focusing on:
 {{#if authProvider}}7. Security considerations for auth{{/if}}
 {{#if database}}8. Database query efficiency{{/if}}
 
+**Research-Enhanced Checks:**
+- Latest security vulnerability patterns
+- Modern performance best practices
+- Current accessibility standards
+- Framework-specific anti-patterns
+- Industry code quality benchmarks
+
 $ARGUMENTS
 ```
-
-The code-reviewer agent will check against project-specific standards and provide structured feedback.
 
 ## Focus Areas
 

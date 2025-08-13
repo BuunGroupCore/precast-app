@@ -7,6 +7,10 @@ import {
   FaFile,
   FaFolder,
   FaFolderOpen,
+  FaToggleOff,
+  FaToggleOn,
+  FaFileAlt,
+  FaClipboardList,
 } from "react-icons/fa";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -926,8 +930,61 @@ This is a modern {{framework}} application with the following architecture:
             <p className="text-xs font-comic">
               {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.description}
             </p>
+
+            {/* Documentation Options */}
+            <div className="mt-3 pt-3 border-t border-comic-white/20">
+              <p className="text-xs font-bold mb-2 text-comic-white">Documentation Generation:</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 bg-comic-black/20 rounded border border-comic-white/10">
+                  <div className="flex items-center gap-2">
+                    <BuilderIcon icon={FaFileAlt} className="text-comic-blue text-sm" />
+                    <span className="text-xs font-mono">SPEC.md</span>
+                    <span className="text-[10px] text-comic-white/70">Technical Specification</span>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setConfig({ ...config, generateSpec: !(config.generateSpec ?? true) })
+                    }
+                    className={`p-1 rounded transition-colors ${
+                      (config.generateSpec ?? true) ? "text-comic-green" : "text-comic-red"
+                    }`}
+                    title={`${(config.generateSpec ?? true) ? "Disable" : "Enable"} SPEC.md generation`}
+                  >
+                    {(config.generateSpec ?? true) ? (
+                      <BuilderIcon icon={FaToggleOn} className="text-lg" />
+                    ) : (
+                      <BuilderIcon icon={FaToggleOff} className="text-lg" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-comic-black/20 rounded border border-comic-white/10">
+                  <div className="flex items-center gap-2">
+                    <BuilderIcon icon={FaClipboardList} className="text-comic-orange text-sm" />
+                    <span className="text-xs font-mono">PRD.md</span>
+                    <span className="text-[10px] text-comic-white/70">Product Requirements</span>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setConfig({ ...config, generatePrd: !(config.generatePrd ?? true) })
+                    }
+                    className={`p-1 rounded transition-colors ${
+                      (config.generatePrd ?? true) ? "text-comic-green" : "text-comic-red"
+                    }`}
+                    title={`${(config.generatePrd ?? true) ? "Disable" : "Enable"} PRD.md generation`}
+                  >
+                    {(config.generatePrd ?? true) ? (
+                      <BuilderIcon icon={FaToggleOn} className="text-lg" />
+                    ) : (
+                      <BuilderIcon icon={FaToggleOff} className="text-lg" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.files && (
-              <div className="mt-3">
+              <div className="mt-3 pt-3 border-t border-comic-white/20">
                 <p className="text-xs font-bold mb-2">Generated Files:</p>
                 <div className="bg-comic-black/20 rounded p-2 border border-comic-white/10">
                   {renderFileTree(buildFileTree(config.aiAssistant!))}

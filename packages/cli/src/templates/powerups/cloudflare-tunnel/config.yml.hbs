@@ -1,0 +1,52 @@
+# Cloudflare Tunnel Configuration
+tunnel: ${CLOUDFLARE_TUNNEL_NAME:-{{name}}-dev}
+
+# Logging
+loglevel: info
+logfile: /var/log/cloudflared.log
+
+# Grace period for graceful shutdown
+grace-period: 30s
+
+# Ingress rules - routing configuration
+ingress:
+  {{#if (eq backend 'none')}}
+  # Single application setup
+  - hostname: ${PUBLIC_DOMAIN:-dev.yourdomain.com}
+    service: http://host.docker.internal:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      httpHostHeader: localhost
+  {{else}}
+  # Frontend application (through Traefik if available)
+  - hostname: ${PUBLIC_DOMAIN:-dev.yourdomain.com}
+    service: http://traefik:80
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      httpHostHeader: app.localhost
+      # Enable HTTP/2 for better performance
+      http2Origin: true
+  
+  # API endpoint (through Traefik if available)
+  - hostname: api.${PUBLIC_DOMAIN:-dev.yourdomain.com}
+    service: http://traefik:80
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      httpHostHeader: api.localhost
+      http2Origin: true
+  
+  # WebSocket support for hot reload
+  - hostname: ws.${PUBLIC_DOMAIN:-dev.yourdomain.com}
+    service: http://host.docker.internal:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}
+    originRequest:
+      noTLSVerify: true
+  {{/if}}
+  
+  # Catch-all rule (required)
+  - service: http_status:404
+
+# Optional: metrics server
+metrics: 0.0.0.0:2000

@@ -64,8 +64,11 @@ export async function setupDockerCompose(
   logger.verbose(`🐳 Setting up Docker Compose for ${database}...`);
 
   try {
+    // Create database-specific folder structure
     const dockerDir = path.join(projectPath, "docker");
+    const dbDir = path.join(dockerDir, database);
     await ensureDir(dockerDir);
+    await ensureDir(dbDir);
 
     const passwords = {
       POSTGRES_PASSWORD: generatePassword(),
@@ -102,18 +105,18 @@ export async function setupDockerCompose(
           const stats = await stat(filePath);
 
           if (stats.isDirectory()) {
-            const targetDir = path.join(dockerDir, file);
+            const targetDir = path.join(dbDir, file);
             await copy(filePath, targetDir);
           } else if (file.endsWith(".hbs")) {
             const templateContent = await readFile(filePath, "utf-8");
             const template = Handlebars.compile(templateContent);
             const rendered = template(context);
             const outputFileName = file.replace(".hbs", "");
-            const outputPath = path.join(dockerDir, outputFileName);
+            const outputPath = path.join(dbDir, outputFileName);
             await writeFile(outputPath, rendered);
-            logger.verbose(`Created ${outputFileName}`);
+            logger.verbose(`Created ${database}/${outputFileName}`);
           } else {
-            const outputPath = path.join(dockerDir, file);
+            const outputPath = path.join(dbDir, file);
             await copy(filePath, outputPath);
           }
         }
@@ -129,18 +132,18 @@ export async function setupDockerCompose(
         const stats = await stat(filePath);
 
         if (stats.isDirectory()) {
-          const targetDir = path.join(dockerDir, file);
+          const targetDir = path.join(dbDir, file);
           await copy(filePath, targetDir);
         } else if (file.endsWith(".hbs")) {
           const templateContent = await readFile(filePath, "utf-8");
           const template = Handlebars.compile(templateContent);
           const rendered = template(context);
           const outputFileName = file.replace(".hbs", "");
-          const outputPath = path.join(dockerDir, outputFileName);
+          const outputPath = path.join(dbDir, outputFileName);
           await writeFile(outputPath, rendered);
-          consola.success(`Created ${outputFileName}`);
+          consola.success(`Created ${database}/${outputFileName}`);
         } else {
-          const outputPath = path.join(dockerDir, file);
+          const outputPath = path.join(dbDir, file);
           await copy(filePath, outputPath);
         }
       }
@@ -170,11 +173,11 @@ export async function setupDockerCompose(
     if (await pathExists(waitScriptPath)) {
       const waitScriptTemplate = await readFile(waitScriptPath, "utf-8");
       const waitScriptContent = Handlebars.compile(waitScriptTemplate)(context);
-      const waitScriptOutputPath = path.join(dockerDir, "wait-for-db.sh");
+      const waitScriptOutputPath = path.join(dbDir, "wait-for-db.sh");
       await writeFile(waitScriptOutputPath, waitScriptContent);
       // Make script executable
       await fsExtra.chmod(waitScriptOutputPath, 0o755);
-      logger.verbose("Created wait-for-db.sh script");
+      logger.verbose(`Created ${database}/wait-for-db.sh script`);
     }
 
     // URL-encode passwords for database URLs to handle special characters
@@ -216,8 +219,8 @@ ${database === "mongodb" ? `MONGODB_URI=mongodb://root:${encodedPasswords.MONGO_
 ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@localhost:6379` : ""}
 `.trim();
 
-    await writeFile(path.join(dockerDir, ".env"), envContent);
-    await writeFile(path.join(dockerDir, ".env.example"), envContent);
+    await writeFile(path.join(dbDir, ".env"), envContent);
+    await writeFile(path.join(dbDir, ".env.example"), envContent);
 
     // Update package.json files
     const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
@@ -229,12 +232,11 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
 
       packageJson.scripts = {
         ...packageJson.scripts,
-        "docker:up": "docker compose -f docker/docker-compose.yml up -d",
-        "docker:down": "docker compose -f docker/docker-compose.yml down",
-        "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
-        "docker:reset":
-          "docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d",
-        "docker:ps": "docker compose -f docker/docker-compose.yml ps",
+        "docker:up": `docker compose -f docker/${database}/docker-compose.yml up -d`,
+        "docker:down": `docker compose -f docker/${database}/docker-compose.yml down`,
+        "docker:logs": `docker compose -f docker/${database}/docker-compose.yml logs -f`,
+        "docker:reset": `docker compose -f docker/${database}/docker-compose.yml down -v && docker compose -f docker/${database}/docker-compose.yml up -d`,
+        "docker:ps": `docker compose -f docker/${database}/docker-compose.yml ps`,
       };
 
       await writeJson(packageJsonPath, packageJson, { spaces: 2 });
@@ -319,16 +321,16 @@ Database credentials are stored in \`.env\` file.
 Use the connection string from the \`.env\` file in your application.
 `;
 
-    await writeFile(path.join(dockerDir, "README.md"), readmeContent);
+    await writeFile(path.join(dbDir, "README.md"), readmeContent);
 
     logger.verbose("");
     logger.verbose("📚 Docker setup complete! Next steps:");
-    logger.verbose("   1. Review docker/.env and update passwords if needed");
+    logger.verbose(`   1. Review docker/${database}/.env and update passwords if needed`);
     logger.verbose("   2. Start services: npm run docker:up");
     logger.verbose("   3. View logs: npm run docker:logs");
     logger.verbose("   4. Stop services: npm run docker:down");
     logger.verbose("");
-    logger.verbose("📖 See docker/README.md for detailed instructions");
+    logger.verbose(`📖 See docker/${database}/README.md for detailed instructions`);
 
     // Return the generated passwords to be used in env files
     return { passwords };

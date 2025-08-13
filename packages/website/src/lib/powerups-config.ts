@@ -13,6 +13,8 @@ import {
   FaBolt,
   FaRoute,
   FaChartLine,
+  FaGlobe,
+  FaCloud,
 } from "react-icons/fa";
 import { SiTurborepo, SiPrettier, SiEslint, SiStorybook, SiCypress } from "react-icons/si";
 
@@ -331,6 +333,52 @@ export const powerUps: PowerUp[] = [
     icon: FaImages,
     category: "optimization",
     frameworks: ["*"],
+  },
+
+  /** Development Infrastructure */
+  {
+    id: "traefik",
+    name: "Traefik",
+    description:
+      "Modern reverse proxy - enables custom domains, HTTPS, and solves CORS issues in development",
+    icon: FaRoute,
+    category: "workflow",
+    frameworks: ["*"],
+    dependencies: ["docker"],
+    recommended: {
+      backends: ["express", "fastify", "hono", "nest", "next-api"],
+      reason: "Essential for API development with OAuth, webhooks, and microservices",
+    },
+  },
+
+  /** Tunneling Solutions */
+  {
+    id: "ngrok",
+    name: "ngrok",
+    description:
+      "Expose your local dev to the internet - perfect for webhooks, OAuth callbacks, and mobile testing",
+    icon: FaGlobe,
+    category: "workflow",
+    frameworks: ["*"],
+    dependencies: ["docker"],
+    recommended: {
+      backends: ["express", "fastify", "hono", "nest"],
+      reason: "Essential for webhook development with Stripe, GitHub, Twilio, etc.",
+    },
+  },
+  {
+    id: "cloudflare-tunnel",
+    name: "Cloudflare Tunnel",
+    description: "Secure tunnel with custom domains, DDoS protection, and zero-trust security",
+    icon: FaCloud,
+    category: "workflow",
+    frameworks: ["*"],
+    dependencies: ["docker"],
+    beta: true,
+    recommended: {
+      backends: ["express", "fastify", "hono", "nest"],
+      reason: "Production-grade tunneling with persistent URLs and enterprise security",
+    },
   },
 
   /** Routing */

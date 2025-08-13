@@ -512,7 +512,7 @@ function getAuthDestination(config: ProjectConfig & { authProvider?: string }): 
     case "vue":
     case "solid":
     case "svelte":
-    case "remix":
+    case "react-router":
       // For Better Auth with backend, put on API side
       if (config.authProvider === "better-auth" && isMonorepo) {
         return "apps/api/src/lib";

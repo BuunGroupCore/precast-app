@@ -1,0 +1,281 @@
+---
+description: Implement business logic in the API service layer
+allowed-tools: Read, Write, Edit, Task
+---
+
+Implement service layer logic in apps/api for business operations.
+
+## Service Implementation Process
+
+### 1. Context and Planning
+Use the api-context agent to design the service:
+```
+Implement service logic in apps/api for: $ARGUMENTS
+
+Focus on:
+- Separation of concerns
+- Database operations
+- Business rule enforcement
+- Error handling
+```
+
+### 2. Service Structure
+
+```typescript
+// apps/api/src/services/{{'{{'}}serviceName{{'}}'}}.service.ts
+import type { {{'{{'}}Types{{'}}'}} } from '@{{name}}/shared';
+{{#if orm}}import { db } from '../lib/db';{{/if}}
+{{#if (eq database "redis")}}import { redis } from '../lib/redis';{{/if}}
+
+export class {{'{{'}}ServiceName{{'}}'}}Service {
+  /**
+   * Main service methods
+   */
+  async create(data: CreateDto): Promise<Model> {
+    // Validate
+    await this.validateCreate(data);
+    
+    // Transform
+    const prepared = this.prepareData(data);
+    
+    // Persist
+    {{#if (eq orm "prisma")}}
+    return await db.{{'{{'}}model{{'}}'}}.create({ 
+      data: prepared 
+    });
+    {{else if (eq orm "drizzle")}}
+    const [result] = await db
+      .insert({{'{{'}}table{{'}}'}})
+      .values(prepared)
+      .returning();
+    return result;
+    {{else}}
+    // Custom database operation
+    {{/if}}
+  }
+
+  async findAll(filters?: FilterDto): Promise<Model[]> {
+    {{#if (eq orm "prisma")}}
+    return await db.{{'{{'}}model{{'}}'}}.findMany({
+      where: filters,
+      orderBy: { createdAt: 'desc' }
+    });
+    {{else if (eq orm "drizzle")}}
+    return await db
+      .select()
+      .from({{'{{'}}table{{'}}'}})
+      .where(filters)
+      .orderBy(desc({{'{{'}}table{{'}}'}}.createdAt));
+    {{else}}
+    // Custom query
+    {{/if}}
+  }
+
+  async findById(id: string): Promise<Model | null> {
+    {{#if (eq orm "prisma")}}
+    return await db.{{'{{'}}model{{'}}'}}.findUnique({
+      where: { id }
+    });
+    {{else if (eq orm "drizzle")}}
+    const [result] = await db
+      .select()
+      .from({{'{{'}}table{{'}}'}})
+      .where(eq({{'{{'}}table{{'}}'}}.id, id));
+    return result || null;
+    {{else}}
+    // Custom query
+    {{/if}}
+  }
+
+  async update(id: string, data: UpdateDto): Promise<Model> {
+    // Check existence
+    const existing = await this.findById(id);
+    if (!existing) {
+      throw new Error('Resource not found');
+    }
+    
+    // Validate update
+    await this.validateUpdate(data, existing);
+    
+    // Update
+    {{#if (eq orm "prisma")}}
+    return await db.{{'{{'}}model{{'}}'}}.update({
+      where: { id },
+      data
+    });
+    {{else if (eq orm "drizzle")}}
+    const [result] = await db
+      .update({{'{{'}}table{{'}}'}})
+      .set(data)
+      .where(eq({{'{{'}}table{{'}}'}}.id, id))
+      .returning();
+    return result;
+    {{else}}
+    // Custom update
+    {{/if}}
+  }
+
+  async delete(id: string): Promise<void> {
+    {{#if (eq orm "prisma")}}
+    await db.{{'{{'}}model{{'}}'}}.delete({
+      where: { id }
+    });
+    {{else if (eq orm "drizzle")}}
+    await db
+      .delete({{'{{'}}table{{'}}'}})
+      .where(eq({{'{{'}}table{{'}}'}}.id, id));
+    {{else}}
+    // Custom delete
+    {{/if}}
+  }
+
+  /**
+   * Business logic methods
+   */
+  private async validateCreate(data: CreateDto): Promise<void> {
+    // Check required fields
+    if (!data.requiredField) {
+      throw new Error('Required field missing');
+    }
+    
+    // Check uniqueness
+    {{#if orm}}
+    const existing = await this.findByEmail(data.email);
+    if (existing) {
+      throw new Error('Resource already exists');
+    }
+    {{/if}}
+    
+    // Business rules
+    this.enforceBusinessRules(data);
+  }
+
+  private async validateUpdate(
+    data: UpdateDto, 
+    existing: Model
+  ): Promise<void> {
+    // Validate changes
+    if (data.email && data.email !== existing.email) {
+      const duplicate = await this.findByEmail(data.email);
+      if (duplicate) {
+        throw new Error('Email already in use');
+      }
+    }
+  }
+
+  private enforceBusinessRules(data: any): void {
+    // Custom business logic
+    // e.g., validate against external services
+    // e.g., check permissions
+    // e.g., enforce limits
+  }
+
+  private prepareData(data: CreateDto): any {
+    return {
+      ...data,
+      // Add computed fields
+      slug: this.generateSlug(data.name),
+      // Set defaults
+      status: data.status || 'active',
+      // Transform data
+      metadata: JSON.stringify(data.metadata || {})
+    };
+  }
+
+  /**
+   * Helper methods
+   */
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  {{#if (eq database "redis")}}
+  /**
+   * Caching methods
+   */
+  async getCached(key: string): Promise<any> {
+    const cached = await redis.get(key);
+    return cached ? JSON.parse(cached) : null;
+  }
+
+  async setCached(key: string, value: any, ttl = 3600): Promise<void> {
+    await redis.setex(key, ttl, JSON.stringify(value));
+  }
+  {{/if}}
+}
+
+// Export singleton instance
+export const {{'{{'}}serviceName{{'}}'}}Service = new {{'{{'}}ServiceName{{'}}'}}Service();
+```
+
+### 3. Transaction Handling
+{{#if (eq orm "prisma")}}
+```typescript
+async createWithRelations(data: ComplexDto): Promise<Model> {
+  return await db.$transaction(async (tx) => {
+    // Create main entity
+    const main = await tx.{{'{{'}}model{{'}}'}}.create({ data: data.main });
+    
+    // Create relations
+    await tx.{{'{{'}}relation{{'}}'}}.createMany({
+      data: data.relations.map(r => ({
+        ...r,
+        mainId: main.id
+      }))
+    });
+    
+    return main;
+  });
+}
+```
+{{/if}}
+
+### 4. Error Handling
+```typescript
+export class ServiceError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 400
+  ) {
+    super(message);
+    this.name = 'ServiceError';
+  }
+}
+
+// Usage
+throw new ServiceError('Invalid data', 'INVALID_DATA', 400);
+```
+
+### 5. Testing Services
+```typescript
+// apps/api/src/services/__tests__/{{'{{'}}service{{'}}'}}.test.ts
+describe('{{'{{'}}ServiceName{{'}}'}}Service', () => {
+  describe('create', () => {
+    it('should create resource', async () => {
+      const data = { /* test data */ };
+      const result = await service.create(data);
+      expect(result).toBeDefined();
+      expect(result.id).toBeDefined();
+    });
+    
+    it('should validate required fields', async () => {
+      const invalidData = { /* missing required */ };
+      await expect(service.create(invalidData))
+        .rejects.toThrow('Required field missing');
+    });
+  });
+});
+```
+
+### 6. Integration Points
+- Routes call service methods
+- Services handle all business logic
+- Services interact with database
+- Services enforce validation
+- Services manage transactions
+
+Remember: Services should be the single source of truth for business logic. Keep controllers thin and services rich.

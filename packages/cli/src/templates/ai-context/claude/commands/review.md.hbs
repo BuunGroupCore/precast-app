@@ -1,0 +1,43 @@
+---
+description: Review code changes against project standards and patterns
+allowed-tools: Read, Grep, Glob, Task
+---
+
+Review the code changes to ensure they follow this {{framework}} project's established patterns and standards.
+
+## Pre-Review Context
+
+BEFORE reviewing, read these essential files:
+- @README.md - Project overview and guidelines
+- @CLAUDE.md - AI collaboration standards
+- Any existing similar files to understand patterns
+
+## Review Process
+
+Use the code-reviewer agent to perform a comprehensive review:
+
+```
+Review the recent changes focusing on:
+1. Consistency with existing code patterns
+2. TypeScript type safety {{#if typescript}}(no any types){{/if}}
+3. {{styling}} styling conventions
+4. Component/function naming standards
+5. Import organization
+6. Error handling patterns
+{{#if authProvider}}7. Security considerations for auth{{/if}}
+{{#if database}}8. Database query efficiency{{/if}}
+
+$ARGUMENTS
+```
+
+The code-reviewer agent will check against project-specific standards and provide structured feedback.
+
+## Focus Areas
+
+- **Architecture**: Does it follow the established patterns?
+- **Performance**: Any potential performance issues?
+- **Security**: Any security vulnerabilities?
+- **Maintainability**: Is the code easy to understand and maintain?
+- **Testing**: Are there adequate tests?
+
+Provide actionable feedback with specific examples from the existing codebase.

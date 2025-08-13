@@ -1,0 +1,148 @@
+#!/bin/bash
+
+# Cloudflare Tunnel Setup Script
+# This script helps you set up a Cloudflare Tunnel for your local development environment
+
+set -e
+
+echo "======================================"
+echo "   Cloudflare Tunnel Setup Wizard    "
+echo "======================================"
+echo ""
+
+# Check if cloudflared is available
+if ! command -v cloudflared &> /dev/null && ! command -v docker &> /dev/null; then
+    echo "Error: Neither cloudflared CLI nor Docker is installed."
+    echo "Please install Docker or cloudflared first."
+    exit 1
+fi
+
+# Function to run cloudflared commands
+run_cloudflared() {
+    if command -v cloudflared &> /dev/null; then
+        cloudflared "$@"
+    else
+        docker run --rm -it -v ~/.cloudflared:/home/nonroot/.cloudflared cloudflare/cloudflared:latest "$@"
+    fi
+}
+
+echo "This wizard will help you:"
+echo "1. Authenticate with Cloudflare"
+echo "2. Create a new tunnel"
+echo "3. Configure DNS routing"
+echo "4. Generate a tunnel token"
+echo ""
+
+read -p "Do you want to continue? (y/n): " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 0
+fi
+
+# Step 1: Login to Cloudflare
+echo ""
+echo "Step 1: Authenticating with Cloudflare..."
+echo "A browser window will open for authentication."
+echo ""
+run_cloudflared tunnel login
+
+# Step 2: Create tunnel
+echo ""
+echo "Step 2: Creating tunnel..."
+read -p "Enter a name for your tunnel (default: {{name}}-dev): " TUNNEL_NAME
+TUNNEL_NAME=${TUNNEL_NAME:-{{name}}-dev}
+
+run_cloudflared tunnel create $TUNNEL_NAME
+
+# Step 3: Get tunnel ID
+echo ""
+echo "Step 3: Getting tunnel information..."
+TUNNEL_ID=$(run_cloudflared tunnel list --name $TUNNEL_NAME --output json | grep -o '"id":"[^"]*' | grep -o '[^"]*$' | head -1)
+
+if [ -z "$TUNNEL_ID" ]; then
+    echo "Error: Could not get tunnel ID. Please check the tunnel was created successfully."
+    exit 1
+fi
+
+echo "Tunnel ID: $TUNNEL_ID"
+
+# Step 4: Create DNS record
+echo ""
+echo "Step 4: Setting up DNS..."
+read -p "Enter your domain (e.g., dev.yourdomain.com): " DOMAIN
+
+if [ -n "$DOMAIN" ]; then
+    run_cloudflared tunnel route dns $TUNNEL_NAME $DOMAIN
+    echo "DNS route created for $DOMAIN"
+    
+    {{#if (ne backend 'none')}}
+    # Also create API subdomain
+    API_DOMAIN="api.$DOMAIN"
+    run_cloudflared tunnel route dns $TUNNEL_NAME $API_DOMAIN
+    echo "DNS route created for $API_DOMAIN"
+    {{/if}}
+fi
+
+# Step 5: Generate token
+echo ""
+echo "Step 5: Generating tunnel token..."
+TOKEN=$(run_cloudflared tunnel token $TUNNEL_NAME)
+
+# Step 6: Save configuration
+echo ""
+echo "Step 6: Saving configuration..."
+echo ""
+
+ENV_FILE=".env"
+if [ -f "$ENV_FILE" ]; then
+    # Update existing .env file
+    if grep -q "CLOUDFLARE_TUNNEL_TOKEN" "$ENV_FILE"; then
+        # Update existing token
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/CLOUDFLARE_TUNNEL_TOKEN=.*/CLOUDFLARE_TUNNEL_TOKEN=$TOKEN/" "$ENV_FILE"
+            sed -i '' "s/CLOUDFLARE_TUNNEL_NAME=.*/CLOUDFLARE_TUNNEL_NAME=$TUNNEL_NAME/" "$ENV_FILE"
+            [ -n "$DOMAIN" ] && sed -i '' "s/PUBLIC_DOMAIN=.*/PUBLIC_DOMAIN=$DOMAIN/" "$ENV_FILE"
+        else
+            sed -i "s/CLOUDFLARE_TUNNEL_TOKEN=.*/CLOUDFLARE_TUNNEL_TOKEN=$TOKEN/" "$ENV_FILE"
+            sed -i "s/CLOUDFLARE_TUNNEL_NAME=.*/CLOUDFLARE_TUNNEL_NAME=$TUNNEL_NAME/" "$ENV_FILE"
+            [ -n "$DOMAIN" ] && sed -i "s/PUBLIC_DOMAIN=.*/PUBLIC_DOMAIN=$DOMAIN/" "$ENV_FILE"
+        fi
+    else
+        # Add new entries
+        echo "" >> "$ENV_FILE"
+        echo "# Cloudflare Tunnel Configuration" >> "$ENV_FILE"
+        echo "CLOUDFLARE_TUNNEL_TOKEN=$TOKEN" >> "$ENV_FILE"
+        echo "CLOUDFLARE_TUNNEL_NAME=$TUNNEL_NAME" >> "$ENV_FILE"
+        [ -n "$DOMAIN" ] && echo "PUBLIC_DOMAIN=$DOMAIN" >> "$ENV_FILE"
+    fi
+else
+    # Create new .env file
+    echo "# Cloudflare Tunnel Configuration" > "$ENV_FILE"
+    echo "CLOUDFLARE_TUNNEL_TOKEN=$TOKEN" >> "$ENV_FILE"
+    echo "CLOUDFLARE_TUNNEL_NAME=$TUNNEL_NAME" >> "$ENV_FILE"
+    [ -n "$DOMAIN" ] && echo "PUBLIC_DOMAIN=$DOMAIN" >> "$ENV_FILE"
+fi
+
+echo "======================================"
+echo "   Setup Complete! 🎉                "
+echo "======================================"
+echo ""
+echo "Your Cloudflare Tunnel has been configured successfully!"
+echo ""
+echo "Tunnel Name: $TUNNEL_NAME"
+echo "Tunnel ID: $TUNNEL_ID"
+[ -n "$DOMAIN" ] && echo "Domain: $DOMAIN"
+{{#if (ne backend 'none')}}
+[ -n "$DOMAIN" ] && echo "API Domain: api.$DOMAIN"
+{{/if}}
+echo ""
+echo "To start the tunnel, run:"
+echo "  npm run cf:tunnel:up"
+echo ""
+echo "Your app will be accessible at:"
+[ -n "$DOMAIN" ] && echo "  https://$DOMAIN" || echo "  https://your-tunnel-id.cfargotunnel.com"
+{{#if (ne backend 'none')}}
+[ -n "$DOMAIN" ] && echo "  https://api.$DOMAIN (API)"
+{{/if}}
+echo ""
+echo "For more information, see docker/cloudflare/README.md"

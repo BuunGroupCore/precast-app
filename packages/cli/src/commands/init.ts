@@ -63,6 +63,7 @@ export interface InitOptions {
   docker?: boolean;
   securePasswords?: boolean;
   install?: boolean;
+  generate?: boolean;
   packageManager?: "npm" | "yarn" | "pnpm" | "bun";
   auth?: string;
   apiClient?: string;
@@ -734,6 +735,7 @@ export async function initCommand(projectName: string | undefined, options: Init
           packageManager: pm,
           projectPath: projectPath,
           skipFormatting: !config.prettier,
+          generate: config.generate,
         });
       });
 
@@ -949,7 +951,7 @@ export async function initCommand(projectName: string | undefined, options: Init
       commands.push(`# Start Docker services`);
       commands.push(`${config.packageManager} run docker:up`);
       commands.push(`# Or alternatively:`);
-      commands.push(`docker compose -f docker/docker-compose.yml up -d`);
+      commands.push(`docker compose -f docker/${config.database}/docker-compose.yml up -d`);
     }
 
     // Add dev command

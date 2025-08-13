@@ -94,6 +94,16 @@ export function generateCliOptions(): CliOption[] {
       description: "Skip dependency installation",
     },
     {
+      flag: "--generate",
+      values: "-",
+      description: "Auto-generate ORM schemas and types (enabled by default)",
+    },
+    {
+      flag: "--no-generate",
+      values: "-",
+      description: "Skip ORM generation during project setup",
+    },
+    {
       flag: "-p, --package-manager",
       values: "npm, yarn, pnpm, bun",
       description: "Package manager to use",

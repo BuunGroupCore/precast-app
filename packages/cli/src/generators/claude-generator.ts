@@ -39,6 +39,12 @@ export async function generateClaudeTemplate(
     // Generate and copy CLAUDE.md
     await generateClaudeMd(config, templateEngine);
 
+    // Generate agents
+    await generateClaudeAgents(config, templateEngine);
+
+    // Generate commands
+    await generateClaudeCommands(config, templateEngine);
+
     // Add to .gitignore
     await addToGitignore(config.projectPath, ".claude/settings.local.json");
 
@@ -64,12 +70,12 @@ async function generateClaudeSettings(
     ...config,
     allowedTools,
     hasMcpServers: config.mcpServers && config.mcpServers.length > 0,
-    mcpServers: config.mcpServers || [],
+    mcpServers: config.mcpServers && config.mcpServers.length > 0 ? config.mcpServers : undefined,
   };
 
   // Process the settings template
   await templateEngine.processTemplate(
-    "claude/settings.json.hbs",
+    "ai-context/claude/settings.json.hbs",
     path.join(claudeDir, "settings.json"),
     claudeContext
   );
@@ -89,7 +95,7 @@ async function generateClaudeMd(
     hasAuth: config.authProvider && config.authProvider !== "none",
     hasDocker: config.docker === true,
     hasMcpServers: config.mcpServers && config.mcpServers.length > 0,
-    mcpServers: config.mcpServers || [],
+    mcpServers: config.mcpServers && config.mcpServers.length > 0 ? config.mcpServers : undefined,
     techStack: getTechStackDescription(config),
     projectStructure: getProjectStructureDescription(config),
     keyCommands: getKeyCommands(config),
@@ -97,7 +103,7 @@ async function generateClaudeMd(
 
   // Process the CLAUDE.md template
   await templateEngine.processTemplate(
-    "claude/CLAUDE.md.hbs",
+    "ai-context/claude/CLAUDE.md.hbs",
     path.join(config.projectPath, "CLAUDE.md"),
     claudeContext
   );
@@ -211,6 +217,93 @@ function getKeyCommands(config: ProjectConfig): Record<string, string> {
   return commands;
 }
 
+async function generateClaudeAgents(
+  config: ProjectConfig & { mcpServers?: string[] },
+  templateEngine: any
+): Promise<void> {
+  const agentsDir = path.join(config.projectPath, ".claude/agents");
+  await ensureDir(agentsDir);
+
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
+  if (isMonorepo) {
+    // Generate monorepo-specific agents
+    const monorepoAgents = ["web-context", "api-context", "monorepo-guide"];
+
+    for (const agent of monorepoAgents) {
+      await templateEngine.processTemplate(
+        `ai-context/claude/agents/${agent}.md.hbs`,
+        path.join(agentsDir, `${agent}.md`),
+        config
+      );
+    }
+  } else {
+    // Generate single-app agents
+    const singleAppAgents = ["code-reviewer", "architecture-guide", "standards-enforcer"];
+
+    for (const agent of singleAppAgents) {
+      await templateEngine.processTemplate(
+        `ai-context/claude/agents/${agent}.md.hbs`,
+        path.join(agentsDir, `${agent}.md`),
+        config
+      );
+    }
+  }
+
+  logger.verbose("✅ Claude agents generated");
+}
+
+async function generateClaudeCommands(
+  config: ProjectConfig & { mcpServers?: string[] },
+  templateEngine: any
+): Promise<void> {
+  const commandsDir = path.join(config.projectPath, ".claude/commands");
+  await ensureDir(commandsDir);
+
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
+  if (isMonorepo) {
+    // Create subdirectories for monorepo commands
+    const webCommandsDir = path.join(commandsDir, "web");
+    const apiCommandsDir = path.join(commandsDir, "api");
+    await ensureDir(webCommandsDir);
+    await ensureDir(apiCommandsDir);
+
+    // Generate web commands
+    const webCommands = ["component", "feature"];
+    for (const command of webCommands) {
+      await templateEngine.processTemplate(
+        `ai-context/claude/commands/web/${command}.md.hbs`,
+        path.join(webCommandsDir, `${command}.md`),
+        config
+      );
+    }
+
+    // Generate API commands
+    const apiCommands = ["endpoint", "service"];
+    for (const command of apiCommands) {
+      await templateEngine.processTemplate(
+        `ai-context/claude/commands/api/${command}.md.hbs`,
+        path.join(apiCommandsDir, `${command}.md`),
+        config
+      );
+    }
+  } else {
+    // Generate single-app commands
+    const singleAppCommands = ["review", "implement", "refactor"];
+
+    for (const command of singleAppCommands) {
+      await templateEngine.processTemplate(
+        `ai-context/claude/commands/${command}.md.hbs`,
+        path.join(commandsDir, `${command}.md`),
+        config
+      );
+    }
+  }
+
+  logger.verbose("✅ Claude commands generated");
+}
+
 async function addToGitignore(projectPath: string, pattern: string): Promise<void> {
   const gitignorePath = path.join(projectPath, ".gitignore");
   if (await pathExists(gitignorePath)) {
@@ -225,21 +318,45 @@ function showNextSteps(config: ProjectConfig & { mcpServers?: string[] }): void 
   logger.info("\n📝 Next steps for Claude Code integration:");
 
   const steps: string[] = [];
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
   steps.push("1. Open your project in Claude Code");
   steps.push("2. Claude will automatically detect the .claude/settings.json file");
 
-  if (config.mcpServers && config.mcpServers.length > 0) {
-    steps.push("3. Configure MCP server environment variables in .env");
-    steps.push("4. Restart Claude Code to enable MCP servers");
+  if (isMonorepo) {
+    steps.push("3. Use project-specific agents:");
+    steps.push("   - web-context: Frontend development assistance");
+    steps.push("   - api-context: Backend development assistance");
+    steps.push("   - monorepo-guide: Cross-package coordination");
+    steps.push("4. Use slash commands:");
+    steps.push("   - /web/component: Create web components");
+    steps.push("   - /web/feature: Implement web features");
+    steps.push("   - /api/endpoint: Create API endpoints");
+    steps.push("   - /api/service: Implement services");
+  } else {
+    steps.push("3. Use project-specific agents:");
+    steps.push("   - code-reviewer: Review code against standards");
+    steps.push("   - architecture-guide: Architectural guidance");
+    steps.push("   - standards-enforcer: Enforce coding standards");
+    steps.push("4. Use slash commands:");
+    steps.push("   - /review: Review code changes");
+    steps.push("   - /implement: Implement features");
+    steps.push("   - /refactor: Refactor code");
   }
 
-  steps.push(`${steps.length + 1}. Start coding with AI assistance!`);
+  if (config.mcpServers && config.mcpServers.length > 0) {
+    steps.push("5. Configure MCP server environment variables in .env");
+    steps.push("6. Restart Claude Code to enable MCP servers");
+  }
+
+  steps.push(`${steps.length + 1}. Start coding with context-aware AI assistance!`);
 
   steps.forEach((step) => logger.info(`  ${step}`));
 
   logger.info("\n📚 Documentation:");
   logger.info("  Claude Code: https://claude.ai/code");
+  logger.info("  Custom Commands: https://docs.anthropic.com/claude-code/slash-commands");
+  logger.info("  Sub-Agents: https://docs.anthropic.com/claude-code/sub-agents");
 
   if (config.mcpServers && config.mcpServers.length > 0) {
     logger.info("  MCP Servers: https://modelcontextprotocol.io");

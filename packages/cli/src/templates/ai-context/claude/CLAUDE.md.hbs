@@ -29,6 +29,18 @@ This is a {{techStack}} project created with Precast CLI.
 {{#each keyCommands}}
 - `{{@key}}`: {{this}}
 {{/each}}
+{{#if docker}}
+{{#if (not (eq database "none"))}}
+
+### Docker Commands
+
+- `docker:up`: Start {{database}} database container
+- `docker:down`: Stop {{database}} database container
+- `docker:logs`: View {{database}} container logs
+- `docker:reset`: Reset database (removes all data)
+- `docker:ps`: Show container status
+{{/if}}
+{{/if}}
 
 {{#if hasDatabase}}
 ## Database
@@ -107,9 +119,46 @@ This project uses Passport.js for authentication. The auth configuration is loca
 
 This project includes Docker configuration for local development.
 
+{{#if hasDatabase}}
+### Database Container
+
+The {{database}} database is configured in `docker/{{database}}/`.
+
 - Start services: `{{packageManager}} run docker:up`
 - Stop services: `{{packageManager}} run docker:down`
-- View logs: `docker-compose logs -f`
+- View logs: `{{packageManager}} run docker:logs`
+- Reset database: `{{packageManager}} run docker:reset`
+
+**Configuration files:**
+- `docker/{{database}}/docker-compose.yml` - Docker Compose configuration
+- `docker/{{database}}/.env` - Database credentials (do not commit!)
+{{#if (eq database "postgres")}}
+- `docker/{{database}}/init.sql` - Initial database setup
+{{else if (eq database "mysql")}}
+- `docker/{{database}}/init.sql` - Initial database setup
+- `docker/{{database}}/my.cnf` - MySQL configuration
+{{else if (eq database "mongodb")}}
+- `docker/{{database}}/init-mongo.js` - Initial database setup
+{{/if}}
+
+**Default ports:**
+{{#if (eq database "postgres")}}
+- PostgreSQL: 5432
+- pgAdmin (if included): 5050
+{{else if (eq database "mysql")}}
+- MySQL: 3306
+- phpMyAdmin (if included): 8080
+{{else if (eq database "mongodb")}}
+- MongoDB: 27017
+- Mongo Express (if included): 8081
+{{else if (eq database "redis")}}
+- Redis: 6379
+{{/if}}
+{{else}}
+- Start services: `{{packageManager}} run docker:up`
+- Stop services: `{{packageManager}} run docker:down`
+- View logs: `docker compose logs -f`
+{{/if}}
 {{/if}}
 
 {{#if (eq styling "tailwind")}}
@@ -191,7 +240,7 @@ Example variables are provided in `.env.example`.
 {{#if hasDatabase}}3{{else}}2{{/if}}. Configure authentication credentials in `.env.local`
 {{/if}}
 {{#if hasDocker}}
-{{#if hasAuth}}4{{else if hasDatabase}}3{{else}}2{{/if}}. Start Docker services: `{{packageManager}} run docker:up`
+{{#if hasAuth}}4{{else if hasDatabase}}3{{else}}2{{/if}}. Start Docker services: `{{packageManager}} run docker:up`{{#if hasDatabase}} (this starts {{database}} in Docker){{/if}}
 {{/if}}
 {{#if isMonorepo}}
 {{#if hasDocker}}5{{else if hasAuth}}4{{else if hasDatabase}}3{{else}}2{{/if}}. Start the development servers: `{{packageManager}} run dev`
@@ -203,6 +252,11 @@ Example variables are provided in `.env.example`.
 
 - Always check `.env.example` for required environment variables
 - Never commit sensitive data or credentials
+{{#if hasDocker}}
+{{#if hasDatabase}}
+- Docker database credentials are in `docker/{{database}}/.env` - change these for production!
+{{/if}}
+{{/if}}
 - Follow the existing code patterns and conventions
 - {{#if typescript}}Use TypeScript types for better code quality{{else}}Consider adding JSDoc comments for better code documentation{{/if}}
 {{#if isMonorepo}}- This is a monorepo project; packages are in the `apps/` and `packages/` directories{{/if}}

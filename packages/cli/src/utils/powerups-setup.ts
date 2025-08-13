@@ -404,6 +404,70 @@ async function runSpecialSetup(
     case "eslint":
       await setupESLint(targetPath, config);
       break;
+    case "traefik":
+      // Traefik requires Docker to be enabled
+      if (!config.docker) {
+        consola.warn("⚠️  Traefik requires Docker. Enabling Docker automatically...");
+        config.docker = true;
+      }
+
+      // Detect if monorepo or single repo
+      const projectRoot =
+        config.backend && config.backend !== "none" && config.backend !== "next-api"
+          ? path.dirname(path.dirname(targetPath)) // Go up to monorepo root
+          : targetPath;
+
+      // Get framework-specific default ports
+      const getFrameworkPort = (framework: string): number => {
+        switch (framework) {
+          case "next":
+          case "nuxt":
+          case "solid":
+            return 3000;
+          case "angular":
+            return 4200;
+          case "astro":
+            return 4321;
+          case "react":
+          case "vue":
+          case "svelte":
+          case "vite":
+            return 5173;
+          default:
+            return 3000;
+        }
+      };
+
+      // Get backend-specific default ports
+      const getBackendPort = (backend: string): number => {
+        switch (backend) {
+          case "express":
+            return 5000;
+          case "fastify":
+            return 3001;
+          case "hono":
+          case "nest":
+          case "next-api":
+            return 3000;
+          default:
+            return 5000;
+        }
+      };
+
+      const frontendPort = getFrameworkPort(config.framework);
+      const apiPort = config.backend ? getBackendPort(config.backend) : 5000;
+
+      consola.info("🎯 Traefik configured successfully!");
+      consola.info(
+        "   1. Run 'npm run traefik:network' to create the Docker network (one-time setup)"
+      );
+      consola.info("   2. Run 'npm run traefik:up' to start Traefik");
+      consola.info(`   3. Access your app at http://app.localhost (port ${frontendPort})`);
+      if (config.backend && config.backend !== "none" && config.backend !== "next-api") {
+        consola.info(`   4. Access your API at http://api.localhost (port ${apiPort})`);
+      }
+      consola.info("   5. View Traefik dashboard at http://traefik.localhost:8080 (admin/admin)");
+      break;
     // Add more special setups as needed
   }
 }

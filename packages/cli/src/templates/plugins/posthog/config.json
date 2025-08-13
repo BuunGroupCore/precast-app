@@ -10,7 +10,7 @@
     "angular": ["posthog-js"],
     "svelte": ["posthog-js"],
     "solid": ["posthog-js"],
-    "remix": ["posthog-js", "posthog-node"],
+    "react-router": ["posthog-js"],
     "astro": ["posthog-js"],
     "vite": ["posthog-js"],
     "vanilla": ["posthog-js"]
@@ -37,6 +37,7 @@
     ],
     "svelte": [{ "template": "svelte/posthog.js.hbs", "output": "src/lib/posthog.js" }],
     "solid": [{ "template": "solid/posthog.js.hbs", "output": "src/lib/posthog.js" }],
+    "react-router": [{ "template": "react-router/posthog.js.hbs", "output": "src/lib/posthog.js" }],
     "astro": [{ "template": "astro/posthog.js.hbs", "output": "src/lib/posthog.js" }],
     "vite": [{ "template": "vite/posthog.js.hbs", "output": "src/lib/posthog.js" }],
     "vanilla": [{ "template": "vanilla/posthog.js.hbs", "output": "src/lib/posthog.js" }]

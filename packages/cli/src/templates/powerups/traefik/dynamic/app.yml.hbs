@@ -1,0 +1,154 @@
+http:
+  routers:
+    {{#if (eq backend 'none')}}
+    # Single app routing
+    app:
+      rule: "Host(`app.localhost`)"
+      service: app
+      entryPoints:
+        - web
+      middlewares:
+        - cors-headers
+    
+    app-secure:
+      rule: "Host(`app.localhost`)"
+      service: app
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: default
+      middlewares:
+        - cors-headers
+    {{else}}
+    # Frontend routing
+    frontend:
+      rule: "Host(`app.localhost`)"
+      service: frontend
+      entryPoints:
+        - web
+      middlewares:
+        - cors-headers
+    
+    frontend-secure:
+      rule: "Host(`app.localhost`)"
+      service: frontend
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: default
+      middlewares:
+        - cors-headers
+    
+    # API routing
+    api:
+      rule: "Host(`api.localhost`)"
+      service: api
+      entryPoints:
+        - web
+      middlewares:
+        - cors-headers
+        - api-ratelimit
+    
+    api-secure:
+      rule: "Host(`api.localhost`)"
+      service: api
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: default
+      middlewares:
+        - cors-headers
+        - api-ratelimit
+    {{/if}}
+
+  services:
+    {{#if (eq backend 'none')}}
+    app:
+      loadBalancer:
+        servers:
+          {{!-- Framework-specific ports --}}
+          - url: "http://host.docker.internal:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}"
+        healthCheck:
+          path: /
+          interval: 30s
+          timeout: 3s
+    {{else}}
+    frontend:
+      loadBalancer:
+        servers:
+          {{!-- Framework-specific ports for frontend in monorepo --}}
+          - url: "http://host.docker.internal:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}"
+        healthCheck:
+          path: /
+          interval: 30s
+          timeout: 3s
+    
+    api:
+      loadBalancer:
+        servers:
+          {{!-- Backend-specific ports --}}
+          - url: "http://host.docker.internal:{{#if (eq backend 'express')}}5000{{else if (eq backend 'fastify')}}3001{{else if (eq backend 'hono')}}3000{{else if (eq backend 'nest')}}3000{{else if (eq backend 'next-api')}}3000{{else}}5000{{/if}}"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 3s
+    {{/if}}
+
+  middlewares:
+    cors-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
+          - POST
+          - DELETE
+          - PATCH
+        accessControlAllowHeaders:
+          - "*"
+        accessControlAllowOriginList:
+          {{!-- Framework-specific localhost ports --}}
+          {{#if (eq framework 'next')}}
+          - "http://localhost:3000"
+          {{else if (eq framework 'nuxt')}}
+          - "http://localhost:3000"
+          {{else if (eq framework 'react')}}
+          - "http://localhost:5173"
+          {{else if (eq framework 'vue')}}
+          - "http://localhost:5173"
+          {{else if (eq framework 'angular')}}
+          - "http://localhost:4200"
+          {{else if (eq framework 'svelte')}}
+          - "http://localhost:5173"
+          {{else if (eq framework 'solid')}}
+          - "http://localhost:3000"
+          {{else if (eq framework 'astro')}}
+          - "http://localhost:4321"
+          {{else if (eq framework 'react-router')}}
+          - "http://localhost:5173"
+          {{else if (eq framework 'tanstack-router')}}
+          - "http://localhost:5173"
+          {{else if (eq framework 'tanstack-start')}}
+          - "http://localhost:3000"
+          {{else if (eq framework 'vite')}}
+          - "http://localhost:5173"
+          {{else}}
+          - "http://localhost:3000"
+          {{/if}}
+          - "http://app.localhost"
+          - "https://app.localhost"
+          {{#if (ne backend 'none')}}
+          - "http://api.localhost"
+          - "https://api.localhost"
+          {{/if}}
+        accessControlMaxAge: 100
+        addVaryHeader: true
+        accessControlAllowCredentials: true
+    
+    {{#if (ne backend 'none')}}
+    api-ratelimit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1m
+    {{/if}}

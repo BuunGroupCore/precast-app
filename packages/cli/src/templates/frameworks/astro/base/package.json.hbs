@@ -17,7 +17,7 @@
   "dependencies": {
     "astro": "^4.16.7"{{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}},
     "axios": "^1.7.7"{{/ifAny}}{{#if (eq orm "prisma")}},
-    "@prisma/client": "^5.20.0"{{/if}}
+    "@prisma/client": "^6.14.0"{{/if}}
   },
   "devDependencies": {
     {{#if typescript}}"@astrojs/check": "^0.9.4",
@@ -25,6 +25,6 @@
     "@astrojs/tailwind": "^5.1.2",
     "tailwindcss": "^3.4.13"{{#if (or (eq styling "scss") (eq orm "prisma"))}},{{/if}}{{/if}}{{#if (eq styling "scss")}}
     "sass": "^1.79.4"{{#if (eq orm "prisma")}},{{/if}}{{/if}}{{#if (eq orm "prisma")}}
-    "prisma": "^5.20.0"{{/if}}
+    "prisma": "^6.14.0"{{/if}}
   }
 }

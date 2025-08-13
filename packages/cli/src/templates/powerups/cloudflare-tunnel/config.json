@@ -1,0 +1,31 @@
+{
+  "id": "cloudflare-tunnel",
+  "name": "Cloudflare Tunnel",
+  "description": "Secure tunnel to expose your local development to the internet with custom domains, DDoS protection, and zero-trust security",
+  "dependencies": {},
+  "devDependencies": {},
+  "envVariables": {
+    "CLOUDFLARE_TUNNEL_TOKEN": "",
+    "CLOUDFLARE_TUNNEL_NAME": "{{name}}-dev",
+    "PUBLIC_DOMAIN": "dev.yourdomain.com"
+  },
+  "scripts": {
+    "cf:tunnel:up": "docker compose -f docker/cloudflare/docker-compose.cloudflare.yml up -d",
+    "cf:tunnel:down": "docker compose -f docker/cloudflare/docker-compose.cloudflare.yml down",
+    "cf:tunnel:logs": "docker logs $(npm config get name)_cloudflared -f",
+    "cf:tunnel:status": "docker exec $(npm config get name)_cloudflared cloudflared tunnel info 2>/dev/null || echo 'Tunnel not running'",
+    "cf:tunnel:setup": "echo 'Please follow the setup guide in docker/cloudflare/README.md to configure your tunnel'"
+  },
+  "setupFiles": {
+    "*": [
+      {
+        "template": "docker-compose.cloudflare.yml.hbs",
+        "output": "docker/cloudflare/docker-compose.cloudflare.yml"
+      },
+      { "template": "config.yml.hbs", "output": "docker/cloudflare/config.yml" },
+      { "template": "README.md.hbs", "output": "docker/cloudflare/README.md" },
+      { "template": "setup.sh.hbs", "output": "docker/cloudflare/setup.sh" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

@@ -417,6 +417,7 @@ export async function gatherProjectConfig(
     authProvider,
     apiClient,
     autoInstall,
+    generate: options.generate !== undefined ? options.generate : true,
     projectPath: "",
     language: typescript ? "typescript" : "javascript",
     mcpServers: options.mcpServers,

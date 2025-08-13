@@ -32,6 +32,7 @@ export interface ProjectConfig {
   addons?: string[];
   deploymentMethod?: string;
   autoInstall?: boolean;
+  generate?: boolean;
   runtime?: string;
   authProvider?: string;
   apiClient?: string;
@@ -99,7 +100,7 @@ export const frameworkDefs: StackOption[] = [
   {
     id: "react-router",
     name: "React Router v7",
-    description: "Full-stack React framework (formerly Remix)",
+    description: "Full-stack React framework with modern data loading",
     dependencies: ["react"],
     recommended: ["typescript", "tailwind", "prisma"],
   },

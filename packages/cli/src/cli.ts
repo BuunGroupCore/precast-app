@@ -54,6 +54,7 @@ program
     "Use generic passwords instead of secure random ones (Docker only)"
   )
   .option("--install", "Install dependencies after project creation")
+  .option("--no-generate", "Skip automatic ORM client generation during installation")
   .option("--pm, --package-manager <pm>", "Package manager to use (npm, yarn, pnpm, bun)")
   .option("-a, --auth <provider>", "Authentication provider (auth.js, better-auth)")
   .option(
@@ -99,6 +100,7 @@ program
       docker: options.docker,
       securePasswords: options.securePasswords,
       install: options.install,
+      generate: options.generate,
       packageManager: options.packageManager,
       auth: options.auth,
       apiClient: options.apiClient,
@@ -156,6 +158,16 @@ program
     /** Dynamically import banner utilities to avoid loading them unless needed */
     const { createBannerTemplate } = await import("./utils/banner.js");
     await createBannerTemplate();
+  });
+
+program
+  .command("generate")
+  .alias("gen")
+  .description("Generate ORM client and shared types")
+  .option("--orm <orm>", "Specify ORM type (prisma, drizzle, typeorm)")
+  .action(async (options) => {
+    const { generateCommand } = await import("./commands/generate.js");
+    await generateCommand(options);
   });
 
 program

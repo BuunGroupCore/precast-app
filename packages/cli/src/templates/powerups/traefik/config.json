@@ -1,0 +1,31 @@
+{
+  "id": "traefik",
+  "name": "Traefik",
+  "description": "Modern reverse proxy with automatic HTTPS, custom domains, and load balancing for local development",
+  "dependencies": {},
+  "devDependencies": {},
+  "envVariables": {
+    "TRAEFIK_DOMAIN": "localhost",
+    "FRONTEND_URL": "http://app.localhost",
+    "API_URL": "http://api.localhost"
+  },
+  "scripts": {
+    "traefik:up": "docker compose -f docker/docker-compose.yml -f docker/traefik/docker-compose.traefik.yml up -d",
+    "traefik:down": "docker compose -f docker/traefik/docker-compose.traefik.yml down",
+    "traefik:dashboard": "open http://traefik.localhost:8080 || xdg-open http://traefik.localhost:8080 || start http://traefik.localhost:8080",
+    "traefik:logs": "docker logs $(npm config get name)_traefik -f",
+    "traefik:network": "docker network create traefik_network || true"
+  },
+  "setupFiles": {
+    "*": [
+      {
+        "template": "docker-compose.traefik.yml.hbs",
+        "output": "docker/traefik/docker-compose.traefik.yml"
+      },
+      { "template": "traefik.yml.hbs", "output": "docker/traefik/traefik.yml" },
+      { "template": "dynamic/app.yml.hbs", "output": "docker/traefik/dynamic/app.yml" },
+      { "template": "README.md.hbs", "output": "docker/traefik/README.md" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

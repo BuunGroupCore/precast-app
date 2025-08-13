@@ -1,0 +1,33 @@
+version: "2"
+authtoken: ${NGROK_AUTH_TOKEN}
+region: ${NGROK_REGION:-us}
+web_addr: 0.0.0.0:4040
+log_level: info
+log: stdout
+
+tunnels:
+  {{#if (eq backend 'none')}}
+  # Single app tunnel
+  app:
+    proto: http
+    addr: {{#if (eq framework 'next')}}host.docker.internal:3000{{else if (eq framework 'nuxt')}}host.docker.internal:3000{{else if (eq framework 'react')}}host.docker.internal:5173{{else if (eq framework 'vue')}}host.docker.internal:5173{{else if (eq framework 'angular')}}host.docker.internal:4200{{else if (eq framework 'svelte')}}host.docker.internal:5173{{else if (eq framework 'solid')}}host.docker.internal:3000{{else if (eq framework 'astro')}}host.docker.internal:4321{{else if (eq framework 'react-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-start')}}host.docker.internal:3000{{else if (eq framework 'vite')}}host.docker.internal:5173{{else}}host.docker.internal:3000{{/if}}
+    host_header: localhost
+    inspect: true
+    bind_tls: true
+  {{else}}
+  # Frontend tunnel (through Traefik if available)
+  frontend:
+    proto: http
+    addr: host.docker.internal:80
+    host_header: app.localhost
+    inspect: true
+    bind_tls: true
+  
+  # API tunnel (through Traefik if available)
+  api:
+    proto: http
+    addr: host.docker.internal:80
+    host_header: api.localhost
+    inspect: true
+    bind_tls: true
+  {{/if}}

@@ -388,6 +388,9 @@ export function BuilderPage() {
     if (config.gitignore === false) {
       parts.push("--no-gitignore");
     }
+    if (config.generate === false) {
+      parts.push("--no-generate");
+    }
 
     parts.push("--yes");
 

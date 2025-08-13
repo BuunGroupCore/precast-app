@@ -1,0 +1,225 @@
+# ngrok Tunnel Configuration
+
+## 🌐 Overview
+
+ngrok provides secure tunnels to expose your local development environment to the internet. This is essential for:
+
+- ✅ **Webhook Testing** - Test webhooks from services like Stripe, GitHub, Twilio
+- ✅ **OAuth Callbacks** - Handle OAuth redirects that require public URLs
+- ✅ **Mobile Testing** - Test your app on real mobile devices
+- ✅ **Client Demos** - Share your work-in-progress with clients
+- ✅ **API Integration** - Test with external services that can't reach localhost
+
+## 🚀 Quick Start
+
+### 1. Get Your ngrok Auth Token
+
+1. Sign up for a free account at [ngrok.com](https://ngrok.com)
+2. Copy your auth token from the [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken)
+3. Add it to your `.env` file:
+
+```bash
+NGROK_AUTH_TOKEN=your_auth_token_here
+```
+
+### 2. Start the Tunnel
+
+```bash
+# Start ngrok tunnel
+npm run ngrok:up
+
+# Get your public URL
+npm run ngrok:url
+```
+
+Your app will be available at a URL like: `https://abc123.ngrok.io`
+
+### 3. Monitor Traffic
+
+Open the ngrok inspection interface:
+
+```bash
+npm run ngrok:dashboard
+```
+
+Visit [http://localhost:4040](http://localhost:4040) to:
+- View all HTTP requests/responses
+- Replay requests for debugging
+- Inspect request headers and body
+- See response times and status codes
+
+## 📍 URLs and Ports
+
+{{#if (eq backend 'none')}}
+**Frontend Only Setup:**
+- Local: `http://localhost:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}`
+- Public: `https://your-tunnel.ngrok.io`
+{{else}}
+**Full Stack Setup:**
+- Frontend Local: `http://app.localhost`
+- Frontend Public: `https://your-frontend.ngrok.io`
+- API Local: `http://api.localhost`
+- API Public: `https://your-api.ngrok.io`
+{{/if}}
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Add these to your `.env` file:
+
+```bash
+# Required
+NGROK_AUTH_TOKEN=your_auth_token_here
+
+# Optional
+NGROK_REGION=us  # us (default), eu, ap, au, sa, jp, in
+NGROK_SUBDOMAIN=my-app  # Custom subdomain (paid feature)
+```
+
+### Available Regions
+
+- `us` - United States (Ohio)
+- `eu` - Europe (Frankfurt)
+- `ap` - Asia/Pacific (Singapore)
+- `au` - Australia (Sydney)
+- `sa` - South America (São Paulo)
+- `jp` - Japan (Tokyo)
+- `in` - India (Mumbai)
+
+## 🛠️ Advanced Usage
+
+### Custom Configuration
+
+Edit `docker/ngrok/ngrok.yml` for advanced settings:
+
+```yaml
+tunnels:
+  app:
+    proto: http
+    addr: host.docker.internal:3000
+    host_header: localhost
+    auth: "username:password"  # Basic auth
+    inspect: true
+```
+
+### Multiple Tunnels
+
+For separate frontend and API tunnels (paid feature):
+
+```yaml
+tunnels:
+  frontend:
+    proto: http
+    addr: host.docker.internal:3000
+    subdomain: my-app-frontend
+  
+  api:
+    proto: http
+    addr: host.docker.internal:5000
+    subdomain: my-app-api
+```
+
+### With Traefik Integration
+
+When using both Traefik and ngrok:
+1. ngrok tunnels to Traefik (port 80)
+2. Traefik handles internal routing
+3. Preserves all Traefik features (CORS, rate limiting, etc.)
+
+## 📋 Common Use Cases
+
+### Webhook Testing
+
+1. Start ngrok: `npm run ngrok:up`
+2. Get public URL: `npm run ngrok:url`
+3. Configure webhook URL in external service:
+   - Stripe: `https://your-tunnel.ngrok.io/webhooks/stripe`
+   - GitHub: `https://your-tunnel.ngrok.io/webhooks/github`
+4. Monitor requests: `npm run ngrok:dashboard`
+
+### OAuth Configuration
+
+1. Get your public URL
+2. Update OAuth redirect URI:
+   ```
+   https://your-tunnel.ngrok.io/auth/callback
+   ```
+3. Test OAuth flow with real providers
+
+### Mobile Device Testing
+
+1. Start ngrok tunnel
+2. Get public URL: `npm run ngrok:url`
+3. Open URL on mobile device
+4. Test responsive design and mobile features
+
+## 🔒 Security Considerations
+
+⚠️ **Important Security Notes:**
+
+1. **Temporary URLs**: Free ngrok URLs change each time you restart
+2. **Public Access**: Anyone with the URL can access your local app
+3. **Authentication**: Consider adding basic auth for sensitive data:
+   ```yaml
+   auth: "username:password"
+   ```
+4. **HTTPS Only**: ngrok provides HTTPS by default
+5. **Request Inspection**: All traffic is visible in ngrok dashboard
+
+## 🐛 Troubleshooting
+
+### Tunnel Not Starting
+
+```bash
+# Check if ngrok is running
+docker ps | grep ngrok
+
+# View logs
+npm run ngrok:logs
+
+# Restart tunnel
+npm run ngrok:down && npm run ngrok:up
+```
+
+### Auth Token Issues
+
+1. Verify token in `.env` file
+2. Check token validity at [dashboard.ngrok.com](https://dashboard.ngrok.com)
+3. Ensure no extra spaces in token
+
+### Connection Refused
+
+1. Verify your app is running on the expected port
+2. Check Docker network connectivity:
+   ```bash
+   docker network ls
+   ```
+3. Ensure firewall isn't blocking connections
+
+### Rate Limiting
+
+Free ngrok accounts have limits:
+- 40 connections/minute
+- 20,000 requests/month
+
+For production use, consider upgrading to a paid plan.
+
+## 📚 Additional Resources
+
+- [ngrok Documentation](https://ngrok.com/docs)
+- [Webhook Testing Guide](https://ngrok.com/docs/guides/webhooks/)
+- [Security Best Practices](https://ngrok.com/docs/guides/security/)
+- [Pricing and Limits](https://ngrok.com/pricing)
+
+## 🎯 Tips
+
+1. **Save URLs**: Store test webhook URLs in `.env.local`
+2. **Use Inspection**: The dashboard at :4040 is invaluable for debugging
+3. **Replay Requests**: Use the replay feature to test webhook handlers
+4. **Custom Domains**: Upgrade for consistent URLs across restarts
+5. **CI/CD Integration**: Use ngrok in CI for integration testing
+
+---
+
+💡 **Pro Tip**: For production-like testing with custom domains, consider the Cloudflare Tunnel PowerUp as an alternative.

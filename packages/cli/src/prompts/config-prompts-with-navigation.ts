@@ -657,6 +657,7 @@ export async function gatherProjectConfigWithNavigation(
     authProvider: state.authProvider,
     apiClient: state.apiClient,
     autoInstall: state.autoInstall === true,
+    generate: options.generate !== undefined ? options.generate : true,
     projectPath: "",
     language: state.typescript !== false ? "typescript" : "javascript",
     mcpServers: state.mcpServers || options.mcpServers,

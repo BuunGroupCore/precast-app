@@ -94,12 +94,15 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   if (config.aiAssistant === "claude") {
     await setupClaudeIntegration(config, projectPath);
 
-    try {
-      const { setupMCPConfiguration } = await import("../utils/mcp-setup.js");
-      await setupMCPConfiguration(projectPath, config);
-    } catch (error) {
-      logger.warn(`Failed to setup MCP configuration: ${error}`);
-      errorCollector.addError("MCP configuration setup", error);
+    // Only setup MCP if servers were explicitly requested
+    if (config.mcpServers && config.mcpServers.length > 0) {
+      try {
+        const { setupMCPConfiguration } = await import("../utils/mcp-setup.js");
+        await setupMCPConfiguration(projectPath, config);
+      } catch (error) {
+        logger.warn(`Failed to setup MCP configuration: ${error}`);
+        errorCollector.addError("MCP configuration setup", error);
+      }
     }
   }
 

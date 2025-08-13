@@ -1,6 +1,14 @@
 import { motion } from "framer-motion";
 import React from "react";
-import { FaToggleOff, FaToggleOn, FaCog, FaGitAlt, FaDocker, FaLightbulb } from "react-icons/fa";
+import {
+  FaToggleOff,
+  FaToggleOn,
+  FaCog,
+  FaGitAlt,
+  FaDocker,
+  FaLightbulb,
+  FaDatabase,
+} from "react-icons/fa";
 import { SiPrettier, SiEslint } from "react-icons/si";
 
 import { CollapsibleSection } from "./CollapsibleSection";
@@ -59,6 +67,15 @@ const featureToggles: FeatureToggle[] = [
     icon: FaGitAlt,
     iconColor: "text-[#F05032]",
   },
+  {
+    id: "generate",
+    name: "Auto-Generate ORM",
+    description: "Automatically generate ORM schemas and types (Prisma, Drizzle, TypeORM)",
+    defaultEnabled: true,
+    cliFlag: "--no-generate",
+    icon: FaDatabase,
+    iconColor: "text-[#2E8B57]",
+  },
 ];
 
 /**
@@ -95,6 +112,13 @@ export const FeatureTogglesSection: React.FC<FeatureTogglesSectionProps> = ({
         <div className="space-y-3">
           {featureToggles.map((toggle) => {
             if (toggle.id === "dockerCompose" && !config.docker) {
+              return null;
+            }
+
+            if (
+              toggle.id === "generate" &&
+              (!config.orm || config.orm === "none" || config.orm === "")
+            ) {
               return null;
             }
 

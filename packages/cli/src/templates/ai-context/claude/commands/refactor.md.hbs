@@ -1,0 +1,117 @@
+---
+description: Refactor code while maintaining functionality and following project patterns
+allowed-tools: Read, Write, Edit, Glob, Grep, Task
+---
+
+Refactor existing code to improve quality while maintaining functionality in this {{framework}} project.
+
+## Refactoring Guidelines
+
+### Pre-Refactoring Analysis
+1. Read @README.md and @CLAUDE.md for project standards
+2. Understand the current implementation fully
+3. Identify all dependencies and usages
+4. Document current behavior
+
+### Refactoring Approach
+
+Use the standards-enforcer agent to guide the refactoring:
+```
+Analyze and refactor: $ARGUMENTS
+
+Focus on:
+- Code organization and structure
+- Type safety improvements
+- Performance optimizations
+- Removing duplication
+- Improving readability
+```
+
+## Refactoring Checklist
+
+### 1. Code Quality
+- [ ] Remove duplicate code
+- [ ] Extract reusable functions/components
+- [ ] Improve naming for clarity
+- [ ] Add proper TypeScript types {{#if typescript}}(remove any){{/if}}
+- [ ] Optimize imports
+
+### 2. Performance
+{{#if (eq framework "react")}}
+- [ ] Add React.memo where appropriate
+- [ ] Optimize useEffect dependencies
+- [ ] Use useMemo/useCallback for expensive operations
+{{else if (eq framework "vue")}}
+- [ ] Use computed properties effectively
+- [ ] Optimize watchers
+- [ ] Implement proper component caching
+{{/if}}
+- [ ] Reduce bundle size
+- [ ] Optimize re-renders
+
+### 3. Maintainability
+- [ ] Improve code documentation
+- [ ] Simplify complex logic
+- [ ] Better error handling
+- [ ] Consistent patterns
+
+### 4. Modern Patterns
+- [ ] Update to latest framework patterns
+- [ ] Use modern JavaScript/TypeScript features
+- [ ] Apply current best practices
+{{#if (eq styling "tailwind")}}
+- [ ] Optimize Tailwind classes
+{{else if (eq styling "css-modules")}}
+- [ ] Improve CSS Module organization
+{{/if}}
+
+## Safety Measures
+
+### Before Refactoring
+- Understand all current functionality
+- Note existing tests
+- Identify potential breaking changes
+
+### During Refactoring
+- Make incremental changes
+- Test after each change
+- Keep functionality intact
+- Maintain backward compatibility
+
+### After Refactoring
+- Verify all features still work
+- Run existing tests
+- Check for performance improvements
+- Update documentation if needed
+
+## Common Refactoring Patterns
+
+### Component Extraction
+```typescript
+// Before: Large component with multiple responsibilities
+// After: Smaller, focused components
+```
+
+### Custom Hook Extraction {{#if (eq framework "react")}}
+```typescript
+// Extract repeated logic into custom hooks
+const useCustomLogic = () => {
+  // Shared logic here
+};
+```
+{{/if}}
+
+### Type Safety Improvements {{#if typescript}}
+```typescript
+// Before: any or implicit types
+// After: Proper TypeScript interfaces and types
+```
+{{/if}}
+
+### Performance Optimization
+```typescript
+// Before: Unnecessary re-renders
+// After: Optimized with memoization
+```
+
+Remember: The goal is to improve code quality while maintaining exact functionality. Test thoroughly after refactoring.

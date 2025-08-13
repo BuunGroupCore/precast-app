@@ -1,0 +1,187 @@
+---
+description: Create a new API endpoint in the backend application
+allowed-tools: Read, Write, Edit, Task
+---
+
+Create a new API endpoint in apps/api following {{backend}} patterns.
+
+## Endpoint Creation Process
+
+### 1. Planning with Context
+Use the api-context agent to plan the endpoint:
+```
+Create an API endpoint in apps/api for: $ARGUMENTS
+
+Consider:
+- RESTful conventions
+- Request/response types
+- Authentication requirements
+- Database operations needed
+```
+
+### 2. Type Definition
+First, define types in packages/shared:
+
+```typescript
+// packages/shared/src/types/api.ts
+export interface {{'{{'}}EndpointName{{'}}'}}Request {
+  // Request body structure
+}
+
+export interface {{'{{'}}EndpointName{{'}}'}}Response {
+  success: boolean;
+  data?: {{'{{'}}DataType{{'}}'}};
+  error?: string;
+}
+```
+
+Build shared: `cd packages/shared && {{packageManager}} run build`
+
+### 3. Route Implementation
+
+{{#if (eq backend "express")}}
+```typescript
+// apps/api/src/routes/{{'{{'}}resource{{'}}'}}.ts
+import { Router } from 'express';
+import type { {{'{{'}}Type{{'}}'}} } from '@{{name}}/shared';
+import { {{'{{'}}service{{'}}'}} } from '../services/{{'{{'}}service{{'}}'}};
+
+const router = Router();
+
+router.post('/{{'{{'}}endpoint{{'}}'}}', async (req, res) => {
+  try {
+    // Validation
+    const { body } = req;
+    
+    // Business logic
+    const result = await {{'{{'}}service{{'}}'}}.process(body);
+    
+    // Response
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+export default router;
+```
+{{else if (eq backend "hono")}}
+```typescript
+// apps/api/src/routes/{{'{{'}}resource{{'}}'}}.ts
+import { Hono } from 'hono';
+import type { {{'{{'}}Type{{'}}'}} } from '@{{name}}/shared';
+import { {{'{{'}}service{{'}}'}} } from '../services/{{'{{'}}service{{'}}'}};
+
+const app = new Hono();
+
+app.post('/{{'{{'}}endpoint{{'}}'}}', async (c) => {
+  try {
+    const body = await c.req.json();
+    const result = await {{'{{'}}service{{'}}'}}.process(body);
+    return c.json({ success: true, data: result });
+  } catch (error) {
+    return c.json({ 
+      success: false, 
+      error: error.message 
+    }, 500);
+  }
+});
+
+export default app;
+```
+{{/if}}
+
+### 4. Service Layer
+```typescript
+// apps/api/src/services/{{'{{'}}service{{'}}'}}.ts
+import type { {{'{{'}}Type{{'}}'}} } from '@{{name}}/shared';
+{{#if orm}}import { db } from '../lib/db';{{/if}}
+
+export const {{'{{'}}service{{'}}'}} = {
+  async process(data: {{'{{'}}Type{{'}}'}}): Promise<{{'{{'}}ReturnType{{'}}'}}>  {
+    // Validation logic
+    this.validate(data);
+    
+    // Business logic
+    {{#if (eq orm "prisma")}}
+    const result = await db.{{'{{'}}model{{'}}'}}.create({ data });
+    {{else if (eq orm "drizzle")}}
+    const [result] = await db.insert({{'{{'}}table{{'}}'}}).values(data).returning();
+    {{else}}
+    // Custom implementation
+    {{/if}}
+    
+    return result;
+  },
+  
+  validate(data: {{'{{'}}Type{{'}}'}}) {
+    // Validation logic
+    if (!data.requiredField) {
+      throw new Error('Required field missing');
+    }
+  }
+};
+```
+
+### 5. Middleware Integration
+{{#if authProvider}}
+```typescript
+// Protected endpoint
+router.post('/{{'{{'}}endpoint{{'}}'}}', authenticate, async (req, res) => {
+  // req.user available here
+});
+```
+{{/if}}
+
+### 6. Error Handling
+```typescript
+// Consistent error format
+class ApiError extends Error {
+  constructor(
+    public statusCode: number,
+    public message: string
+  ) {
+    super(message);
+  }
+}
+
+// Usage
+throw new ApiError(400, 'Invalid input');
+```
+
+### 7. Integration Checklist
+- [ ] Types exported from @{{name}}/shared
+- [ ] Route created and registered
+- [ ] Service logic implemented
+- [ ] Error handling in place
+- [ ] Input validation complete
+{{#if authProvider}}- [ ] Authentication applied if needed{{/if}}
+{{#if database}}- [ ] Database operations optimized{{/if}}
+- [ ] Response format consistent
+
+### 8. Testing
+```typescript
+// apps/api/src/routes/__tests__/{{'{{'}}endpoint{{'}}'}}.test.ts
+describe('POST /api/{{'{{'}}endpoint{{'}}'}}', () => {
+  it('should create resource', async () => {
+    const response = await request(app)
+      .post('/api/{{'{{'}}endpoint{{'}}'}}')
+      .send({ /* test data */ })
+      .expect(200);
+    
+    expect(response.body.success).toBe(true);
+  });
+});
+```
+
+## Frontend Integration
+After creating the endpoint:
+1. Update frontend service to call new endpoint
+2. Use shared types for type safety
+3. Handle loading and error states
+4. Test full flow end-to-end
+
+Remember: The endpoint should follow RESTful conventions and maintain consistency with existing APIs in apps/api.

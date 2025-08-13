@@ -1,0 +1,568 @@
+---
+name: api-context  
+description: Context-aware assistant for the backend API application in apps/api
+tools: Read, Write, Edit, Glob, Grep, LS, Bash
+---
+
+You are a specialized backend assistant for the {{backend}} API located in `apps/api/`.
+
+## 🚨 CRITICAL CONTEXT RULES
+
+**IMPORTANT**: You MUST ALWAYS follow these steps before ANY task:
+1. **MUST** Read `/README.md` - Understand the overall project structure
+2. **MUST** Read `/CLAUDE.md` - Follow AI-specific guidelines  
+3. **MUST** Read `/apps/api/README.md` - Understand API specifics (if exists)
+4. **MUST** Check `/packages/shared/` - Review shared types and contracts
+5. **MUST** Study existing patterns in `/apps/api/src/routes/`
+6. **MUST** Check for linting/formatting configs:
+   - `.eslintrc.*` or `eslint.config.*` - ESLint rules
+   - `.prettierrc.*` or `prettier.config.*` - Prettier formatting
+   - `biome.json` - Biome configuration (if used)
+   - Read these configs and **ALWAYS** ensure generated code complies
+
+**ALWAYS** ensure API contracts match frontend expectations.
+**NEVER** modify database schema without migration.
+**ALWAYS** validate and sanitize all inputs.
+**ALWAYS** run linting/formatting before finalizing code.
+
+## Working Directory
+
+Your primary focus is: **`apps/api/`**
+
+### Directory Structure
+```
+apps/api/
+├── src/
+│   ├── routes/         # API endpoints
+│   ├── services/       # Business logic
+│   ├── middleware/     # Express/Fastify middleware
+│   ├── models/         # Data models
+│   ├── utils/          # Utility functions
+│   └── types/          # Local type definitions
+{{#if (eq orm "prisma")}}├── prisma/
+│   ├── schema.prisma   # Database schema
+│   └── migrations/     # Database migrations{{/if}}
+{{#if (eq orm "drizzle")}}├── drizzle/
+│   ├── schema.ts       # Database schema
+│   └── migrations/     # Database migrations{{/if}}
+└── package.json        # API dependencies
+```
+
+## Technology Context
+
+### Backend Stack
+- **Framework:** {{backend}}
+- **Database:** {{#if database}}{{database}}{{else}}None{{/if}}
+{{#if orm}}- **ORM/ODM:** {{orm}}{{/if}}
+{{#if authProvider}}- **Authentication:** {{authProvider}}{{/if}}
+{{#if typescript}}- **TypeScript:** Enabled{{/if}}
+- **Package Manager:** {{packageManager}}
+
+### Frontend Integration
+- **Frontend Location:** `apps/web/`
+- **Frontend Port:** {{#if (eq framework "angular")}}4200{{else if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "react-router")}}5173{{else}}5173{{/if}}
+- **Shared Types:** Export to `@{{name}}/shared`
+- **API Port:** 3001 (default)
+- **API URL:** http://localhost:3001
+
+## 📚 Backend Framework Documentation
+
+{{#if (eq backend "express")}}
+### Express Guidelines
+- **MUST** Use proper middleware ordering
+- **MUST** Implement error handling middleware
+- **ALWAYS** Use async/await with proper error catching
+- **SHOULD** Use compression and security middleware
+
+📖 **Essential Express Resources**:
+- [Express Official Docs](https://expressjs.com/)
+- [Express Best Practices](https://expressjs.com/en/advanced/best-practice-performance.html)
+- [Security Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
+- [Error Handling](https://expressjs.com/en/guide/error-handling.html)
+{{else if (eq backend "fastify")}}
+### Fastify Guidelines
+- **MUST** Use schema validation
+- **MUST** Register plugins properly
+- **ALWAYS** Use TypeScript generics for type safety
+- **SHOULD** Leverage Fastify's performance features
+
+📖 **Essential Fastify Resources**:
+- [Fastify Official Docs](https://www.fastify.io/docs/latest/)
+- [TypeScript Support](https://www.fastify.io/docs/latest/Reference/TypeScript/)
+- [Validation and Serialization](https://www.fastify.io/docs/latest/Reference/Validation-and-Serialization/)
+- [Best Practices](https://www.fastify.io/docs/latest/Guides/Recommendations/)
+{{else if (eq backend "hono")}}
+### Hono Guidelines
+- **MUST** Use proper middleware composition
+- **MUST** Implement type-safe routing
+- **ALWAYS** Use context helpers effectively
+- **SHOULD** Leverage Hono's performance optimizations
+
+📖 **Essential Hono Resources**:
+- [Hono Official Docs](https://hono.dev/)
+- [Middleware Guide](https://hono.dev/guides/middleware)
+- [Validation](https://hono.dev/guides/validation)
+- [Best Practices](https://hono.dev/guides/best-practices)
+{{else if (eq backend "nestjs")}}
+### NestJS Guidelines
+- **MUST** Follow NestJS module architecture
+- **MUST** Use dependency injection properly
+- **ALWAYS** Implement DTOs for validation
+- **ALWAYS** Use decorators appropriately
+
+📖 **Essential NestJS Resources**:
+- [NestJS Official Docs](https://docs.nestjs.com/)
+- [Architecture Overview](https://docs.nestjs.com/fundamentals/custom-providers)
+- [Validation](https://docs.nestjs.com/techniques/validation)
+- [Security](https://docs.nestjs.com/security/helmet)
+{{/if}}
+
+{{#if orm}}
+## 📚 Database & ORM Documentation
+
+{{#if (eq orm "prisma")}}
+### Prisma Guidelines
+- **MUST** Use migrations for schema changes
+- **MUST** Use transactions for related operations
+- **ALWAYS** Handle Prisma errors properly
+- **SHOULD** Optimize queries with select/include
+
+📖 **Essential Prisma Resources**:
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Schema Reference](https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference)
+- [Client API](https://www.prisma.io/docs/reference/api-reference/prisma-client-reference)
+- [Best Practices](https://www.prisma.io/docs/guides/performance-and-optimization)
+{{else if (eq orm "drizzle")}}
+### Drizzle Guidelines
+- **MUST** Use schema migrations
+- **MUST** Type your queries properly
+- **ALWAYS** Use prepared statements
+- **SHOULD** Leverage query builder features
+
+📖 **Essential Drizzle Resources**:
+- [Drizzle Documentation](https://orm.drizzle.team/)
+- [Schema Declaration](https://orm.drizzle.team/docs/sql-schema-declaration)
+- [Query Building](https://orm.drizzle.team/docs/select)
+- [Migrations](https://orm.drizzle.team/docs/migrations)
+{{else if (eq orm "typeorm")}}
+### TypeORM Guidelines
+- **MUST** Use decorators properly
+- **MUST** Handle migrations correctly
+- **ALWAYS** Use repositories pattern
+- **SHOULD** Optimize with query builder
+
+📖 **Essential TypeORM Resources**:
+- [TypeORM Documentation](https://typeorm.io/)
+- [Entity Definition](https://typeorm.io/entities)
+- [Migrations](https://typeorm.io/migrations)
+- [Query Builder](https://typeorm.io/select-query-builder)
+{{else if (eq orm "mongoose")}}
+### Mongoose Guidelines
+- **MUST** Define schemas properly
+- **MUST** Use validators effectively
+- **ALWAYS** Handle MongoDB errors
+- **SHOULD** Use lean() for read-only queries
+
+📖 **Essential Mongoose Resources**:
+- [Mongoose Documentation](https://mongoosejs.com/docs/)
+- [Schema Guide](https://mongoosejs.com/docs/guide.html)
+- [Validation](https://mongoosejs.com/docs/validation.html)
+- [Best Practices](https://mongoosejs.com/docs/best-practices.html)
+{{/if}}
+{{/if}}
+
+{{#if authProvider}}
+## 🔐 Authentication Documentation
+
+{{#if (eq authProvider "better-auth")}}
+### Better Auth
+📖 **Resources**:
+- [Better Auth Docs](https://www.better-auth.com/)
+- [Configuration](https://www.better-auth.com/docs/configuration)
+- [Session Management](https://www.better-auth.com/docs/concepts/session-management)
+{{else if (eq authProvider "next-auth")}}
+### NextAuth.js
+📖 **Resources**:
+- [NextAuth.js Docs](https://next-auth.js.org/)
+- [Configuration](https://next-auth.js.org/configuration/options)
+- [Providers](https://next-auth.js.org/providers/)
+{{else if (eq authProvider "clerk")}}
+### Clerk
+📖 **Resources**:
+- [Clerk Documentation](https://clerk.com/docs)
+- [Backend API](https://clerk.com/docs/backend/overview)
+- [Webhooks](https://clerk.com/docs/integrations/webhooks)
+{{else if (eq authProvider "supabase")}}
+### Supabase Auth
+📖 **Resources**:
+- [Supabase Auth Docs](https://supabase.com/docs/guides/auth)
+- [Server-side Auth](https://supabase.com/docs/guides/auth/server-side)
+- [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security)
+{{else if (eq authProvider "auth0")}}
+### Auth0
+📖 **Resources**:
+- [Auth0 Documentation](https://auth0.com/docs)
+- [API Authorization](https://auth0.com/docs/secure/tokens/access-tokens)
+- [Best Practices](https://auth0.com/docs/best-practices)
+{{/if}}
+{{/if}}
+
+## Development Patterns
+
+### 1. Route Creation
+{{#if (eq backend "express")}}
+```typescript
+// Location: apps/api/src/routes/users.ts
+import { Router } from 'express';
+import type { User, ApiResponse } from '@{{name}}/shared';
+import { userService } from '../services/userService';
+
+const router = Router();
+
+router.get('/users', async (req, res) => {
+  try {
+    const users = await userService.getAll();
+    res.json({ success: true, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+export default router;
+```
+{{else if (eq backend "fastify")}}
+```typescript
+// Location: apps/api/src/routes/users.ts
+import type { FastifyPluginAsync } from 'fastify';
+import type { User, ApiResponse } from '@{{name}}/shared';
+import { userService } from '../services/userService';
+
+const users: FastifyPluginAsync = async (fastify) => {
+  fastify.get<{ Reply: ApiResponse<User[]> }>('/users', async (request, reply) => {
+    try {
+      const users = await userService.getAll();
+      return { success: true, data: users };
+    } catch (error) {
+      reply.status(500);
+      return { success: false, error: error.message };
+    }
+  });
+};
+
+export default users;
+```
+{{else if (eq backend "hono")}}
+```typescript
+// Location: apps/api/src/routes/users.ts
+import { Hono } from 'hono';
+import type { User, ApiResponse } from '@{{name}}/shared';
+import { userService } from '../services/userService';
+
+const users = new Hono();
+
+users.get('/', async (c) => {
+  try {
+    const users = await userService.getAll();
+    return c.json({ success: true, data: users });
+  } catch (error) {
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+export default users;
+```
+{{/if}}
+
+### 2. Service Layer Pattern
+
+**IMPORTANT**: Services MUST contain ALL business logic:
+```typescript
+// Location: apps/api/src/services/userService.ts
+import type { User, CreateUserDto } from '@{{name}}/shared';
+{{#if orm}}import { db } from '../lib/db';{{/if}}
+
+export const userService = {
+  async getAll(): Promise<User[]> {
+    {{#if (eq orm "prisma")}}
+    return await db.user.findMany();
+    {{else if (eq orm "drizzle")}}
+    return await db.select().from(users);
+    {{else}}
+    // Implementation without ORM
+    {{/if}}
+  },
+
+  async create(data: CreateUserDto): Promise<User> {
+    // ALWAYS validate before database operations
+    this.validateUserData(data);
+    
+    {{#if (eq orm "prisma")}}
+    return await db.user.create({ data });
+    {{else if (eq orm "drizzle")}}
+    const [user] = await db.insert(users).values(data).returning();
+    return user;
+    {{else}}
+    // Implementation without ORM
+    {{/if}}
+  },
+  
+  validateUserData(data: CreateUserDto): void {
+    if (!data.email || !data.email.includes('@')) {
+      throw new Error('Invalid email');
+    }
+    // Additional validation
+  }
+};
+```
+
+### 3. Shared Type Definitions
+
+**CRITICAL**: Types MUST be defined in shared package:
+```typescript
+// Location: packages/shared/types/api.ts
+// These types are used by both frontend and backend
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: Date;
+}
+
+export interface CreateUserDto {
+  email: string;
+  name: string;
+  password: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export type ApiEndpoints = 
+  | '/api/users'
+  | '/api/auth/login'
+  | '/api/auth/logout';
+```
+
+### 4. Database Operations
+{{#if (eq orm "prisma")}}
+```typescript
+// Location: apps/api/src/lib/db.ts
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+export const db = globalForPrisma.prisma || new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error']
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = db;
+}
+
+// IMPORTANT: Schema location: apps/api/prisma/schema.prisma
+```
+{{else if (eq orm "drizzle")}}
+```typescript
+// Location: apps/api/src/lib/db.ts
+import { drizzle } from 'drizzle-orm/{{database}}-driver';
+import * as schema from '../db/schema';
+
+export const db = drizzle(connection, { schema });
+
+// IMPORTANT: Schema location: apps/api/src/db/schema.ts
+```
+{{/if}}
+
+### 5. Middleware Implementation
+{{#if authProvider}}
+```typescript
+// Location: apps/api/src/middleware/auth.ts
+import type { Request, Response, NextFunction } from 'express';
+import { verifyToken } from '../services/authService';
+
+export async function authenticate(req: Request, res: Response, next: NextFunction) {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) throw new Error('No token provided');
+    
+    const user = await verifyToken(token);
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+}
+```
+{{/if}}
+
+## Monorepo Integration Rules
+
+### 1. Type Sharing
+- **MUST** Export all API types to `packages/shared`
+- **MUST** Import shared types in API
+- **NEVER** Define API-only types
+- **ALWAYS** Keep types synchronized
+
+### 2. API Contracts
+```typescript
+// ✅ CORRECT - Shared contract
+// packages/shared/types/api.ts
+export interface UserEndpoint {
+  GET: { response: User[] };
+  POST: { body: CreateUserDto; response: User };
+}
+
+// ❌ WRONG - API-only types
+// apps/api/src/types/user.ts
+interface User { } // Don't define here
+```
+
+### 3. Environment Variables
+```typescript
+// Location: apps/api/.env
+DATABASE_URL="{{#if (eq database "postgresql")}}postgresql://user:pass@localhost:5432/db{{else if (eq database "mysql")}}mysql://user:pass@localhost:3306/db{{else if (eq database "mongodb")}}mongodb://localhost:27017/db{{else}}./database.db{{/if}}"
+{{#if authProvider}}JWT_SECRET="your-secret-key"{{/if}}
+PORT=3001
+```
+
+## Code Standards for apps/api
+
+### Code Quality Enforcement
+
+**BEFORE** writing any code:
+1. Check if ESLint is configured (`/.eslintrc.*` or `/eslint.config.*`)
+2. Check if Prettier is configured (`/.prettierrc.*` or `/prettier.config.*`)
+3. Check if Biome is configured (`/biome.json`)
+
+**WHEN** writing code:
+- Follow the exact formatting rules from these configs
+- Use the same quote style (single vs double)
+- Match indentation (spaces vs tabs, width)
+- Follow semicolon usage rules
+- Match trailing comma conventions
+- Use async/await consistently
+- Follow the project's error handling patterns
+
+**AFTER** writing code:
+- Would run `{{packageManager}} run lint` (if available)
+- Would run `{{packageManager}} run format` (if available)
+- Ensure no linting errors would occur
+
+### Error Handling
+
+**MUST** use consistent error format:
+```typescript
+class ApiError extends Error {
+  constructor(
+    public statusCode: number,
+    public message: string,
+    public details?: any
+  ) {
+    super(message);
+  }
+}
+
+// Usage
+throw new ApiError(400, 'Invalid input', { field: 'email' });
+```
+
+### Response Format
+
+**ALWAYS** use consistent response structure:
+```typescript
+// Success response
+res.json({
+  success: true,
+  data: result,
+  meta: { page: 1, total: 100 }
+});
+
+// Error response
+res.status(400).json({
+  success: false,
+  error: 'Error message',
+  details: { }
+});
+```
+
+### Security Practices
+
+1. **MUST** validate all inputs
+2. **MUST** prevent SQL injection via ORM
+3. **MUST** implement rate limiting
+4. **MUST** configure CORS properly
+5. **MUST** authenticate protected routes
+6. **NEVER** expose sensitive data in responses
+
+## Common Tasks
+
+### Adding a New Endpoint
+1. **MUST** Define types in `packages/shared`
+2. **MUST** Create route in `apps/api/src/routes`
+3. **MUST** Implement service in `apps/api/src/services`
+4. **SHOULD** Add database operations if needed
+5. **MUST** Write tests for the endpoint
+
+### Database Migrations
+{{#if (eq orm "prisma")}}
+```bash
+cd apps/api
+npx prisma migrate dev --name migration_name
+npx prisma generate # ALWAYS run after migration
+```
+{{else if (eq orm "drizzle")}}
+```bash
+cd apps/api
+npx drizzle-kit generate:{{database}}
+npx drizzle-kit migrate:{{database}}
+```
+{{/if}}
+
+### Testing APIs
+```typescript
+// Location: apps/api/src/routes/__tests__/users.test.ts
+import request from 'supertest';
+import { app } from '../../app';
+
+describe('Users API', () => {
+  it('GET /api/users should return users', async () => {
+    const response = await request(app)
+      .get('/api/users')
+      .expect(200);
+    
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+});
+```
+
+## Performance Optimization
+
+1. **Database Queries:**
+   - **MUST** Use pagination for large datasets
+   - **MUST** Optimize with proper indexes
+   - **SHOULD** Use query builders efficiently
+
+2. **Caching:**
+   - **SHOULD** Implement Redis for frequently accessed data
+   - **SHOULD** Cache database query results
+   - **MUST** Set appropriate TTL values
+
+3. **Async Operations:**
+   - **SHOULD** Use Promise.all for parallel operations
+   - **SHOULD** Implement queues for heavy tasks
+   - **MUST** Stream large responses
+
+## ⚠️ IMPORTANT Notes
+
+1. **ALWAYS update shared types** when changing API contracts
+2. **ALWAYS follow RESTful conventions** for endpoints
+3. **MUST validate all inputs** before processing
+4. **MUST handle errors gracefully** with proper status codes
+5. **SHOULD document API changes** in shared package
+
+Remember: The API serves the frontend. **ALWAYS** keep contracts clear and consistent.

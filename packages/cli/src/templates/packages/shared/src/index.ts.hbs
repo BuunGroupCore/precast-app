@@ -1,0 +1,7 @@
+// Export all shared types, utilities, and constants
+export * from "./types{{#if typescript}}/index{{/if}}{{#if (not typescript)}}.js{{/if}}";
+export * from "./constants{{#if (not typescript)}}.js{{/if}}";
+export * from "./utils{{#if typescript}}/index{{/if}}{{#if (not typescript)}}.js{{/if}}";
+{{#if (eq orm "prisma")}}
+export * from "./schemas{{#if typescript}}/index{{/if}}{{#if (not typescript)}}.js{{/if}}";
+{{/if}}

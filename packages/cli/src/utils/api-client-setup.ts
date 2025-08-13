@@ -175,7 +175,6 @@ function getTanStackQueryPackages(framework: string): string[] {
   switch (framework) {
     case "react":
     case "next":
-    case "remix":
     case "react-router":
     case "tanstack-router":
     case "tanstack-start":

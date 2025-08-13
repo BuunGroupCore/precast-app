@@ -17,7 +17,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1"{{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}},
     "axios": "^1.7.7"{{/ifAny}}{{#if (eq orm "prisma")}},
-    "@prisma/client": "^5.20.0"{{/if}}
+    "@prisma/client": "^6.14.0"{{/if}}
   },
   "devDependencies": {
     "vite": "^5.4.0",
@@ -30,6 +30,6 @@
     "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},
     "sass": "^1.79.4"{{/if}}{{#if (eq orm "prisma")}},
-    "prisma": "^5.20.0"{{/if}}
+    "prisma": "^6.14.0"{{/if}}
   }
 }

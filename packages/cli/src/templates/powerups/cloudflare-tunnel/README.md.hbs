@@ -1,0 +1,319 @@
+# Cloudflare Tunnel Configuration
+
+## 🔐 Overview
+
+Cloudflare Tunnel (formerly Argo Tunnel) provides a secure way to expose your local development environment to the internet without opening ports or configuring complex networking. Unlike ngrok, Cloudflare Tunnel offers:
+
+- ✅ **Custom Domains** - Use your own domain instead of random URLs
+- ✅ **DDoS Protection** - Built-in Cloudflare protection
+- ✅ **Zero Trust Security** - No exposed ports, outbound-only connections
+- ✅ **Persistent URLs** - URLs don't change between restarts
+- ✅ **Free Tier** - Generous free tier with no time limits
+- ✅ **Global CDN** - Cloudflare's global network for fast access
+
+## 🚀 Quick Start
+
+### Option 1: Quick Tunnel (No Setup Required)
+
+For quick testing without authentication:
+
+```bash
+# Start a quick tunnel (generates random URL)
+docker compose -f docker/cloudflare/docker-compose.cloudflare.yml --profile quick up
+
+# View the generated URL in logs
+docker logs {{name}}_cloudflared_quick
+```
+
+### Option 2: Authenticated Tunnel (Recommended)
+
+For persistent URLs with your own domain:
+
+#### 1. Run Setup Wizard
+
+```bash
+# Make setup script executable
+chmod +x docker/cloudflare/setup.sh
+
+# Run the setup wizard
+./docker/cloudflare/setup.sh
+```
+
+The wizard will:
+1. Authenticate with Cloudflare
+2. Create a tunnel
+3. Configure DNS routing
+4. Save credentials to `.env`
+
+#### 2. Start the Tunnel
+
+```bash
+# Start Cloudflare tunnel
+npm run cf:tunnel:up
+
+# Check status
+npm run cf:tunnel:status
+
+# View logs
+npm run cf:tunnel:logs
+```
+
+## 📍 Access Points
+
+{{#if (eq backend 'none')}}
+**Frontend Only:**
+- Local: `http://localhost:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}`
+- Public: `https://your-domain.com`
+{{else}}
+**Full Stack with Traefik:**
+- Frontend: `https://your-domain.com`
+- API: `https://api.your-domain.com`
+- WebSockets: `https://ws.your-domain.com`
+{{/if}}
+
+## 🔧 Manual Configuration
+
+### 1. Create a Cloudflare Account
+
+1. Sign up at [cloudflare.com](https://cloudflare.com)
+2. Add your domain to Cloudflare (optional for custom domains)
+
+### 2. Install cloudflared CLI (Optional)
+
+```bash
+# macOS
+brew install cloudflared
+
+# Linux
+wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo dpkg -i cloudflared-linux-amd64.deb
+
+# Or use Docker (no installation needed)
+docker run cloudflare/cloudflared:latest --help
+```
+
+### 3. Authenticate
+
+```bash
+cloudflared tunnel login
+```
+
+### 4. Create Tunnel
+
+```bash
+# Create a named tunnel
+cloudflared tunnel create {{name}}-dev
+
+# List tunnels
+cloudflared tunnel list
+```
+
+### 5. Create DNS Routes
+
+```bash
+# Route your domain to the tunnel
+cloudflared tunnel route dns {{name}}-dev dev.yourdomain.com
+
+{{#if (ne backend 'none')}}
+# Also route API subdomain
+cloudflared tunnel route dns {{name}}-dev api.dev.yourdomain.com
+{{/if}}
+```
+
+### 6. Get Tunnel Token
+
+```bash
+# Generate token for docker-compose
+cloudflared tunnel token {{name}}-dev
+```
+
+Add the token to your `.env` file:
+
+```bash
+CLOUDFLARE_TUNNEL_TOKEN=your_token_here
+CLOUDFLARE_TUNNEL_NAME={{name}}-dev
+PUBLIC_DOMAIN=dev.yourdomain.com
+```
+
+## 🌐 Configuration Options
+
+### Environment Variables
+
+```bash
+# Required for authenticated tunnels
+CLOUDFLARE_TUNNEL_TOKEN=your_tunnel_token
+
+# Optional customization
+CLOUDFLARE_TUNNEL_NAME={{name}}-dev
+PUBLIC_DOMAIN=dev.yourdomain.com
+```
+
+### Advanced config.yml
+
+Edit `docker/cloudflare/config.yml` for advanced routing:
+
+```yaml
+ingress:
+  # Main app
+  - hostname: dev.yourdomain.com
+    service: http://host.docker.internal:3000
+    
+  # API with path-based routing
+  - hostname: dev.yourdomain.com
+    path: /api/*
+    service: http://host.docker.internal:5000
+    
+  # WebSocket support
+  - hostname: dev.yourdomain.com
+    path: /ws
+    service: ws://host.docker.internal:3000
+    
+  # Static assets with caching
+  - hostname: dev.yourdomain.com
+    path: /static/*
+    service: http://host.docker.internal:3000
+    originRequest:
+      noTLSVerify: true
+```
+
+## 🔄 Integration with Traefik
+
+When using both Cloudflare Tunnel and Traefik:
+
+```
+Internet → Cloudflare → Tunnel → Traefik → Services
+```
+
+Benefits:
+- Cloudflare handles external security and DDoS protection
+- Traefik handles internal routing and load balancing
+- Best of both worlds for development and production parity
+
+## 🛡️ Security Features
+
+### Zero Trust Access (Optional)
+
+Add authentication to your tunnel:
+
+1. Go to [Cloudflare Zero Trust Dashboard](https://one.dash.cloudflare.com)
+2. Create an Access Application
+3. Set authentication rules (email, GitHub, etc.)
+4. Apply to your tunnel hostname
+
+### IP Access Rules
+
+Restrict access by IP:
+
+```yaml
+ingress:
+  - hostname: dev.yourdomain.com
+    service: http://localhost:3000
+    originRequest:
+      ipRules:
+        - prefix: 192.168.1.0/24
+          allow: true
+```
+
+## 📊 Monitoring
+
+### Cloudflare Dashboard
+
+Monitor your tunnel at:
+- [Cloudflare Dashboard](https://dash.cloudflare.com)
+- Traffic Analytics
+- Security Events
+- Performance Metrics
+
+### Local Metrics
+
+Access metrics at `http://localhost:2000/metrics` when tunnel is running.
+
+## 🚨 Troubleshooting
+
+### Tunnel Not Starting
+
+```bash
+# Check logs
+npm run cf:tunnel:logs
+
+# Verify token
+echo $CLOUDFLARE_TUNNEL_TOKEN
+
+# Test connection
+docker exec {{name}}_cloudflared cloudflared tunnel info
+```
+
+### DNS Not Resolving
+
+1. Check DNS records in Cloudflare Dashboard
+2. Ensure domain is proxied through Cloudflare (orange cloud)
+3. Wait 1-2 minutes for DNS propagation
+
+### 502 Bad Gateway
+
+1. Verify your local app is running
+2. Check the service address in config.yml
+3. Ensure Docker network connectivity:
+   ```bash
+   docker network inspect {{name}}_network
+   ```
+
+### Authentication Issues
+
+```bash
+# Re-authenticate
+cloudflared tunnel login
+
+# Regenerate token
+cloudflared tunnel token {{name}}-dev
+```
+
+## 🎯 Use Cases
+
+### Production-Like Testing
+
+- Test with real SSL certificates
+- Use actual domain names
+- Test CDN and caching behavior
+
+### Webhook Development
+
+```javascript
+// Configure webhook endpoint
+const webhookUrl = 'https://dev.yourdomain.com/webhooks/stripe';
+```
+
+### OAuth Integration
+
+```javascript
+// OAuth callback URL
+const callbackUrl = 'https://dev.yourdomain.com/auth/callback';
+```
+
+### Mobile App Development
+
+Share consistent URLs with mobile developers for API testing.
+
+## 📈 Performance Tips
+
+1. **Use HTTP/2**: Enabled by default for better performance
+2. **Enable Caching**: Cloudflare caches static assets automatically
+3. **Compression**: Cloudflare handles Brotli/Gzip compression
+4. **Regional Routing**: Cloudflare routes to nearest data center
+
+## 💰 Pricing
+
+- **Free Tier**: Unlimited tunnels, no time restrictions
+- **Zero Trust Free**: Up to 50 users
+- **Paid Plans**: Advanced features like load balancing, more users
+
+## 🔗 Resources
+
+- [Cloudflare Tunnel Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
+- [Zero Trust Setup](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/)
+- [Tunnel CLI Reference](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-useful-commands/)
+- [Troubleshooting Guide](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/troubleshooting/)
+
+---
+
+💡 **Pro Tip**: Cloudflare Tunnel is production-ready. The same configuration can be used for staging and production deployments with different domains.

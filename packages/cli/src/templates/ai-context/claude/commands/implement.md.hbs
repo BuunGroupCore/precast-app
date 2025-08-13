@@ -1,0 +1,62 @@
+---
+description: Implement a new feature following project conventions
+allowed-tools: Read, Write, Edit, Glob, Grep, Task
+---
+
+Implement a new feature for this {{framework}} project following established patterns.
+
+## Implementation Checklist
+
+Before implementing, ensure you:
+1. Read @README.md for project structure
+2. Read @CLAUDE.md for coding guidelines
+3. Study similar existing features for patterns
+4. Check {{#if typescript}}types in src/types{{else}}existing interfaces{{/if}}
+
+## Implementation Steps
+
+### 1. Understand Context
+```
+First, let me understand the existing patterns by examining:
+- Similar components/features
+- Current file organization  
+- Styling approach ({{styling}})
+- State management patterns
+{{#if authProvider}}- Authentication flow{{/if}}
+{{#if database}}- Data fetching patterns{{/if}}
+```
+
+### 2. Plan Implementation
+Use the architecture-guide agent to ensure proper structure:
+```
+Based on the project architecture, plan the implementation of: $ARGUMENTS
+```
+
+### 3. Create Feature
+Following the exact patterns found in existing code:
+- Use the same file naming convention
+- Follow the same component structure
+- Apply consistent styling approach
+- Maintain type safety {{#if typescript}}with TypeScript{{/if}}
+
+### 4. Integrate Feature
+- Update routing if needed
+- Add to relevant parent components
+- Connect to state management if required
+{{#if backend}}- Create API endpoints if needed{{/if}}
+
+### 5. Test Implementation
+- Verify functionality works as expected
+- Check for console errors
+- Ensure consistent UX with rest of app
+{{#if typescript}}- Run type checking{{/if}}
+
+## Standards to Follow
+
+- **Components**: {{#if (eq framework "react")}}Functional with hooks{{else if (eq framework "vue")}}Composition API{{else if (eq framework "angular")}}Class-based with decorators{{/if}}
+- **Styling**: {{#if (eq styling "tailwind")}}Tailwind utilities{{else if (eq styling "css-modules")}}CSS Modules{{else}}{{styling}}{{/if}}
+- **State**: {{#if (eq framework "react")}}useState/useContext{{else if (eq framework "vue")}}ref/reactive{{else}}Framework patterns{{/if}}
+{{#if authProvider}}- **Auth**: {{authProvider}} integration{{/if}}
+{{#if database}}- **Data**: {{#if orm}}{{orm}}{{else}}Direct queries{{/if}}{{/if}}
+
+Remember: Consistency with existing code is paramount. When in doubt, follow the patterns already established in the codebase.

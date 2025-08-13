@@ -28,6 +28,7 @@ export interface ExtendedProjectConfig
   eslint?: boolean;
   dockerCompose?: boolean;
   gitignore?: boolean;
+  generate?: boolean;
 }
 
 /**

@@ -1,0 +1,113 @@
+---
+description: Implement a complete feature in the web application
+allowed-tools: Read, Write, Edit, Task
+---
+
+Implement a complete feature in apps/web that may require API integration.
+
+## Feature Implementation Process
+
+### 1. Planning Phase
+Use the web-context agent to plan the feature:
+```
+Plan and implement in apps/web: $ARGUMENTS
+
+Consider:
+- Component structure needed
+- State management approach
+- API integration requirements
+- Shared types needed from @{{name}}/shared
+```
+
+### 2. Shared Types Definition
+If new types are needed, first define them in packages/shared:
+1. Add types to `packages/shared/src/types/`
+2. Export from appropriate index file
+3. Build shared package: `cd packages/shared && {{packageManager}} run build`
+
+### 3. Frontend Implementation
+
+#### Component Creation
+- Create main feature component
+- Create sub-components as needed
+- Follow existing component patterns
+
+#### State Management
+{{#if (eq framework "react")}}
+- Local state with useState
+- Context for feature-wide state
+- {{#if (eq apiClient "tanstack-query")}}TanStack Query for server state{{else if (eq apiClient "swr")}}SWR for server state{{/if}}
+{{else if (eq framework "vue")}}
+- Local state with ref/reactive
+- Provide/inject for feature state
+- Composables for reusable logic
+{{/if}}
+
+#### API Integration
+```typescript
+// apps/web/src/services/featureService.ts
+import type { FeatureData } from '@{{name}}/shared';
+
+export async function fetchFeatureData(): Promise<FeatureData> {
+  const response = await fetch(`${API_URL}/api/feature`);
+  if (!response.ok) throw new Error('Failed to fetch');
+  return response.json();
+}
+```
+
+#### Routing
+{{#if (eq framework "react")}}
+```typescript
+// Add route in router configuration
+{
+  path: '/feature',
+  element: <FeatureComponent />
+}
+```
+{{else if (eq framework "vue")}}
+```typescript
+// Add route in router configuration
+{
+  path: '/feature',
+  component: () => import('./views/Feature.vue')
+}
+```
+{{/if}}
+
+### 4. Styling
+{{#if (eq styling "tailwind")}}
+- Use Tailwind utility classes
+- Extract complex styles to variables
+- Maintain consistency with existing styles
+{{else if (eq styling "css-modules")}}
+- Create .module.css file for component
+- Follow BEM naming in stylesheets
+- Use existing CSS variables
+{{/if}}
+
+### 5. Integration Checklist
+- [ ] Types defined in @{{name}}/shared
+- [ ] Component follows patterns
+- [ ] API service created if needed
+- [ ] Routing configured
+- [ ] State management implemented
+- [ ] Error handling in place
+- [ ] Loading states handled
+- [ ] Responsive design considered
+
+### 6. Testing Considerations
+- Component renders correctly
+- User interactions work
+- API calls are handled
+- Error states display properly
+- Loading states show appropriately
+
+## Cross-Package Coordination
+
+If the feature requires backend changes:
+1. Define API contract in packages/shared
+2. Coordinate with api-context agent for backend
+3. Ensure types match between frontend and backend
+4. Test full integration flow
+
+Remember: Features should be complete and production-ready, following all established patterns in apps/web.

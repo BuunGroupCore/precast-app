@@ -1,0 +1,50 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: {{name}}_cloudflared
+    restart: unless-stopped
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    {{#if (eq backend 'none')}}
+    # Quick tunnel mode - no token required for testing
+    command: tunnel --no-autoupdate run
+    {{else}}
+    # Authenticated tunnel with token
+    command: tunnel --no-autoupdate run
+    {{/if}}
+    volumes:
+      - ./cloudflare/config.yml:/etc/cloudflared/config.yml:ro
+      - cloudflared-data:/home/nonroot/.cloudflared
+    networks:
+      - {{name}}_network
+      {{#if (ne backend 'none')}}
+      - traefik_network
+      {{/if}}
+    labels:
+      - "traefik.enable=false" # Cloudflare tunnel doesn't need Traefik exposure
+
+  {{#if (eq backend 'none')}}
+  # Quick tunnel without authentication (for testing only)
+  cloudflared-quick:
+    image: cloudflare/cloudflared:latest
+    container_name: {{name}}_cloudflared_quick
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://host.docker.internal:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}
+    networks:
+      - {{name}}_network
+    profiles:
+      - quick
+  {{/if}}
+
+volumes:
+  cloudflared-data:
+
+networks:
+  {{name}}_network:
+    external: true
+    name: {{name}}_network
+  {{#if (ne backend 'none')}}
+  traefik_network:
+    external: true
+    name: traefik_network
+  {{/if}}

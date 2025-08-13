@@ -1,0 +1,76 @@
+---
+description: Create a new component in the web app following established patterns
+allowed-tools: Read, Write, Edit, Task
+---
+
+Create a new {{framework}} component in apps/web following project conventions.
+
+## Component Creation Process
+
+### 1. Context Gathering
+Use the web-context agent to understand patterns:
+```
+Study the component patterns in apps/web/src/components and create: $ARGUMENTS
+```
+
+### 2. Pre-Creation Checklist
+- [ ] Read @README.md for project structure
+- [ ] Read @CLAUDE.md for component guidelines
+- [ ] Check @packages/shared/types for relevant types
+- [ ] Study @apps/web/src/components for patterns
+
+### 3. Component Structure
+
+The web-context agent will ensure your component follows the project's structure:
+
+{{#if (eq framework "react")}}
+```typescript
+// apps/web/src/components/ComponentName/ComponentName.tsx
+import type { FC } from 'react';
+import type { SharedType } from '@{{name}}/shared';
+{{#if (eq styling "css-modules")}}import styles from './ComponentName.module.css';{{/if}}
+
+interface ComponentNameProps {
+  // Props
+}
+
+export const ComponentName: FC<ComponentNameProps> = (props) => {
+  // Component logic
+  return <div>Component</div>;
+};
+```
+{{else if (eq framework "vue")}}
+```vue
+<!-- apps/web/src/components/ComponentName.vue -->
+<script setup lang="ts">
+import type { SharedType } from '@{{name}}/shared';
+
+interface Props {
+  // Props
+}
+
+const props = defineProps<Props>();
+</script>
+
+<template>
+  <div>Component</div>
+</template>
+```
+{{/if}}
+
+### 4. Integration Steps
+1. Create component file(s) in appropriate location
+2. Add any required styles ({{styling}})
+3. Export from index.ts (barrel export)
+4. Import and use in parent component
+5. Add tests if pattern exists
+
+### 5. Quality Checks
+- [ ] Follows naming conventions
+- [ ] Uses shared types from @{{name}}/shared
+- [ ] Consistent with other components
+- [ ] Proper TypeScript typing
+- [ ] Includes necessary props
+- [ ] Handles edge cases
+
+Remember: The component should seamlessly integrate with existing components in apps/web.

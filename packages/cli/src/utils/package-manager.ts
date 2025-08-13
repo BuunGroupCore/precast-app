@@ -333,6 +333,7 @@ export async function installAllDependencies(options: {
   packageManager: string;
   projectPath: string;
   skipFormatting?: boolean;
+  generate?: boolean;
 }): Promise<void> {
   const pm = getPackageManagerConfig(options.packageManager);
 
@@ -352,11 +353,24 @@ export async function installAllDependencies(options: {
   consola.info(`${actualPmIcon} Installing all dependencies with ${actualPm.id}...`);
 
   try {
-    // For Bun, use --ignore-scripts to avoid postinstall script failures
+    // Use --ignore-scripts when generate is disabled to prevent unwanted ORM generation
     const installArgs = ["install"];
-    if (actualPm.id === "bun") {
-      installArgs.push("--ignore-scripts");
-      logger.verbose("💡 Using --ignore-scripts flag to avoid postinstall script issues with Bun");
+    if (options.generate === false) {
+      if (actualPm.id === "bun") {
+        installArgs.push("--ignore-scripts");
+        logger.verbose("💡 Using --ignore-scripts flag as --no-generate was specified");
+      } else if (actualPm.id === "npm") {
+        installArgs.push("--ignore-scripts");
+        logger.verbose("💡 Using --ignore-scripts flag as --no-generate was specified");
+      } else if (actualPm.id === "yarn") {
+        installArgs.push("--ignore-scripts");
+        logger.verbose("💡 Using --ignore-scripts flag as --no-generate was specified");
+      } else if (actualPm.id === "pnpm") {
+        installArgs.push("--ignore-scripts");
+        logger.verbose("💡 Using --ignore-scripts flag as --no-generate was specified");
+      }
+    } else if (actualPm.id === "bun") {
+      logger.verbose("💡 Allowing postinstall scripts to run for automatic ORM generation");
     }
 
     // For pnpm, check if we're in a workspace and add --ignore-workspace flag

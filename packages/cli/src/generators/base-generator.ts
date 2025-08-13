@@ -450,6 +450,50 @@ async function generateMonorepoProject(
     const apiDir = path.join(appsDir, backendFolderName);
     await fs.mkdir(apiDir, { recursive: true });
     await generateBackendTemplate(config.backend, config, apiDir);
+
+    // Create packages/shared for monorepo structure
+    const packagesDir = path.join(projectPath, "packages");
+    const sharedDir = path.join(packagesDir, "shared");
+    await fs.mkdir(packagesDir, { recursive: true });
+    await fs.mkdir(sharedDir, { recursive: true });
+
+    // Copy shared package templates
+    await templateEngine.copyTemplateDirectory("packages/shared", sharedDir, config, {
+      overwrite: true,
+    });
+
+    // Add shared package as dependency to both web and api
+    const webPackageJsonPath = path.join(webDir, "package.json");
+    const apiPackageJsonPath = path.join(apiDir, "package.json");
+    const sharedPackageName = `@${config.name}/shared`;
+
+    // Update web package.json
+    if (
+      await fs
+        .access(webPackageJsonPath)
+        .then(() => true)
+        .catch(() => false)
+    ) {
+      const webPackageJson = JSON.parse(await fs.readFile(webPackageJsonPath, "utf-8"));
+      webPackageJson.dependencies = webPackageJson.dependencies || {};
+      webPackageJson.dependencies[sharedPackageName] = "workspace:*";
+      await fs.writeFile(webPackageJsonPath, JSON.stringify(webPackageJson, null, 2));
+    }
+
+    // Update api package.json
+    if (
+      await fs
+        .access(apiPackageJsonPath)
+        .then(() => true)
+        .catch(() => false)
+    ) {
+      const apiPackageJson = JSON.parse(await fs.readFile(apiPackageJsonPath, "utf-8"));
+      apiPackageJson.dependencies = apiPackageJson.dependencies || {};
+      apiPackageJson.dependencies[sharedPackageName] = "workspace:*";
+      await fs.writeFile(apiPackageJsonPath, JSON.stringify(apiPackageJson, null, 2));
+    }
+
+    logger.verbose("Created packages/shared for type sharing between apps");
   }
 
   logger.verbose("Monorepo structure created successfully!");

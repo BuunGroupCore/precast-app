@@ -1,0 +1,36 @@
+services:
+  ngrok:
+    image: ngrok/ngrok:alpine
+    container_name: {{name}}_ngrok
+    restart: unless-stopped
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTH_TOKEN:-}
+      - NGROK_REGION=${NGROK_REGION:-us}
+    {{#if (eq backend 'none')}}
+    # Tunnel directly to frontend
+    command: http {{#if (eq framework 'next')}}host.docker.internal:3000{{else if (eq framework 'nuxt')}}host.docker.internal:3000{{else if (eq framework 'react')}}host.docker.internal:5173{{else if (eq framework 'vue')}}host.docker.internal:5173{{else if (eq framework 'angular')}}host.docker.internal:4200{{else if (eq framework 'svelte')}}host.docker.internal:5173{{else if (eq framework 'solid')}}host.docker.internal:3000{{else if (eq framework 'astro')}}host.docker.internal:4321{{else if (eq framework 'react-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-start')}}host.docker.internal:3000{{else if (eq framework 'vite')}}host.docker.internal:5173{{else}}host.docker.internal:3000{{/if}} --host-header=localhost
+    {{else}}
+    # Tunnel to Traefik if available, otherwise to frontend
+    command: http host.docker.internal:80 --host-header=app.localhost
+    {{/if}}
+    ports:
+      - "4040:4040" # Web inspection interface
+    volumes:
+      - ./ngrok/ngrok.yml:/etc/ngrok.yml:ro
+    networks:
+      - {{name}}_network
+      {{#if (ne backend 'none')}}
+      - traefik_network
+      {{/if}}
+    labels:
+      - "traefik.enable=false" # ngrok doesn't need to be exposed via Traefik
+
+networks:
+  {{name}}_network:
+    external: true
+    name: {{name}}_network
+  {{#if (ne backend 'none')}}
+  traefik_network:
+    external: true
+    name: traefik_network
+  {{/if}}

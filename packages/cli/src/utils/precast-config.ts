@@ -64,7 +64,7 @@ export async function writePrecastConfig(projectConfig: ProjectConfig) {
   } else if (
     projectConfig.framework === "next" ||
     projectConfig.framework === "nuxt" ||
-    projectConfig.framework === "remix"
+    projectConfig.framework === "react-router"
   ) {
     deploymentType = "hybrid";
   }

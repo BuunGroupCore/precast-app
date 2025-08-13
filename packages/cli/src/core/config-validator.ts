@@ -101,6 +101,91 @@ export class ConfigValidator {
       message: "TypeScript is highly recommended for Angular and Vue projects",
       severity: "warning",
     });
+
+    // PowerUp validation rules
+    this.addRule({
+      name: "traefik-requires-docker",
+      check: (config) => {
+        // Check if Traefik is in the powerups list and Docker is not enabled
+        if (config.powerups && config.powerups.includes("traefik") && !config.docker) {
+          return false;
+        }
+        return true;
+      },
+      message:
+        "Traefik PowerUp requires Docker to be enabled. Please add --docker flag or enable Docker in the configuration",
+      severity: "error",
+    });
+
+    this.addRule({
+      name: "powerups-docker-dependency",
+      check: (config) => {
+        // List of PowerUps that require Docker
+        const dockerRequiredPowerUps = [
+          "traefik",
+          "redis",
+          "rabbitmq",
+          "elasticsearch",
+          "ngrok",
+          "cloudflare-tunnel",
+        ];
+
+        if (config.powerups && !config.docker) {
+          const needsDocker = config.powerups.some((powerup) =>
+            dockerRequiredPowerUps.includes(powerup)
+          );
+          if (needsDocker) {
+            return false;
+          }
+        }
+        return true;
+      },
+      message: "Some selected PowerUps require Docker. Please enable Docker with --docker flag",
+      severity: "error",
+    });
+
+    // Tunneling PowerUp validation
+    this.addRule({
+      name: "ngrok-requires-docker",
+      check: (config) => {
+        if (config.powerups && config.powerups.includes("ngrok") && !config.docker) {
+          return false;
+        }
+        return true;
+      },
+      message: "ngrok PowerUp requires Docker to be enabled. Please add --docker flag",
+      severity: "error",
+    });
+
+    this.addRule({
+      name: "cloudflare-tunnel-requires-docker",
+      check: (config) => {
+        if (config.powerups && config.powerups.includes("cloudflare-tunnel") && !config.docker) {
+          return false;
+        }
+        return true;
+      },
+      message: "Cloudflare Tunnel PowerUp requires Docker to be enabled. Please add --docker flag",
+      severity: "error",
+    });
+
+    this.addRule({
+      name: "tunnel-with-traefik-recommendation",
+      check: (config) => {
+        // Recommend using Traefik with tunneling for better routing
+        if (config.powerups) {
+          const hasTunnel = config.powerups.some((p) => ["ngrok", "cloudflare-tunnel"].includes(p));
+          const hasTraefik = config.powerups.includes("traefik");
+          if (hasTunnel && !hasTraefik && config.backend && config.backend !== "none") {
+            return false;
+          }
+        }
+        return true;
+      },
+      message:
+        "Consider adding Traefik PowerUp for better routing when using tunnels with a backend",
+      severity: "warning",
+    });
   }
 
   /**

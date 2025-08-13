@@ -17,19 +17,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["apps/web/src/*"]{{#if (or (eq backend "node") (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs") (eq backend "koa"))}},
-      "@api/*": ["apps/api/src/*"]{{/if}}
+      "@api/*": ["apps/api/src/*"]{{/if}}{{#if (and backend (ne backend "none"))}},
+      "@{{name}}/shared": ["packages/shared/src"]{{/if}}
     }
   },
   "include": [
     "apps/web/src/**/*"{{#if (or (eq backend "node") (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs") (eq backend "koa"))}},
-    "apps/api/src/**/*"{{/if}}
-  ],
-  "references": [
-    {
-      "path": "./apps/web"
-    }{{#if (or (eq backend "node") (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs") (eq backend "koa"))}},
-    {
-      "path": "./apps/api"
-    }{{/if}}
+    "apps/api/src/**/*"{{/if}}{{#if (and backend (ne backend "none"))}},
+    "packages/shared/src/**/*"{{/if}}
   ]
 }

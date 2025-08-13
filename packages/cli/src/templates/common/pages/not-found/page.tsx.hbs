@@ -140,7 +140,7 @@ export function NotFoundPage() {
         {/* Action buttons */}
         <div className="{{#if (eq styling 'tailwind')}}flex gap-4 mt-6{{else}}action-buttons{{/if}}">
           <button
-            onClick={() => {{#if (eq framework "tanstack-router")}}router.history.back(){{else if (eq framework "next")}}navigate(-1){{else}}navigate(-1){{/if}}}
+            onClick={() => {{#if (eq framework "tanstack-router")}}router.history.back(){{else if (eq framework "next")}}navigate(-1){{else}}navigate(-1){{/if}} }
             className="{{#if (eq styling 'tailwind')}}group flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black border-2 border-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150{{else}}btn-brutalist btn-brutalist-white{{/if}}"
           >
             <ArrowLeft size={16} className="{{#if (eq styling 'tailwind')}}group-hover:-translate-x-1 transition-transform{{else}}btn-icon{{/if}}" />
@@ -148,7 +148,7 @@ export function NotFoundPage() {
           </button>
 
           <button
-            onClick={() => {{#if (eq framework "tanstack-router")}}navigate({ to: "/" }){{else if (eq framework "next")}}navigate("/"){{else}}navigate("/"){{/if}}}
+            onClick={() => {{#if (eq framework "tanstack-router")}}navigate({ to: "/" }){{else if (eq framework "next")}}navigate("/"){{else}}navigate("/"){{/if}} }
             className="{{#if (eq styling 'tailwind')}}group flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black border-2 border-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150{{else}}btn-brutalist{{/if}}"
           >
             <Home size={16} />

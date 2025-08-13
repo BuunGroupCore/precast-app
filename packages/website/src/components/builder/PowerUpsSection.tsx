@@ -1,6 +1,14 @@
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { FaChevronDown, FaChevronUp, FaTools, FaGitAlt, FaDocker } from "react-icons/fa";
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaTools,
+  FaGitAlt,
+  FaDocker,
+  FaStar,
+  FaInfoCircle,
+} from "react-icons/fa";
 import { SiTypescript } from "react-icons/si";
 
 import { ComicTooltip } from "@/components/ui/ComicTooltip";
@@ -26,6 +34,8 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showTunnelingSuggestion, setShowTunnelingSuggestion] = useState(false);
+  const [suggestedPowerUps, setSuggestedPowerUps] = useState<string[]>([]);
 
   const getPowerUpStatus = (powerup: (typeof powerUps)[0]) => {
     const missingRequirements: string[] = [];
@@ -119,21 +129,69 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
 
   const togglePowerUp = (powerupId: string) => {
     const currentPowerups = config.powerups || [];
-    if (currentPowerups.includes(powerupId)) {
+
+    // Check if user is selecting ngrok or cloudflare-tunnel
+    if (!currentPowerups.includes(powerupId)) {
+      if (powerupId === "ngrok" || powerupId === "cloudflare-tunnel") {
+        const hasTraefik = currentPowerups.includes("traefik");
+        const hasOtherTunnel =
+          powerupId === "ngrok"
+            ? currentPowerups.includes("cloudflare-tunnel")
+            : currentPowerups.includes("ngrok");
+
+        // If they don't have Traefik or another tunnel, suggest them
+        if (!hasTraefik && !hasOtherTunnel && config.backend !== "none") {
+          setSuggestedPowerUps(["traefik"]);
+          setShowTunnelingSuggestion(true);
+        }
+
+        // Enable Docker automatically for tunneling solutions
+        if (!config.docker) {
+          if (handleDockerToggle) {
+            handleDockerToggle();
+          } else {
+            setConfig((prev) => ({ ...prev, docker: true }));
+          }
+        }
+      }
+
       setConfig({
         ...config,
-        powerups: currentPowerups.filter((id) => id !== powerupId),
+        powerups: [...currentPowerups, powerupId],
       });
     } else {
       setConfig({
         ...config,
-        powerups: [...currentPowerups, powerupId],
+        powerups: currentPowerups.filter((id) => id !== powerupId),
       });
     }
   };
 
   const isPowerUpSelected = (powerupId: string) => {
     return config.powerups?.includes(powerupId) || false;
+  };
+
+  // Highlight suggested PowerUps
+  const isSuggested = (powerupId: string) => {
+    return suggestedPowerUps.includes(powerupId);
+  };
+
+  // Check if PowerUp enhances tunneling
+  const enhancesTunneling = (powerupId: string) => {
+    const currentPowerups = config.powerups || [];
+    const hasTunnel =
+      currentPowerups.includes("ngrok") || currentPowerups.includes("cloudflare-tunnel");
+
+    if (hasTunnel) {
+      // Traefik enhances tunneling for routing
+      if (powerupId === "traefik") return true;
+      // If ngrok is selected, cloudflare-tunnel is an alternative
+      if (currentPowerups.includes("ngrok") && powerupId === "cloudflare-tunnel") return false;
+      // If cloudflare-tunnel is selected, ngrok is an alternative
+      if (currentPowerups.includes("cloudflare-tunnel") && powerupId === "ngrok") return false;
+    }
+
+    return false;
   };
 
   return (
@@ -165,6 +223,49 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
         Supercharge your project with plugins and extensions - add development tools, testing,
         monitoring, and more
       </p>
+
+      {/* Tunneling Suggestion Notification */}
+      {showTunnelingSuggestion && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 p-3 bg-comic-yellow/20 border-2 border-comic-yellow rounded-lg"
+        >
+          <div className="flex items-start gap-2">
+            <BuilderIcon icon={FaInfoCircle} className="text-comic-darkBlue mt-1" />
+            <div className="flex-1">
+              <p className="font-comic text-sm text-comic-darkBlue mb-2">
+                <strong>Pro Tip:</strong> For the best tunneling experience with your backend, we
+                recommend adding <strong>Traefik</strong> for advanced routing and load balancing.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setConfig({
+                      ...config,
+                      powerups: [...(config.powerups || []), "traefik"],
+                    });
+                    setShowTunnelingSuggestion(false);
+                    setSuggestedPowerUps([]);
+                  }}
+                  className="px-3 py-1 bg-comic-green text-comic-white rounded font-comic text-xs font-bold hover:bg-comic-darkGreen transition-colors"
+                >
+                  Add Traefik
+                </button>
+                <button
+                  onClick={() => {
+                    setShowTunnelingSuggestion(false);
+                    setSuggestedPowerUps([]);
+                  }}
+                  className="px-3 py-1 bg-comic-gray/30 text-comic-darkBlue rounded font-comic text-xs font-bold hover:bg-comic-gray/40 transition-colors"
+                >
+                  Continue Without
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Basic Power-ups (always visible) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -298,44 +399,61 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
               const Icon = powerup.icon;
               const isSelected = isPowerUpSelected(powerup.id);
               const isAvailable = powerup.isAvailable;
+              const isPowerUpSuggested = isSuggested(powerup.id);
+              const enhances = enhancesTunneling(powerup.id);
 
               return (
                 <ComicTooltip
                   key={powerup.id}
                   content={
                     isAvailable
-                      ? powerup.isRecommended
-                        ? `⭐ Recommended: ${powerup.recommendationReason}`
-                        : powerup.description
+                      ? enhances
+                        ? `⭐ Works great with tunneling solutions for better routing!`
+                        : powerup.isRecommended
+                          ? `⭐ Recommended: ${powerup.recommendationReason}`
+                          : powerup.description
                       : `🔒 Requires: ${powerup.missingRequirements?.join(", ")}`
                   }
                 >
                   <button
                     onClick={() => isAvailable && togglePowerUp(powerup.id)}
                     disabled={!isAvailable}
-                    className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform relative w-full h-full min-h-[80px] flex flex-col overflow-hidden ${
+                    className={`p-3 border-3 rounded-lg transition-all duration-200 transform relative w-full h-full min-h-[80px] flex flex-col overflow-hidden ${
                       isAvailable ? "hover:scale-105" : "opacity-50 cursor-not-allowed"
                     } ${
                       isSelected
                         ? "bg-comic-yellow text-comic-black"
-                        : isAvailable
-                          ? "bg-comic-white text-comic-black hover:bg-comic-gray/10"
-                          : "bg-comic-gray/20 text-comic-gray"
+                        : isPowerUpSuggested || enhances
+                          ? "bg-comic-green/20 text-comic-black hover:bg-comic-green/30"
+                          : isAvailable
+                            ? "bg-comic-white text-comic-black hover:bg-comic-gray/10"
+                            : "bg-comic-gray/20 text-comic-gray"
+                    } ${
+                      isPowerUpSuggested || enhances
+                        ? "border-comic-green animate-pulse"
+                        : "border-comic-black"
                     }`}
                     style={{
                       boxShadow: isAvailable
-                        ? "2px 2px 0 var(--comic-black)"
+                        ? isPowerUpSuggested || enhances
+                          ? "3px 3px 0 var(--comic-green)"
+                          : "2px 2px 0 var(--comic-black)"
                         : "1px 1px 0 var(--comic-gray)",
                     }}
                   >
                     {/* Badges - positioned inside to prevent overflow */}
                     <div className="absolute top-1 right-1 flex gap-1 flex-wrap justify-end">
+                      {(isPowerUpSuggested || enhances) && (
+                        <span className="text-comic-yellow text-lg animate-pulse">
+                          <BuilderIcon icon={FaStar} />
+                        </span>
+                      )}
                       {powerup.beta && (
                         <span className="bg-comic-purple text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
                           BETA
                         </span>
                       )}
-                      {isAvailable && powerup.isRecommended && (
+                      {isAvailable && powerup.isRecommended && !enhances && (
                         <span className="bg-comic-green text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black hidden min-[320px]:inline">
                           REC
                         </span>

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      {{#each allowedTools}}
+      "{{this}}"{{#unless @last}},{{/unless}}
+      {{/each}}
+    ]
+  }
+}

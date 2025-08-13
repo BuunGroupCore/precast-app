@@ -1,0 +1,242 @@
+# Traefik Reverse Proxy Configuration
+
+## 🚀 Overview
+
+Traefik provides a modern reverse proxy and load balancer for your local development environment, solving common development challenges:
+
+- ✅ **No more CORS issues** - Proper domain-based routing
+- ✅ **OAuth callbacks** - Real domains for authentication flows
+- ✅ **Webhook testing** - Services like Stripe, GitHub can reach your local API
+- ✅ **HTTPS locally** - Test SSL/TLS without certificates hassle
+- ✅ **Load balancing** - Test with multiple service instances
+- ✅ **Service discovery** - Automatic routing via Docker labels
+
+## 📍 Local Development URLs
+
+{{#if (eq backend 'none')}}
+- **Application**: http://app.localhost
+- **Application (HTTPS)**: https://app.localhost
+{{else}}
+- **Frontend**: http://app.localhost
+- **Frontend (HTTPS)**: https://app.localhost
+- **API**: http://api.localhost
+- **API (HTTPS)**: https://api.localhost
+{{/if}}
+- **Traefik Dashboard**: http://traefik.localhost:8080
+  - Username: `admin`
+  - Password: `admin`
+
+## 🔌 Default Port Mappings
+
+Your services are running on these local ports:
+
+{{#if (eq backend 'none')}}
+{{#if (eq framework 'next')}}
+- **Application**: localhost:3000 → app.localhost
+{{else if (eq framework 'nuxt')}}
+- **Application**: localhost:3000 → app.localhost
+{{else if (eq framework 'react')}}
+- **Application**: localhost:5173 → app.localhost
+{{else if (eq framework 'vue')}}
+- **Application**: localhost:5173 → app.localhost
+{{else if (eq framework 'angular')}}
+- **Application**: localhost:4200 → app.localhost
+{{else if (eq framework 'svelte')}}
+- **Application**: localhost:5173 → app.localhost
+{{else if (eq framework 'solid')}}
+- **Application**: localhost:3000 → app.localhost
+{{else if (eq framework 'astro')}}
+- **Application**: localhost:4321 → app.localhost
+{{else if (eq framework 'remix')}}
+- **Application**: localhost:3000 → app.localhost
+{{else if (eq framework 'vite')}}
+- **Application**: localhost:5173 → app.localhost
+{{else}}
+- **Application**: localhost:3000 → app.localhost
+{{/if}}
+{{else}}
+{{#if (eq framework 'next')}}
+- **Frontend**: localhost:3000 → app.localhost
+{{else if (eq framework 'nuxt')}}
+- **Frontend**: localhost:3000 → app.localhost
+{{else if (eq framework 'react')}}
+- **Frontend**: localhost:5173 → app.localhost
+{{else if (eq framework 'vue')}}
+- **Frontend**: localhost:5173 → app.localhost
+{{else if (eq framework 'angular')}}
+- **Frontend**: localhost:4200 → app.localhost
+{{else if (eq framework 'svelte')}}
+- **Frontend**: localhost:5173 → app.localhost
+{{else if (eq framework 'solid')}}
+- **Frontend**: localhost:3000 → app.localhost
+{{else if (eq framework 'astro')}}
+- **Frontend**: localhost:4321 → app.localhost
+{{else if (eq framework 'remix')}}
+- **Frontend**: localhost:3000 → app.localhost
+{{else if (eq framework 'vite')}}
+- **Frontend**: localhost:5173 → app.localhost
+{{else}}
+- **Frontend**: localhost:3000 → app.localhost
+{{/if}}
+{{#if (eq backend 'express')}}
+- **API**: localhost:5000 → api.localhost
+{{else if (eq backend 'fastify')}}
+- **API**: localhost:3001 → api.localhost
+{{else if (eq backend 'hono')}}
+- **API**: localhost:3000 → api.localhost
+{{else if (eq backend 'nest')}}
+- **API**: localhost:3000 → api.localhost
+{{else}}
+- **API**: localhost:5000 → api.localhost
+{{/if}}
+{{/if}}
+
+## 🎯 Quick Start
+
+### 1. Initial Setup (One-time)
+
+Create the Traefik network:
+```bash
+npm run traefik:network
+```
+
+### 2. Start Services
+
+Start Traefik with your application:
+```bash
+npm run traefik:up
+```
+
+### 3. Access Dashboard
+
+View the Traefik dashboard:
+```bash
+npm run traefik:dashboard
+```
+
+### 4. View Logs
+
+Monitor Traefik logs:
+```bash
+npm run traefik:logs
+```
+
+### 5. Stop Services
+
+Stop Traefik:
+```bash
+npm run traefik:down
+```
+
+## 🔧 Configuration Files
+
+```
+docker/traefik/
+├── traefik.yml           # Main Traefik configuration
+├── dynamic/
+│   └── app.yml          # Routing rules for your services
+├── certs/               # SSL certificates (auto-generated)
+└── docker-compose.traefik.yml  # Traefik container definition
+```
+
+## 🛠️ Advanced Configuration
+
+### Adding New Services
+
+To expose a new Docker service through Traefik, add these labels to your service in `docker-compose.yml`:
+
+```yaml
+services:
+  my-service:
+    # ... your service configuration ...
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myservice.rule=Host(`myservice.localhost`)"
+      - "traefik.http.services.myservice.loadbalancer.server.port=3000"
+    networks:
+      - traefik_network
+```
+
+### Custom Domains
+
+Edit `docker/traefik/dynamic/app.yml` to add custom routing rules:
+
+```yaml
+http:
+  routers:
+    custom:
+      rule: "Host(`custom.localhost`)"
+      service: custom-service
+      entryPoints:
+        - web
+```
+
+### HTTPS Configuration
+
+Traefik automatically generates self-signed certificates for HTTPS. To trust them locally:
+
+**macOS:**
+```bash
+# Add certificate to keychain
+security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain docker/traefik/certs/cert.pem
+```
+
+**Linux:**
+```bash
+# Copy certificate to trusted store
+sudo cp docker/traefik/certs/cert.pem /usr/local/share/ca-certificates/traefik.crt
+sudo update-ca-certificates
+```
+
+**Windows:**
+```powershell
+# Run as Administrator
+Import-Certificate -FilePath "docker\traefik\certs\cert.pem" -CertStoreLocation Cert:\LocalMachine\Root
+```
+
+## 🔍 Debugging
+
+### Check Service Health
+```bash
+# View all services registered with Traefik
+curl http://traefik.localhost:8080/api/http/services
+```
+
+### Test Routing
+```bash
+# Test frontend
+curl -H "Host: app.localhost" http://localhost
+
+{{#if (ne backend 'none')}}
+# Test API
+curl -H "Host: api.localhost" http://localhost/health
+{{/if}}
+```
+
+### Common Issues
+
+**Port Already in Use:**
+If ports 80, 443, or 8080 are already in use, stop conflicting services or modify ports in `docker-compose.traefik.yml`.
+
+**Network Not Found:**
+Run `npm run traefik:network` to create the required Docker network.
+
+**Service Not Accessible:**
+1. Check if service is running: `docker ps`
+2. Verify Traefik labels are correct: `docker inspect <container>`
+3. Check Traefik logs: `npm run traefik:logs`
+
+## 📚 Additional Resources
+
+- [Traefik Documentation](https://doc.traefik.io/traefik/)
+- [Docker Networking](https://docs.docker.com/network/)
+- [Let's Encrypt for Production](https://doc.traefik.io/traefik/https/acme/)
+
+## 🔐 Security Notes
+
+⚠️ **Development Only**: The default configuration is for development. For production:
+- Change dashboard credentials
+- Use real SSL certificates
+- Configure proper rate limiting
+- Disable debug mode
+- Review CORS settings

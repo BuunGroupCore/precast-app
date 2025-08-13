@@ -10,7 +10,7 @@
     "angular": ["@sentry/angular"],
     "svelte": ["@sentry/svelte"],
     "solid": ["@sentry/browser"],
-    "remix": ["@sentry/remix"],
+    "react-router": ["@sentry/react"],
     "astro": ["@sentry/astro"],
     "vite": ["@sentry/react", "@sentry/vite-plugin"],
     "vanilla": ["@sentry/browser"]
@@ -42,7 +42,7 @@
     "angular": [{ "template": "sentry.service.ts.hbs", "output": "src/app/sentry.service.ts" }],
     "svelte": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }],
     "solid": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }],
-    "remix": [{ "template": "sentry.js.hbs", "output": "app/sentry.js" }],
+    "react-router": [{ "template": "sentry.js.hbs", "output": "app/sentry.js" }],
     "astro": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }],
     "vite": [{ "template": "sentry.js.hbs", "output": "src/sentry.js" }]
   }

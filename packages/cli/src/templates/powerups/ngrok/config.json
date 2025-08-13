@@ -1,0 +1,31 @@
+{
+  "id": "ngrok",
+  "name": "ngrok",
+  "description": "Expose your local development environment to the internet for webhook testing and external API callbacks",
+  "dependencies": {},
+  "devDependencies": {},
+  "envVariables": {
+    "NGROK_AUTH_TOKEN": "",
+    "NGROK_REGION": "us",
+    "NGROK_SUBDOMAIN": "",
+    "PUBLIC_TUNNEL_URL": "https://your-tunnel.ngrok.io"
+  },
+  "scripts": {
+    "ngrok:up": "docker compose -f docker/ngrok/docker-compose.ngrok.yml up -d",
+    "ngrok:down": "docker compose -f docker/ngrok/docker-compose.ngrok.yml down",
+    "ngrok:logs": "docker logs $(npm config get name)_ngrok -f",
+    "ngrok:dashboard": "open http://localhost:4040 || xdg-open http://localhost:4040 || start http://localhost:4040",
+    "ngrok:url": "docker logs $(npm config get name)_ngrok 2>&1 | grep -o 'https://[a-z0-9-]*.ngrok.io' | head -1 || echo 'Tunnel not ready yet. Run npm run ngrok:logs to check status'"
+  },
+  "setupFiles": {
+    "*": [
+      {
+        "template": "docker-compose.ngrok.yml.hbs",
+        "output": "docker/ngrok/docker-compose.ngrok.yml"
+      },
+      { "template": "ngrok.yml.hbs", "output": "docker/ngrok/ngrok.yml" },
+      { "template": "README.md.hbs", "output": "docker/ngrok/README.md" }
+    ]
+  },
+  "packageJsonConfig": {}
+}

@@ -3,20 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
     {{#if docker}}
-    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
-    "docker:down": "docker compose -f docker/docker-compose.yml down",
-    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
-    "docker:reset": "docker compose -f docker/docker-compose.yml down -v && docker compose -f docker/docker-compose.yml up -d",
-    "docker:ps": "docker compose -f docker/docker-compose.yml ps",
+    {{#if (not (eq database "none"))}}
+    "docker:up": "docker compose -f docker/{{database}}/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/{{database}}/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/{{database}}/docker-compose.yml logs -f",
+    "docker:reset": "docker compose -f docker/{{database}}/docker-compose.yml down -v && docker compose -f docker/{{database}}/docker-compose.yml up -d",
+    "docker:ps": "docker compose -f docker/{{database}}/docker-compose.yml ps",
+    {{else}}
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:reset": "docker compose down -v && docker compose up -d",
+    "docker:ps": "docker compose ps",
+    {{/if}}
     {{/if}}
     {{#if (and orm (eq orm "prisma"))}}
+    {{#if (ne generate false)}}"postinstall": "cd apps/api && prisma generate",{{/if}}
     "predev": "cd apps/api && prisma generate && prisma db push --skip-generate",
-    {{/if}}
-    {{#if (and orm (eq orm "prisma"))}}
     "prebuild": "cd apps/api && prisma generate",
     "db:generate": "cd apps/api && prisma generate",
     "db:push": "cd apps/api && prisma db push",

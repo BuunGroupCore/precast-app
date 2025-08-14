@@ -7,37 +7,39 @@ Thank you for your interest in contributing to the Precast CLI! This guide will 
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [Development Setup](#development-setup)
-- [Important Files & Directories](#important-files--directories)
 - [Development Workflow](#development-workflow)
 - [Testing](#testing)
 - [Adding New Features](#adding-new-features)
-- [Documentation](#documentation)
-- [Code Style](#code-style)
+- [Code Style Guidelines](#code-style-guidelines)
 - [Pull Request Process](#pull-request-process)
+- [Documentation](#documentation)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ or Bun
-- Git
-- Basic knowledge of TypeScript/JavaScript
-- Understanding of modern web frameworks
+- **Node.js 18+** or **Bun** (recommended for performance)
+- **Git** for version control
+- **Docker** (optional, for Docker-related features)
+- **VS Code** or similar editor with TypeScript support
 
 ### Quick Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/BuunGroupCore/precast-app.git
-cd precast-app/packages/cli
+cd precast-app
 
-# Install dependencies
+# Install dependencies (from root)
 bun install
 
-# Build the CLI
+# Build all packages
 bun run build
 
-# Test locally
+# Navigate to CLI package
+cd packages/cli
+
+# Test the CLI locally
 ./dist/cli.js init test-project
 ```
 
@@ -46,20 +48,36 @@ bun run build
 ```
 packages/cli/
 ├── src/
-│   ├── commands/          # CLI commands (init, add, add-features)
-│   ├── core/             # Core functionality (template engine, validation)
-│   ├── generators/       # Framework-specific generators
-│   ├── templates/        # Handlebars templates for all features
-│   ├── utils/           # Utilities (analytics, auth, database setup)
-│   ├── cli.ts           # Main CLI entry point
-│   └── index.ts         # Package exports
-├── tests/               # Test files
-├── docs/                # Additional documentation
-│   ├── SECURITY.md      # Security documentation
-│   ├── TELEMETRY.md     # Analytics documentation
-│   └── developer/       # Developer setup guides
-├── dist/                # Built output
-├── schema/              # JSON schema for configuration
+│   ├── cli.ts                 # Main CLI entry point
+│   ├── commands/              # CLI commands
+│   │   ├── init.ts           # Project creation
+│   │   ├── deploy.ts         # Docker management
+│   │   ├── generate.ts       # ORM generation
+│   │   └── status.ts         # Project status
+│   ├── core/                 # Core functionality
+│   │   ├── config-validator.ts
+│   │   ├── template-engine.ts
+│   │   └── plugin-manager.ts
+│   ├── generators/           # Framework generators
+│   │   ├── base-generator.ts
+│   │   ├── react-template.ts
+│   │   └── [framework]-template.ts
+│   ├── templates/            # Handlebars templates
+│   │   ├── frameworks/
+│   │   ├── backends/
+│   │   ├── database/
+│   │   └── features/
+│   ├── utils/               # Utility functions
+│   │   ├── package-manager.ts
+│   │   ├── analytics.ts
+│   │   └── [utility].ts
+│   └── prompts/            # Interactive prompts
+├── tests/                  # Test files
+├── docs/                   # Documentation
+│   ├── ARCHITECTURE.md
+│   ├── DEVELOPER-GUIDE.md
+│   ├── QUICK-START.md
+│   └── SECURITY.md
 └── package.json
 ```
 
@@ -70,11 +88,11 @@ packages/cli/
 For quick iterations without rebuilding:
 
 ```bash
-# Run CLI directly with tsx (fastest)
-npx tsx src/cli.ts test-project --framework react --backend express
+# Run CLI directly with tsx (no build needed!)
+npx tsx src/cli.ts init test-app --framework react --backend express
 
 # Or use the dev script
-bun run dev -- test-project --framework react
+bun run dev -- init test-app --framework react
 ```
 
 ### Watch Mode
@@ -88,89 +106,79 @@ bun run dev
 In another terminal, test your changes:
 
 ```bash
-node dist/cli.js test-app --framework react
+./dist/cli.js init test-app --framework react
 ```
 
-## Important Files & Directories
+### Environment Variables
 
-### Core Files
+Create a `.env.local` file for development:
 
-- **`src/cli.ts`** - Main CLI entry point using Commander.js
-- **`src/commands/init.ts`** - Primary project creation logic
-- **`src/core/template-engine.ts`** - Handlebars template processing
-- **`src/core/config-validator.ts`** - Input validation and compatibility checks
-- **`package.json`** - Dependencies, scripts, and package metadata
+```bash
+# Debug output
+DEBUG=precast:*
 
-### Key Utilities
+# Disable telemetry during development
+PRECAST_TELEMETRY_DISABLED=1
 
-- **`src/utils/analytics.ts`** - Anonymous telemetry collection (GA4)
-- **`src/utils/package-manager.ts`** - Smart package manager detection/fallback
-- **`src/utils/claude-setup.ts`** - Claude Code integration
-- **`src/utils/database-setup.ts`** - Database configuration
-- **`src/utils/auth-setup.ts`** - Authentication provider setup
-- **`src/utils/ui-library-setup.ts`** - UI component library integration
+# Verbose logging
+VERBOSE=true
 
-### Template System
-
-- **`src/templates/frameworks/`** - Framework-specific templates (React, Vue, Angular, etc.)
-- **`src/templates/backends/`** - Backend server templates (Express, Fastify, NestJS, etc.)
-- **`src/templates/database/`** - Database and ORM configurations
-- **`src/templates/features/`** - Additional feature templates
-- **`src/generators/`** - Framework generators that orchestrate template usage
-
-### Configuration & Schema
-
-- **`schema/precast.schema.json`** - JSON schema for project configuration
-- **`src/core/config-validator.ts`** - Runtime validation using the schema
-- **`packages/shared/stack-config.ts`** - Shared configuration between CLI and website
-
-### Documentation
-
-- **`README.md`** - Main documentation and usage guide
-- **`CLAUDE.md`** - Project context for Claude Code users
-- **`src/docs/DEVELOPER-GUIDE.md`** - Detailed development guide
-- **`src/docs/ARCHITECTURE.md`** - System architecture overview
-- **`docs/TELEMETRY.md`** - Analytics and privacy documentation
-- **`docs/SECURITY.md`** - Security practices and audit information
+# Debug analytics
+DEBUG_ANALYTICS=true
+```
 
 ## Development Workflow
 
-### 1. Template Development
-
-When working on templates:
+### 1. Create a Feature Branch
 
 ```bash
-# Edit templates
-code src/templates/frameworks/react/base/package.json.hbs
-
-# Test immediately without build
-npx tsx src/cli.ts test-app -y --framework react
-
-# Check generated output
-cat test-output/test-app/package.json
+git checkout -b feature/your-feature-name
 ```
 
-### 2. Core Feature Development
+### 2. Make Your Changes
 
-When working on core features:
+Follow the project structure and coding standards.
+
+### 3. Test Your Changes
 
 ```bash
-# Edit core files
-code src/core/template-engine.ts
-
 # Run unit tests
-bun test src/core/__tests__/template-engine.test.ts
+bun test
 
-# Test CLI integration
-npx tsx src/cli.ts test-app -y
+# Test the CLI manually
+npx tsx src/cli.ts init test-app --framework react
+
+# Run linting
+bun run lint
+
+# Check types
+bun run typecheck
 ```
 
-### 3. Adding New Frameworks
+### 4. Commit Your Changes
 
-1. Create generator: `src/generators/[framework]-template.ts`
-2. Add templates: `src/templates/frameworks/[framework]/`
-3. Update shared config: `packages/shared/stack-config.ts`
-4. Add tests: `tests/framework-[framework].test.ts`
+```bash
+git add .
+git commit -m "feat: add new feature"
+```
+
+Follow conventional commit format:
+
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes
+- `refactor:` - Code refactoring
+- `test:` - Test changes
+- `chore:` - Maintenance tasks
+
+### 5. Push and Create PR
+
+```bash
+git push origin feature/your-feature-name
+```
+
+Then create a Pull Request on GitHub.
 
 ## Testing
 
@@ -181,13 +189,13 @@ npx tsx src/cli.ts test-app -y
 bun test
 
 # Run specific test file
-bun test src/core/__tests__/template-engine.test.ts
-
-# Run in watch mode
-bun test --watch
+bun test template-engine
 
 # Run with coverage
 bun test --coverage
+
+# Run in watch mode
+bun test --watch
 ```
 
 ### Integration Tests
@@ -200,175 +208,248 @@ bun run build
 bun test tests/cli.test.ts
 ```
 
-### Manual Testing
+### Manual Testing Checklist
 
 Essential combinations to test:
 
-- React + TypeScript + Tailwind + Express + PostgreSQL + Prisma
-- React + JavaScript + CSS + No Backend
-- Vue + TypeScript + SCSS + Fastify + MySQL + Drizzle
-- Angular + TypeScript + Material UI + NestJS + MongoDB
-- Validation failures (incompatible combinations)
-- Git initialization and Docker generation
+- [ ] React + TypeScript + Tailwind + Express + PostgreSQL + Prisma
+- [ ] Vue + JavaScript + SCSS + Fastify + MySQL + Drizzle
+- [ ] Next.js + Better Auth + Shadcn/ui
+- [ ] Angular + NestJS + MongoDB + TypeORM
+- [ ] Docker generation with PowerUps
+- [ ] Deployment configurations (Vercel, Netlify, etc.)
 
 ## Adding New Features
 
-### 1. Adding a New Framework
+### Adding a New Framework
 
-Example: Adding Qwik framework
-
-1. **Create the generator** (`src/generators/qwik-template.ts`):
+1. **Create the generator** (`src/generators/[framework]-template.ts`):
 
 ```typescript
-import { BaseGenerator } from "./base-generator.js";
-import type { ProjectConfig } from "../types.js";
+import type { ProjectConfig } from "../../../shared/stack-config.js";
+import { createTemplateEngine } from "../core/template-engine.js";
 
-export class QwikGenerator extends BaseGenerator {
-  async generate(config: ProjectConfig) {
-    await this.processTemplate("frameworks/qwik/base", "", config);
+export async function generate[Framework]Template(
+  config: ProjectConfig,
+  projectPath: string
+): Promise<void> {
+  const templateEngine = createTemplateEngine();
 
-    if (config.typescript) {
-      await this.processTemplate("frameworks/qwik/src", "src/", config);
-    }
+  // Copy base template
+  await templateEngine.processTemplateDirectory(
+    "frameworks/[framework]/base",
+    projectPath,
+    config
+  );
 
-    // Add framework-specific logic
+  // Add TypeScript support if needed
+  if (config.typescript) {
+    await templateEngine.processTemplateDirectory(
+      "frameworks/[framework]/typescript",
+      projectPath,
+      config
+    );
   }
 }
 ```
 
-2. **Create templates** (`src/templates/frameworks/qwik/`):
+2. **Create templates** (`src/templates/frameworks/[framework]/`):
 
 ```
-qwik/
+[framework]/
 ├── base/
 │   ├── package.json.hbs
-│   ├── vite.config.ts.hbs
+│   ├── vite.config.js.hbs
 │   └── _gitignore
 └── src/
-    ├── entry.ssr.tsx.hbs
-    ├── root.tsx.hbs
-    └── routes/
-        └── index.tsx.hbs
+    ├── App.[ext].hbs
+    └── main.[ext].hbs
 ```
 
 3. **Update configuration** (`packages/shared/stack-config.ts`):
 
 ```typescript
-export const FRAMEWORKS = [
+export const frameworkDefs: StackOption[] = [
   // ... existing frameworks
   {
-    id: "qwik",
-    name: "Qwik",
-    description: "Resumable web framework",
-    supportedStyling: ["tailwind", "css", "scss"],
-    requiresNode: true,
+    id: "[framework]",
+    name: "[Framework Name]",
+    description: "[Framework description]",
   },
-] as const;
+];
 ```
 
-4. **Add tests**:
+4. **Add to generator index** (`src/generators/index.ts`):
 
 ```typescript
-describe("Qwik Generator", () => {
-  test("generates Qwik project with TypeScript", async () => {
-    // Test implementation
+case "[framework]":
+  await generate[Framework]Template(config, projectPath);
+  break;
+```
+
+5. **Write tests**:
+
+```typescript
+describe("[Framework] Generator", () => {
+  test("generates [framework] project with TypeScript", async () => {
+    const config = {
+      name: "test-app",
+      framework: "[framework]",
+      typescript: true,
+      // ... other config
+    };
+
+    await generateTemplate(config, testPath);
+
+    expect(await pathExists(path.join(testPath, "package.json"))).toBe(true);
   });
 });
 ```
 
-### 2. Adding a New Backend
+### Adding a New Backend
 
-Similar process for backends in `src/templates/backends/[backend]/`
+Similar process in `src/templates/backends/[backend]/`
 
-### 3. Adding a New Database/ORM
+### Adding a New Feature (Auth, Database, etc.)
 
-1. Add templates in `src/templates/database/[database]/`
-2. Update `src/utils/database-setup.ts`
-3. Add compatibility rules in `src/core/config-validator.ts`
+1. Create setup function in `src/utils/[feature]-setup.ts`
+2. Add templates in `src/templates/[feature]/`
+3. Update configuration schema
+4. Add to appropriate generator
 
-## Documentation
+## Code Style Guidelines
 
-### Essential Documentation to Read
-
-Before contributing, familiarize yourself with:
-
-1. **`README.md`** - Main usage guide and feature overview
-2. **`CLAUDE.md`** - Complete project context and architecture
-3. **`src/docs/DEVELOPER-GUIDE.md`** - Detailed development workflows
-4. **`src/docs/ARCHITECTURE.md`** - System design and technical decisions
-5. **`docs/TELEMETRY.md`** - Analytics implementation and privacy
-6. **`docs/SECURITY.md`** - Security practices and audit information
-
-### When to Update Documentation
-
-- Adding new frameworks, backends, or databases
-- Changing CLI flags or commands
-- Modifying the template system
-- Adding new utilities or core features
-- Security or privacy changes
-
-## Code Style
-
-### TypeScript Standards
+### TypeScript
 
 - Use strict TypeScript settings
-- Prefer interfaces over types for object shapes
-- Use proper type annotations for function parameters and returns
-- Avoid `any` types
+- Avoid `any` types - use `unknown` or proper types
+- Use interfaces for object shapes
+- Proper error handling with typed errors
+
+```typescript
+// Good
+interface UserConfig {
+  name: string;
+  age: number;
+}
+
+// Bad
+const config: any = { name: "John", age: 30 };
+```
+
+### Async/Await
+
+Always use async/await over callbacks or raw promises:
+
+```typescript
+// Good
+async function loadConfig(): Promise<Config> {
+  try {
+    const data = await readFile("config.json", "utf-8");
+    return JSON.parse(data);
+  } catch (error) {
+    logger.error("Failed to load config:", error);
+    throw error;
+  }
+}
+
+// Bad
+function loadConfig(callback: (err: Error, data: Config) => void) {
+  fs.readFile("config.json", (err, data) => {
+    // ...
+  });
+}
+```
 
 ### Template Guidelines
 
-- Use `.hbs` extension for all Handlebars templates
+- Use `.hbs` extension for Handlebars templates
 - Use `_` prefix for dotfiles (e.g., `_gitignore` → `.gitignore`)
-- Keep conditional logic simple and readable
-- Test templates with various configuration combinations
-
-### Handlebars Helpers
-
-Available helpers in templates:
+- Keep template logic simple and readable
 
 ```handlebars
-{{#if typescript}}TypeScript code{{/if}}
-{{#if (eq framework "react")}}React-specific code{{/if}}
-{{#ifAny (eq database "postgres") (eq database "mysql")}}SQL database{{/ifAny}}
+{{! Good }}
+{{#if typescript}}
+  "build": "tsc && vite build"
+{{else}}
+  "build": "vite build"
+{{/if}}
+
+{{! Avoid complex logic in templates }}
 ```
 
 ### Error Handling
 
-- Provide clear, actionable error messages
-- Validate inputs early and thoroughly
-- Use proper TypeScript error types
-- Log helpful context for debugging
+Provide clear, actionable error messages:
+
+```typescript
+if (!config.framework) {
+  throw new Error("Framework is required. Please specify --framework <framework-name>");
+}
+```
+
+### Comments and Documentation
+
+- JSDoc for all exported functions
+- Inline comments for complex logic only
+- Keep comments concise and meaningful
+
+```typescript
+/**
+ * Generates a project based on the provided configuration.
+ *
+ * @param config - Project configuration including framework, backend, etc.
+ * @param projectPath - Absolute path where the project will be created
+ * @throws {Error} If the project directory already exists
+ */
+export async function generateProject(config: ProjectConfig, projectPath: string): Promise<void> {
+  // Implementation
+}
+```
 
 ## Pull Request Process
 
 ### Before Submitting
 
-1. **Run all tests**: `bun test`
+1. **Run all checks**:
+
+```bash
+bun test          # Run tests
+bun run lint      # Check linting
+bun run typecheck # Check types
+bun run build     # Ensure it builds
+```
+
 2. **Test manually** with various configurations
-3. **Check formatting**: `bun run lint`
-4. **Update documentation** if needed
-5. **Test the build**: `bun run build && ./dist/cli.js init test-pr`
+3. **Update documentation** if needed
+4. **Update CHANGELOG.md** with your changes
 
 ### PR Guidelines
 
-1. **Clear description** - Explain what the PR does and why
-2. **Breaking changes** - Mark clearly if this is a breaking change
-3. **Screenshots** - Include terminal output for CLI changes
-4. **Testing** - Describe how you tested the changes
-5. **Documentation** - Update relevant docs
+1. **Clear title and description**
+   - Explain what the PR does
+   - Link related issues
+   - List breaking changes if any
+
+2. **Screenshots/Output**
+   - Include terminal output for CLI changes
+   - Show before/after if relevant
+
+3. **Testing checklist**
+   - List the configurations you tested
+   - Mention any edge cases considered
 
 ### PR Template
 
 ```markdown
 ## Description
 
-Brief description of changes
+Brief description of what this PR does
 
 ## Type of Change
 
-- [ ] Bug fix
-- [ ] New feature
+- [ ] Bug fix (non-breaking change)
+- [ ] New feature (non-breaking change)
 - [ ] Breaking change
 - [ ] Documentation update
 
@@ -377,42 +458,68 @@ Brief description of changes
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
-- [ ] Tested with multiple framework combinations
+
+## Checklist
+
+- [ ] My code follows the project style guidelines
+- [ ] I have performed a self-review
+- [ ] I have added tests for my changes
+- [ ] I have updated documentation as needed
+- [ ] All new and existing tests pass
+```
 
 ## Documentation
 
-- [ ] README updated if needed
-- [ ] CLAUDE.md updated if needed
-- [ ] Developer docs updated if needed
+### When to Update Documentation
 
-## Screenshots
+Update docs when you:
 
-<!-- Terminal output showing the changes work -->
-```
+- Add new CLI commands or options
+- Add new frameworks, backends, or features
+- Change existing behavior
+- Fix bugs that users should know about
+- Add new configuration options
 
-### Review Process
+### Documentation Files
 
-1. Automated tests must pass
-2. Code review by maintainers
-3. Manual testing of key scenarios
-4. Documentation review
-5. Approval and merge
+- **README.md** - User-facing documentation
+- **CONTRIBUTING.md** - This file
+- **docs/ARCHITECTURE.md** - System design
+- **docs/DEVELOPER-GUIDE.md** - Development details
+- **docs/QUICK-START.md** - Quick reference
+- **CHANGELOG.md** - Version history
 
 ## Getting Help
 
 - **GitHub Issues** - Report bugs or request features
 - **GitHub Discussions** - Ask questions or discuss ideas
-- **Documentation** - Check existing docs first
-- **Code Examples** - Look at similar implementations in the codebase
+- **Existing Code** - Look at similar implementations
+- **Documentation** - Check the docs folder
 
-## Common Pitfalls
+## Common Issues
 
-1. **Template paths** - Ensure templates are correctly referenced
-2. **Package manager compatibility** - Test with npm, yarn, pnpm, and bun
-3. **Cross-platform paths** - Use `path.join()` instead of string concatenation
-4. **TypeScript/JavaScript variants** - Test both language modes
-5. **Dependency versions** - Keep dependencies up to date
+### Template Not Found
+
+- Check template path in `src/templates/`
+- Verify case sensitivity
+- Ensure `.hbs` extension
+
+### Dependency Installation Fails
+
+- CLI automatically falls back from Bun to npm
+- Check package compatibility
+- Clear node_modules and try again
+
+### TypeScript Errors
+
+- Run `bun run typecheck` for details
+- Check imports and types
+- Ensure all dependencies are installed
 
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
+
+## Thank You!
+
+Your contributions make Precast better for everyone. We appreciate your time and effort! 🎉

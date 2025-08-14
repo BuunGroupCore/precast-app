@@ -1,5 +1,4 @@
 import { execSync } from "child_process";
-// import * as fs from "fs/promises";
 import * as path from "path";
 
 import { consola } from "consola";
@@ -19,7 +18,6 @@ interface GenerateOptions {
  */
 export async function generateCommand(options: GenerateOptions): Promise<void> {
   try {
-    // Detect if we're in a Precast project
     const isPrecastProject = await pathExists("precast.jsonc");
     if (!isPrecastProject) {
       consola.error("❌ This command must be run in a Precast project directory");
@@ -27,7 +25,6 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
       process.exit(1);
     }
 
-    // Read project configuration
     const config = await readJson("precast.jsonc");
     const detectedOrm = config.orm || options.orm;
 
@@ -39,7 +36,6 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
 
     consola.start(`🔄 Generating ${detectedOrm} client...`);
 
-    // Check if we're in a monorepo (has apps/api directory)
     const isMonorepo = await pathExists("apps/api");
     const workingDir = isMonorepo ? "apps/api" : ".";
 
@@ -58,7 +54,6 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
         process.exit(1);
     }
 
-    // Rebuild shared package if it exists
     if (await pathExists("packages/shared")) {
       consola.start("🔄 Rebuilding shared package...");
       try {
@@ -88,11 +83,9 @@ async function generatePrisma(workingDir: string): Promise<void> {
     throw new Error("Prisma schema not found. Expected: prisma/schema.prisma");
   }
 
-  // Run prisma generate
   execSync(`cd ${workingDir} && npx prisma generate`, { stdio: "inherit" });
   consola.success("✅ Prisma client generated");
 
-  // Optionally push to database if it's available
   try {
     execSync(`cd ${workingDir} && npx prisma db push --skip-generate`, { stdio: "pipe" });
     consola.success("✅ Database schema synced");
@@ -115,7 +108,6 @@ async function generateDrizzle(workingDir: string): Promise<void> {
     throw new Error("Drizzle config not found. Expected: drizzle.config.ts or drizzle.config.js");
   }
 
-  // Run drizzle generate
   execSync(`cd ${workingDir} && npx drizzle-kit generate`, { stdio: "inherit" });
   consola.success("✅ Drizzle migrations generated");
 }

@@ -19,13 +19,18 @@
 ## ✨ Features
 
 - 🎯 **Visual Builder** - Configure your stack visually at [precast.dev/builder](https://precast.dev/builder)
-- 🎨 **Multi-framework support** - React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Remix, Astro, Vite, and Vanilla JS
-- 🔧 **Backend integration** - Express, Fastify, Hono, NestJS, or Next.js API Routes
+- 🎨 **Multi-framework support** - React, Vue, Angular, Next.js, Nuxt, Svelte, Solid, Astro, Vite, TanStack Start, and Vanilla JS
+- 🔧 **Backend integration** - Express, Fastify, Hono, NestJS, Convex, Cloudflare Workers, or Next.js API Routes
 - 🗄️ **Database setup** - PostgreSQL, MySQL, MongoDB, SQLite with Prisma, Drizzle, or TypeORM
 - 🔐 **Authentication** - Better Auth, NextAuth, Clerk, Supabase Auth, Auth0, Firebase Auth
 - 💅 **UI libraries** - Shadcn/ui, DaisyUI, Material UI, Chakra UI, Ant Design, Mantine
+- 🎨 **Color Palettes** - Pre-configured color themes for instant beautiful designs
 - 🤖 **AI Integration** - Claude Code with MCP servers, GitHub Copilot configuration
+- 🐳 **Docker Support** - Auto-configured Docker containers for databases and services
+- 🚀 **PowerUps** - Traefik, ngrok, Cloudflare Tunnels for advanced networking
+- 🔌 **Plugins** - Stripe, Resend, SendGrid, Twilio, and more business integrations
 - 📦 **Smart package management** - Automatic fallback handling for compatibility issues
+- 🎯 **Deployment Ready** - Vercel, Netlify, Cloudflare Pages, Railway configurations
 
 ## 🚀 Quick Start
 
@@ -51,123 +56,280 @@ npx create-precast-app my-app \
   --styling tailwind \
   --ui-library shadcn \
   --auth better-auth \
+  --docker \
   --install
 ```
 
-## 📖 Commands
+## 📦 Available Technologies
 
-| Command        | Description                                               | Documentation                                 |
-| -------------- | --------------------------------------------------------- | --------------------------------------------- |
-| `init`         | Create a new project with your chosen stack               | [Docs](https://precast.dev/docs#init)         |
-| `add`          | Add resources to existing project (component, route, api) | [Docs](https://precast.dev/docs#add)          |
-| `add-features` | Add features to existing project (UI libs, AI context)    | [Docs](https://precast.dev/docs#add-features) |
-| `list`         | List available templates and features                     | [Docs](https://precast.dev/docs#list)         |
-| `banner`       | Create a banner template for customization                | [Docs](https://precast.dev/docs#banner)       |
+### Frontend Frameworks
 
-### Examples
+- **React** - The classic choice with React Router v7
+- **Next.js** - Full-stack React framework with App Router
+- **Vue** - Progressive JavaScript framework
+- **Nuxt** - Full-stack Vue framework
+- **Angular** - Enterprise-ready framework
+- **Svelte** - Compile-time optimized framework
+- **Solid** - Fine-grained reactive framework
+- **Astro** - Content-focused framework
+- **TanStack Start** - Full-stack React with TanStack Router
+- **Vite** - Lightning fast build tool
+- **Vanilla** - Pure JavaScript/TypeScript
+
+### Backend Options
+
+- **Express** - Fast, minimalist web framework
+- **Fastify** - High performance alternative to Express
+- **Hono** - Small, simple, ultrafast web framework
+- **NestJS** - Enterprise-grade Node.js framework
+- **Convex** - Backend-as-a-Service platform
+- **Cloudflare Workers** - Edge computing platform
+- **Next.js API Routes** - Integrated API endpoints
+- **None** - Frontend only
+
+### Databases
+
+- **PostgreSQL** - Advanced open-source database
+- **MySQL** - Popular open-source database
+- **MongoDB** - NoSQL document database
+- **SQLite** - Lightweight embedded database
+
+### ORMs
+
+- **Prisma** - Next-generation ORM
+- **Drizzle** - TypeScript ORM with SQL-like syntax
+- **TypeORM** - Mature ORM with Active Record and Data Mapper
+- **Mongoose** - MongoDB object modeling
+
+### Authentication Providers
+
+- **Better Auth** - Modern authentication library
+- **NextAuth** - Authentication for Next.js
+- **Clerk** - Complete user management
+- **Supabase Auth** - Open source auth service
+- **Auth0** - Identity platform
+- **Firebase Auth** - Google's auth solution
+
+### UI Libraries
+
+- **Shadcn/ui** - Radix UI + Tailwind components
+- **DaisyUI** - Tailwind CSS components
+- **Material UI** - React components with Material Design
+- **Chakra UI** - Modular component library
+- **Ant Design** - Enterprise design language
+- **Mantine** - Full-featured React components
+
+### Styling Options
+
+- **Tailwind CSS** - Utility-first CSS framework
+- **CSS** - Plain CSS
+- **SCSS** - CSS with superpowers
+- **CSS Modules** - Locally scoped CSS
+- **Styled Components** - CSS-in-JS
+- **Emotion** - CSS-in-JS library
+
+### PowerUps (Advanced Features)
+
+- **Traefik** - Modern reverse proxy and load balancer
+- **ngrok** - Secure tunnels to localhost
+- **Cloudflare Tunnel** - Secure connection to Cloudflare network
+
+### Business Plugins
+
+- **Stripe** - Payment processing
+- **Resend** - Email API for developers
+- **SendGrid** - Email delivery service
+- **Twilio** - Communication APIs
+- **Plivo** - Voice and SMS platform
+- **Mailgun** - Email automation
+- **Postmark** - Transactional email
+- **Pusher** - Real-time communication
+- **Segment** - Customer data platform
+- **Sentry** - Error tracking
+- **Datadog** - Monitoring and analytics
+
+## 🎯 Commands
+
+### `init` - Create a new project
 
 ```bash
-# Create a Next.js app with everything configured
-npx create-precast-app my-nextjs-app \
-  --framework next \
-  --backend none \
-  --database postgres \
-  --orm prisma \
-  --styling tailwind \
-  --ui-library shadcn \
-  --auth better-auth \
-  --ai claude \
-  --mcp-servers postgresql,github \
-  --install
-
-# Create a React + Express full-stack app
-npx create-precast-app my-fullstack-app \
-  --framework react \
-  --backend express \
-  --database postgres \
-  --orm drizzle \
-  --api-client tanstack-query \
-  --install
-
-# Add authentication to existing project
-npx create-precast-app add-features \
-  --auth better-auth \
-  --provider github,google
+npx create-precast-app init my-app [options]
 ```
 
-## 🛠️ Available Options
+### `add` - Add features to existing project (Coming Soon)
 
-| Category                | Options                                                                                 |
-| ----------------------- | --------------------------------------------------------------------------------------- |
-| **Frontend Frameworks** | `react` `vue` `angular` `next` `nuxt` `svelte` `solid` `remix` `astro` `vite` `vanilla` |
-| **Backend Frameworks**  | `express` `fastify` `hono` `nest` `none`                                                |
-| **Databases**           | `postgres` `mysql` `sqlite` `mongodb` `none`                                            |
-| **ORMs**                | `prisma` `drizzle` `typeorm` `mongoose` `none`                                          |
-| **Styling**             | `tailwind` `css` `scss` `css-modules` `styled-components` `emotion`                     |
-| **UI Libraries**        | `shadcn` `daisyui` `material-ui` `chakra-ui` `ant-design` `mantine`                     |
-| **Authentication**      | `better-auth` `next-auth` `clerk` `supabase-auth` `auth0` `firebase-auth`               |
-| **AI Assistance**       | `claude` `copilot` `none`                                                               |
+```bash
+npx create-precast-app add auth --provider clerk
+```
 
-## 📈 Star History
+### `deploy` - Manage Docker services
 
-<a href="https://star-history.com/#BuunGroupCore/precast-app&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BuunGroupCore/precast-app&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=BuunGroupCore/precast-app&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=BuunGroupCore/precast-app&type=Date" />
- </picture>
-</a>
+```bash
+# Start all Docker services
+npx create-precast-app deploy
 
-## 🎯 Why Precast?
+# Check service status
+npx create-precast-app deploy --status
 
-- **Zero Config** - Sensible defaults that just work
-- **Production Ready** - Best practices and security built-in
-- **Type Safe** - Full TypeScript support across the stack
-- **Modern Stack** - Latest versions of all dependencies
-- **AI Ready** - Claude Code and GitHub Copilot pre-configured
-- **Fast Development** - Hot reload, auto-completion, and more
-- **Extensible** - Easy to customize and extend
+# Stop services
+npx create-precast-app deploy --stop
 
-## 🔧 Development
+# Destroy all services and data
+npx create-precast-app deploy --destroy
+```
+
+### `generate` - Generate ORM client
+
+```bash
+# Generate Prisma/Drizzle/TypeORM client
+npx create-precast-app generate
+```
+
+### `status` - Check project configuration
+
+```bash
+# Display project information and configuration
+npx create-precast-app status
+```
+
+## 🐳 Docker Integration
+
+Projects with Docker enabled get:
+
+- Database containers with persistent volumes
+- Admin tools (pgAdmin, phpMyAdmin, MongoDB Compass)
+- Redis cache (optional)
+- PowerUp services (Traefik, ngrok, etc.)
+- Auto-deploy scripts for easy management
+
+### Docker Commands
+
+```bash
+# Generated npm scripts
+npm run docker:deploy    # Start all services
+npm run docker:stop      # Stop all services
+npm run docker:status    # Check service status
+npm run docker:down      # Stop and remove containers
+```
+
+## 🤖 AI Integration
+
+### Claude Code Support
+
+Every project includes Claude Code integration with:
+
+- `.claude/settings.json` - Pre-configured tool permissions
+- Project-specific `CLAUDE.md` documentation
+- MCP server configurations (when selected)
+
+### Available MCP Servers
+
+- **Supabase** - Database and auth management
+- **Brave Search** - Web search capabilities
+- **Context** - Documentation retrieval
+- **IDE** - Editor integration
+
+## 🎨 Color Palettes
+
+Pre-configured professional color themes:
+
+- **Amber Warmth** - Warm, inviting colors
+- **Arctic Blue** - Cool, professional palette
+- **Coral Reef** - Vibrant, energetic theme
+- **Desert Sand** - Earthy, natural tones
+- **Emerald** - Fresh, modern green theme
+- **Forest** - Deep, natural greens
+- **Ocean** - Calming blue palette
+- **Purple** - Royal, creative theme
+- **Ruby** - Bold, passionate reds
+- **Slate** - Professional grayscale
+- **Sunset** - Warm gradient theme
+- **Teal** - Modern cyan palette
+
+## 🚀 Deployment
+
+Pre-configured deployment setups for:
+
+- **Vercel** - Optimized for Next.js and frontend apps
+- **Netlify** - Great for static sites and SPAs
+- **Cloudflare Pages** - Edge deployment with Workers
+- **Railway** - Full-stack deployment platform
+
+## 📊 Telemetry
+
+The CLI collects anonymous usage statistics to improve the tool. This includes:
+
+- Framework and technology choices
+- Success/failure rates
+- Performance metrics
+- No personal data is collected
+
+To opt-out:
+
+```bash
+export PRECAST_TELEMETRY_DISABLED=1
+```
+
+## 🔧 Configuration
+
+Projects include a `precast.jsonc` file that documents all configuration choices:
+
+```jsonc
+{
+  "$schema": "https://precast.dev/precast.schema.json",
+  "version": "1.0.0",
+  "framework": "react",
+  "backend": "express",
+  "database": "postgres",
+  "orm": "prisma",
+  "styling": "tailwind",
+  "uiLibrary": "shadcn",
+  "authProvider": "better-auth",
+  "typescript": true,
+  "docker": true,
+  "powerups": ["traefik", "ngrok"],
+  "plugins": ["stripe", "resend"],
+}
+```
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Node.js 18+ or Bun
+- Git
+- Docker (optional, for Docker features)
+
+### Local Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/BuunGroupCore/precast-app.git
+cd precast-app/packages/cli
 
 # Install dependencies
-pnpm install
+bun install
 
 # Build the CLI
-pnpm --filter create-precast-app build
+bun run build
 
 # Test locally
-./packages/cli/dist/cli.js init test-project
+./dist/cli.js init test-project
 ```
 
-## 📊 Telemetry
+## 📚 Documentation
 
-Precast CLI collects anonymous usage data to help improve the tool. No personal information is collected.
-
-### Managing Telemetry
-
-```bash
-# Check telemetry status
-npx create-precast-app telemetry status
-
-# Disable telemetry
-npx create-precast-app telemetry disable
-
-# Enable telemetry
-npx create-precast-app telemetry enable
-```
-
-Learn more in our [Telemetry Documentation](docs/TELEMETRY.md).
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute to the project
+- [Architecture](docs/ARCHITECTURE.md) - System design and technical decisions
+- [Developer Guide](docs/DEVELOPER-GUIDE.md) - Detailed development workflows
+- [Security](docs/SECURITY.md) - Security practices and audit information
+- [Telemetry](docs/TELEMETRY.md) - Analytics implementation and privacy
 
 ## 🤝 Contributing
 
-We love contributions! Please see our [Contributing Guide](https://github.com/BuunGroupCore/precast-app/blob/main/CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### How to Contribute
+### Quick Contribution Steps
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -175,67 +337,20 @@ We love contributions! Please see our [Contributing Guide](https://github.com/Bu
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 💖 Sponsors
-
-A huge thank you to our sponsors who make this project possible!
-
-<a href="https://github.com/sponsors/BuunGroupCore">
-  <img src="https://img.shields.io/badge/Sponsor%20Us-GitHub%20Sponsors-ea4aaa?style=for-the-badge&logo=github-sponsors" alt="Sponsor us on GitHub" />
-</a>
-
-### Gold Sponsors
-
-<!-- Add sponsor logos/links here -->
-
-_Become our first gold sponsor!_
-
-### Silver Sponsors
-
-<!-- Add sponsor logos/links here -->
-
-_Your company here_
-
-### Bronze Sponsors
-
-<!-- Add sponsor logos/links here -->
-
-_Support the project_
-
-## 👥 Contributors
-
-Thanks to all the amazing people who have contributed to this project!
-
-<a href="https://github.com/BuunGroupCore/precast-app/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=BuunGroupCore/precast-app" />
-</a>
-
 ## 📄 License
 
 MIT © [Buun Group Core](https://github.com/BuunGroupCore)
 
-## 🔗 Links
+## 🙏 Acknowledgments
 
-- [Website](https://precast.dev)
-- [Visual Builder](https://precast.dev/builder)
-- [Documentation](https://precast.dev/docs)
-- [GitHub](https://github.com/BuunGroupCore/precast-app)
-- [npm Package](https://www.npmjs.com/package/create-precast-app)
-- [Discord Community](https://discord.gg/precast)
-- [Twitter](https://twitter.com/precastdev)
+Built with ❤️ by the Precast team and contributors.
 
-## 🚨 Security
-
-For security issues, please email security@precast.dev instead of using the issue tracker.
-
-## 📊 Stats
-
-![Alt](https://repobeats.axiom.co/api/embed/5bb7c1882deca2295845fa807bc19bde4fa5e8e2.svg "Repobeats analytics image")
+Special thanks to all the open-source projects that make this possible.
 
 ---
 
 <div align="center">
-  Made with ❤️ by the <a href="https://github.com/BuunGroupCore">Buun Group Core</a> team
-  <br />
-  <br />
-  <a href="https://precast.dev/builder">Try the Visual Builder →</a>
+  <strong>Happy coding! 🚀</strong>
+  
+  [Report Bug](https://github.com/BuunGroupCore/precast-app/issues) • [Request Feature](https://github.com/BuunGroupCore/precast-app/issues) • [Join Discord](https://discord.gg/precast)
 </div>

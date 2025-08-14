@@ -49,7 +49,6 @@ export async function setupUILibrary(config: ProjectConfig, projectPath: string)
       } catch (error) {
         consola.error(`Failed to install ${config.uiLibrary} dependencies:`, error);
         errorCollector.addError(`${config.uiLibrary} dependency installation`, error);
-        // Continue anyway - the UI library might still work
       }
     }
     switch (config.uiLibrary) {
@@ -127,35 +126,27 @@ async function setupDaisyUI(config: ProjectConfig, projectPath: string): Promise
   try {
     const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
 
-    // Check if tailwind.config.js exists
     if (await fs.pathExists(tailwindConfigPath)) {
-      // Read the config file
       let tailwindConfig = await fs.readFile(tailwindConfigPath, "utf-8");
 
-      // Check if DaisyUI is already in plugins
       if (!tailwindConfig.includes("daisyui")) {
-        // Add DaisyUI to plugins array
         if (tailwindConfig.includes("plugins: [")) {
-          // Plugins array exists, add DaisyUI to it
           tailwindConfig = tailwindConfig.replace(
             "plugins: [",
             'plugins: [\n    require("daisyui"),'
           );
         } else if (tailwindConfig.includes("plugins:")) {
-          // Plugins property exists but might be empty
           tailwindConfig = tailwindConfig.replace(
             /plugins:\s*\[/,
             'plugins: [\n    require("daisyui"),'
           );
         } else {
-          // No plugins array, need to add it
           tailwindConfig = tailwindConfig.replace(
             "module.exports = {",
             'module.exports = {\n  plugins: [require("daisyui")],'
           );
         }
 
-        // Add DaisyUI config if not present
         if (!tailwindConfig.includes("daisyui:")) {
           const daisyUIConfig = `
   daisyui: {
@@ -169,11 +160,9 @@ async function setupDaisyUI(config: ProjectConfig, projectPath: string): Promise
     themeRoot: ":root",
   },`;
 
-          // Add before the closing brace
           tailwindConfig = tailwindConfig.replace(/}\s*;?\s*$/, `${daisyUIConfig}\n};`);
         }
 
-        // Write the updated config back
         await fs.writeFile(tailwindConfigPath, tailwindConfig);
         consola.success("✅ DaisyUI has been added to tailwind.config.js");
       } else {

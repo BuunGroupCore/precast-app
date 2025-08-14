@@ -50,11 +50,9 @@ export async function setupPowerUps(
   consola.info(`🚀 Setting up powerups: ${powerUpIds.join(", ")}...`);
 
   try {
-    // Check if it's a monorepo by looking for apps directory
     const isMonorepo = await pathExists(path.join(projectPath, "apps"));
     const targetPath = isMonorepo ? path.join(projectPath, "apps", "web") : projectPath;
 
-    // Collect all dependencies and configurations
     const allDependencies: Set<string> = new Set();
     const allDevDependencies: Set<string> = new Set();
     const allEnvVariables: Record<string, string> = {};
@@ -71,7 +69,6 @@ export async function setupPowerUps(
 
       consola.info(`Setting up ${powerUpConfig.name}...`);
 
-      // Process dependencies
       const deps =
         powerUpConfig.dependencies?.[framework] || powerUpConfig.dependencies?.["*"] || [];
       const devDeps =
@@ -80,22 +77,18 @@ export async function setupPowerUps(
       deps.forEach((dep) => allDependencies.add(dep));
       devDeps.forEach((dep) => allDevDependencies.add(dep));
 
-      // Process environment variables
       if (powerUpConfig.envVariables) {
         Object.assign(allEnvVariables, powerUpConfig.envVariables);
       }
 
-      // Process scripts
       if (powerUpConfig.scripts) {
         Object.assign(allScripts, powerUpConfig.scripts);
       }
 
-      // Process package.json configurations
       if (powerUpConfig.packageJsonConfig) {
         Object.assign(allPackageJsonConfigs, powerUpConfig.packageJsonConfig);
       }
 
-      // Process setup files
       const backend = isMonorepo ? "express" : "none"; // Infer backend from monorepo status
       const projectRootPath = isMonorepo ? projectPath : undefined;
       await setupPowerUpFiles(
@@ -107,7 +100,6 @@ export async function setupPowerUps(
         projectRootPath
       );
 
-      // For Docker-based powerups, also create .env file in their docker directories
       if (powerUpId === "ngrok" || powerUpId === "traefik") {
         const dockerEnvPath = isMonorepo
           ? path.join(projectPath, "docker", powerUpId)
@@ -119,7 +111,6 @@ export async function setupPowerUps(
 
           if (powerUpConfig.envVariables) {
             for (const [key, value] of Object.entries(powerUpConfig.envVariables)) {
-              // Check for both NGROK_AUTHTOKEN and NGROK_AUTH_TOKEN variants
               let systemValue = process.env[key];
               if (!systemValue && key === "NGROK_AUTHTOKEN") {
                 systemValue = process.env["NGROK_AUTH_TOKEN"];
@@ -142,7 +133,6 @@ export async function setupPowerUps(
         }
       }
 
-      // Run special setup for specific powerups
       const config: ProjectConfig = {
         name: path.basename(projectPath),
         framework: framework as any,
@@ -163,7 +153,6 @@ export async function setupPowerUps(
       await runSpecialSetup(powerUpId, targetPath, config);
     }
 
-    // Install dependencies
     if (allDependencies.size > 0) {
       consola.info("📦 Installing powerup dependencies...");
       await installDependencies(Array.from(allDependencies), {
@@ -184,20 +173,16 @@ export async function setupPowerUps(
       });
     }
 
-    // Update environment variables
     if (Object.keys(allEnvVariables).length > 0) {
       await updateEnvFile(targetPath, allEnvVariables);
     }
 
-    // Update package.json scripts - for monorepos, update root package.json for docker scripts
     if (Object.keys(allScripts).length > 0) {
       const projectName = path.basename(projectPath);
-      // For monorepo, put docker-related scripts in root package.json
       const scriptsPath = isMonorepo ? projectPath : targetPath;
       await updatePackageJsonScripts(scriptsPath, allScripts, projectName);
     }
 
-    // Update package.json configurations
     if (Object.keys(allPackageJsonConfigs).length > 0) {
       await updatePackageJsonConfig(targetPath, allPackageJsonConfigs);
     }
@@ -230,7 +215,6 @@ export async function setupPowerUpsWithConfig(
     const isMonorepo = config.backend && config.backend !== "none";
     const targetPath = isMonorepo ? path.join(projectPath, "apps", "web") : projectPath;
 
-    // Collect all dependencies and configurations
     const allDependencies: Set<string> = new Set();
     const allDevDependencies: Set<string> = new Set();
     const allEnvVariables: Record<string, string> = {};
@@ -247,7 +231,6 @@ export async function setupPowerUpsWithConfig(
 
       consola.info(`Setting up ${powerUpConfig.name}...`);
 
-      // Process dependencies
       const framework = config.framework || "react";
       const deps =
         powerUpConfig.dependencies?.[framework] || powerUpConfig.dependencies?.["*"] || [];
@@ -257,22 +240,18 @@ export async function setupPowerUpsWithConfig(
       deps.forEach((dep) => allDependencies.add(dep));
       devDeps.forEach((dep) => allDevDependencies.add(dep));
 
-      // Process environment variables
       if (powerUpConfig.envVariables) {
         Object.assign(allEnvVariables, powerUpConfig.envVariables);
       }
 
-      // Process scripts
       if (powerUpConfig.scripts) {
         Object.assign(allScripts, powerUpConfig.scripts);
       }
 
-      // Process package.json configurations
       if (powerUpConfig.packageJsonConfig) {
         Object.assign(allPackageJsonConfigs, powerUpConfig.packageJsonConfig);
       }
 
-      // Process setup files
       const projectRootPath = isMonorepo ? projectPath : undefined;
       await setupPowerUpFiles(
         powerUpConfig,
@@ -283,7 +262,6 @@ export async function setupPowerUpsWithConfig(
         projectRootPath
       );
 
-      // For Docker-based powerups, also create .env file in their docker directories
       if (powerUpId === "ngrok" || powerUpId === "traefik") {
         const dockerEnvPath = isMonorepo
           ? path.join(projectPath, "docker", powerUpId)
@@ -295,7 +273,6 @@ export async function setupPowerUpsWithConfig(
 
           if (powerUpConfig.envVariables) {
             for (const [key, value] of Object.entries(powerUpConfig.envVariables)) {
-              // Check for both NGROK_AUTHTOKEN and NGROK_AUTH_TOKEN variants
               let systemValue = process.env[key];
               if (!systemValue && key === "NGROK_AUTHTOKEN") {
                 systemValue = process.env["NGROK_AUTH_TOKEN"];
@@ -318,11 +295,9 @@ export async function setupPowerUpsWithConfig(
         }
       }
 
-      // Run special setup for specific powerups
       await runSpecialSetup(powerUpId, targetPath, config);
     }
 
-    // Install dependencies
     if (allDependencies.size > 0) {
       consola.info("📦 Installing powerup dependencies...");
       await installDependencies(Array.from(allDependencies), {
@@ -343,20 +318,16 @@ export async function setupPowerUpsWithConfig(
       });
     }
 
-    // Update environment variables
     if (Object.keys(allEnvVariables).length > 0) {
       await updateEnvFile(targetPath, allEnvVariables);
     }
 
-    // Update package.json scripts - for monorepos, update root package.json for docker scripts
     if (Object.keys(allScripts).length > 0) {
       const projectName = path.basename(projectPath);
-      // For monorepo, put docker-related scripts in root package.json
       const scriptsPath = isMonorepo ? projectPath : targetPath;
       await updatePackageJsonScripts(scriptsPath, allScripts, projectName);
     }
 
-    // Update package.json configurations
     if (Object.keys(allPackageJsonConfigs).length > 0) {
       await updatePackageJsonConfig(targetPath, allPackageJsonConfigs);
     }

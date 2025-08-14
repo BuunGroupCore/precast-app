@@ -17,3 +17,10 @@ export {
   RoadmapPageSEO,
 } from "./SEO";
 export { ServiceTooltip, serviceInfo } from "./ServiceTooltip";
+export {
+  DesignSystemPageSEO,
+  DesignSystemTokensPageSEO,
+  DesignSystemComponentsPageSEO,
+  DesignSystemPlaygroundPageSEO,
+  DesignSystemGuidelinesPageSEO,
+} from "./DesignSystemPageSEO";

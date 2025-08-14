@@ -63,7 +63,6 @@ ${runtimeDefsMatch[0]}
     // Write the local data file
     writeFileSync(localDataPath, localDataContent, "utf-8");
 
-    // eslint-disable-next-line no-console
     console.log("✅ Stack configuration synced successfully!");
   } catch (error) {
     console.error("❌ Failed to sync stack configuration:", error);

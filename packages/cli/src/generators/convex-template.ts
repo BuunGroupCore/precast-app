@@ -7,8 +7,6 @@ import { getTemplateRoot } from "../utils/template-path.js";
 
 /**
  * Generate a Convex backend template
- * @param config - Project configuration
- * @param projectPath - Path where the project will be created
  */
 export async function generateConvexTemplate(config: ProjectConfig, projectPath: string) {
   const templateRoot = getTemplateRoot();
@@ -17,12 +15,9 @@ export async function generateConvexTemplate(config: ProjectConfig, projectPath:
   try {
     logger.verbose("Generating Convex backend...");
 
-    // Copy base Convex files
     await templateEngine.copyTemplateDirectory(`backends/convex/base`, projectPath, config, {
       overwrite: true,
     });
-
-    // Copy Convex source files (convex functions)
     const srcDir = `backends/convex/src`;
     if (
       await templateEngine

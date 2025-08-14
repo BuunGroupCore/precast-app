@@ -1,5 +1,8 @@
 import { getStackConfig, formatStackOptions } from "./stackConfigReader";
 
+/**
+ * Represents a CLI option with its flag, values, and description
+ */
 export interface CliOption {
   flag: string;
   values: string;
@@ -8,6 +11,7 @@ export interface CliOption {
 
 /**
  * Generate CLI options dynamically from stack config
+ * @returns Array of CLI options with flags, values, and descriptions
  */
 export function generateCliOptions(): CliOption[] {
   const config = getStackConfig();
@@ -169,6 +173,7 @@ export function generateCliOptions(): CliOption[] {
 
 /**
  * Generate init command options specifically
+ * @returns Array of CLI options for the init command
  */
 export function generateInitOptions(): CliOption[] {
   return generateCliOptions();
@@ -176,6 +181,7 @@ export function generateInitOptions(): CliOption[] {
 
 /**
  * Generate add-features command options
+ * @returns Array of CLI options for the add-features command
  */
 export function generateAddFeaturesOptions(): CliOption[] {
   return [
@@ -199,6 +205,7 @@ export function generateAddFeaturesOptions(): CliOption[] {
 
 /**
  * Generate add command options
+ * @returns Array of CLI options for the add command
  */
 export function generateAddOptions(): CliOption[] {
   return [

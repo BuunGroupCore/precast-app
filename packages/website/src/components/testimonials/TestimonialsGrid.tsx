@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 
 import type { Testimonial } from "@/config/testimonials";
+import { SkeletonComponents } from "@/components/ui";
 
 import { TestimonialCard } from "./TestimonialCard";
 
@@ -11,6 +12,7 @@ interface TestimonialsGridProps {
   testimonials: Testimonial[];
   sortedTestimonials: Testimonial[];
   setFilter: (filter: string) => void;
+  loading?: boolean;
 }
 
 /**
@@ -20,7 +22,30 @@ export function TestimonialsGrid({
   testimonials,
   sortedTestimonials,
   setFilter,
+  loading = false,
 }: TestimonialsGridProps) {
+  // Show skeleton loading state
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <SkeletonComponents.Card className="h-64" />
+          </motion.div>
+        ))}
+      </motion.div>
+    );
+  }
+
   if (sortedTestimonials.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">

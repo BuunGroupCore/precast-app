@@ -102,11 +102,9 @@ export class ConfigValidator {
       severity: "warning",
     });
 
-    // PowerUp validation rules
     this.addRule({
       name: "traefik-requires-docker",
       check: (config) => {
-        // Check if Traefik is in the powerups list and Docker is not enabled
         if (config.powerups && config.powerups.includes("traefik") && !config.docker) {
           return false;
         }
@@ -120,7 +118,6 @@ export class ConfigValidator {
     this.addRule({
       name: "powerups-docker-dependency",
       check: (config) => {
-        // List of PowerUps that require Docker
         const dockerRequiredPowerUps = [
           "traefik",
           "redis",
@@ -172,7 +169,6 @@ export class ConfigValidator {
     this.addRule({
       name: "tunnel-with-traefik-recommendation",
       check: (config) => {
-        // Recommend using Traefik with tunneling for better routing
         if (config.powerups) {
           const hasTunnel = config.powerups.some((p) => ["ngrok", "cloudflare-tunnel"].includes(p));
           const hasTraefik = config.powerups.includes("traefik");

@@ -61,7 +61,22 @@ export interface TelemetryEvent {
 }
 
 /**
- * Checks if telemetry collection is enabled
+ * Determines whether telemetry data collection is enabled for the current session.
+ *
+ * Telemetry is disabled if:
+ * - The environment variable PRECAST_TELEMETRY_DISABLED is set to "1" or "true"
+ * - Running in a CI environment (CI or CONTINUOUS_INTEGRATION env vars are "true")
+ * - A local telemetry config file exists with disabled: true
+ *
+ * This function respects user privacy preferences and CI environments where
+ * telemetry collection is typically unwanted.
+ *
+ * @returns {boolean} True if telemetry collection is enabled and should proceed, false if disabled
+ */
+/**
+ * Checks if telemetry is enabled for the CLI.
+ * Telemetry can be disabled via environment variable or configuration file.
+ *
  * @returns {boolean} True if telemetry is enabled, false otherwise
  */
 export function isTelemetryEnabled(): boolean {
@@ -240,12 +255,22 @@ function getPostHogClient(): PostHog | null {
  * Get buffered analytics debug messages
  * @returns {string[]} Array of buffered debug messages
  */
+/**
+ * Retrieves all buffered analytics debug messages.
+ * Used for displaying analytics events in debug mode.
+ *
+ * @returns {string[]} Array of debug messages captured during the session
+ */
 export function getAnalyticsDebugMessages(): string[] {
   return [...analyticsDebugBuffer];
 }
 
 /**
  * Clear analytics debug message buffer
+ */
+/**
+ * Clears the analytics debug message buffer.
+ * Should be called after displaying debug messages to prevent memory buildup.
  */
 export function clearAnalyticsDebugBuffer(): void {
   analyticsDebugBuffer.length = 0;
@@ -371,9 +396,33 @@ async function sendToPostHog(eventName: string, parameters: Record<string, any>)
 }
 
 /**
- * Tracks project creation event with comprehensive metrics
- * @param {TelemetryEvent} config - Project configuration and metadata
- * @returns {Promise<void>}
+ * Tracks a project creation event with comprehensive configuration and timing metrics.
+ *
+ * This function captures detailed information about the project setup including:
+ * - Technology stack choices (framework, backend, database, etc.)
+ * - Feature selections (auth, styling, UI libraries, etc.)
+ * - Performance metrics (duration, success/failure)
+ * - Environment context (platform, package manager, etc.)
+ * - Temporal data (creation time, hour of day for usage patterns)
+ *
+ * The data is used to improve the CLI by understanding popular configurations,
+ * identifying common failure patterns, and optimizing the user experience.
+ *
+ * @param {TelemetryEvent} config The project configuration and metadata to track
+ * @param {string} [config.framework] - The frontend framework selected
+ * @param {string} [config.backend] - The backend technology selected
+ * @param {string} [config.database] - The database technology selected
+ * @param {boolean} [config.success] - Whether the project creation succeeded
+ * @param {number} [config.duration] - Time taken for project creation in milliseconds
+ * @param {string} [config.packageManager] - Package manager used (npm, yarn, pnpm, bun)
+ * @returns {Promise<void>} Resolves when the telemetry events have been sent
+ */
+/**
+ * Tracks the creation of a new project with detailed configuration.
+ * Captures all technology choices and setup options for analytics.
+ *
+ * @param {TelemetryEvent} config - The project configuration containing framework, database, and other technology choices
+ * @returns {Promise<void>} Resolves when the event is tracked
  */
 export async function trackProjectCreation(config: TelemetryEvent): Promise<void> {
   const startTime = Date.now();
@@ -440,20 +489,40 @@ export async function trackFeatureAdded(
 }
 
 /**
- * Tracks CLI command usage
- * @param {string} command - The command being executed
- * @param {Record<string, any>} [options] - Command options and parameters
- * @returns {Promise<void>}
+ * Tracks usage of specific CLI commands to understand user workflows and popular features.
+ *
+ * This helps identify which commands are used most frequently, allowing the team
+ * to prioritize improvements and optimize the user experience for common workflows.
+ *
+ * @param {string} command The name of the command being executed (e.g., "init", "add", "generate")
+ * @param {Record<string, any>} [options] Optional command parameters and flags used
+ * @param {string} [options.framework] - Framework specified in command
+ * @param {boolean} [options.install] - Whether auto-install flag was used
+ * @param {string} [options.template] - Template name if applicable
+ * @returns {Promise<void>} Resolves when the tracking event has been sent
  */
 export async function trackCommand(command: string, options?: Record<string, any>): Promise<void> {
   await sendToPostHog(`command_${command}`, options || {});
 }
 
 /**
- * Tracks errors that occur during CLI operations
- * @param {string} errorType - The type/category of error
- * @param {Record<string, any>} [details] - Error details and context
- * @returns {Promise<void>}
+ * Tracks errors that occur during CLI operations to identify and resolve common issues.
+ *
+ * Error tracking helps the team understand:
+ * - Most common failure points in the CLI
+ * - Environment-specific issues (OS, Node version, package manager)
+ * - User workflow problems that need attention
+ * - Success rates of different operations
+ *
+ * Error messages are sanitized to avoid capturing sensitive information.
+ *
+ * @param {string} errorType The category or type of error (e.g., "template_generation", "dependency_install")
+ * @param {Record<string, any>} [details] Additional context about the error
+ * @param {string} [details.message] - Error message (sanitized)
+ * @param {string} [details.stack] - Error stack trace (sanitized)
+ * @param {string} [details.context] - Additional context about when/where the error occurred
+ * @param {string} [details.command] - CLI command that was running when error occurred
+ * @returns {Promise<void>} Resolves when the error event has been tracked
  */
 export async function trackError(errorType: string, details?: Record<string, any>): Promise<void> {
   await sendToPostHog("error_occurred", {

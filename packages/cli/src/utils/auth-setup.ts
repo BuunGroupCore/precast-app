@@ -77,29 +77,24 @@ export function getFilteredAuthOptions(config: {
   database: string;
   orm?: string;
 }) {
-  // No auth if no backend
   if (!config.backend || config.backend === "none") {
     return [];
   }
 
-  // No auth if no database
   if (!config.database || config.database === "none") {
     return [];
   }
 
   return Object.entries(authProviders)
     .filter(([_id, provider]) => {
-      // Skip disabled providers
       if (provider.disabled) {
         return false;
       }
 
-      // Check framework compatibility
       if (!provider.supportedFrameworks.includes(config.framework)) {
         return false;
       }
 
-      // Check database requirement
       if (provider.requiresDatabase && (!config.database || config.database === "none")) {
         return false;
       }
@@ -130,17 +125,14 @@ export function isAuthProviderCompatibleWithStack(
   const provider = authProviders[authProviderId];
   if (!provider) return false;
 
-  // Check basic framework compatibility
   if (!provider.supportedFrameworks.includes(config.framework)) {
     return false;
   }
 
-  // Check backend requirement
   if (!config.backend || config.backend === "none") {
-    return false; // No auth without backend for security
+    return false;
   }
 
-  // Check database requirement
   if (provider.requiresDatabase && (!config.database || config.database === "none")) {
     return false;
   }

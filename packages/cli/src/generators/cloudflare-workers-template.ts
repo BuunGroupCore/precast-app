@@ -8,8 +8,6 @@ import { getTemplateRoot } from "@/utils/template-path.js";
 
 /**
  * Generate a Cloudflare Workers project template
- * @param config - Project configuration
- * @param projectPath - Path where the project will be created
  */
 export async function generateCloudflareWorkersTemplate(
   config: ProjectConfig,

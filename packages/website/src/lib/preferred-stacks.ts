@@ -11,6 +11,9 @@ import {
   SiFastapi,
 } from "react-icons/si";
 
+/**
+ * Pre-configured technology stack definition
+ */
 export interface PreferredStack {
   id: string;
   name: string;

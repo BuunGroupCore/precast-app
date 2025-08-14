@@ -1,0 +1,1 @@
+export { DesignSystemPlaygroundPage } from "./page";

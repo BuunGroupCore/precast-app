@@ -8,6 +8,9 @@ import {
   type StackOption,
 } from "@/data/stackOptions";
 
+/**
+ * Configuration data structure containing all available stack options
+ */
 export interface StackConfigData {
   frameworks: StackOption[];
   backends: StackOption[];
@@ -19,6 +22,7 @@ export interface StackConfigData {
 
 /**
  * Get all stack configuration options from the shared config
+ * @returns Complete stack configuration data with all available options
  */
 export function getStackConfig(): StackConfigData {
   return {
@@ -33,6 +37,9 @@ export function getStackConfig(): StackConfigData {
 
 /**
  * Format a list of stack options as a readable string
+ * @param options - Array of stack options to format
+ * @param includeNone - Whether to include 'none' option in the output
+ * @returns Comma-separated string of option names
  */
 export function formatStackOptions(options: StackOption[], includeNone = true): string {
   const filtered = includeNone ? options : options.filter((opt) => opt.id !== "none");
@@ -41,6 +48,7 @@ export function formatStackOptions(options: StackOption[], includeNone = true): 
 
 /**
  * Generate FAQ data dynamically from stack config
+ * @returns Array of FAQ objects with questions and answers
  */
 export function generateFAQFromStackConfig(): Array<{ question: string; answer: string }> {
   const config = getStackConfig();

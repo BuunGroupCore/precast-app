@@ -430,23 +430,39 @@ export function BuilderPage() {
   return (
     <div>
       <BuilderPageSEO />
-      <main className="pb-8">
+      {/* Skip Link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-comic-blue text-comic-white px-4 py-2 rounded border-2 border-comic-black"
+        tabIndex={0}
+      >
+        Skip to main content
+      </a>
+      <main
+        id="main-content"
+        className="pb-8"
+        role="main"
+        aria-label="Project configuration builder"
+      >
         <div className="w-full">
           {/* Action Title */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center mb-6 sm:mb-8"
-          >
-            <h2 className="action-text text-4xl sm:text-6xl text-comic-red mb-4">
-              CHOOSE YOUR POWERS!
-            </h2>
-            <p className="font-comic text-xl">Build your super project with style!</p>
-          </motion.div>
+          <header className="text-center mb-6 sm:mb-8">
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}>
+              <h1 className="action-text text-4xl sm:text-6xl text-comic-red mb-4">
+                CHOOSE YOUR POWERS!
+              </h1>
+              <p className="font-comic text-xl" id="builder-description">
+                Build your super project with style!
+              </p>
+            </motion.div>
+          </header>
 
           <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(300px,400px)] gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 max-w-[1600px] mx-auto">
             {/* Left Column - Configuration */}
-            <div className="space-y-6">
+            <section className="space-y-6" aria-labelledby="configuration-heading" role="region">
+              <h2 id="configuration-heading" className="sr-only">
+                Project Configuration Options
+              </h2>
               {/* Preset Templates - First to offer quick starts */}
               <PresetTemplatesSection config={config} setConfig={setConfig} />
 
@@ -540,10 +556,17 @@ export function BuilderPage() {
 
               {/* 13. Deployment Options Section - Where to deploy */}
               <DeploymentSection config={config} setConfig={setConfig} />
-            </div>
+            </section>
 
             {/* Right Column - Compact Sidebar */}
-            <div className="w-full lg:sticky lg:top-28 h-fit space-y-4">
+            <aside
+              className="w-full lg:sticky lg:top-28 h-fit space-y-4"
+              aria-labelledby="sidebar-heading"
+              role="complementary"
+            >
+              <h2 id="sidebar-heading" className="sr-only">
+                Project Summary and Actions
+              </h2>
               {/* Project Name */}
               <ProjectNameSection config={config} setConfig={setConfig} />
 
@@ -553,35 +576,49 @@ export function BuilderPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
                 className="grid grid-cols-3 gap-2"
+                role="group"
+                aria-labelledby="quick-actions-heading"
               >
+                <h3 id="quick-actions-heading" className="sr-only">
+                  Quick Actions
+                </h3>
+
                 {/* Preferred Stacks Button */}
                 <button
                   onClick={() => setShowPreferredStacks(true)}
-                  className="py-2 bg-comic-blue text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkBlue transition-colors flex flex-col items-center justify-center gap-1"
-                  title="Choose from pre-configured popular stacks"
+                  className="py-2 bg-comic-blue text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkBlue focus:ring-2 focus:ring-comic-blue focus:ring-offset-2 transition-colors flex flex-col items-center justify-center gap-1"
+                  aria-label="Choose from pre-configured popular technology stacks"
+                  tabIndex={0}
                 >
-                  <FaHistory className="text-sm sm:text-base" />
+                  <FaHistory className="text-sm sm:text-base" aria-hidden="true" />
                   <span className="hidden sm:inline">STACKS</span>
+                  <span className="sr-only sm:hidden">Popular Stacks</span>
                 </button>
 
                 {/* Save Button */}
                 <button
                   onClick={saveProject}
-                  className="py-2 bg-comic-green text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkGreen transition-colors flex flex-col items-center justify-center gap-1"
-                  title="Save current configuration"
+                  className="py-2 bg-comic-green text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkGreen focus:ring-2 focus:ring-comic-green focus:ring-offset-2 transition-colors flex flex-col items-center justify-center gap-1"
+                  aria-label="Save current project configuration"
+                  tabIndex={0}
                 >
-                  <FaMagic className="text-sm sm:text-base" />
+                  <FaMagic className="text-sm sm:text-base" aria-hidden="true" />
                   <span className="hidden sm:inline">{saved ? "SAVED!" : "SAVE"}</span>
+                  <span className="sr-only sm:hidden">
+                    {saved ? "Configuration Saved" : "Save Configuration"}
+                  </span>
                 </button>
 
                 {/* Load Button */}
                 <button
                   onClick={() => setShowSaved(true)}
-                  className="py-2 bg-comic-purple text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkPurple transition-colors flex flex-col items-center justify-center gap-1"
-                  title="Load saved configuration"
+                  className="py-2 bg-comic-purple text-comic-white font-display text-[10px] sm:text-xs rounded-lg border-2 border-comic-black hover:bg-comic-darkPurple focus:ring-2 focus:ring-comic-purple focus:ring-offset-2 transition-colors flex flex-col items-center justify-center gap-1"
+                  aria-label="Load previously saved project configuration"
+                  tabIndex={0}
                 >
-                  <FaHistory className="text-sm sm:text-base" />
+                  <FaHistory className="text-sm sm:text-base" aria-hidden="true" />
                   <span className="hidden sm:inline">LOAD</span>
+                  <span className="sr-only sm:hidden">Load Configuration</span>
                 </button>
               </motion.div>
 
@@ -606,7 +643,7 @@ export function BuilderPage() {
                   handleDockerToggle={handleDockerToggle}
                 />
               </motion.div>
-            </div>
+            </aside>
           </div>
         </div>
       </main>
@@ -616,7 +653,11 @@ export function BuilderPage() {
         isOpen={showSaved}
         onClose={() => setShowSaved(false)}
         title="SAVED PROJECTS"
+        aria-describedby="saved-projects-description"
       >
+        <div id="saved-projects-description" className="sr-only">
+          Dialog to view, load, or delete previously saved project configurations
+        </div>
         <div className="space-y-3">
           {savedProjects.length === 0 ? (
             <p className="text-center font-comic text-comic-gray py-8">
@@ -664,13 +705,15 @@ export function BuilderPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => loadProject(project)}
-                    className="px-3 py-1 bg-comic-green text-comic-white font-comic text-sm rounded border-2 border-comic-black hover:bg-comic-blue"
+                    className="px-3 py-1 bg-comic-green text-comic-white font-comic text-sm rounded border-2 border-comic-black hover:bg-comic-blue focus:ring-2 focus:ring-comic-green focus:ring-offset-2"
+                    aria-label={`Load project ${project.name}`}
                   >
                     Load
                   </button>
                   <button
                     onClick={() => project.id && deleteProject(project.id)}
-                    className="px-3 py-1 bg-comic-red text-comic-white font-comic text-sm rounded border-2 border-comic-black hover:bg-comic-orange"
+                    className="px-3 py-1 bg-comic-red text-comic-white font-comic text-sm rounded border-2 border-comic-black hover:bg-comic-orange focus:ring-2 focus:ring-comic-red focus:ring-offset-2"
+                    aria-label={`Delete project ${project.name}`}
                   >
                     Delete
                   </button>
@@ -687,7 +730,12 @@ export function BuilderPage() {
         onClose={() => setShowDockerRequiredDialog(false)}
         title="DOCKER REQUIRED!"
         size="sm"
+        aria-describedby="docker-required-description"
+        role="alertdialog"
       >
+        <div id="docker-required-description" className="sr-only">
+          Information dialog explaining that Docker is required for local database deployment
+        </div>
         <div className="text-center">
           <div className="flex justify-center text-5xl mb-4 text-comic-blue">
             <FaDocker />
@@ -701,7 +749,8 @@ export function BuilderPage() {
           </div>
           <button
             onClick={() => setShowDockerRequiredDialog(false)}
-            className="px-6 py-2 bg-comic-blue text-comic-white font-display text-sm rounded-lg border-2 border-comic-black hover:bg-comic-darkBlue transition-colors"
+            className="px-6 py-2 bg-comic-blue text-comic-white font-display text-sm rounded-lg border-2 border-comic-black hover:bg-comic-darkBlue focus:ring-2 focus:ring-comic-blue focus:ring-offset-2 transition-colors"
+            aria-label="Acknowledge Docker requirement and close dialog"
           >
             GOT IT!
           </button>

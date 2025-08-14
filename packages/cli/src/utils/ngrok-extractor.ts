@@ -11,17 +11,25 @@ export interface NgrokUrls {
 }
 
 /**
- * Get ngrok tunnel URLs from running containers
+ * Extracts ngrok tunnel URLs from running Docker containers.
+ *
+ * This function attempts multiple strategies to discover ngrok tunnel URLs:
+ * 1. First tries the ngrok API endpoints (ports 4040/4041) for direct URL access
+ * 2. Falls back to parsing Docker container logs for tunnel URLs
+ *
+ * This is useful for development environments where ngrok provides secure tunnels
+ * to locally running applications, allowing external access and testing.
+ *
+ * @returns {Promise<NgrokUrls | null>} Object containing frontend and API tunnel URLs, or null if not found
+ * @throws {never} Does not throw - all errors are caught and logged as warnings
  */
 export const getNgrokUrls = async (): Promise<NgrokUrls | null> => {
   try {
-    // Method 1: Try to get URLs from ngrok API
     const apiUrls = await getNgrokUrlsFromApi();
     if (apiUrls) {
       return apiUrls;
     }
 
-    // Method 2: Fallback to container logs
     const logUrls = await getNgrokUrlsFromLogs();
     if (logUrls) {
       return logUrls;
@@ -82,7 +90,6 @@ const getNgrokUrlFromPort = async (port: number): Promise<string | null> => {
  */
 const getNgrokUrlsFromLogs = async (): Promise<NgrokUrls | null> => {
   try {
-    // Find ngrok containers
     const containers = execSync('docker ps --format "{{.Names}}" | grep ngrok', {
       encoding: "utf8",
     })
@@ -98,10 +105,8 @@ const getNgrokUrlsFromLogs = async (): Promise<NgrokUrls | null> => {
 
     for (const container of containers) {
       try {
-        // Get logs from container
         const logs = execSync(`docker logs ${container}`, { encoding: "utf8" });
 
-        // Extract ngrok URL from logs
         const urlMatch = logs.match(/https:\/\/[a-z0-9-]+\.(ngrok-free\.app|ngrok\.app|ngrok\.io)/);
         if (urlMatch) {
           if (container.includes("web") || container.includes("frontend")) {
@@ -130,7 +135,15 @@ const getNgrokUrlsFromLogs = async (): Promise<NgrokUrls | null> => {
 };
 
 /**
- * Check if ngrok containers are running
+ * Checks if ngrok Docker containers are currently running.
+ *
+ * This function verifies the presence of at least 2 ngrok containers,
+ * which is the expected minimum for a typical setup (frontend + API tunnels).
+ * Useful for determining if the ngrok infrastructure is ready before
+ * attempting to extract tunnel URLs.
+ *
+ * @returns {boolean} True if 2 or more ngrok containers are running, false otherwise
+ * @throws {never} Does not throw - returns false on any Docker command failure
  */
 export const areNgrokContainersRunning = (): boolean => {
   try {
@@ -138,7 +151,7 @@ export const areNgrokContainersRunning = (): boolean => {
       encoding: "utf8",
     });
     const count = parseInt(output.trim());
-    return count >= 2; // Should have both frontend and API containers
+    return count >= 2;
   } catch {
     return false;
   }
@@ -172,7 +185,18 @@ export const getNgrokContainerStatus = (): Array<{
 };
 
 /**
- * Wait for ngrok tunnels to be established
+ * Waits for ngrok tunnels to be established with a configurable timeout.
+ *
+ * This function polls for tunnel availability at 2-second intervals until either:
+ * - Tunnel URLs are successfully extracted
+ * - The timeout period expires
+ *
+ * Useful during container startup when tunnels may take time to initialize.
+ * The default 30-second timeout should be sufficient for most ngrok startup scenarios.
+ *
+ * @param {number} [timeoutMs=30000] Maximum time to wait in milliseconds (default: 30 seconds)
+ * @returns {Promise<NgrokUrls | null>} The tunnel URLs if found within timeout, null if timeout expires
+ * @throws {never} Does not throw - returns null on timeout or errors
  */
 export const waitForNgrokTunnels = async (timeoutMs: number = 30000): Promise<NgrokUrls | null> => {
   const startTime = Date.now();
@@ -183,7 +207,6 @@ export const waitForNgrokTunnels = async (timeoutMs: number = 30000): Promise<Ng
       return urls;
     }
 
-    // Wait 2 seconds before next attempt
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 

@@ -1,0 +1,1 @@
+export { DesignSystemGuidelinesPage } from "./page";

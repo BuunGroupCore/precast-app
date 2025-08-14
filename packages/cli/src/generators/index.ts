@@ -96,11 +96,9 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);
 
-  // Only setup Claude/MCP integration if explicitly selected
   if (config.aiAssistant === "claude") {
     await setupClaudeIntegration(config, projectPath);
 
-    // Only setup MCP if servers were explicitly requested
     if (config.mcpServers && config.mcpServers.length > 0) {
       try {
         const { setupMCPConfiguration } = await import("../utils/mcp-setup.js");
@@ -112,12 +110,10 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Setup AI context files if any AI assistant is selected
   if (config.aiAssistant && config.aiAssistant !== "none") {
     await setupAIContextFiles(config, projectPath, templateEngine);
   }
 
-  // Setup color palette if selected
   if (
     config.colorPalette &&
     (config.styling === "css" || config.styling === "tailwind" || config.styling === "scss")
@@ -131,7 +127,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Setup database-specific files and configurations
   if (config.database && config.database !== "none") {
     try {
       const { setupDatabase } = await import("../utils/database-setup.js");
@@ -146,7 +141,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     await setupAuthentication(config, config.authProvider);
   }
 
-  // Setup powerups (monitoring, testing, linting tools)
   if (config.powerups && config.powerups.length > 0) {
     try {
       const { setupPowerUps } = await import("../utils/powerups-setup.js");
@@ -157,7 +151,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Setup plugins
   if (config.plugins && config.plugins.length > 0) {
     try {
       const { setupPlugins } = await import("../utils/plugins-setup.js");
@@ -168,7 +161,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Automatically setup admin panel if project has plugins, database, or auth
   const shouldSetupAdminPanel =
     (config.plugins && config.plugins.length > 0) ||
     (config.database && config.database !== "none") ||
@@ -184,7 +176,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Setup Docker configuration first if requested (to get generated passwords)
   let dockerPasswords: Record<string, string> | undefined;
   if (config.docker && config.database && config.database !== "none") {
     try {
@@ -197,7 +188,6 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     }
   }
 
-  // Generate environment files based on all configured features
   try {
     const { generateEnvFiles } = await import("../utils/env-setup.js");
     await generateEnvFiles(config, dockerPasswords);

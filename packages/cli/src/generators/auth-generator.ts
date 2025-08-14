@@ -259,34 +259,26 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
   const packages: string[] = [];
   const devPackages: string[] = [];
 
-  // Determine which framework to use for package selection
-  // For monorepo with backend, use backend framework for auth packages
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
   const packageFramework =
     provider.id === "auth.js" && isMonorepo ? config.backend : config.framework;
 
-  // Get framework-specific packages
   const frameworkPackages = provider.packages[packageFramework] || provider.packages.all || [];
   packages.push(...frameworkPackages);
 
-  // Get dev packages
   const frameworkDevPackages =
     provider.devPackages?.[packageFramework] || provider.devPackages?.all || [];
   devPackages.push(...frameworkDevPackages);
 
-  // Add TypeScript types if using TypeScript
   if (config.typescript) {
     if (provider.id === "auth.js" && config.framework === "next") {
       devPackages.push("@types/next-auth");
     }
   }
 
-  // Install packages
   if (packages.length > 0 || devPackages.length > 0) {
     logger.verbose(`📦 Installing ${provider.name} packages...`);
 
-    // Determine the correct installation path
-    // For monorepo projects, install in the app directory
     const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
     const isBackendFramework = ["express", "hono", "fastify", "node"].includes(config.framework);
 
@@ -295,13 +287,11 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
       (provider.id === "better-auth" || provider.id === "auth.js") &&
       (isMonorepo || isBackendFramework)
     ) {
-      // Auth.js and Better Auth should be installed on the API side when we have a backend or when the framework is a backend framework
       installPath = path.join(config.projectPath, "apps/api");
     } else {
       installPath = isMonorepo ? path.join(config.projectPath, "apps/web") : config.projectPath;
     }
 
-    // Install regular dependencies
     if (packages.length > 0) {
       await installDependencies(packages, {
         packageManager: config.packageManager,
@@ -311,7 +301,6 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
       });
     }
 
-    // Install dev dependencies
     if (devPackages.length > 0) {
       await installDependencies(devPackages, {
         packageManager: config.packageManager,
@@ -330,14 +319,11 @@ async function copyAuthTemplates(
   const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);
 
-  // Determine the auth template directory
   const authTemplateDir = `auth/${provider.id}`;
 
-  // Check if framework-specific templates exist
   const frameworkAuthDir = `${authTemplateDir}/${config.framework}`;
   const genericAuthDir = authTemplateDir;
 
-  // Try framework-specific templates first, then fall back to generic ones
   const templatesExist = await templateEngine
     .getAvailableTemplates(authTemplateDir)
     .then((dirs: string[]) => dirs.includes(config.framework))
@@ -345,12 +331,9 @@ async function copyAuthTemplates(
 
   const sourceDir = templatesExist ? frameworkAuthDir : genericAuthDir;
 
-  // Define where auth files should be placed based on framework
   const authDestination = getAuthDestination(config);
 
-  // Copy auth configuration files
   try {
-    // Generate secure secrets unless explicitly disabled
     const useSecureSecrets = config.securePasswords !== false;
 
     const authContext = {
@@ -367,7 +350,6 @@ async function copyAuthTemplates(
       database: config.database || "none",
     };
 
-    // Copy framework-specific templates if they exist
     if (templatesExist) {
       await templateEngine.copyTemplateDirectory(
         sourceDir,
@@ -375,8 +357,6 @@ async function copyAuthTemplates(
         authContext
       );
     }
-
-    // Also copy generic auth templates from the root auth provider directory
     const genericAuthPath = path.join(templateRoot, genericAuthDir);
     if (await pathExists(genericAuthPath)) {
       const files = await readdir(genericAuthPath, { withFileTypes: true });
@@ -386,12 +366,10 @@ async function copyAuthTemplates(
           const fileName = file.name.replace(".hbs", "");
           const isTypeScriptFile = fileName.endsWith(".ts") || fileName.endsWith(".tsx");
 
-          // Skip TypeScript files if using JavaScript
           if (!config.typescript && isTypeScriptFile) {
             continue;
           }
 
-          // Skip JavaScript files if using TypeScript
           if (config.typescript && (fileName.endsWith(".js") || fileName.endsWith(".jsx"))) {
             continue;
           }
@@ -405,7 +383,6 @@ async function copyAuthTemplates(
       }
     }
 
-    // For Better Auth or Auth.js with backend, also copy backend-specific route templates
     if (
       (provider.id === "better-auth" || provider.id === "auth.js") &&
       config.backend &&
@@ -428,7 +405,6 @@ async function copyAuthTemplates(
       }
     }
 
-    // For Auth.js with database but no ORM, copy database setup files
     if (
       provider.id === "auth.js" &&
       config.database &&
@@ -441,7 +417,6 @@ async function copyAuthTemplates(
         ? path.join(config.projectPath, "apps/api")
         : config.projectPath;
 
-      // Copy migration SQL file
       const migrationPath = path.join(
         templateRoot,
         `${genericAuthDir}/migrations/001_auth_tables.sql.hbs`
@@ -457,7 +432,6 @@ async function copyAuthTemplates(
         logger.verbose(`✓ Created Auth.js database migration file`);
       }
 
-      // Copy setup script
       const setupScriptPath = path.join(
         templateRoot,
         `${genericAuthDir}/scripts/setup-auth-db.ts.hbs`
@@ -472,7 +446,6 @@ async function copyAuthTemplates(
         );
         logger.verbose(`✓ Created Auth.js database setup script`);
 
-        // Update package.json with db:setup script
         const packageJsonPath = path.join(targetPath, "package.json");
         if (await pathExists(packageJsonPath)) {
           const packageJson = await readJson(packageJsonPath);
@@ -493,25 +466,20 @@ async function copyAuthTemplates(
 }
 
 function getAuthDestination(config: ProjectConfig & { authProvider?: string }): string {
-  // Check if it's a monorepo structure
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
-  // Better Auth and Auth.js should always be on the API side when we have a backend
   if ((config.authProvider === "better-auth" || config.authProvider === "auth.js") && isMonorepo) {
     return "apps/api/src/lib";
   }
 
   switch (config.framework) {
     case "next":
-      // For monorepo Next.js, auth files go in apps/web/src/lib
-      // For single app, they go in src/lib
       return isMonorepo ? "apps/web/src/lib" : "src/lib";
     case "react":
     case "vue":
     case "solid":
     case "svelte":
     case "react-router":
-      // For Better Auth with backend, put on API side
       if (config.authProvider === "better-auth" && isMonorepo) {
         return "apps/api/src/lib";
       }
@@ -555,7 +523,6 @@ function generateAPIKey(length: number = 32): string {
   return result;
 }
 
-// Generate database URL based on config
 function generateDatabaseUrl(config: ProjectConfig): string {
   const dbName = config.name.replace(/-/g, "_");
 
@@ -581,7 +548,6 @@ async function updateEnvFile(
   config: ProjectConfig & { authProvider?: string },
   provider: AuthProvider
 ): Promise<void> {
-  // For Better Auth with backend, put env vars in the API directory
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
   let envBasePath: string;
 
@@ -594,17 +560,13 @@ async function updateEnvFile(
   const envPath = path.join(envBasePath, ".env");
   const envExamplePath = path.join(envBasePath, ".env.example");
 
-  // Generate environment variables content using template
   const templateRoot = getTemplateRoot();
   const envTemplateContent = await readFile(
     path.join(templateRoot, "auth", "env-variables.hbs"),
     "utf-8"
   );
 
-  // Generate secure secrets unless explicitly disabled
   const useSecureSecrets = config.securePasswords !== false;
-
-  // Compile and render the template manually
   const handlebars = (await import("handlebars")).default;
   const template = handlebars.compile(envTemplateContent);
   const envContent = template({
@@ -619,7 +581,6 @@ async function updateEnvFile(
     requiresDatabase: provider.requiresDatabase,
   });
 
-  // Append to existing .env.local or create new one
   let existingContent = "";
   if (await pathExists(envPath)) {
     existingContent = await readFile(envPath, "utf-8");
@@ -632,12 +593,11 @@ async function updateEnvFile(
 
   await writeFile(envPath, existingContent);
 
-  // Also update .env.example with placeholder values
   const exampleContent = envContent.replace(/=.+$/gm, (match) => {
     if (match.includes("your-") || match.includes("http://localhost")) {
-      return match; // Keep placeholder values
+      return match;
     }
-    return "=your-value-here"; // Replace actual secrets with placeholders
+    return "=your-value-here";
   });
 
   let existingExampleContent = "";
@@ -658,10 +618,8 @@ async function updatePrismaSchema(
   provider: AuthProvider
 ): Promise<void> {
   if (provider.id !== "auth.js" && provider.id !== "better-auth") {
-    return; // Only Auth.js and Better Auth need Prisma schema updates
+    return;
   }
-
-  // Determine correct path for Prisma schema
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
   const schemaPath = isMonorepo
     ? path.join(config.projectPath, "apps", "api", "prisma", "schema.prisma")
@@ -674,23 +632,19 @@ async function updatePrismaSchema(
 
   const schemaContent = await readFile(schemaPath, "utf-8");
 
-  // Check if auth models already exist
   if (schemaContent.includes("model Account") || schemaContent.includes("model Session")) {
     logger.verbose("Auth models already exist in Prisma schema");
     return;
   }
 
-  // Check if a basic User model exists and needs to be replaced
   const hasBasicUserModel =
     schemaContent.includes("model User") && !schemaContent.includes("model Account");
 
-  // Add auth models based on provider
   const authModels =
     provider.id === "auth.js" ? getAuthJsPrismaModels() : getBetterAuthPrismaModels();
 
   let updatedSchema: string;
   if (hasBasicUserModel) {
-    // Replace the basic User model with the auth User model
     const userModelRegex = /model User\s*\{[^}]*\}/;
     updatedSchema = schemaContent.replace(userModelRegex, "");
     updatedSchema = updatedSchema + "\n\n" + authModels;

@@ -12,11 +12,9 @@ export async function generateNoneTemplate(
 ): Promise<void> {
   logger.verbose("Creating backend-only project structure...");
 
-  // For backend-only projects, generate the specified backend
   if (config.backend && config.backend !== "none") {
     await generateBackendTemplate(config.backend, config, projectPath);
   } else {
-    // Fallback to minimal Node.js structure if no backend specified
     const { generateMinimalNodeTemplate } = await import("./minimal-node-template.js");
     await generateMinimalNodeTemplate(config, projectPath);
   }

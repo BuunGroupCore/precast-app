@@ -22,6 +22,9 @@ import { SiNpm } from "react-icons/si";
 
 import { EMAILS } from "./constants";
 
+/**
+ * Navigation item configuration
+ */
 export interface NavItem {
   href: string;
   label: string;
@@ -85,6 +88,11 @@ export const mainNavigation: NavItem[] = [
           href: "/components",
         },
         {
+          label: "DESIGN SYSTEM",
+          icon: FaCode,
+          href: "/design-system",
+        },
+        {
           label: "METRICS",
           icon: FaChartLine,
           href: "/metrics",
@@ -106,6 +114,9 @@ export const mainNavigation: NavItem[] = [
   },
 ];
 
+/**
+ * Footer section configuration
+ */
 export interface FooterSection {
   title: string;
   icon?: IconType;
@@ -153,6 +164,9 @@ export const footerNavigation: FooterSection[] = [
   },
 ];
 
+/**
+ * Social media link configuration
+ */
 export interface SocialLink {
   name: string;
   href: string;

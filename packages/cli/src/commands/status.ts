@@ -60,7 +60,6 @@ async function getColorPaletteDisplay(paletteId: string): Promise<string | null>
 
     if (!palette) return null;
 
-    // Get preview colors or use main colors
     const previewColors = palette.preview || [
       palette.colors.primary,
       palette.colors.secondary,
@@ -68,10 +67,8 @@ async function getColorPaletteDisplay(paletteId: string): Promise<string | null>
       palette.colors.background,
     ];
 
-    // Create colored circles with hex codes
     const colorDisplay = previewColors
       .map((color) => {
-        // Use chalk to color the circle with the hex color
         const coloredCircle = chalk.hex(color)("●");
         return `${coloredCircle} ${theme.dim(color)}`;
       })
@@ -79,7 +76,6 @@ async function getColorPaletteDisplay(paletteId: string): Promise<string | null>
 
     return `${theme.accent("◇")} ${palette.name} palette\n     ${colorDisplay}`;
   } catch {
-    // If we can't load the palette, just return the name
     return null;
   }
 }
@@ -93,7 +89,6 @@ async function getColorPaletteDisplay(paletteId: string): Promise<string | null>
 function createTechStackDisplay(config: PrecastConfig): string {
   const sections: string[] = [];
 
-  // Core Stack
   const coreItems = [
     `${getFrameworkIcon(config.framework)} ${techBadge(config.framework)}`,
     config.backend && config.backend !== "none" ? `${techBadge(config.backend)}` : null,
@@ -104,7 +99,6 @@ function createTechStackDisplay(config: PrecastConfig): string {
     sections.push(`${theme.bold("Core Stack")}\n${bulletList(coreItems)}`);
   }
 
-  // Database & ORM
   const dataItems: string[] = [];
   if (config.database && config.database !== "none") {
     dataItems.push(`${techBadge(config.database)}`);
@@ -117,7 +111,6 @@ function createTechStackDisplay(config: PrecastConfig): string {
     sections.push(`${theme.bold("Data Layer")}\n${bulletList(dataItems)}`);
   }
 
-  // UI & Styling
   const uiItems: string[] = [];
   if (config.styling && config.styling !== "none") {
     uiItems.push(`${techBadge(config.styling)}`);
@@ -130,7 +123,6 @@ function createTechStackDisplay(config: PrecastConfig): string {
     sections.push(`${theme.bold("UI & Styling")}\n${bulletList(uiItems)}`);
   }
 
-  // Features & Integrations
   const featureItems: string[] = [];
   if (config.authProvider && config.authProvider !== "none") {
     featureItems.push(`${techBadge(config.authProvider)}`);
@@ -164,7 +156,6 @@ function createTechStackDisplay(config: PrecastConfig): string {
 async function createHealthDisplay(targetPath: string, config: PrecastConfig): Promise<string> {
   const checks: string[] = [];
 
-  // Dependencies
   const nodeModulesPath = path.join(targetPath, "node_modules");
   const hasNodeModules = await pathExists(nodeModulesPath);
   checks.push(
@@ -173,7 +164,6 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
       : theme.error(`${statusSymbols.error} Dependencies missing - run install`)
   );
 
-  // Docker
   const dockerComposePath = path.join(targetPath, "docker", "docker-compose.yml");
   const hasDocker = await pathExists(dockerComposePath);
   if (config.docker || hasDocker) {
@@ -184,7 +174,6 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
     );
   }
 
-  // Environment
   const envPath = path.join(targetPath, ".env");
   const envLocalPath = path.join(targetPath, ".env.local");
   const hasEnv = (await pathExists(envPath)) || (await pathExists(envLocalPath));
@@ -194,7 +183,6 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
       : theme.warning(`${statusSymbols.warning} Environment variables not set`)
   );
 
-  // Git
   const gitPath = path.join(targetPath, ".git");
   const hasGit = await pathExists(gitPath);
   checks.push(
@@ -203,7 +191,6 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
       : theme.warning(`${statusSymbols.warning} Git not initialized`)
   );
 
-  // TypeScript
   if (config.typescript) {
     const tsconfigPath = path.join(targetPath, "tsconfig.json");
     const hasTsConfig = await pathExists(tsconfigPath);
@@ -296,11 +283,10 @@ export async function statusCommand(
 
     const configContent = await readFile(precastConfigPath, "utf-8");
 
-    // Parse JSONC by removing comments and trailing commas
     let jsonContent = configContent;
-    jsonContent = jsonContent.replace(/(?:^|\s)\/\/.*$/gm, ""); // Single-line comments (preserving URLs)
-    jsonContent = jsonContent.replace(/\/\*[\s\S]*?\*\//g, ""); // Multi-line comments
-    jsonContent = jsonContent.replace(/,\s*([}\]])/g, "$1"); // Trailing commas
+    jsonContent = jsonContent.replace(/(?:^|\s)\/\/.*$/gm, ""); // Preserve URLs in comments
+    jsonContent = jsonContent.replace(/\/\*[\s\S]*?\*\//g, "");
+    jsonContent = jsonContent.replace(/,\s*([}\]])/g, "$1");
 
     const config: PrecastConfig = JSON.parse(jsonContent);
 
@@ -309,13 +295,11 @@ export async function statusCommand(
       console.log(theme.dim("[DEBUG] Config keys:"), theme.dim(Object.keys(config).join(", ")));
     }
 
-    // Create beautiful header with ASCII art
     console.log();
     const heroBanner = await createHeroBanner("STATUS", `◉ Project health & configuration`);
     console.log(heroBanner);
     console.log();
 
-    // Project Info Section
     const projectName = config.name || path.basename(targetPath);
     const projectInfo = [
       `${theme.primary("▶")} ${theme.bold.white(projectName)}`,
@@ -334,7 +318,6 @@ export async function statusCommand(
     console.log(infoBox);
     console.log();
 
-    // Tech Stack Section
     const techStackDisplay = createTechStackDisplay(config);
     if (techStackDisplay) {
       const stackBox = createFancyBox(techStackDisplay, "⚙ Tech Stack");
@@ -342,7 +325,6 @@ export async function statusCommand(
       console.log();
     }
 
-    // Color Palette Section (if configured)
     if (config.colorPalette) {
       const paletteDisplay = await getColorPaletteDisplay(config.colorPalette);
       if (paletteDisplay) {
@@ -352,7 +334,6 @@ export async function statusCommand(
       }
     }
 
-    // Health Check Section
     const nodeModulesPath = path.join(targetPath, "node_modules");
     const hasNodeModules = await pathExists(nodeModulesPath);
     const dockerComposePath = path.join(targetPath, "docker", "docker-compose.yml");
@@ -363,13 +344,11 @@ export async function statusCommand(
     console.log(healthBox);
     console.log();
 
-    // Quick Commands Section
     const commandsDisplay = createQuickCommands(config, hasNodeModules, hasDocker);
     const commandsBox = createFancyBox(commandsDisplay, `${actionSymbols.deploy} Quick Commands`);
     console.log(commandsBox);
     console.log();
 
-    // Footer
     console.log(theme.muted(divider()));
     console.log(
       theme.muted(

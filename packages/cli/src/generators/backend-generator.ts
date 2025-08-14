@@ -10,9 +10,6 @@ import { getTemplateRoot } from "@/utils/template-path.js";
 
 /**
  * Generate backend template files for the specified backend framework
- * @param backend - Backend framework name
- * @param config - Project configuration
- * @param projectPath - Path where backend files will be generated
  */
 export async function generateBackendTemplate(
   backend: string,
@@ -65,13 +62,12 @@ export async function generateBackendTemplate(
       });
     }
 
-    // Copy shared backend files (README, etc.)
     const sharedDir = `backends/shared`;
     if (
       await templateEngine.getAvailableTemplates("backends").then((dirs) => dirs.includes("shared"))
     ) {
       await templateEngine.copyTemplateDirectory(sharedDir, projectPath, config, {
-        overwrite: false, // Don't overwrite existing files
+        overwrite: false,
       });
     }
 
@@ -84,8 +80,6 @@ export async function generateBackendTemplate(
 
 /**
  * Check if a backend framework is supported
- * @param backend - Backend framework name to validate
- * @returns True if the backend is supported
  */
 export function isValidBackend(backend: string): boolean {
   const validBackends = [

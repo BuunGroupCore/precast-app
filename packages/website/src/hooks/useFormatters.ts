@@ -5,6 +5,9 @@
 
 import { useCallback } from "react";
 
+/**
+ * Return type for the useFormatters hook
+ */
 interface UseFormattersReturn {
   formatNumber: (num: number) => string;
   formatDate: (dateString: string) => string;
@@ -15,10 +18,13 @@ interface UseFormattersReturn {
 
 /**
  * Custom hook providing various formatting utilities
+ * @returns Object containing formatting functions for numbers, dates, file sizes, and durations
  */
 export function useFormatters(): UseFormattersReturn {
   /**
    * Format numbers with K/M suffixes
+   * @param num - The number to format
+   * @returns Formatted number string with K/M suffix
    */
   const formatNumber = useCallback((num: number): string => {
     if (num >= 1000000) {
@@ -32,6 +38,8 @@ export function useFormatters(): UseFormattersReturn {
 
   /**
    * Format date to relative time (e.g., "2 days ago", "Yesterday")
+   * @param dateString - ISO date string to format
+   * @returns Human-readable relative time string
    */
   const formatDate = useCallback((dateString: string): string => {
     const date = new Date(dateString);
@@ -49,6 +57,8 @@ export function useFormatters(): UseFormattersReturn {
 
   /**
    * Calculate project age from creation date
+   * @param createdAt - ISO date string of project creation
+   * @returns Human-readable age string
    */
   const calculateProjectAge = useCallback((createdAt: string): string => {
     const created = new Date(createdAt);
@@ -63,6 +73,8 @@ export function useFormatters(): UseFormattersReturn {
 
   /**
    * Format file size in bytes to human readable format
+   * @param bytes - File size in bytes
+   * @returns Human-readable file size string
    */
   const formatFileSize = useCallback((bytes: number): string => {
     const units = ["B", "KB", "MB", "GB", "TB"];
@@ -79,6 +91,8 @@ export function useFormatters(): UseFormattersReturn {
 
   /**
    * Format duration in milliseconds to human readable format
+   * @param milliseconds - Duration in milliseconds
+   * @returns Human-readable duration string
    */
   const formatDuration = useCallback((milliseconds: number): string => {
     const seconds = Math.floor(milliseconds / 1000);

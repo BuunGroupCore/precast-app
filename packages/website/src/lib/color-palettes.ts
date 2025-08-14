@@ -765,10 +765,20 @@ export const colorPalettes: ColorPalette[] = [
   },
 ];
 
+/**
+ * Get a color palette by its ID
+ * @param id - The unique identifier of the color palette
+ * @returns The color palette object or undefined if not found
+ */
 export const getColorPaletteById = (id: string): ColorPalette | undefined => {
   return colorPalettes.find((palette) => palette.id === id);
 };
 
+/**
+ * Get all color palettes in a specific category
+ * @param category - The category to filter by
+ * @returns Array of color palettes in the specified category
+ */
 export const getColorPalettesByCategory = (category: ColorPalette["category"]): ColorPalette[] => {
   return colorPalettes.filter((palette) => palette.category === category);
 };

@@ -52,7 +52,6 @@ async function loadMCPServers(): Promise<MCPServer[]> {
   const serversDir = path.join(__dirname, "..", "..", "src", "templates", "mcp", "servers");
 
   try {
-    // Try to load from the servers directory
     if (await pathExists(serversDir)) {
       const files = await readdir(serversDir);
       const jsonFiles = files.filter((f) => f.endsWith(".json") && f !== "servers-index.json");
@@ -67,7 +66,6 @@ async function loadMCPServers(): Promise<MCPServer[]> {
       }
     }
 
-    // If no servers loaded from files, fall back to built-in configs
     if (servers.length === 0) {
       servers.push(...getBuiltInMCPServers());
     }
@@ -208,7 +206,6 @@ export async function setupMCPConfiguration(
     let relevantServers: MCPServer[];
 
     if (config.mcpServers && config.mcpServers.length > 0) {
-      // Use user-specified MCP servers
       relevantServers = await getSpecifiedMCPServers(config.mcpServers);
 
       if (relevantServers.length === 0) {
@@ -229,7 +226,6 @@ export async function setupMCPConfiguration(
         consola.warn(`⚠️  Invalid MCP server IDs: ${invalidServers.join(", ")}`);
       }
     } else {
-      // Use auto-detection based on project configuration
       relevantServers = await getRelevantMCPServers(config);
     }
 
@@ -238,15 +234,11 @@ export async function setupMCPConfiguration(
       return;
     }
 
-    // Register Handlebars helpers
     Handlebars.registerHelper("ifEquals", function (this: any, arg1: any, arg2: any, options: any) {
       return arg1 === arg2 ? options.fn(this) : options.inverse(this);
     });
 
-    // Create MCP configuration using template
     await createMCPConfigFromTemplate(projectPath, relevantServers);
-
-    // Create environment variables template
     await createMCPEnvTemplate(projectPath, relevantServers);
 
     consola.success(`✅ MCP configuration created with ${relevantServers.length} servers:`);
@@ -273,7 +265,6 @@ async function createMCPConfigFromTemplate(
   const claudeDir = path.join(projectPath, ".claude");
   await ensureDir(claudeDir);
 
-  // Load and process the MCP template
   const templatePaths = [
     path.join(__dirname, "templates", "mcp", "mcp.json.hbs"),
     path.join(__dirname, "..", "..", "src", "templates", "mcp", "mcp.json.hbs"),
@@ -288,7 +279,6 @@ async function createMCPConfigFromTemplate(
   }
 
   if (!templateContent) {
-    // Fallback to inline template
     templateContent = `{
   "mcpServers": {
 {{#each servers}}
@@ -328,7 +318,6 @@ async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): 
   }> = [];
   const processedKeys = new Set<string>();
 
-  // Standard environment variables that users likely already have
   const standardEnvVars = {
     GITHUB_TOKEN: "GitHub Personal Access Token",
     DATABASE_URL: "PostgreSQL connection string",
@@ -342,14 +331,12 @@ async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): 
   for (const server of servers) {
     if (server.config.env) {
       for (const [key, value] of Object.entries(server.config.env)) {
-        // Extract the primary environment variable name from the value
         const envVarMatch = value.match(/\$\{([^:}]+)/);
         const primaryKey = envVarMatch ? envVarMatch[1] : key;
 
         if (!processedKeys.has(primaryKey)) {
           processedKeys.add(primaryKey);
 
-          // Extract default value from the template string
           const defaultMatch = value.match(/:-([^}]+)\}/);
           const defaultValue = defaultMatch ? defaultMatch[1] : "";
 
@@ -370,7 +357,6 @@ async function createMCPEnvTemplate(projectPath: string, servers: MCPServer[]): 
     return;
   }
 
-  // Create .env.mcp with helpful instructions
   const mcpEnvContent = `# MCP (Model Context Protocol) Environment Variables
 # ============================================
 # 
@@ -405,7 +391,6 @@ ${envVars
     }
   }
 
-  // Load and process the environment template
   const templatePaths = [
     path.join(__dirname, "templates", "mcp", "env-section.hbs"),
     path.join(__dirname, "..", "..", "src", "templates", "mcp", "env-section.hbs"),
@@ -420,7 +405,6 @@ ${envVars
   }
 
   if (!templateContent) {
-    // Fallback to inline template
     templateContent = `
 # =============================================================================
 # MCP (Model Context Protocol) Configuration

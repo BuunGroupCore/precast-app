@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 
 import { API_ENDPOINTS, CACHE_DURATIONS } from "@/config/constants";
 
+/**
+ * GitHub repository statistics data structure
+ */
 interface GitHubStats {
   stars: number;
   forks: number;
@@ -14,6 +17,7 @@ interface GitHubStats {
 /**
  * Custom hook to fetch GitHub repository statistics.
  * Includes caching to prevent excessive API calls.
+ * @returns GitHub stats object with loading and error states
  */
 export function useGitHubStats() {
   const [stats, setStats] = useState<GitHubStats>({

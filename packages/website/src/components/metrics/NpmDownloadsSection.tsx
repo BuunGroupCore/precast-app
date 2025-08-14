@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { SkeletonComponents } from "@/components/ui";
 
 interface NpmStats {
   downloads: {
@@ -103,45 +104,13 @@ export function NpmDownloadsSection({
           >
             <h3 className="font-display text-2xl mb-4 text-comic-red">30-DAY DOWNLOAD HISTORY</h3>
             <div className="h-80">
-              {loading || downloadHistory.length === 0 ? (
+              {loading ? (
+                <SkeletonComponents.Chart className="h-full" />
+              ) : downloadHistory.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="inline-block"
-                    >
-                      <SiNpm className="text-6xl text-comic-red mb-4" />
-                    </motion.div>
-                    <p className="font-comic text-xl text-comic-black">
-                      {loading ? "FETCHING NPM STATS..." : "NO DOWNLOAD DATA YET"}
-                    </p>
-                    {loading && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="mt-4"
-                      >
-                        <div className="flex justify-center gap-3">
-                          {[0, 1, 2, 3].map((i) => (
-                            <motion.div
-                              key={i}
-                              animate={{ opacity: [0.3, 1, 0.3] }}
-                              transition={{
-                                duration: 1.2,
-                                repeat: Infinity,
-                                delay: i * 0.3,
-                              }}
-                              className="w-4 h-16 bg-comic-red rounded"
-                              style={{
-                                height: `${Math.random() * 40 + 20}px`,
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
+                    <SiNpm className="text-6xl text-comic-red mb-4" />
+                    <p className="font-comic text-xl text-comic-black">NO DOWNLOAD DATA YET</p>
                   </div>
                 </div>
               ) : (
@@ -189,10 +158,16 @@ export function NpmDownloadsSection({
               className="comic-panel p-6 bg-comic-yellow text-center"
             >
               <FaDownload className="text-4xl mx-auto mb-2 text-comic-red" />
-              <div className="action-text text-3xl text-comic-red">
-                {formatNumber(npmStats?.downloads.lastDay || 0)}
-              </div>
-              <div className="font-display text-lg text-comic-purple">TODAY</div>
+              {loading ? (
+                <SkeletonComponents.MetricCard className="bg-transparent border-none" />
+              ) : (
+                <>
+                  <div className="action-text text-3xl text-comic-red">
+                    {formatNumber(npmStats?.downloads.lastDay || 0)}
+                  </div>
+                  <div className="font-display text-lg text-comic-purple">TODAY</div>
+                </>
+              )}
             </motion.div>
 
             <motion.div
@@ -203,10 +178,16 @@ export function NpmDownloadsSection({
               className="comic-panel p-6 bg-comic-red text-center"
             >
               <FaFire className="text-4xl mx-auto mb-2 text-comic-white" />
-              <div className="action-text text-3xl text-comic-white">
-                {formatNumber(npmStats?.downloads.lastWeek || 0)}
-              </div>
-              <div className="font-display text-lg text-comic-white">THIS WEEK</div>
+              {loading ? (
+                <SkeletonComponents.MetricCard className="bg-transparent border-none" />
+              ) : (
+                <>
+                  <div className="action-text text-3xl text-comic-white">
+                    {formatNumber(npmStats?.downloads.lastWeek || 0)}
+                  </div>
+                  <div className="font-display text-lg text-comic-white">THIS WEEK</div>
+                </>
+              )}
             </motion.div>
 
             <motion.div
@@ -217,10 +198,16 @@ export function NpmDownloadsSection({
               className="comic-panel p-6 bg-comic-purple text-center"
             >
               <FaRocket className="text-4xl mx-auto mb-2 text-comic-white" />
-              <div className="action-text text-3xl text-comic-white">
-                {formatNumber(npmStats?.downloads.lastMonth || 0)}
-              </div>
-              <div className="font-display text-lg text-comic-white">THIS MONTH</div>
+              {loading ? (
+                <SkeletonComponents.MetricCard className="bg-transparent border-none" />
+              ) : (
+                <>
+                  <div className="action-text text-3xl text-comic-white">
+                    {formatNumber(npmStats?.downloads.lastMonth || 0)}
+                  </div>
+                  <div className="font-display text-lg text-comic-white">THIS MONTH</div>
+                </>
+              )}
             </motion.div>
           </div>
         </div>

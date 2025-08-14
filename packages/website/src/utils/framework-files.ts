@@ -1,5 +1,8 @@
 import type { FileNode } from "@/components/builder/types";
 
+/**
+ * Structure representing framework-specific file organization
+ */
 interface FrameworkFiles {
   src: FileNode[];
   public?: FileNode[];

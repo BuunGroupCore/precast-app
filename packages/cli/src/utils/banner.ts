@@ -9,8 +9,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Get the default ASCII art banner for the CLI
- * @returns Default banner string
+ * Retrieves the default ASCII art banner for the Precast CLI.
+ * This banner is displayed when the CLI starts up, providing visual branding
+ * and enhancing the user experience.
+ *
+ * @returns {string} The default ASCII art banner as a multi-line string with decorative borders
  */
 export function getDefaultBanner(): string {
   return `
@@ -29,12 +32,18 @@ export function getDefaultBanner(): string {
 }
 
 /**
- * Load a custom banner from file if available
- * @returns Custom banner string or null if not found
+ * Attempts to load a custom banner from predefined file locations.
+ * Looks for banner files in two locations:
+ * 1. `banner.txt` in the CLI installation directory
+ * 2. `precast-banner.txt` in the current working directory
+ *
+ * This allows users to customize the CLI banner by providing their own ASCII art.
+ *
+ * @returns {Promise<string | null>} The custom banner content if found and readable, null otherwise
+ * @throws {never} Does not throw - all errors are caught and return null
  */
 export async function loadCustomBanner(): Promise<string | null> {
   try {
-    // Look for banner file in CLI root directory
     const bannerPath = path.join(__dirname, "..", "..", "banner.txt");
 
     if (await pathExists(bannerPath)) {
@@ -42,7 +51,6 @@ export async function loadCustomBanner(): Promise<string | null> {
       return customBanner.trim();
     }
 
-    // Also check for banner in current working directory
     const cwdBannerPath = path.join(process.cwd(), "precast-banner.txt");
     if (await pathExists(cwdBannerPath)) {
       const customBanner = await readFile(cwdBannerPath, "utf-8");
@@ -56,13 +64,19 @@ export async function loadCustomBanner(): Promise<string | null> {
 }
 
 /**
- * Display the banner (custom or default) to the console
+ * Displays the CLI banner to the console.
+ * First attempts to load a custom banner using loadCustomBanner().
+ * If no custom banner is found, displays the default banner.
+ *
+ * This is typically called at the start of CLI execution to provide
+ * visual feedback and branding to the user.
+ *
+ * @returns {Promise<void>} Resolves when the banner has been displayed
  */
 export async function displayBanner(): Promise<void> {
   const customBanner = await loadCustomBanner();
   const banner = customBanner || getDefaultBanner();
 
-  // Use console.log directly for banner to avoid @clack styling
   console.log(banner);
 }
 

@@ -20,7 +20,6 @@ import { getTemplateRoot } from "@/utils/template-path.js";
  */
 function getFrameworkPath(framework: string): string {
   const frameworkMap: Record<string, string> = {
-    // React ecosystem
     react: "react/bare",
     "react-router": "react/router-v7",
     "react-native": "react/native",
@@ -29,24 +28,19 @@ function getFrameworkPath(framework: string): string {
     "tanstack-start": "react/tanstack-start",
     "vite-react": "react/vite",
 
-    // Vue ecosystem
     vue: "vue/bare",
     nuxt: "vue/nuxt",
     "vite-vue": "vue/vite",
 
-    // Svelte ecosystem
     svelte: "svelte",
     "vite-svelte": "svelte/vite",
 
-    // Solid ecosystem
     solid: "solid/bare",
     "vite-solid": "solid/vite",
 
-    // Vanilla ecosystem
     vanilla: "vanilla/bare",
     "vite-vanilla": "vanilla/vite",
 
-    // Standalone frameworks
     angular: "angular",
     astro: "astro",
     vite: "vite",
@@ -180,28 +174,25 @@ async function generateSingleAppProject(
     }
   );
 
-  // Copy common public assets first (for all frameworks)
   const commonPublicDir = `common/public`;
   const extendedConfig = {
     ...config,
-    currentDate: new Date().toISOString().split("T")[0], // Add current date for sitemap
+    currentDate: new Date().toISOString().split("T")[0],
   };
   await templateEngine.copyTemplateDirectory(
     commonPublicDir,
     path.join(projectPath, "public"),
     extendedConfig,
     {
-      overwrite: false, // Don't overwrite framework-specific files
+      overwrite: false,
     }
   );
 
-  // Copy common styles (globals.css, etc.) - Skip for Svelte as it uses partials
   if (framework !== "svelte") {
     const commonStylesDir = `common/styles`;
     try {
       const stylesPath = path.join(projectPath, "src/styles");
 
-      // Skip if styles directory already has a globals.css file
       const globalsPath = path.join(stylesPath, "globals.css");
       const hasGlobals = await fs
         .access(globalsPath)
@@ -210,7 +201,7 @@ async function generateSingleAppProject(
 
       if (!hasGlobals) {
         await templateEngine.copyTemplateDirectory(commonStylesDir, stylesPath, config, {
-          overwrite: false, // Don't overwrite framework-specific styles
+          overwrite: false,
         });
       } else {
         consola.debug("Skipping common styles - globals.css already exists");
@@ -220,7 +211,6 @@ async function generateSingleAppProject(
     }
   }
 
-  // Copy common pages (home, not-found, etc.)
   const commonPagesDir = `common/pages`;
   try {
     await templateEngine.copyTemplateDirectory(
@@ -228,14 +218,13 @@ async function generateSingleAppProject(
       path.join(projectPath, "src/pages"),
       config,
       {
-        overwrite: true, // Overwrite framework-specific pages with common ones
+        overwrite: true,
       }
     );
   } catch (error) {
     consola.debug(`Common pages not found or error copying: ${error}`);
   }
 
-  // Copy src directory if it exists (for all frameworks including TanStack Start)
   const srcDir = `frameworks/${frameworkPath}/src`;
   if (
     await templateEngine
@@ -247,15 +236,12 @@ async function generateSingleAppProject(
     });
   }
 
-  // Copy common components (PrecastBanner, etc.) AFTER framework src
-  // Only copy React components for React-based frameworks
   const reactFrameworks = ["react", "next", "react-router", "tanstack-router", "tanstack-start"];
   if (reactFrameworks.includes(framework)) {
     const commonComponentsDir = `common/components`;
     try {
       const componentsPath = path.join(projectPath, "src/components");
 
-      // Skip if components directory already has an index file
       const indexPath = path.join(componentsPath, "index.ts");
       const indexPathJs = path.join(componentsPath, "index.js");
       const hasIndex =
@@ -270,23 +256,20 @@ async function generateSingleAppProject(
 
       if (!hasIndex) {
         await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
-          overwrite: false, // Don't overwrite framework-specific components
+          overwrite: false,
         });
       } else {
         consola.debug("Skipping common components - index already exists");
       }
     } catch (error) {
-      // Log but don't fail if common components don't exist
       consola.debug(`Common components not found or error copying: ${error}`);
     }
   }
 
-  // Copy common config directory (constants.ts, etc.)
   const commonConfigDir = `common/config`;
   try {
     const configPath = path.join(projectPath, "src/config");
 
-    // Skip if config directory already has a constants file
     const constantsPath = path.join(configPath, "constants.ts");
     const constantsPathJs = path.join(configPath, "constants.js");
     const hasConstants =
@@ -301,17 +284,15 @@ async function generateSingleAppProject(
 
     if (!hasConstants) {
       await templateEngine.copyTemplateDirectory(commonConfigDir, configPath, config, {
-        overwrite: false, // Don't overwrite framework-specific config
+        overwrite: false,
       });
     } else {
       consola.debug("Skipping common config - constants already exist");
     }
   } catch (error) {
-    // Log but don't fail if common config doesn't exist
     consola.debug(`Common config not found or error copying: ${error}`);
   }
 
-  // Copy vite-env.d.ts for Vite-based frameworks
   if (framework !== "next" && framework !== "nuxt") {
     try {
       await templateEngine.copyTemplate(
@@ -375,22 +356,20 @@ async function generateMonorepoProject(
     overwrite: true,
   });
 
-  // Copy common public assets first (for all frameworks)
   const commonPublicDir = `common/public`;
   const extendedConfig = {
     ...config,
-    currentDate: new Date().toISOString().split("T")[0], // Add current date for sitemap
+    currentDate: new Date().toISOString().split("T")[0],
   };
   await templateEngine.copyTemplateDirectory(
     commonPublicDir,
     path.join(webDir, "public"),
     extendedConfig,
     {
-      overwrite: false, // Don't overwrite framework-specific files
+      overwrite: false,
     }
   );
 
-  // Copy src directory for all React frameworks including TanStack Start
   const srcDir = `frameworks/${frameworkPath}/src`;
   if (
     await templateEngine
@@ -402,13 +381,11 @@ async function generateMonorepoProject(
     });
   }
 
-  // Copy common styles (globals.css, etc.) for monorepo - Skip for Svelte as it uses partials
   if (framework !== "svelte") {
     const commonStylesDir = `common/styles`;
     try {
       const stylesPath = path.join(webDir, "src/styles");
 
-      // Skip if styles directory already has a globals.css file
       const globalsPath = path.join(stylesPath, "globals.css");
       const hasGlobals = await fs
         .access(globalsPath)
@@ -417,37 +394,31 @@ async function generateMonorepoProject(
 
       if (!hasGlobals) {
         await templateEngine.copyTemplateDirectory(commonStylesDir, stylesPath, config, {
-          overwrite: false, // Don't overwrite framework-specific styles
+          overwrite: false,
         });
-      } else {
-        consola.debug("Skipping common styles for monorepo - globals.css already exists");
       }
     } catch (error) {
       consola.debug(`Common styles not found or error copying: ${error}`);
     }
   }
 
-  // Copy common pages (home, not-found, etc.) for monorepo
   const commonPagesDir = `common/pages`;
   try {
     const pagesPath = path.join(webDir, "src/pages");
 
     await templateEngine.copyTemplateDirectory(commonPagesDir, pagesPath, config, {
-      overwrite: true, // Overwrite framework-specific pages with common ones
+      overwrite: true,
     });
   } catch (error) {
     consola.debug(`Common pages not found or error copying: ${error}`);
   }
 
-  // Copy common components (PrecastBanner, etc.) AFTER framework src/app
-  // Only copy React components for React-based frameworks
   const reactFrameworks = ["react", "next", "react-router", "tanstack-router", "tanstack-start"];
   if (reactFrameworks.includes(framework)) {
     const commonComponentsDir = `common/components`;
     try {
       const componentsPath = path.join(webDir, "src/components");
 
-      // Skip if components directory already has an index file
       const indexPath = path.join(componentsPath, "index.ts");
       const indexPathJs = path.join(componentsPath, "index.js");
       const hasIndex =
@@ -462,23 +433,18 @@ async function generateMonorepoProject(
 
       if (!hasIndex) {
         await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
-          overwrite: false, // Don't overwrite framework-specific components
+          overwrite: false,
         });
-      } else {
-        consola.debug("Skipping common components for monorepo - index already exists");
       }
     } catch (error) {
-      // Log but don't fail if common components don't exist
       consola.debug(`Common components not found or error copying: ${error}`);
     }
   }
 
-  // Copy common config directory (constants.ts, etc.) for monorepo
   const commonConfigDir = `common/config`;
   try {
     const configPath = path.join(webDir, "src/config");
 
-    // Skip if config directory already has a constants file
     const constantsPath = path.join(configPath, "constants.ts");
     const constantsPathJs = path.join(configPath, "constants.js");
     const hasConstants =
@@ -493,17 +459,13 @@ async function generateMonorepoProject(
 
     if (!hasConstants) {
       await templateEngine.copyTemplateDirectory(commonConfigDir, configPath, config, {
-        overwrite: false, // Don't overwrite framework-specific config
+        overwrite: false,
       });
-    } else {
-      consola.debug("Skipping common config for monorepo - constants already exist");
     }
   } catch (error) {
-    // Log but don't fail if common config doesn't exist
     consola.debug(`Common config not found or error copying: ${error}`);
   }
 
-  // Copy vite-env.d.ts for Vite-based frameworks in monorepo
   if (framework !== "next" && framework !== "nuxt") {
     try {
       const viteEnvPath = path.join(webDir, "src/vite-env.d.ts");
@@ -525,29 +487,24 @@ async function generateMonorepoProject(
   }
 
   if (config.backend && config.backend !== "none") {
-    // Use "workers" folder for cloudflare-workers, "api" for everything else
     const backendFolderName = config.backend === "cloudflare-workers" ? "workers" : "api";
     const apiDir = path.join(appsDir, backendFolderName);
     await fs.mkdir(apiDir, { recursive: true });
     await generateBackendTemplate(config.backend, config, apiDir);
 
-    // Create packages/shared for monorepo structure
     const packagesDir = path.join(projectPath, "packages");
     const sharedDir = path.join(packagesDir, "shared");
     await fs.mkdir(packagesDir, { recursive: true });
     await fs.mkdir(sharedDir, { recursive: true });
 
-    // Copy shared package templates
     await templateEngine.copyTemplateDirectory("packages/shared", sharedDir, config, {
       overwrite: true,
     });
 
-    // Add shared package as dependency to both web and api
     const webPackageJsonPath = path.join(webDir, "package.json");
     const apiPackageJsonPath = path.join(apiDir, "package.json");
     const sharedPackageName = `@${config.name}/shared`;
 
-    // Update web package.json
     if (
       await fs
         .access(webPackageJsonPath)
@@ -560,7 +517,6 @@ async function generateMonorepoProject(
       await fs.writeFile(webPackageJsonPath, JSON.stringify(webPackageJson, null, 2));
     }
 
-    // Update api package.json
     if (
       await fs
         .access(apiPackageJsonPath)

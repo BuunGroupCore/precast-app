@@ -39,7 +39,6 @@ export async function setupDockerAutoDeploy(
     const scriptDir = path.join(projectPath, "scripts");
     await ensureDir(scriptDir);
 
-    // Prepare template context
     const templateContext = {
       ...config,
       projectName: path.basename(projectPath).replace(/[^a-zA-Z0-9-_]/g, "-"), // Sanitize project name for Docker
@@ -50,10 +49,8 @@ export async function setupDockerAutoDeploy(
       autoDeploy: autoDeploy,
     };
 
-    // Generate scripts for different platforms
     await generateCrossPlatformScripts(templateEngine, templateContext, scriptDir);
 
-    // Update package.json with auto-deploy scripts
     await updatePackageJsonScripts(projectPath, templateContext);
 
     consola.success("Docker auto-deploy script configured successfully");
@@ -75,7 +72,6 @@ async function generateCrossPlatformScripts(
   const platform = process.platform;
 
   if (platform === "win32") {
-    // Windows batch script
     const batContent = await templateEngine.renderTemplate(
       "scripts/docker-auto-deploy.bat.hbs",
       templateContext
@@ -84,7 +80,6 @@ async function generateCrossPlatformScripts(
     await writeFile(batPath, batContent);
     consola.info("Generated Windows batch script");
   } else {
-    // Unix shell script (Mac/Linux/WSL)
     const bashContent = await templateEngine.renderTemplate(
       "scripts/docker-auto-deploy.sh.hbs",
       templateContext
@@ -104,10 +99,8 @@ function getCrossPlatformScript(command: string): string {
   const platform = process.platform;
 
   if (platform === "win32") {
-    // Windows: Use batch script directly
     return `scripts/docker-auto-deploy.bat${arg}`;
   } else {
-    // Unix: Use shell script directly
     return `./scripts/docker-auto-deploy.sh${arg}`;
   }
 }
@@ -116,15 +109,7 @@ function getCrossPlatformScript(command: string): string {
  * Get platform-appropriate Docker command
  */
 function getCrossPlatformDockerCommand(command: string): string {
-  const platform = process.platform;
-
-  if (platform === "win32") {
-    // Windows: Use docker command directly (relies on Docker Desktop being in PATH)
-    return command;
-  } else {
-    // Unix: Use docker command directly (PATH should include /usr/bin, /usr/local/bin, etc.)
-    return command;
-  }
+  return command;
 }
 
 /**
@@ -159,12 +144,10 @@ async function updatePackageJsonScripts(
   try {
     const packageJson = await fsExtra.readJson(packageJsonPath);
 
-    // Ensure scripts object exists
     if (!packageJson.scripts) {
       packageJson.scripts = {};
     }
 
-    // Add Docker auto-deploy scripts (cross-platform)
     const newScripts: Record<string, string> = {
       "docker:deploy": getCrossPlatformScript("deploy"),
       "docker:stop": getCrossPlatformScript("stop"),
@@ -173,11 +156,6 @@ async function updatePackageJsonScripts(
       "docker:down": getCrossPlatformScript("stop"), // Comprehensive stop for all services
     };
 
-    // Note: Auto-deploy is handled via the 'deploy' command, not postinstall scripts
-    // Users can run: npx create-precast-app deploy
-    // Or use the convenient npm scripts below
-
-    // Add database-specific convenience scripts if database is configured
     if (config.database && config.database !== "none") {
       newScripts[`${config.database}:up`] = getCrossPlatformDockerCommand(
         `docker compose -f docker/${config.database}/docker-compose.yml up -d`
@@ -190,7 +168,6 @@ async function updatePackageJsonScripts(
       );
     }
 
-    // Add powerup-specific scripts
     for (const powerup of config.powerups) {
       switch (powerup) {
         case "traefik":
@@ -230,27 +207,21 @@ async function updatePackageJsonScripts(
       }
     }
 
-    // Update or modify existing development scripts
     if (packageJson.scripts.setup) {
-      // Enhance existing setup script to include auto-deploy
       const currentSetup = packageJson.scripts.setup;
       if (!currentSetup.includes("docker-auto-deploy")) {
         packageJson.scripts.setup = `${currentSetup} && ${getCrossPlatformScript("deploy")}`;
       }
     } else {
-      // Create new setup script
       packageJson.scripts.setup = `${getPackageManagerInstallCommand()} && ${getCrossPlatformScript("deploy")}`;
     }
 
-    // Add or enhance dev:docker script for full automated development workflow
-    const sleepCommand = `node -e "setTimeout(() => {}, 3000)"`; // Cross-platform sleep
+    const sleepCommand = `node -e "setTimeout(() => {}, 3000)"`;
     packageJson.scripts["dev:docker"] =
       `${getCrossPlatformScript("deploy")} && ${sleepCommand} && npm run dev`;
 
-    // Merge new scripts with existing ones
     Object.assign(packageJson.scripts, newScripts);
 
-    // Write updated package.json
     await fsExtra.writeJson(packageJsonPath, packageJson, { spaces: 2 });
 
     consola.success("Package.json updated with Docker auto-deploy scripts");
@@ -263,8 +234,6 @@ async function updatePackageJsonScripts(
  * Get the appropriate package manager install command
  */
 function getPackageManagerInstallCommand(): string {
-  // This would ideally check the package manager from config
-  // For now, we'll use a generic approach
   if (process.env.npm_config_user_agent?.includes("bun")) {
     return "bun install";
   } else if (process.env.npm_config_user_agent?.includes("pnpm")) {

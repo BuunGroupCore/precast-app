@@ -81,11 +81,10 @@ export const readPrecastConfig = async (projectPath: string): Promise<any> => {
 
     const content = await fs.readFile(configPath, "utf8");
 
-    // Parse JSONC (JSON with comments)
     const cleanJson = content
-      .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
-      .replace(/^\s*\/\/.*$/gm, "") // Remove single-line comments
-      .replace(/,\s*([}\]])/g, "$1"); // Remove trailing commas
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "")
+      .replace(/,\s*([}\]])/g, "$1");
 
     return JSON.parse(cleanJson);
   } catch (error) {
@@ -120,72 +119,58 @@ export const detectFromDependencies = (
 ): FrameworkConfig => {
   const deps = Object.keys(dependencies);
 
-  // Next.js
   if (deps.includes("next")) {
     return { framework: "next", envVars: ["NEXT_PUBLIC_API_URL"] };
   }
 
-  // Nuxt
   if (deps.includes("nuxt") || deps.includes("@nuxt/kit")) {
     return { framework: "nuxt", envVars: ["NUXT_PUBLIC_API_URL"] };
   }
 
-  // TanStack Start
   if (deps.includes("@tanstack/start")) {
     return { framework: "tanstack-start", envVars: ["VITE_API_URL", "API_URL"] };
   }
 
-  // TanStack Router
   if (deps.includes("@tanstack/react-router")) {
     return { framework: "react", router: "tanstack-router", envVars: ["VITE_API_URL"] };
   }
 
-  // React Router v7
   if (deps.includes("react-router") || deps.includes("@remix-run/react-router")) {
     return { framework: "react", router: "react-router", envVars: ["VITE_API_URL"] };
   }
 
-  // Remix
   if (deps.includes("@remix-run/node") || deps.includes("@remix-run/react")) {
     return { framework: "remix", envVars: ["VITE_API_URL"] };
   }
 
-  // Astro
   if (deps.includes("astro")) {
     return { framework: "astro", envVars: ["PUBLIC_API_URL"] };
   }
 
-  // Angular
   if (deps.includes("@angular/core")) {
     return { framework: "angular", envVars: ["NG_APP_API_URL"], specialHandling: "angular" };
   }
 
-  // Vue
   if (deps.includes("vue")) {
     return { framework: "vue", envVars: ["VITE_API_URL"] };
   }
 
-  // Svelte
   if (deps.includes("svelte")) {
     return { framework: "svelte", envVars: ["VITE_API_URL"] };
   }
 
-  // Solid
   if (deps.includes("solid-js")) {
     return { framework: "solid", envVars: ["VITE_API_URL"] };
   }
 
-  // React (fallback)
   if (deps.includes("react")) {
     return { framework: "react", envVars: ["VITE_API_URL"] };
   }
 
-  // Vite (vanilla)
   if (deps.includes("vite")) {
     return { framework: "vite", envVars: ["VITE_API_URL"] };
   }
 
-  // Default fallback
   return { framework: "unknown", envVars: ["VITE_API_URL"] };
 };
 
@@ -193,7 +178,6 @@ export const detectFromDependencies = (
  * Get environment variables for a specific framework and router combination
  */
 export const getEnvVarsForFramework = (framework: string, router?: string): string[] => {
-  // Handle React with different routers
   if (framework === "react") {
     switch (router) {
       case "tanstack-router":
@@ -203,7 +187,7 @@ export const getEnvVarsForFramework = (framework: string, router?: string): stri
       case "react-router":
         return ["VITE_API_URL"];
       default:
-        return ["VITE_API_URL"]; // Default Vite-based React
+        return ["VITE_API_URL"];
     }
   }
 
@@ -216,7 +200,6 @@ export const getEnvVarsForFramework = (framework: string, router?: string): stri
 export const detectFrameworkAndEnvPattern = async (
   projectPath: string
 ): Promise<FrameworkConfig> => {
-  // Primary detection from precast.jsonc
   const precastConfig = await readPrecastConfig(projectPath);
   if (precastConfig?.framework) {
     const envVars = getEnvVarsForFramework(precastConfig.framework, precastConfig.router);
@@ -228,7 +211,6 @@ export const detectFrameworkAndEnvPattern = async (
     };
   }
 
-  // Fallback detection from package.json
   const packageJson = await readPackageJson(projectPath);
   return detectFromDependencies(packageJson?.dependencies);
 };
@@ -246,15 +228,14 @@ export const detectEnvironmentStructure = async (
     frontendPath: ".",
   };
 
-  // Check for monorepo structure
   const possibleEnvPaths = [
-    "apps/web/.env", // Monorepo frontend
-    "apps/frontend/.env", // Alternative monorepo structure
-    "packages/web/.env", // Packages-based monorepo
-    "packages/frontend/.env", // Alternative packages structure
-    ".env", // Single repo
-    ".env.local", // Local overrides
-    ".env.development", // Development specific
+    "apps/web/.env",
+    "apps/frontend/.env",
+    "packages/web/.env",
+    "packages/frontend/.env",
+    ".env",
+    ".env.local",
+    ".env.development",
   ];
 
   for (const envPath of possibleEnvPaths) {
@@ -274,7 +255,6 @@ export const detectEnvironmentStructure = async (
     }
   }
 
-  // Detect framework from the frontend directory
   const frontendFullPath = path.join(projectPath, structure.frontendPath);
   structure.framework = await detectFrameworkAndEnvPattern(frontendFullPath);
 

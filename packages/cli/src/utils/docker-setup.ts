@@ -65,7 +65,6 @@ export async function setupDockerCompose(
   logger.verbose(`🐳 Setting up Docker Compose for ${database}...`);
 
   try {
-    // Create database-specific folder structure
     const dockerDir = path.join(projectPath, "docker");
     const dbDir = path.join(dockerDir, database);
     await ensureDir(dockerDir);
@@ -150,7 +149,6 @@ export async function setupDockerCompose(
       }
     }
 
-    // Generate wait-for-db script
     const waitScriptTemplatePath = path.join(
       __dirname,
       "templates",
@@ -176,12 +174,10 @@ export async function setupDockerCompose(
       const waitScriptContent = Handlebars.compile(waitScriptTemplate)(context);
       const waitScriptOutputPath = path.join(dbDir, "wait-for-db.sh");
       await writeFile(waitScriptOutputPath, waitScriptContent);
-      // Make script executable
       await fsExtra.chmod(waitScriptOutputPath, 0o755);
       logger.verbose(`Created ${database}/wait-for-db.sh script`);
     }
 
-    // URL-encode passwords for database URLs to handle special characters
     const encodedPasswords = {
       POSTGRES_PASSWORD: encodeURIComponent(passwords.POSTGRES_PASSWORD),
       MYSQL_ROOT_PASSWORD: encodeURIComponent(passwords.MYSQL_ROOT_PASSWORD),
@@ -223,7 +219,6 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
     await writeFile(path.join(dbDir, ".env"), envContent);
     await writeFile(path.join(dbDir, ".env.example"), envContent);
 
-    // Update package.json files
     const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
     // Update root package.json
@@ -231,8 +226,6 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
     if (await pathExists(packageJsonPath)) {
       const packageJson = await readJson(packageJsonPath);
 
-      // Use npx for all package managers since bunx has issues with npm packages
-      // Users can still use their preferred package manager to run the scripts
       const executeCommand = "npx create-precast-app@latest";
 
       packageJson.scripts = {
@@ -249,13 +242,11 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
       logger.verbose("Added Docker scripts to root package.json");
     }
 
-    // For monorepo, also update API package.json
     if (isMonorepo) {
       const apiPackageJsonPath = path.join(projectPath, "apps/api/package.json");
       if (await pathExists(apiPackageJsonPath)) {
         const apiPackageJson = await readJson(apiPackageJsonPath);
 
-        // Add migration scripts based on ORM
         if (config.orm === "prisma") {
           apiPackageJson.scripts = {
             ...apiPackageJson.scripts,
@@ -338,7 +329,6 @@ Use the connection string from the \`.env\` file in your application.
     logger.verbose("");
     logger.verbose(`📖 See docker/${database}/README.md for detailed instructions`);
 
-    // Return the generated passwords to be used in env files
     return { passwords };
   } catch (error) {
     consola.error("❌ Failed to setup Docker configuration:", error);

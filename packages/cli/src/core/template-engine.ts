@@ -73,10 +73,7 @@ export class TemplateEngine {
     if (this.partialsRegistered) return;
 
     try {
-      // Register common partials
       const partialsPath = path.join(this.templateRoot, "common");
-
-      // Register common/styles/globals.css.hbs as a partial
       const globalsStylePath = path.join(partialsPath, "styles", "globals.css.hbs");
       if (await pathExists(globalsStylePath)) {
         const content = await readFile(globalsStylePath, "utf-8");
@@ -84,7 +81,6 @@ export class TemplateEngine {
         this.partials.set("common/styles/globals.css.hbs", content);
       }
 
-      // Register common/styles/globals.scss.hbs as a partial
       const globalsScssPath = path.join(partialsPath, "styles", "globals.scss.hbs");
       if (await pathExists(globalsScssPath)) {
         const content = await readFile(globalsScssPath, "utf-8");
@@ -95,7 +91,6 @@ export class TemplateEngine {
       this.partialsRegistered = true;
     } catch (error) {
       consola.debug("Error registering partials:", error);
-      // Non-critical error, continue without partials
     }
   }
 
@@ -123,7 +118,6 @@ export class TemplateEngine {
     options: TemplateOptions = {}
   ): Promise<void> {
     try {
-      // Ensure partials are registered before processing
       await this.registerDefaultPartials();
 
       if (await pathExists(outputPath)) {
@@ -136,7 +130,6 @@ export class TemplateEngine {
         }
       }
 
-      // Resolve template path relative to template root if it's not absolute
       const resolvedTemplatePath = path.isAbsolute(templatePath)
         ? templatePath
         : path.join(this.templateRoot, templatePath);
@@ -250,12 +243,10 @@ export class TemplateEngine {
 
     const isConfigFile = fileName.match(/\.(config|rc)\.(js|mjs|cjs)\.hbs$/);
 
-    // Skip gitignore if flag is set to false
     if (context.gitignore === false && fileName === "_gitignore") {
       return true;
     }
 
-    // Skip ESLint files if flag is set to false
     if (
       context.eslint === false &&
       (fileName === "_eslintrc.json" ||
@@ -272,7 +263,6 @@ export class TemplateEngine {
       return true;
     }
 
-    // Skip Prettier files if flag is set to false
     if (
       context.prettier === false &&
       (fileName === "_prettierrc" ||
@@ -316,7 +306,6 @@ export class TemplateEngine {
       return true;
     }
 
-    // Skip PrecastBanner variants based on styling
     if (fileName.startsWith("PrecastBanner-tailwind") && context.styling !== "tailwind") {
       return true;
     }
@@ -392,7 +381,6 @@ export class TemplateEngine {
    */
   async renderTemplate(templatePath: string, context: TemplateContext): Promise<string> {
     try {
-      // Ensure partials are registered before processing
       await this.registerDefaultPartials();
 
       const resolvedTemplatePath = path.isAbsolute(templatePath)

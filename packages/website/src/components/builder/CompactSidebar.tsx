@@ -172,9 +172,16 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
   ];
 
   return (
-    <div className="comic-panel bg-comic-darkBlue border-4 border-comic-black overflow-hidden">
+    <div
+      className="comic-panel bg-comic-darkBlue border-4 border-comic-black overflow-hidden"
+      role="tabpanel"
+    >
       {/* Tab Navigation */}
-      <div className="flex border-b-2 border-comic-black bg-comic-black">
+      <nav
+        className="flex border-b-2 border-comic-black bg-comic-black"
+        role="tablist"
+        aria-label="Sidebar navigation"
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -183,28 +190,34 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
               onClick={() => setActiveTab(tab.id)}
               className={`
                 flex-1 py-3 px-2 font-display text-xs sm:text-sm
-                transition-all duration-200 relative
+                transition-all duration-200 relative focus:ring-2 focus:ring-comic-yellow focus:ring-offset-2
                 ${
                   activeTab === tab.id
                     ? "bg-comic-darkBlue text-comic-white"
                     : "bg-comic-darkGray text-comic-white/60 hover:bg-comic-darkBlue/50"
                 }
               `}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`panel-${tab.id}`}
+              id={`tab-${tab.id}`}
             >
               <div className="flex items-center justify-center gap-1 sm:gap-2">
-                <Icon className="text-xs sm:text-base" />
+                <Icon className="text-xs sm:text-base" aria-hidden="true" />
                 <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sr-only sm:hidden">{tab.label} tab</span>
               </div>
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="activeTab"
                   className="absolute bottom-0 left-0 right-0 h-1 bg-comic-yellow"
+                  aria-hidden="true"
                 />
               )}
             </button>
           );
         })}
-      </div>
+      </nav>
 
       {/* Tab Content */}
       <AnimatePresence mode="wait">
@@ -216,31 +229,49 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="p-4"
+            role="tabpanel"
+            id="panel-command"
+            aria-labelledby="tab-command"
           >
             {/* Quick Search */}
             <div className="mb-4">
+              <label htmlFor="tech-search" className="sr-only">
+                Search technologies
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaSearch className="h-3 w-3 text-comic-white/60" />
+                  <FaSearch className="h-3 w-3 text-comic-white/60" aria-hidden="true" />
                 </div>
                 <input
+                  id="tech-search"
                   type="text"
                   placeholder="Search tech (react, postgres, etc.)"
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="w-full pl-8 pr-3 py-2 bg-comic-white/10 border-2 border-comic-white/20 rounded text-comic-white placeholder-comic-white/60 font-comic text-xs focus:border-comic-yellow focus:ring-1 focus:ring-comic-yellow focus:outline-none transition-colors"
+                  aria-describedby="search-help"
                 />
+              </div>
+              <div id="search-help" className="sr-only">
+                Search for technologies like React, PostgreSQL, Tailwind CSS to quickly navigate to
+                their configuration section
               </div>
 
               {/* Search Suggestions */}
               {searchTerm.length > 0 && getSearchSuggestions().length > 0 && (
-                <div className="mt-2 bg-comic-black/80 border border-comic-white/20 rounded p-2">
+                <div
+                  className="mt-2 bg-comic-black/80 border border-comic-white/20 rounded p-2"
+                  role="list"
+                  aria-label="Search suggestions"
+                >
                   <div className="flex flex-wrap gap-1">
                     {getSearchSuggestions().map((suggestion) => (
                       <button
                         key={suggestion}
                         onClick={() => handleSearch(suggestion)}
-                        className="px-2 py-1 text-xs font-comic bg-comic-white/10 text-comic-white rounded hover:bg-comic-yellow hover:text-comic-black transition-colors"
+                        className="px-2 py-1 text-xs font-comic bg-comic-white/10 text-comic-white rounded hover:bg-comic-yellow hover:text-comic-black focus:ring-2 focus:ring-comic-yellow focus:ring-offset-2 transition-colors"
+                        role="listitem"
+                        aria-label={`Search for ${suggestion}`}
                       >
                         {suggestion}
                       </button>
@@ -251,33 +282,53 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
             </div>
 
             {/* Package Manager Quick Select */}
-            <div className="flex gap-1 mb-4">
-              {["npx", "npm", "yarn", "pnpm", "bun"].map((pm) => (
-                <button
-                  key={pm}
-                  onClick={() => setPackageManager(pm)}
-                  className={`
-                    px-2 py-1 text-xs font-comic rounded
-                    transition-all duration-200
-                    ${
-                      packageManager === pm
-                        ? "bg-comic-yellow text-comic-black border-2 border-comic-black"
-                        : "bg-comic-white/10 text-comic-white border-2 border-comic-white/20 hover:bg-comic-white/20"
-                    }
-                  `}
-                >
-                  {pm}
-                </button>
-              ))}
-            </div>
+            <fieldset className="mb-4">
+              <legend className="sr-only">Select package manager</legend>
+              <div className="flex gap-1" role="radiogroup" aria-labelledby="pm-heading">
+                <div id="pm-heading" className="sr-only">
+                  Package Manager
+                </div>
+                {["npx", "npm", "yarn", "pnpm", "bun"].map((pm) => (
+                  <button
+                    key={pm}
+                    onClick={() => setPackageManager(pm)}
+                    className={`
+                      px-2 py-1 text-xs font-comic rounded
+                      transition-all duration-200 focus:ring-2 focus:ring-comic-yellow focus:ring-offset-2
+                      ${
+                        packageManager === pm
+                          ? "bg-comic-yellow text-comic-black border-2 border-comic-black"
+                          : "bg-comic-white/10 text-comic-white border-2 border-comic-white/20 hover:bg-comic-white/20"
+                      }
+                    `}
+                    role="radio"
+                    aria-checked={packageManager === pm}
+                    aria-label={`Use ${pm} package manager`}
+                  >
+                    {pm}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
 
             {/* Command Display */}
             <div
-              className="bg-comic-black p-4 rounded cursor-pointer hover:bg-gray-900 transition-colors"
+              className="bg-comic-black p-4 rounded cursor-pointer hover:bg-gray-900 transition-colors focus:ring-2 focus:ring-comic-yellow focus:ring-offset-2"
               onClick={copyToClipboard}
+              role="button"
+              tabIndex={0}
+              aria-label="Click to copy command to clipboard"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  copyToClipboard();
+                }
+              }}
             >
               <div className="flex items-start gap-2">
-                <span className="text-comic-green font-bold">$</span>
+                <span className="text-comic-green font-bold" aria-hidden="true">
+                  $
+                </span>
                 <div className="font-comic text-xs sm:text-sm break-all leading-relaxed flex-1">
                   <CommandSyntaxHighlight command={generateCommand()} />
                 </div>
@@ -287,15 +338,18 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
             {/* Copy Button */}
             <button
               onClick={copyToClipboard}
-              className="w-full mt-3 py-2 bg-comic-red text-comic-white font-display text-sm rounded border-2 border-comic-black hover:bg-comic-yellow hover:text-comic-black transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-3 py-2 bg-comic-red text-comic-white font-display text-sm rounded border-2 border-comic-black hover:bg-comic-yellow hover:text-comic-black focus:ring-2 focus:ring-comic-yellow focus:ring-offset-2 transition-colors flex items-center justify-center gap-2"
+              aria-label={
+                terminalCopied ? "Command copied to clipboard" : "Copy command to clipboard"
+              }
             >
               {terminalCopied ? (
                 <>
-                  <FaCheck /> COPIED!
+                  <FaCheck aria-hidden="true" /> COPIED!
                 </>
               ) : (
                 <>
-                  <FaCopy /> COPY COMMAND
+                  <FaCopy aria-hidden="true" /> COPY COMMAND
                 </>
               )}
             </button>
@@ -332,6 +386,9 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="p-4"
+            role="tabpanel"
+            id="panel-stack"
+            aria-labelledby="tab-stack"
           >
             <StackSummarySection config={config} />
           </motion.div>
@@ -345,6 +402,9 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="p-3 space-y-3"
+            role="tabpanel"
+            id="panel-actions"
+            aria-labelledby="tab-actions"
           >
             {/* Quick Actions Header */}
             <div className="text-center mb-3">

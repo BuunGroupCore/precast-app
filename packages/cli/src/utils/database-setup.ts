@@ -25,11 +25,10 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
     return;
   }
 
-  // For modern databases, we can set up connections even without an ORM
   const modernDatabases = ["neon", "planetscale", "turso", "cloudflare-d1"];
   if (!config.orm || config.orm === "none") {
     if (!modernDatabases.includes(config.database || "")) {
-      return; // Traditional databases need an ORM
+      return;
     }
   }
 
@@ -71,7 +70,6 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
       logger.verbose(`Setting up ${config.orm === "prisma" ? "Prisma" : config.orm} ORM...`);
       await setupORM(config, targetPath, context);
     } else if (["neon", "planetscale", "turso", "cloudflare-d1"].includes(config.database || "")) {
-      // Setup connection files for modern databases when no ORM is selected
       await setupDatabaseConnection(config, targetPath, context);
     }
 
@@ -119,7 +117,6 @@ async function setupORM(
     const prismaDir = path.join(targetPath, "prisma");
     await ensureDir(prismaDir);
 
-    // Handle schema file selection
     let schemaTemplate = "schema.prisma.hbs";
     if (config.database === "neon") schemaTemplate = "schema-neon.prisma.hbs";
     else if (config.database === "planetscale") schemaTemplate = "schema-planetscale.prisma.hbs";
@@ -134,16 +131,13 @@ async function setupORM(
       logger.verbose("Created Prisma schema");
     }
 
-    // Handle client file selection based on database type
     const modernDatabases = ["neon", "planetscale", "turso"];
     let clientTemplate = "client.ts.hbs";
 
-    // Check if we should use a database-specific client template
     if (modernDatabases.includes(config.database)) {
       const specificClientTemplate = `client-${config.database}.ts.hbs`;
       const specificClientPath = path.join(templateDir, specificClientTemplate);
 
-      // Use specific client template if it exists, otherwise fall back to default
       if (await pathExists(specificClientPath)) {
         clientTemplate = specificClientTemplate;
       }
@@ -155,11 +149,9 @@ async function setupORM(
       const template = Handlebars.compile(content);
       const rendered = template(context);
 
-      // Create the lib directory for the client file
       const libDir = path.join(targetPath, "src", "lib");
       await ensureDir(libDir);
 
-      // Write the client file to the lib directory
       const ext = context.typescript ? "ts" : "js";
       await writeFile(path.join(libDir, `prisma.${ext}`), rendered);
       logger.verbose(`Created Prisma client (${config.database} configuration)`);
@@ -205,7 +197,6 @@ async function setupORM(
       logger.verbose("Created Drizzle connection");
     }
 
-    // Generate drizzle.config.ts
     const configTemplatePath = path.join(templateDir, "..", "..", "drizzle", "config.ts.hbs");
     if (await pathExists(configTemplatePath)) {
       const content = await readFile(configTemplatePath, "utf-8");
@@ -248,11 +239,9 @@ async function setupDatabaseConnection(
     return;
   }
 
-  // Create lib directory for connection file
   const libDir = path.join(targetPath, "src", "lib");
   await ensureDir(libDir);
 
-  // Process connection template
   const connectionTemplate = path.join(templateDir, "connection.ts.hbs");
   if (await pathExists(connectionTemplate)) {
     const content = await readFile(connectionTemplate, "utf-8");
@@ -263,14 +252,12 @@ async function setupDatabaseConnection(
     logger.verbose(`Created ${config.database} connection file`);
   }
 
-  // Process env template
   const envTemplate = path.join(templateDir, ".env.hbs");
   if (await pathExists(envTemplate)) {
     const content = await readFile(envTemplate, "utf-8");
     const template = Handlebars.compile(content);
     const rendered = template(context);
 
-    // Add to .env and .env.example
     const envPath = path.join(targetPath, ".env");
     const envExamplePath = path.join(targetPath, ".env.example");
 
@@ -307,7 +294,6 @@ async function processTemplateDirectory(
       await ensureDir(targetDir);
       await processTemplateDirectory(filePath, targetDir, context);
     } else if (file.endsWith(".hbs")) {
-      // Skip ALL client, schema, and connection files - they're handled separately
       if (
         file.startsWith("client-") ||
         file === "client.ts.hbs" ||
@@ -317,7 +303,7 @@ async function processTemplateDirectory(
         file.startsWith("connection-") ||
         file === "connection.ts.hbs"
       ) {
-        continue; // Skip these files as they're handled specially in setupORM
+        continue;
       }
 
       const templateContent = await readFile(filePath, "utf-8");
@@ -370,7 +356,6 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
     packages.push("@prisma/client");
     devPackages.push("prisma");
 
-    // Add adapter packages for modern databases
     if (config.database === "neon") {
       packages.push("@prisma/adapter-neon", "ws");
     } else if (config.database === "planetscale") {
@@ -410,11 +395,10 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
         dev: false,
         context: "database",
       });
-      logger.verbose("✅ Dependencies installed successfully with " + config.packageManager);
+      logger.verbose("Dependencies installed successfully with " + config.packageManager);
     } catch (error) {
       logger.error(`Failed to install database packages: ${error}`);
       errorCollector.addError("Database package installation", error);
-      // Don't throw - let the process continue
     }
   }
 
@@ -429,7 +413,6 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
     } catch (error) {
       logger.error(`Failed to install dev packages: ${error}`);
       errorCollector.addError("Database dev package installation", error);
-      // Don't throw - let the process continue
     }
   }
 }

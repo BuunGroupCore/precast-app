@@ -25,7 +25,6 @@ export interface EnvConfig {
  * Generate a secure random password
  */
 function generateSecurePassword(length: number = 20): string {
-  // Use characters that are safe for database URLs and environment variables
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#%^&*";
   let password = "";
   for (let i = 0; i < length; i++) {

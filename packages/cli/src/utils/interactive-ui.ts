@@ -40,7 +40,6 @@ export class InteractiveTaskRunner {
   constructor(options: TaskRunnerOptions = {}) {
     this.debug = options.debug || process.env.DEBUG === "true" || process.env.DEBUG_ERRORS === "1";
     this.silent = options.silent || false;
-    // Use fallback mode only when absolutely necessary
     this.useFallbackMode =
       !process.stdout.isTTY ||
       process.env.PRECAST_SIMPLE_PROGRESS === "true" ||
@@ -81,23 +80,18 @@ export class InteractiveTaskRunner {
       console.log();
     }
 
-    // Initialize stage status based on subtasks
     for (const task of this.tasks) {
       if (task.isStage && task.subtasks) {
         this.updateStageStatus(task);
       }
     }
 
-    // In fallback mode, don't show initial task list to avoid duplication
     if (!this.useFallbackMode) {
-      // Reset render state
       this.lastRender = "";
 
-      // Show all tasks initially with pending status
       this.renderTasks();
       this.startAnimation();
     } else {
-      // In fallback mode, just show a simple starting message
       console.log(theme.info("Starting project creation..."));
     }
   }
@@ -106,7 +100,7 @@ export class InteractiveTaskRunner {
    * Start the spinner animation
    */
   private startAnimation(): void {
-    if (this.animationInterval) return; // Already running
+    if (this.animationInterval) return;
 
     this.animationInterval = setInterval(() => {
       const hasRunningTask = this.tasks.some(
@@ -116,13 +110,12 @@ export class InteractiveTaskRunner {
 
       if (hasRunningTask) {
         this.spinnerIndex = (this.spinnerIndex + 1) % this.spinnerFrames.length;
-        // Don't force immediate render, let debounce handle it
         this.renderTasks();
       } else if (this.animationInterval) {
         clearInterval(this.animationInterval);
         this.animationInterval = undefined;
       }
-    }, 100); // Faster animation for better feedback
+    }, 100);
   }
 
   /**
@@ -130,16 +123,13 @@ export class InteractiveTaskRunner {
    */
   updateTask(taskId: string, status: Task["status"], message?: string): void {
     if (this.useFallbackMode) {
-      // In fallback mode, just print simple status updates without duplication
       const task = this.findTask(taskId);
       if (task && task.status !== status) {
-        // Only print status changes, not intermediate states
         if (status === "completed") {
           console.log(`${theme.success("✓")} ${task.title}`);
         } else if (status === "failed") {
           console.log(`${theme.error("✗")} ${task.title} ${message ? `(${message})` : ""}`);
         }
-        // Don't print "running" states in debug mode to reduce noise
         task.status = status;
         if (message) task.message = message;
       }
@@ -148,13 +138,11 @@ export class InteractiveTaskRunner {
 
     const task = this.findTask(taskId);
     if (task) {
-      // Don't update if already in this status
       if (task.status === status) return;
 
       task.status = status;
       if (message) task.message = message;
 
-      // Update parent stage status if this is a subtask
       for (const stage of this.tasks) {
         if (stage.subtasks && stage.subtasks.includes(task)) {
           this.updateStageStatus(stage);
@@ -162,7 +150,6 @@ export class InteractiveTaskRunner {
         }
       }
 
-      // Only render if not in batch update mode
       if (!this.batchMode) {
         this.renderTasks();
       }
@@ -179,29 +166,23 @@ export class InteractiveTaskRunner {
     fn();
     this.batchMode = false;
 
-    // Force an immediate render after batch completes
-    // This ensures we only render once with the final state
     if (this.renderTimeout) {
       clearTimeout(this.renderTimeout);
       this.renderTimeout = undefined;
     }
 
-    // Render immediately since we're done with batch updates
     const output: string[] = [];
 
     for (let i = 0; i < this.tasks.length; i++) {
       const task = this.tasks[i];
 
-      // Add stage or main task
       const formatted = this.formatTask(task, 0);
-      // Remove leading newline for the first stage
       if (i === 0 && task.isStage && formatted.startsWith("\n")) {
         output.push(formatted.substring(1));
       } else {
         output.push(formatted);
       }
 
-      // Add subtasks with proper indentation
       if (task.subtasks) {
         for (const subtask of task.subtasks) {
           output.push(this.formatTask(subtask, task.isStage ? 1 : 2));
@@ -211,7 +192,6 @@ export class InteractiveTaskRunner {
 
     const newRender = output.join("\n");
 
-    // Force update after batch completion
     if (newRender !== this.lastRender) {
       logUpdate(newRender);
       this.lastRender = newRender;
@@ -229,14 +209,11 @@ export class InteractiveTaskRunner {
     const task = this.findTask(taskId);
     if (!task) return;
 
-    // Don't run stages directly, they're just headers
     if (task.isStage) {
       console.warn(`Cannot run stage task directly: ${taskId}`);
       return;
     }
 
-    // Ensure only one task is running at a time
-    // First, set any other running tasks to pending
     for (const t of this.tasks) {
       if (t.status === "running") {
         t.status = "pending";
@@ -252,7 +229,6 @@ export class InteractiveTaskRunner {
 
     this.updateTask(taskId, "running");
 
-    // Add a small delay to let the spinner show for at least one frame
     if (!this.useFallbackMode) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
@@ -260,7 +236,6 @@ export class InteractiveTaskRunner {
     try {
       await fn();
 
-      // Clean up animation state before completing
       if (this.animationInterval) {
         clearInterval(this.animationInterval);
         this.animationInterval = undefined;
@@ -268,15 +243,12 @@ export class InteractiveTaskRunner {
 
       this.updateTask(taskId, "completed");
 
-      // Restart animation for next task
       this.startAnimation();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-      // Import error collector for persistent logging
       const { errorCollector, logErrorToFile } = await import("./error-collector.js");
 
-      // Log error to collector and file if debug enabled
       errorCollector.addError(taskId, error);
       if (process.env.DEBUG_ERRORS) {
         logErrorToFile(taskId, error);
@@ -284,15 +256,12 @@ export class InteractiveTaskRunner {
 
       this.updateTask(taskId, "failed", errorMessage);
 
-      // Buffer the error for display later
       const task = this.findTask(taskId);
       if (task) {
         this.errorBuffer.push({ task: task.title, error: errorMessage });
       }
 
-      // In debug mode, immediately show the error without clearing
       if (process.env.DEBUG_ERRORS) {
-        // Write directly to stderr to avoid being cleared
         process.stderr.write(`\n📍 [TASK FAILED] ${taskId}: ${errorMessage}\n`);
         if (error instanceof Error && error.stack) {
           process.stderr.write(`Stack trace:\n${error.stack}\n`);
@@ -301,29 +270,23 @@ export class InteractiveTaskRunner {
       }
 
       if (continueOnError) {
-        // Continue with next tasks even if this one failed
-        // Restart animation for next task
         this.startAnimation();
       } else {
-        // Mark as errored to stop all rendering
         this.isErrored = true;
 
-        // Stop animation immediately on error
         if (this.animationInterval) {
           clearInterval(this.animationInterval);
           this.animationInterval = undefined;
         }
 
-        // Stop render timeout
         if (this.renderTimeout) {
           clearTimeout(this.renderTimeout);
           this.renderTimeout = undefined;
         }
 
-        // Clear logUpdate to prevent further updates (but not in debug mode)
         if (!this.useFallbackMode && !process.env.DEBUG_ERRORS) {
           logUpdate.clear();
-          logUpdate.done(); // Finalize the output
+          logUpdate.done();
         }
 
         if (this.debug) {
@@ -349,20 +312,17 @@ export class InteractiveTaskRunner {
   complete(message?: string): void {
     if (this.silent) return;
 
-    // Clean up animation interval
     if (this.animationInterval) {
       clearInterval(this.animationInterval);
       this.animationInterval = undefined;
     }
 
-    // Clean up render timeout
     if (this.renderTimeout) {
       clearTimeout(this.renderTimeout);
       this.renderTimeout = undefined;
     }
 
     if (this.useFallbackMode) {
-      // In fallback mode, just show simple completion without detailed task list
       const elapsed = ((Date.now() - this.startTime) / 1000).toFixed(1);
       console.log();
       console.log(theme.success(`${statusSymbols.success} All tasks completed in ${elapsed}s`));
@@ -372,7 +332,6 @@ export class InteractiveTaskRunner {
       return;
     }
 
-    // Do one final render immediately
     const output: string[] = [];
     for (let i = 0; i < this.tasks.length; i++) {
       const task = this.tasks[i];
@@ -389,13 +348,11 @@ export class InteractiveTaskRunner {
       }
     }
 
-    // Mark as completed to prevent further rendering
     this.isCompleted = true;
 
-    // Final update and finalize
     logUpdate.clear();
     logUpdate(output.join("\n"));
-    logUpdate.done(); // Finalize to prevent further updates
+    logUpdate.done();
 
     const elapsed = ((Date.now() - this.startTime) / 1000).toFixed(1);
     console.log();
@@ -412,22 +369,18 @@ export class InteractiveTaskRunner {
   error(message: string): void {
     if (this.silent) return;
 
-    // Mark as errored to stop all rendering
     this.isErrored = true;
 
-    // Clean up animation interval
     if (this.animationInterval) {
       clearInterval(this.animationInterval);
       this.animationInterval = undefined;
     }
 
-    // Stop render timeout
     if (this.renderTimeout) {
       clearTimeout(this.renderTimeout);
       this.renderTimeout = undefined;
     }
 
-    // Clear and finalize logUpdate
     if (!this.useFallbackMode) {
       logUpdate.clear();
       logUpdate.done();
@@ -458,20 +411,16 @@ export class InteractiveTaskRunner {
     if (this.silent || this.batchMode || this.isErrored || this.isCompleted || this.useFallbackMode)
       return;
 
-    // In debug error mode, don't use logUpdate at all - let console.log work normally
     if (process.env.DEBUG_ERRORS) {
       return;
     }
 
-    // Cancel any pending render
     if (this.renderTimeout) {
       clearTimeout(this.renderTimeout);
       this.renderTimeout = undefined;
     }
 
-    // Debounce rendering to avoid flickering
     this.renderTimeout = setTimeout(() => {
-      // Prevent concurrent renders
       if (this.renderTimeout === null) return;
 
       const output: string[] = [];
@@ -479,16 +428,13 @@ export class InteractiveTaskRunner {
       for (let i = 0; i < this.tasks.length; i++) {
         const task = this.tasks[i];
 
-        // Add stage or main task
         const formatted = this.formatTask(task, 0);
-        // Remove leading newline for the first stage
         if (i === 0 && task.isStage && formatted.startsWith("\n")) {
           output.push(formatted.substring(1));
         } else {
           output.push(formatted);
         }
 
-        // Add subtasks with proper indentation
         if (task.subtasks) {
           for (const subtask of task.subtasks) {
             output.push(this.formatTask(subtask, task.isStage ? 1 : 2));
@@ -498,27 +444,22 @@ export class InteractiveTaskRunner {
 
       const newRender = output.join("\n");
 
-      // Only update if content has actually changed and we're not in an error state
       if (newRender !== this.lastRender && !this.isErrored && !this.isCompleted) {
         try {
-          // Use logUpdate properly - it should handle clearing automatically
           logUpdate(newRender);
           this.lastRender = newRender;
         } catch {
-          // If logUpdate fails, fall back to console output
           console.log(newRender);
         }
       }
       this.renderTimeout = undefined;
-    }, 50); // Increased debounce time to reduce rapid updates
+    }, 50);
   }
 
   /**
    * Simple rendering for non-TTY environments
    */
   private renderSimple(): void {
-    // In fallback mode, don't do complex rendering - just let console.log work normally
-    // The issue might be that we're interfering with normal output
     return;
   }
 
@@ -528,7 +469,6 @@ export class InteractiveTaskRunner {
   private formatTask(task: Task, indent: number = 0): string {
     const indentStr = "  ".repeat(indent);
 
-    // If it's a stage header, format differently
     if (task.isStage) {
       let titleColor = theme.info; // Use info color (cyan) by default for visibility
       let statusIcon = "";
@@ -543,15 +483,12 @@ export class InteractiveTaskRunner {
         titleColor = theme.error;
         statusIcon = "✗ ";
       } else {
-        // For pending stages, still show them
         statusIcon = "  ";
       }
 
-      // Display stage with a header style and clear visual separation
       return `\n${indentStr}${titleColor(statusIcon + task.title + ":")}`;
     }
 
-    // Regular task with checkbox
     let checkbox: string;
     let titleColor: (text: string) => string;
     let spinner = "";
@@ -564,7 +501,6 @@ export class InteractiveTaskRunner {
       case "running":
         checkbox = "[ ]";
         titleColor = theme.info;
-        // Add a simple spinner after the title
         spinner = ` ${theme.info(this.spinnerFrames[this.spinnerIndex])}`;
         break;
       case "failed":
@@ -575,7 +511,7 @@ export class InteractiveTaskRunner {
         checkbox = "[-]";
         titleColor = theme.muted;
         break;
-      default: // pending
+      default:
         checkbox = "[ ]";
         titleColor = theme.dim;
     }
@@ -627,7 +563,6 @@ export class InteractiveTaskRunner {
       newStatus = "pending";
     }
 
-    // Only update if status actually changed
     if (stage.status !== newStatus) {
       stage.status = newStatus;
     }

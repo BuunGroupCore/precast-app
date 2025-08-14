@@ -2,6 +2,9 @@
  * Simple Handlebars template processor for preview functionality
  */
 
+/**
+ * Context object for template processing with project configuration
+ */
 interface TemplateContext {
   name: string;
   framework: string;
@@ -17,6 +20,9 @@ interface TemplateContext {
 
 /**
  * Process a Handlebars template string with the given context
+ * @param template - The template string to process
+ * @param context - Context object with values for template variables
+ * @returns Processed template string with variables replaced
  */
 export function processTemplate(template: string, context: TemplateContext): string {
   let result = template;
@@ -114,6 +120,9 @@ export function processTemplate(template: string, context: TemplateContext): str
 
 /**
  * Evaluate a condition with context
+ * @param condition - The condition string to evaluate
+ * @param context - Context object for variable lookup
+ * @returns True if condition evaluates to true
  */
 function evaluateCondition(condition: string, context: TemplateContext): boolean {
   // Simple boolean check
@@ -140,6 +149,8 @@ function evaluateCondition(condition: string, context: TemplateContext): boolean
 
 /**
  * Get template file content (simulated for now)
+ * @param templatePath - Path to the template file
+ * @returns Template content as string
  */
 export function getTemplateContent(templatePath: string): string {
   // This is a simplified version - in reality, you'd read from the actual template files

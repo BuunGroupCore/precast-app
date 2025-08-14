@@ -15,7 +15,6 @@ const { writeFile, ensureDir, pathExists, readFile } = fsExtra;
 export async function generateClaudeTemplate(
   config: ProjectConfig & { mcpServers?: string[]; aiDocs?: boolean }
 ): Promise<void> {
-  // Check for both ai and aiAssistant for backward compatibility
   const aiAssistant = (config as any).aiAssistant || (config as any).ai;
   if (!aiAssistant || (aiAssistant !== "claude" && aiAssistant !== "cursor")) {
     return;
@@ -27,36 +26,27 @@ export async function generateClaudeTemplate(
     const templateRoot = getTemplateRoot();
     const templateEngine = createTemplateEngine(templateRoot);
 
-    // Create .claude directory
     const claudeDir = path.join(config.projectPath, ".claude");
     await ensureDir(claudeDir);
 
-    // Generate and copy Claude settings
     await generateClaudeSettings(config, templateEngine);
 
-    // Generate and copy CLAUDE.md
     await generateClaudeMd(config, templateEngine);
 
-    // Generate agents
     await generateClaudeAgents(config, templateEngine);
 
-    // Generate commands
     await generateClaudeCommands(config, templateEngine);
 
-    // Generate hooks if needed
     await generateClaudeHooks(config, templateEngine);
 
-    // Generate AI documentation if requested
     if (config.aiDocs) {
       await generateAiDocumentation(config, templateEngine);
     }
 
-    // Add to .gitignore
     await addToGitignore(config.projectPath, ".claude/settings.local.json");
 
     logger.verbose("✅ Claude Code integration configured successfully");
 
-    // Show next steps
     showNextSteps(config);
   } catch (error) {
     logger.warn(`Failed to setup Claude Code integration: ${error}`);
@@ -69,16 +59,12 @@ async function generateClaudeSettings(
 ): Promise<void> {
   const claudeDir = path.join(config.projectPath, ".claude");
 
-  // Determine which tools are permitted based on project configuration
   const allowedTools = getClaudePermissions(config);
 
-  // Check if we should include the lint hook
   const hasLintHook = config.eslint || config.prettier;
 
-  // Package manager enforcement hook is always included
   const hasPackageManagerHook = true;
 
-  // Security scanner hook is always included
   const hasSecurityHook = true;
 
   const claudeContext = {
@@ -91,7 +77,6 @@ async function generateClaudeSettings(
     mcpServers: config.mcpServers && config.mcpServers.length > 0 ? config.mcpServers : undefined,
   };
 
-  // Process the settings template
   await templateEngine.processTemplate(
     "ai-context/claude/settings.json.hbs",
     path.join(claudeDir, "settings.json"),
@@ -103,7 +88,6 @@ async function generateClaudeMd(
   config: ProjectConfig & { mcpServers?: string[] },
   templateEngine: any
 ): Promise<void> {
-  // Prepare context for CLAUDE.md template
   const claudeContext = {
     ...config,
     projectName: config.name,
@@ -119,7 +103,6 @@ async function generateClaudeMd(
     keyCommands: getKeyCommands(config),
   };
 
-  // Process the CLAUDE.md template
   await templateEngine.processTemplate(
     "ai-context/claude/CLAUDE.md.hbs",
     path.join(config.projectPath, "CLAUDE.md"),
@@ -142,17 +125,14 @@ function getClaudePermissions(config: ProjectConfig): string[] {
     "TodoWrite",
   ];
 
-  // Add Bash permission for most projects
   if (config.framework !== "vanilla" || config.backend !== "none") {
     permissions.push("Bash");
   }
 
-  // Add Task permission for complex projects
   if (config.backend && config.backend !== "none") {
     permissions.push("Task");
   }
 
-  // Add ExitPlanMode for complex planning scenarios
   if (config.backend && config.backend !== "none" && config.database !== "none") {
     permissions.push("ExitPlanMode");
   }
@@ -244,7 +224,6 @@ async function generateClaudeAgents(
 
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
-  // Generate core agents that are always included
   const coreAgents = ["web-research", "code-reviewer", "architecture-guide", "standards-enforcer"];
 
   for (const agent of coreAgents) {
@@ -256,7 +235,6 @@ async function generateClaudeAgents(
   }
 
   if (isMonorepo) {
-    // Generate monorepo-specific agents
     const monorepoAgents = ["web-context", "api-context", "monorepo-guide"];
 
     for (const agent of monorepoAgents) {
@@ -280,7 +258,6 @@ async function generateClaudeCommands(
 
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
-  // Generate core commands that are always included
   const coreCommands = ["orchestrate", "optimize", "review", "implement", "refactor"];
 
   for (const command of coreCommands) {
@@ -291,13 +268,11 @@ async function generateClaudeCommands(
     );
   }
 
-  // Generate specialized command directories
   const monorepoCommandsDir = path.join(commandsDir, "monorepo");
   const securityCommandsDir = path.join(commandsDir, "security");
   await ensureDir(monorepoCommandsDir);
   await ensureDir(securityCommandsDir);
 
-  // Generate monorepo-specific commands (useful for all projects, but especially monorepos)
   const monorepoCommands = ["optimize", "migrate"];
   for (const command of monorepoCommands) {
     await templateEngine.processTemplate(
@@ -307,7 +282,6 @@ async function generateClaudeCommands(
     );
   }
 
-  // Generate security commands (useful for all projects)
   const securityCommands = ["audit"];
   for (const command of securityCommands) {
     await templateEngine.processTemplate(
@@ -318,13 +292,11 @@ async function generateClaudeCommands(
   }
 
   if (isMonorepo) {
-    // Create subdirectories for monorepo-specific commands
     const webCommandsDir = path.join(commandsDir, "web");
     const apiCommandsDir = path.join(commandsDir, "api");
     await ensureDir(webCommandsDir);
     await ensureDir(apiCommandsDir);
 
-    // Generate web commands
     const webCommands = ["component", "feature"];
     for (const command of webCommands) {
       await templateEngine.processTemplate(
@@ -334,7 +306,6 @@ async function generateClaudeCommands(
       );
     }
 
-    // Generate API commands
     const apiCommands = ["endpoint", "service"];
     for (const command of apiCommands) {
       await templateEngine.processTemplate(
@@ -355,7 +326,6 @@ async function generateClaudeHooks(
   const hooksDir = path.join(config.projectPath, ".claude/hooks");
   await ensureDir(hooksDir);
 
-  // Generate package manager enforcement hook (always included)
   const pmHookPath = path.join(hooksDir, "enforce-package-manager.sh");
   await templateEngine.processTemplate(
     "ai-context/claude/hooks/enforce-package-manager.sh.hbs",
@@ -363,14 +333,12 @@ async function generateClaudeHooks(
     config
   );
 
-  // Make the hook executable
   try {
     await fsExtra.chmod(pmHookPath, 0o755);
   } catch (error) {
     logger.verbose(`Could not set package manager hook permissions: ${error}`);
   }
 
-  // Generate security scanner hook (always included for safety)
   const securityHookPath = path.join(hooksDir, "security-scanner.sh");
   await templateEngine.processTemplate(
     "ai-context/claude/hooks/security-scanner.sh.hbs",
@@ -378,14 +346,12 @@ async function generateClaudeHooks(
     config
   );
 
-  // Make the hook executable
   try {
     await fsExtra.chmod(securityHookPath, 0o755);
   } catch (error) {
     logger.verbose(`Could not set security hook permissions: ${error}`);
   }
 
-  // Generate lint-check hook if ESLint or Prettier are enabled
   if (config.eslint || config.prettier) {
     const lintHookPath = path.join(hooksDir, "lint-check.sh");
     await templateEngine.processTemplate(
@@ -394,7 +360,6 @@ async function generateClaudeHooks(
       config
     );
 
-    // Make the hook executable
     try {
       await fsExtra.chmod(lintHookPath, 0o755);
     } catch (error) {
@@ -414,7 +379,6 @@ async function generateAiDocumentation(
 
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
-  // Prepare context for documentation templates
   const docContext = {
     ...config,
     projectName: config.name,
@@ -426,34 +390,21 @@ async function generateAiDocumentation(
     hasMcpServers: config.mcpServers && config.mcpServers.length > 0,
     mcpServers: config.mcpServers && config.mcpServers.length > 0 ? config.mcpServers : undefined,
     techStack: getTechStackDescription(config),
-    // TODO: Add designSystem and colorPalette once frontend passes these via CLI flags
-    // designSystem: config.designSystem, // Will contain borders, shadows, radius, spacing, typography, animations
-    // colorPalette: config.colorPalette, // Will contain color scheme from palette selection
     projectStructure: getProjectStructureDescription(config),
     keyCommands: getKeyCommands(config),
   };
 
-  // Generate SPEC.md
   await templateEngine.processTemplate(
     "docs/ai/SPEC.md.hbs",
     path.join(docsDir, "SPEC.md"),
     docContext
   );
 
-  // Generate PRD.md
   await templateEngine.processTemplate(
     "docs/ai/PRD.md.hbs",
     path.join(docsDir, "PRD.md"),
     docContext
   );
-
-  // TODO: Generate STYLING.md once designSystem and colorPalette are passed from frontend
-  // This will be generated when the design system UI is fully tested and backend implementation is complete
-  // await templateEngine.processTemplate(
-  //   "docs/STYLING.md.hbs",
-  //   path.join(docsDir, "STYLING.md"),
-  //   docContext
-  // );
 
   logger.verbose("✅ AI documentation generated");
 }
@@ -542,5 +493,4 @@ function showNextSteps(config: ProjectConfig & { mcpServers?: string[]; aiDocs?:
   }
 }
 
-// Export for backward compatibility
 export { generateClaudeTemplate as setupClaudeIntegration };

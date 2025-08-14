@@ -4,6 +4,7 @@ import { FaGithub, FaHeart, FaCodeBranch, FaExclamationCircle, FaEye } from "rea
 
 import { usePrecastAPI, formatNumber } from "@/hooks/usePrecastAPI";
 import { trackOutboundLink } from "@/utils/analytics";
+import { InlineSpinner } from "@/components/ui";
 
 /**
  * GitHub stars component that displays repository statistics from the Precast API worker.
@@ -43,7 +44,15 @@ export function GitHubStars() {
         <div className="flex items-center gap-1">
           <FaHeart className="text-comic-red text-sm animate-pulse" />
           <span className="font-comic font-bold text-sm">
-            {loading ? "..." : metrics ? formatNumber(metrics.stars) : error ? "Error" : "Star"}
+            {loading ? (
+              <InlineSpinner color="red" aria-label="Loading stars count" />
+            ) : metrics ? (
+              formatNumber(metrics.stars)
+            ) : error ? (
+              "Error"
+            ) : (
+              "Star"
+            )}
           </span>
         </div>
       </motion.a>

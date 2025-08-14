@@ -652,6 +652,102 @@
   ring-offset-color: var(--comic-white);
 }
 
+/* Enhanced Focus Styles for Interactive Elements */
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  @apply outline-none ring-4 ring-offset-2;
+  ring-color: var(--comic-yellow);
+  ring-offset-color: var(--comic-white);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Special focus styles for comic elements */
+.comic-panel:focus-within {
+  box-shadow:
+    4px 4px 0 var(--comic-black),
+    8px 8px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 4px var(--comic-yellow);
+}
+
+/* Skip link styles */
+.skip-link:focus {
+  position: fixed !important;
+  top: 1rem !important;
+  left: 1rem !important;
+  z-index: 9999 !important;
+  transform: none !important;
+  clip: unset !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Focus indicator for tab panels */
+[role="tabpanel"]:focus {
+  @apply outline-none ring-2 ring-offset-2;
+  ring-color: var(--comic-blue);
+  ring-offset-color: var(--comic-white);
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.sr-only.focus:focus,
+.sr-only:focus-visible {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --comic-black: #000000;
+    --comic-white: #ffffff;
+    --comic-gray: #808080;
+  }
+
+  .comic-panel {
+    border-width: 3px !important;
+  }
+
+  button,
+  [role="button"] {
+    border-width: 2px !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Header Navigation Hover Effects */
 header nav a:hover,
 header nav button:hover {

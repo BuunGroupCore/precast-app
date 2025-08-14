@@ -51,8 +51,30 @@ export interface PrecastConfig {
 }
 
 /**
- * Write the precast configuration file to the project directory
- * @param projectConfig - The project configuration to write
+ * Writes the Precast configuration file (precast.jsonc) to the project directory.
+ *
+ * This function creates a comprehensive configuration file that records:
+ * - Project metadata (version, creation date, framework, language)
+ * - Technology stack choices (backend, database, ORM, styling, etc.)
+ * - Development tools (ESLint, Prettier, Docker, etc.)
+ * - Deployment configuration and type classification
+ * - Package manager and version information
+ * - Optional features like AI assistance, powerups, and plugins
+ *
+ * The configuration file serves multiple purposes:
+ * - Enables the CLI to understand existing project structure
+ * - Supports incremental feature additions via `precast add`
+ * - Provides context for AI assistants and development tools
+ * - Documents the project setup for team collaboration
+ *
+ * @param {ProjectConfig} projectConfig The complete project configuration to persist
+ * @param {string} projectConfig.projectPath - Directory where the config file will be written
+ * @param {string} projectConfig.framework - Frontend framework used
+ * @param {string} projectConfig.language - Programming language (TypeScript/JavaScript)
+ * @param {boolean} projectConfig.typescript - Whether TypeScript is enabled
+ * @param {string} projectConfig.packageManager - Package manager being used
+ * @returns {Promise<void>} Resolves when the configuration file has been written
+ * @throws {Error} If the file cannot be written to the specified directory
  */
 export async function writePrecastConfig(projectConfig: ProjectConfig) {
   // Determine deployment type based on the stack
@@ -143,9 +165,20 @@ export async function writePrecastConfig(projectConfig: ProjectConfig) {
 }
 
 /**
- * Read the precast configuration file from a project directory
- * @param projectDir - The directory to read the configuration from
- * @returns The precast configuration or null if not found
+ * Reads and parses the Precast configuration file from a project directory.
+ *
+ * This function:
+ * - Locates the precast.jsonc file in the specified directory
+ * - Parses the JSONC content (JSON with comments and trailing commas)
+ * - Validates the configuration structure
+ * - Returns null for missing or invalid configurations
+ *
+ * Used by the CLI to understand existing project configurations when adding
+ * features or performing operations on previously generated projects.
+ *
+ * @param {string} projectDir The absolute path to the project directory containing precast.jsonc
+ * @returns {Promise<PrecastConfig | null>} The parsed configuration object, or null if not found/invalid
+ * @throws {never} Does not throw - returns null on any parsing or file system errors
  */
 export async function readPrecastConfig(projectDir: string): Promise<PrecastConfig | null> {
   try {

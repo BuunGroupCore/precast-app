@@ -277,13 +277,10 @@ function validateCliOptions(options: InitOptions): { valid: boolean; errors: str
  * @param options - Configuration options for the project (CLI flags or interactive prompts)
  */
 export async function initCommand(projectName: string | undefined, options: InitOptions) {
-  // Set debug mode environment variables
   if (options.debug) {
     process.env.DEBUG_ERRORS = "1";
     process.env.DEBUG = "true";
   }
-
-  // Validate CLI option values first, before doing anything else
   const cliValidation = validateCliOptions(options);
   if (!cliValidation.valid) {
     console.log();
@@ -299,18 +296,14 @@ export async function initCommand(projectName: string | undefined, options: Init
     process.exit(1);
   }
 
-  // Set debug analytics if flag is provided
   if (options.debugAnalytics) {
     process.env.DEBUG_ANALYTICS = "1";
   }
-
-  // Set verbose mode for logging
   const { setVerboseMode, setSuppressOutput } = await import("../utils/logger.js");
   setVerboseMode(options.verbose || false);
 
   const debug = options.debug || process.env.DEBUG === "true";
 
-  // Show hero banner
   if (!options.yes) {
     console.log();
     const heroBanner = await createHeroBanner("PRECAST", "Modern app scaffolding");
@@ -318,7 +311,6 @@ export async function initCommand(projectName: string | undefined, options: Init
     console.log();
   }
 
-  // Show telemetry notice in debug mode
   if (debug) {
     displayTelemetryNotice();
   }
@@ -327,7 +319,6 @@ export async function initCommand(projectName: string | undefined, options: Init
   const taskRunner = new InteractiveTaskRunner({ debug });
 
   try {
-    // Gather configuration
     const useNavigation =
       process.env.PRECAST_NAV === "true" || (!options.yes && process.env.PRECAST_NAV !== "false");
 
@@ -335,7 +326,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       ? await gatherProjectConfigWithNavigation(projectName, options)
       : await gatherProjectConfig(projectName, options);
 
-    // Validate configuration
     const validator = getConfigValidator();
     const validation = validator.validate(config);
 
@@ -355,7 +345,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Display clean configuration summary
     if (!options.yes) {
       displayCleanConfigSummary(config);
 
@@ -372,7 +361,6 @@ export async function initCommand(projectName: string | undefined, options: Init
     const projectPath = path.resolve(process.cwd(), config.name);
     config.projectPath = projectPath;
 
-    // Check if directory exists
     if (await pathExists(projectPath)) {
       const isEmpty = (await readdir(projectPath)).length === 0;
       if (!isEmpty) {
@@ -387,7 +375,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       }
     }
 
-    // Setup completely separate stages for each step
     const tasks: any[] = [
       {
         id: "structure",
@@ -412,7 +399,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       },
     ];
 
-    // Add backend stage if needed
     if (config.backend && config.backend !== "none") {
       tasks.push({
         id: "backend-setup",
@@ -425,7 +411,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Add database stage if needed
     if (config.database && config.database !== "none") {
       tasks.push({
         id: "database-setup",
@@ -438,7 +423,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Add ORM stage if needed
     if (config.orm && config.orm !== "none") {
       tasks.push({
         id: "orm-setup",
@@ -449,7 +433,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Add Styling stage if needed
     if (config.styling && config.styling !== "css") {
       tasks.push({
         id: "styling-setup",
@@ -462,9 +445,7 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Add Color Palette stage if needed
     if (config.colorPalette) {
-      // Import color palettes to get the actual name
       const { colorPalettes } = await import("../../../shared/src/color-palettes.js");
       const selectedPalette = colorPalettes.find((p) => p.id === config.colorPalette);
       const paletteName = selectedPalette?.name || config.colorPalette;
@@ -478,7 +459,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Add Docker stage if needed
     if (config.docker) {
       tasks.push({
         id: "docker-setup",
@@ -489,7 +469,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Code quality stage
     const codeQualityTasks: any[] = [];
     if (!(options.install || config.autoInstall)) {
       codeQualityTasks.push({ id: "format", title: "Formatting code", status: "pending" });
@@ -507,7 +486,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Deployment setup stage if needed
     if (config.deploymentMethod && config.deploymentMethod !== "none") {
       tasks.push({
         id: "deployment-setup",
@@ -524,7 +502,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Dependencies stage
     if (options.install || config.autoInstall) {
       tasks.push({
         id: "dependencies",
@@ -538,7 +515,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // UI Library stage if needed
     if (config.uiLibrary && config.framework !== "vanilla") {
       tasks.push({
         id: "ui-setup",
@@ -549,7 +525,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Authentication stage if needed
     if (config.authProvider && config.authProvider !== "none") {
       tasks.push({
         id: "auth-setup",
@@ -566,7 +541,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // API Client stage if needed
     if (config.apiClient && config.apiClient !== "none") {
       tasks.push({
         id: "api-setup",
@@ -579,12 +553,9 @@ export async function initCommand(projectName: string | undefined, options: Init
 
     taskRunner.addTasks(tasks);
 
-    // Suppress console output during task runner execution (unless verbose)
     if (!options.verbose) {
       setSuppressOutput(true);
     }
-
-    // Show Precast ASCII art
     console.log();
     const asciiArt = theme.gradient.precast(`
 ╔═══════════════════════════════════════╗
@@ -598,13 +569,9 @@ export async function initCommand(projectName: string | undefined, options: Init
     console.log(asciiArt);
     console.log();
 
-    // Start task runner with title
     taskRunner.start(`Creating ${config.name}...`);
 
-    // Create project structure
     await ensureDir(projectPath);
-
-    // Project Structure stage
     await taskRunner.runTask("create-files", async () => {
       debugLog("Creating project structure", { projectPath });
 
@@ -626,54 +593,35 @@ export async function initCommand(projectName: string | undefined, options: Init
 
     await taskRunner.runTask("env", async () => {
       debugLog("Generating environment files");
-      // Environment files are generated as part of the template generation
-      // This task is just for display purposes
     });
-
-    // Backend setup stage
     if (config.backend && config.backend !== "none") {
       await taskRunner.runTask("backend", async () => {
         debugLog(`Setting up ${config.backend} backend`);
-        // Backend setup is handled in template generation
       });
     }
-
-    // Database setup stage
     if (config.database && config.database !== "none") {
       await taskRunner.runTask("database", async () => {
         debugLog(`Configuring ${config.database} database`);
-        // Database setup is handled in template generation
       });
     }
-
-    // ORM setup stage
     if (config.orm && config.orm !== "none") {
       await taskRunner.runTask("orm", async () => {
         debugLog(`Setting up ${config.orm} ORM`);
-        // ORM setup is handled in template generation
       });
     }
-
-    // Styling setup stage
     if (config.styling && config.styling !== "css") {
       await taskRunner.runTask("styling", async () => {
         debugLog(`Setting up ${config.styling} styling`);
-        // Styling setup is handled in template generation
       });
     }
-
-    // Color Palette setup stage
     let selectedColorPalette: any = null;
     if (config.colorPalette) {
       await taskRunner.runTask("colors", async () => {
         debugLog(`Applying ${config.colorPalette} color theme`);
-        // Store the palette for display after task runner completes
         const { colorPalettes } = await import("../../../shared/src/color-palettes.js");
         selectedColorPalette = colorPalettes.find((p) => p.id === config.colorPalette);
       });
     }
-
-    // Docker setup stage
     if (config.docker) {
       await taskRunner.runTask("docker", async () => {
         debugLog("Setting up Docker configuration and auto-deploy script");
@@ -684,12 +632,9 @@ export async function initCommand(projectName: string | undefined, options: Init
         const templateRoot = getTemplateRoot();
         const templateEngine = createTemplateEngine(templateRoot);
 
-        // Setup Docker auto-deploy script
         await setupDockerAutoDeploy(config, projectPath, templateEngine, options.autoDeploy);
       });
     }
-
-    // Deployment setup stage
     if (config.deploymentMethod && config.deploymentMethod !== "none") {
       await taskRunner.runTask("deployment", async () => {
         debugLog(`Setting up ${config.deploymentMethod} deployment`);
@@ -702,8 +647,6 @@ export async function initCommand(projectName: string | undefined, options: Init
         await setupDeploymentConfig(config, projectPath, templateEngine);
       });
     }
-
-    // UI Library setup stage
     if (config.uiLibrary && config.framework !== "vanilla") {
       await taskRunner.runTask("ui", async () => {
         debugLog(`Setting up ${config.uiLibrary} UI library`);
@@ -711,23 +654,17 @@ export async function initCommand(projectName: string | undefined, options: Init
           await setupUILibrary(config, projectPath);
         } catch (error) {
           debugLog("UI library setup failed", error);
-          // Don't throw, just log warning
           if (debug) {
             console.log(theme.warning(`\n${statusSymbols.warning} UI library setup had issues`));
           }
         }
       });
     }
-
-    // Authentication setup stage
     if (config.authProvider && config.authProvider !== "none") {
       await taskRunner.runTask("auth", async () => {
         debugLog(`Setting up ${config.authProvider} authentication`);
-        // Authentication setup is handled in template generation
       });
     }
-
-    // API Client setup stage
     if (config.apiClient && config.apiClient !== "none") {
       await taskRunner.runTask("api", async () => {
         debugLog(`Setting up ${config.apiClient} API client`);
@@ -735,15 +672,12 @@ export async function initCommand(projectName: string | undefined, options: Init
           await setupApiClient(config, projectPath);
         } catch (error) {
           debugLog("API client setup failed", error);
-          // Don't throw, just log warning
           if (debug) {
             console.log(theme.warning(`\n${statusSymbols.warning} API client setup had issues`));
           }
         }
       });
     }
-
-    // Format code if not installing
     if (!(options.install || config.autoInstall)) {
       await taskRunner.runTask("format", async () => {
         debugLog("Formatting generated code");
@@ -754,7 +688,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       taskRunner.skipTask("format", "Will format during installation");
     }
 
-    // Initialize git
     if (config.git) {
       await taskRunner.runTask("git", async () => {
         debugLog("Initializing git repository");
@@ -762,7 +695,6 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
-    // Install dependencies
     if (options.install || config.autoInstall) {
       await taskRunner.runTask("deps", async () => {
         const pm = config.packageManager;
@@ -779,7 +711,6 @@ export async function initCommand(projectName: string | undefined, options: Init
         });
       });
 
-      // Security audit
       await taskRunner.runTask("audit", async () => {
         try {
           await runSecurityAudit({
@@ -789,15 +720,12 @@ export async function initCommand(projectName: string | undefined, options: Init
           });
         } catch (error) {
           debugLog("Security audit failed", error);
-          // Don't throw, just log warning
           if (debug) {
             console.log(theme.warning(`\n${statusSymbols.warning} Security audit had issues`));
           }
         }
       });
     }
-
-    // Track creation
     await trackProjectCreation({
       framework: config.framework,
       backend: config.backend,
@@ -826,19 +754,15 @@ export async function initCommand(projectName: string | undefined, options: Init
       entryPoint: "cli",
       duration: Date.now() - startTime,
       success: true,
-      securityAuditPassed: true, // Set after successful security audit
+      securityAuditPassed: true,
     });
 
-    // Complete
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     taskRunner.complete();
 
-    // Re-enable console output
     if (!options.verbose) {
       setSuppressOutput(false);
     }
-
-    // Success message
     console.log();
     const successBox = createFancyBox(
       `${theme.success(`${statusSymbols.success} Project created successfully!`)}\n\n` +
@@ -848,7 +772,6 @@ export async function initCommand(projectName: string | undefined, options: Init
     );
     console.log(successBox);
 
-    // Display color palette if selected
     if (selectedColorPalette) {
       const colorsToShow = selectedColorPalette.preview || [
         selectedColorPalette.colors.primary,
@@ -866,17 +789,14 @@ export async function initCommand(projectName: string | undefined, options: Init
       );
     }
 
-    // Display ALL collected errors from the global error collector
     const collectedErrors = errorCollector.getErrors();
     if (collectedErrors.length > 0) {
       console.log();
 
-      // Separate errors and warnings
       const errors = collectedErrors.filter((e) => e.type === "error");
       const warnings = collectedErrors.filter((e) => e.type === "warning");
 
       if (errors.length > 0) {
-        // Create a formatted error box
         const errorLines: string[] = [
           theme.error(
             `❌ ${errors.length} Error${errors.length > 1 ? "s" : ""} Occurred During Setup`
@@ -886,7 +806,6 @@ export async function initCommand(projectName: string | undefined, options: Init
 
         errors.forEach((err, index) => {
           errorLines.push(`${theme.accent("▸")} Task: ${theme.bold(err.task)}`);
-          // Show the full error message
           const errorMsgLines = err.error.split("\n");
           errorMsgLines.forEach((line, i) => {
             if (i === 0) {
@@ -924,25 +843,20 @@ export async function initCommand(projectName: string | undefined, options: Init
       console.log(theme.dim("You may need to manually install some dependencies."));
     }
 
-    // Display buffered analytics debug messages if enabled
     if (process.env.DEBUG_ANALYTICS) {
       const { getAnalyticsDebugMessages } = await import("../utils/analytics.js");
       const analyticsMessages = getAnalyticsDebugMessages();
       if (analyticsMessages.length > 0) {
         console.log();
 
-        // Create a formatted analytics box similar to the success box
         const analyticsLines: string[] = [theme.info("📊 Analytics Debug"), ""];
-
-        // Group messages by event
         let currentEvent = "";
         analyticsMessages.forEach((msg) => {
           if (msg.startsWith("Sending event:")) {
-            if (currentEvent) analyticsLines.push(""); // Add spacing between events
+            if (currentEvent) analyticsLines.push("");
             currentEvent = msg.replace("Sending event: ", "");
             analyticsLines.push(`${theme.accent("▸")} Event: ${theme.bold(currentEvent)}`);
           } else if (msg.startsWith("Properties:")) {
-            // Parse and format properties more nicely
             try {
               const propsJson = msg.replace("Properties: ", "");
               const props = JSON.parse(propsJson);
@@ -956,7 +870,6 @@ export async function initCommand(projectName: string | undefined, options: Init
                 });
               }
             } catch {
-              // Fallback if parsing fails
               analyticsLines.push(`  ${msg}`);
             }
           } else if (msg.includes("✓ Event sent successfully")) {
@@ -973,20 +886,15 @@ export async function initCommand(projectName: string | undefined, options: Init
       }
     }
 
-    // Next steps
     console.log();
     console.log(theme.bold("Next steps:"));
     console.log();
 
-    // Create the commands list
     const commands = [`cd ${config.name}`];
-
-    // Add install command if not auto-installed
     if (!options.install && !config.autoInstall) {
       commands.push(`${config.packageManager} install`);
     }
 
-    // Add Docker commands if Docker is configured
     if (config.docker) {
       commands.push(`# Start Docker services`);
       commands.push(`npx create-precast-app@latest deploy`);
@@ -994,10 +902,7 @@ export async function initCommand(projectName: string | undefined, options: Init
       commands.push(`${config.packageManager} run docker:up`);
     }
 
-    // Add dev command
     commands.push(`${config.packageManager} run dev`);
-
-    // Display commands in a styled code block
     const maxLength = Math.max(...commands.map((cmd) => cmd.length));
     const boxWidth = Math.max(60, maxLength + 4);
 
@@ -1020,12 +925,10 @@ export async function initCommand(projectName: string | undefined, options: Init
   } catch (error) {
     taskRunner.error("Failed to create project");
 
-    // Re-enable console output for error display
     if (!options.verbose) {
       setSuppressOutput(false);
     }
 
-    // Display ALL collected errors from the global error collector
     const collectedErrors = errorCollector.getErrors();
     if (collectedErrors.length > 0) {
       console.log();
@@ -1039,7 +942,6 @@ export async function initCommand(projectName: string | undefined, options: Init
 
       collectedErrors.forEach((err, index) => {
         errorLines.push(`${theme.accent("▸")} Task: ${theme.bold(err.task)}`);
-        // Format error message - split by newlines and indent
         const errorMsgLines = err.error.split("\n");
         errorMsgLines.forEach((line, i) => {
           if (i === 0) {
@@ -1049,14 +951,13 @@ export async function initCommand(projectName: string | undefined, options: Init
           }
         });
         if (index < collectedErrors.length - 1) {
-          errorLines.push(""); // Add spacing between errors
+          errorLines.push("");
         }
       });
 
       const errorBox = createFancyBox(errorLines.join("\n"), "Error Details");
       console.log(errorBox);
     } else {
-      // If no errors were collected but we still failed, show the original error
       console.log();
       console.log(theme.error("An unexpected error occurred:"));
       console.log(theme.error(error instanceof Error ? error.message : String(error)));
@@ -1087,8 +988,6 @@ async function initializeGit(projectPath: string) {
     await execa("git", ["config", "user.name"], { cwd: projectPath, stdio: "pipe" });
     await execa("git", ["config", "user.email"], { cwd: projectPath, stdio: "pipe" });
   } catch {
-    debugLog("Git author not configured, using defaults");
-
     await execa("git", ["config", "user.name", "Precast User"], {
       cwd: projectPath,
       stdio: "pipe",

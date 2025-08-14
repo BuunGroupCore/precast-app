@@ -99,7 +99,6 @@ ${routes
   // Write sitemap to public directory
   const sitemapPath = resolve(process.cwd(), "public", "sitemap.xml");
   writeFileSync(sitemapPath, sitemap, "utf-8");
-  // eslint-disable-next-line no-console
   console.log("✅ Sitemap generated successfully at:", sitemapPath);
 
   // Also generate a simple sitemap index for potential future expansion
@@ -113,7 +112,6 @@ ${routes
 
   const sitemapIndexPath = resolve(process.cwd(), "public", "sitemap-index.xml");
   writeFileSync(sitemapIndexPath, sitemapIndex, "utf-8");
-  // eslint-disable-next-line no-console
   console.log("✅ Sitemap index generated successfully at:", sitemapIndexPath);
 
   // Generate robots.txt with dynamic timestamp
@@ -188,7 +186,6 @@ Crawl-delay: 1`;
 
   const robotsPath = resolve(process.cwd(), "public", "robots.txt");
   writeFileSync(robotsPath, robotsTxt, "utf-8");
-  // eslint-disable-next-line no-console
   console.log("✅ Robots.txt updated successfully at:", robotsPath);
 };
 

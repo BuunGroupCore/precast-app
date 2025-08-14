@@ -69,30 +69,46 @@ export const ProjectNameSection: React.FC<ProjectNameSectionProps> = ({ config, 
   };
 
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0, x: -50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.1 }}
       className="comic-card"
+      aria-labelledby="project-name-heading"
     >
-      <h3 className="font-display text-xl sm:text-2xl mb-4 text-comic-blue">PROJECT NAME</h3>
+      <h3
+        id="project-name-heading"
+        className="font-display text-xl sm:text-2xl mb-4 text-comic-blue"
+      >
+        PROJECT NAME
+      </h3>
       <div className="flex flex-col sm:flex-row gap-2">
+        <label htmlFor="project-name-input" className="sr-only">
+          Enter project name
+        </label>
         <input
+          id="project-name-input"
           type="text"
           value={config.name}
           onChange={(e) => setConfig({ ...config, name: e.target.value })}
-          className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 sm:border-3 border-comic-black rounded-lg font-comic text-base sm:text-lg focus:outline-none focus:border-comic-red bg-comic-white min-w-0"
+          className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 sm:border-3 border-comic-black rounded-lg font-comic text-base sm:text-lg focus:outline-none focus:ring-2 focus:ring-comic-blue focus:ring-offset-2 focus:border-comic-red bg-comic-white min-w-0"
           placeholder="my-awesome-project"
+          aria-describedby="project-name-help"
         />
+        <div id="project-name-help" className="sr-only">
+          Enter a name for your project. Use lowercase letters, numbers, and hyphens. Example:
+          my-awesome-project
+        </div>
         <button
           onClick={generateRandomName}
-          className="px-3 sm:px-4 py-2 sm:py-3 bg-comic-yellow border-2 sm:border-3 border-comic-black rounded-lg hover:bg-comic-red hover:text-comic-white transition-colors flex items-center justify-center gap-2"
-          title="Generate random name"
+          className="px-3 sm:px-4 py-2 sm:py-3 bg-comic-yellow border-2 sm:border-3 border-comic-black rounded-lg hover:bg-comic-red hover:text-comic-white focus:ring-2 focus:ring-comic-yellow focus:ring-offset-2 transition-colors flex items-center justify-center gap-2"
+          aria-label="Generate random project name"
         >
-          <FaDice className="text-lg sm:text-xl" />
+          <FaDice className="text-lg sm:text-xl" aria-hidden="true" />
           <span className="sm:hidden font-comic text-sm">RANDOM</span>
+          <span className="sr-only sm:hidden">Generate Random Name</span>
         </button>
       </div>
-    </motion.div>
+    </motion.section>
   );
 };

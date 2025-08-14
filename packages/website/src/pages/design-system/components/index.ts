@@ -1,0 +1,1 @@
+export { DesignSystemComponentsPage } from "./page";

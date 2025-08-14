@@ -3,6 +3,7 @@ import * as path from "path";
 
 import { confirm } from "@clack/prompts";
 import fsExtra from "fs-extra";
+
 import {
   theme,
   createHeroBanner,
@@ -43,7 +44,6 @@ interface DeployOptions {
  */
 export async function deployCommand(options: DeployOptions): Promise<void> {
   try {
-    // Detect if we're in a Precast project
     const isPrecastProject = await pathExists("precast.jsonc");
     if (!isPrecastProject) {
       console.log();
@@ -61,7 +61,6 @@ export async function deployCommand(options: DeployOptions): Promise<void> {
       process.exit(1);
     }
 
-    // Read project configuration
     const config = await readJson("precast.jsonc");
 
     if (!config.docker) {
@@ -80,7 +79,6 @@ export async function deployCommand(options: DeployOptions): Promise<void> {
       process.exit(1);
     }
 
-    // Check if auto-deploy script exists
     const platform = process.platform;
     const scriptName = platform === "win32" ? "docker-auto-deploy.bat" : "docker-auto-deploy.sh";
     const scriptPath = path.join(process.cwd(), "scripts", scriptName);
@@ -100,13 +98,11 @@ export async function deployCommand(options: DeployOptions): Promise<void> {
       process.exit(1);
     }
 
-    // Handle destroy command with safety prompt
     if (options.destroy) {
       await handleDestroyCommand(config, options.approve);
       return;
     }
 
-    // Determine action and display appropriate banner
     let command = scriptPath;
     let action = "deploy";
     let actionIcon = "🚀";
@@ -133,19 +129,16 @@ export async function deployCommand(options: DeployOptions): Promise<void> {
       actionDesc = "◉ Docker command help";
     }
 
-    // Create beautiful header
     console.log();
     const heroBanner = await createHeroBanner(actionTitle, actionDesc);
     console.log(heroBanner);
     console.log();
 
-    // Show project info for deploy action
     if (action === "deploy") {
       await showDeploymentInfo(config);
     }
 
     try {
-      // Execute the auto-deploy script
       console.log(theme.accent(`${actionIcon} Executing Docker ${action}...`));
       console.log();
 
@@ -154,10 +147,8 @@ export async function deployCommand(options: DeployOptions): Promise<void> {
         cwd: process.cwd(),
       });
 
-      // Success messages with styling
       console.log();
       if (action === "deploy") {
-        // Enhanced ngrok handling with environment variable updates
         let ngrokMessage = "";
         let ngrokUrls: { frontend?: string; api?: string } = {};
         const powerups = config.powerups || [];
@@ -167,7 +158,6 @@ export async function deployCommand(options: DeployOptions): Promise<void> {
           ngrokMessage = ngrokResult.message;
           ngrokUrls = ngrokResult.urls;
         } else {
-          // No ngrok, get empty result
           const emptyResult = { message: "", urls: {} };
           ngrokMessage = emptyResult.message;
           ngrokUrls = emptyResult.urls;
@@ -240,12 +230,10 @@ export async function deployCommand(options: DeployOptions): Promise<void> {
 async function showDeploymentInfo(config: any): Promise<void> {
   const services: string[] = [];
 
-  // Database services
   if (config.database && config.database !== "none") {
     services.push(`${techBadge(config.database)} ${theme.muted("database")}`);
   }
 
-  // Powerup services
   if (config.powerups && config.powerups.length > 0) {
     config.powerups.forEach((powerup: string) => {
       switch (powerup) {
@@ -282,13 +270,11 @@ async function showDeploymentInfo(config: any): Promise<void> {
 async function handleDestroyCommand(config: any, skipPrompt: boolean = false): Promise<void> {
   const projectName = path.basename(process.cwd()).replace(/[^a-zA-Z0-9-_]/g, "-");
 
-  // Create beautiful destroy banner
   console.log();
   const heroBanner = await createHeroBanner("DESTROY", "💥 Complete Docker cleanup");
   console.log(heroBanner);
   console.log();
 
-  // Safety prompt unless --approve is used
   if (!skipPrompt) {
     const warningContent =
       `${theme.error(`${statusSymbols.error} DESTRUCTIVE OPERATION WARNING`)} ${comicDecorations.pow}\n\n` +
@@ -331,7 +317,6 @@ async function handleDestroyCommand(config: any, skipPrompt: boolean = false): P
   console.log();
 
   try {
-    // Stop and remove all containers with live progress
     await destroyDockerResources(config, projectName);
 
     console.log();
@@ -378,7 +363,6 @@ async function handleDestroyCommand(config: any, skipPrompt: boolean = false): P
 async function destroyDockerResources(config: any, projectName: string): Promise<void> {
   const steps: Array<{ name: string; command: string; description: string }> = [];
 
-  // Stop and remove database containers
   if (config.database && config.database !== "none") {
     const dbCompose = `docker/compose/${config.database}/docker-compose.yml`;
     if (await pathExists(dbCompose)) {
@@ -388,7 +372,6 @@ async function destroyDockerResources(config: any, projectName: string): Promise
         description: `Stopping ${config.database} database and removing volumes`,
       });
     } else {
-      // Fallback to individual database compose files
       const fallbackCompose = `docker/${config.database}/docker-compose.yml`;
       if (await pathExists(fallbackCompose)) {
         steps.push({
@@ -400,7 +383,6 @@ async function destroyDockerResources(config: any, projectName: string): Promise
     }
   }
 
-  // Stop and remove powerup containers
   if (config.powerups && config.powerups.length > 0) {
     for (const powerup of config.powerups) {
       let composeFile = "";
@@ -430,21 +412,18 @@ async function destroyDockerResources(config: any, projectName: string): Promise
     }
   }
 
-  // Remove all containers with project name prefix
   steps.push({
     name: "containers",
     command: `docker container rm -f $(docker container ls -aq --filter "name=${projectName}") 2>/dev/null || true`,
     description: "Removing all project containers",
   });
 
-  // Remove all volumes with project name prefix
   steps.push({
     name: "volumes",
     command: `docker volume rm $(docker volume ls -q --filter "name=${projectName}") 2>/dev/null || true`,
     description: "Removing all project volumes (data will be lost)",
   });
 
-  // Remove project networks
   steps.push({
     name: "networks",
     command: `docker network rm ${projectName}_network 2>/dev/null || true`,
@@ -459,7 +438,6 @@ async function destroyDockerResources(config: any, projectName: string): Promise
     });
   }
 
-  // Final cleanup steps
   steps.push(
     {
       name: "cleanup-containers",
@@ -478,36 +456,31 @@ async function destroyDockerResources(config: any, projectName: string): Promise
     }
   );
 
-  // Execute all cleanup commands with live streaming
   const totalSteps = steps.length;
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     const stepNumber = i + 1;
 
-    // Show current step
     console.log(
       `${theme.accent(`[${stepNumber}/${totalSteps}]`)} ${theme.bold(step.description)}...`
     );
 
     try {
-      // Execute with live output
       execSync(step.command, {
         stdio: "inherit",
         cwd: process.cwd(),
       });
 
-      // Show success for this step
       console.log(
         `${theme.success(`${statusSymbols.success}`)} ${theme.muted(step.description)} ${theme.success("completed")}`
       );
     } catch {
-      // Show warning but continue (some commands are expected to fail if resources don't exist)
+      // Expected to fail if resources don't exist
       console.log(
         `${theme.warning(`${statusSymbols.warning}`)} ${theme.muted(step.description)} ${theme.warning("skipped (no resources found)")}`
       );
     }
 
-    // Add small delay for better UX
     if (i < steps.length - 1) {
       await new Promise((resolve) => setTimeout(resolve, 200));
     }
@@ -526,15 +499,13 @@ async function handleNgrokDeployment(
 }> {
   console.log(`${theme.accent("🔍 Detecting project structure...")}`);
 
-  // Detect project structure and framework
   const structure = await detectEnvironmentStructure(process.cwd());
   console.log(
     `${theme.success("✓")} Detected: ${structure.framework.framework}${structure.framework.router ? ` (${structure.framework.router})` : ""}`
   );
 
-  // Wait for ngrok tunnels to be established
   console.log(`${theme.accent("⏳ Waiting for ngrok tunnels...")}`);
-  const ngrokUrls = await waitForNgrokTunnels(10000); // 10 second timeout
+  const ngrokUrls = await waitForNgrokTunnels(10000);
 
   if (!ngrokUrls || !validateNgrokUrls(ngrokUrls)) {
     console.log(`${theme.warning("⚠️ Could not retrieve ngrok URLs")}`);
@@ -548,17 +519,12 @@ async function handleNgrokDeployment(
   console.log(`   Frontend: ${ngrokUrls.frontend}`);
   console.log(`   API: ${ngrokUrls.api}`);
 
-  // Handle environment variable updates unless explicitly skipped
   if (!options.skipEnvUpdate) {
-    const updates = await updateEnvironmentVariables(
-      process.cwd(),
-      structure,
-      ngrokUrls,
-      { dryRun: true } // First, check what would be updated
-    );
+    const updates = await updateEnvironmentVariables(process.cwd(), structure, ngrokUrls, {
+      dryRun: true,
+    });
 
     if (updates.length > 0) {
-      // Show what will be updated
       console.log(`\n${theme.accent("📝 Environment updates needed:")}`);
       console.log(formatEnvUpdates(updates));
 
@@ -568,7 +534,6 @@ async function handleNgrokDeployment(
         shouldUpdate = true;
         console.log(`${theme.info("✓ Auto-updating environment variables...")}`);
       } else {
-        // Ask for confirmation
         const response = await confirm({
           message: "Update environment variables with ngrok URLs?",
           initialValue: true,
@@ -577,7 +542,6 @@ async function handleNgrokDeployment(
       }
 
       if (shouldUpdate) {
-        // Apply the updates
         await updateEnvironmentVariables(process.cwd(), structure, ngrokUrls);
         console.log(`${theme.success("✅ Environment variables updated!")}`);
       }
@@ -586,7 +550,6 @@ async function handleNgrokDeployment(
     }
   }
 
-  // Build success message
   let message = `\n\n${theme.accent("🌐 ngrok tunnels established:")}`;
   message += `\n  ${theme.bold("Frontend:")} ${ngrokUrls.frontend}`;
   message += `\n  ${theme.bold("API:")} ${ngrokUrls.api}`;

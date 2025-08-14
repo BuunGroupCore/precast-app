@@ -18,6 +18,7 @@ declare global {
 
 /**
  * Hook to get PostHog instance for tracking events
+ * @returns PostHog instance for event tracking
  */
 export const usePostHogTracking = () => {
   const posthog = usePostHog();
@@ -26,6 +27,8 @@ export const usePostHogTracking = () => {
 
 /**
  * Track a custom event in PostHog
+ * @param event - The event name to track
+ * @param properties - Optional event properties
  */
 export const trackEvent = (event: string, properties?: Record<string, unknown>) => {
   if (typeof window !== "undefined" && window.posthog) {
@@ -40,6 +43,8 @@ export const trackEvent = (event: string, properties?: Record<string, unknown>) 
 
 /**
  * Track a page view in PostHog
+ * @param url - The URL of the page being viewed
+ * @param title - Optional page title
  */
 export const trackPageView = (url: string, title?: string) => {
   trackEvent("$pageview", {
@@ -50,6 +55,8 @@ export const trackPageView = (url: string, title?: string) => {
 
 /**
  * Track CLI-related events
+ * @param action - The CLI action being tracked
+ * @param properties - Optional event properties
  */
 export const trackCLIEvent = (action: string, properties?: Record<string, unknown>) => {
   trackEvent(`cli_${action}`, {

@@ -102,28 +102,33 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
       transition={{ delay: 0.45 }}
     >
       <CollapsibleSection
-        icon={<FaCode className="text-3xl text-comic-orange" />}
+        icon={<FaCode className="text-3xl text-comic-orange" aria-hidden="true" />}
         title={<h3 className="font-display text-2xl text-comic-orange">FRONTEND STACK</h3>}
         className="bg-comic-green"
+        aria-label="Frontend framework selection section"
       >
         <p className="font-comic text-sm mb-4 text-comic-black/90">
           Choose your frontend architecture - from UI libraries to full-stack frameworks
         </p>
 
         {/* Category Tabs */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4" role="tablist" aria-label="Framework categories">
           {Object.entries(categories).map(([categoryKey, category]) => (
             <button
               key={categoryKey}
               onClick={() => setSelectedCategory(categoryKey as FrameworkCategory)}
-              className={`px-3 py-1.5 text-xs font-comic rounded border-2 border-comic-black transition-colors ${
+              className={`px-3 py-1.5 text-xs font-comic rounded border-2 border-comic-black transition-colors focus:ring-2 focus:ring-comic-orange focus:ring-offset-2 ${
                 selectedCategory === categoryKey
                   ? "bg-comic-yellow text-comic-black"
                   : "bg-comic-white text-comic-black hover:bg-comic-gray/10"
               }`}
               style={{ boxShadow: "1px 1px 0 var(--comic-black)" }}
+              role="tab"
+              aria-selected={selectedCategory === categoryKey}
+              aria-controls={`category-panel-${categoryKey}`}
+              id={`category-tab-${categoryKey}`}
             >
-              <category.icon className="inline mr-1" />
+              <category.icon className="inline mr-1" aria-hidden="true" />
               {category.name}
             </button>
           ))}
@@ -135,7 +140,12 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
         </p>
 
         {/* Framework Grid */}
-        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2">
+        <div
+          className="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 gap-2"
+          role="tabpanel"
+          id={`category-panel-${selectedCategory}`}
+          aria-labelledby={`category-tab-${selectedCategory}`}
+        >
           {categories[selectedCategory].items.map((framework) => {
             const frameworkCategory = Object.entries(categories).find(
               ([key, category]) =>
@@ -157,7 +167,9 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                 <button
                   onClick={() => handleFrameworkSelect(framework.id)}
                   data-active={config.framework === framework.id}
-                  className="filter-btn-comic flex flex-col items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 h-16 sm:h-20 w-full relative"
+                  className="filter-btn-comic flex flex-col items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 h-16 sm:h-20 w-full relative focus:ring-2 focus:ring-comic-orange focus:ring-offset-2"
+                  aria-label={`Select ${framework.name} framework${framework.description ? ": " + framework.description : ""}`}
+                  aria-pressed={config.framework === framework.id}
                 >
                   {selectedCategory === "all" && CategoryIcon && (
                     <div
@@ -166,13 +178,18 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                           ? "bg-comic-black text-comic-white"
                           : "bg-comic-white text-comic-black"
                       }`}
+                      aria-hidden="true"
                     >
-                      <CategoryIcon className="text-[10px]" />
+                      <CategoryIcon className="text-[10px]" aria-hidden="true" />
                     </div>
                   )}
 
                   {framework.icon && (
-                    <BuilderIcon icon={framework.icon} className="text-lg sm:text-2xl" />
+                    <BuilderIcon
+                      icon={framework.icon}
+                      className="text-lg sm:text-2xl"
+                      aria-hidden="true"
+                    />
                   )}
                   <span className="text-[10px] sm:text-xs">{framework.name}</span>
                 </button>
@@ -191,17 +208,21 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
           >
             <div className="border-t-3 border-comic-black/20 pt-4">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-4 h-0.5 bg-comic-black/30"></div>
-                <h4 className="font-display text-lg text-comic-black">
+                <div className="w-4 h-0.5 bg-comic-black/30" aria-hidden="true"></div>
+                <h4 id="vite-ui-library-heading" className="font-display text-lg text-comic-black">
                   Choose UI Library for Vite
                 </h4>
-                <div className="flex-1 h-0.5 bg-comic-black/30"></div>
+                <div className="flex-1 h-0.5 bg-comic-black/30" aria-hidden="true"></div>
               </div>
               <p className="font-comic text-xs text-comic-black/70 mb-4">
                 Select which UI library you want to use with Vite
               </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div
+                className="grid grid-cols-2 sm:grid-cols-4 gap-2"
+                role="radiogroup"
+                aria-labelledby="vite-ui-library-heading"
+              >
                 {viteCompatibleLibraries.map((library) => (
                   <ComicTooltip
                     key={`vite-${library.id}`}
@@ -211,15 +232,22 @@ export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setC
                     <button
                       onClick={() => handleViteLibrarySelect(library.id)}
                       data-active={config.framework === "vite" && config.uiFramework === library.id}
-                      className="filter-btn-comic flex flex-col items-center justify-center gap-1 py-2 h-16 w-full text-xs"
+                      className="filter-btn-comic flex flex-col items-center justify-center gap-1 py-2 h-16 w-full text-xs focus:ring-2 focus:ring-comic-orange focus:ring-offset-2"
                       style={{
                         backgroundColor:
                           config.framework === "vite" && config.uiFramework === library.id
                             ? "var(--comic-yellow)"
                             : "var(--comic-white)",
                       }}
+                      role="radio"
+                      aria-checked={
+                        config.framework === "vite" && config.uiFramework === library.id
+                      }
+                      aria-label={`Select ${library.name} UI library for Vite${library.description ? ": " + library.description : ""}`}
                     >
-                      {library.icon && <BuilderIcon icon={library.icon} className="text-lg" />}
+                      {library.icon && (
+                        <BuilderIcon icon={library.icon} className="text-lg" aria-hidden="true" />
+                      )}
                       <span className="text-[10px]">{library.name}</span>
                     </button>
                   </ComicTooltip>

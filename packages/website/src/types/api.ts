@@ -2,6 +2,9 @@
  * API-related types
  */
 
+/**
+ * GitHub repository API response structure
+ */
 export interface GitHubRepoResponse {
   stargazers_count: number;
   forks_count: number;
@@ -15,6 +18,9 @@ export interface GitHubRepoResponse {
   topics: string[];
 }
 
+/**
+ * GitHub contributor data structure
+ */
 export interface GitHubContributor {
   login: string;
   id: number;
@@ -24,6 +30,9 @@ export interface GitHubContributor {
   type: "User" | "Bot";
 }
 
+/**
+ * NPM package registry API response structure
+ */
 export interface NpmPackageResponse {
   name: string;
   version: string;
@@ -41,6 +50,9 @@ export interface NpmPackageResponse {
   };
 }
 
+/**
+ * NPM package version information
+ */
 export interface NpmVersion {
   name: string;
   version: string;
@@ -51,6 +63,9 @@ export interface NpmVersion {
   };
 }
 
+/**
+ * NPM download statistics API response
+ */
 export interface NpmDownloadResponse {
   downloads: number;
   start: string;
@@ -58,6 +73,9 @@ export interface NpmDownloadResponse {
   package: string;
 }
 
+/**
+ * NPM download statistics over a date range
+ */
 export interface NpmDownloadRangeResponse {
   start: string;
   end: string;

@@ -32,7 +32,7 @@ async function readTelemetryConfig(): Promise<TelemetryConfig | null> {
       return JSON.parse(content);
     }
   } catch {
-    // Silently ignore errors
+    // Ignore errors
   }
   return null;
 }

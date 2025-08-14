@@ -10,12 +10,10 @@ export async function setupClaudeIntegration(
   config: ProjectConfig,
   projectPath: string
 ): Promise<void> {
-  // Delegate to the new template-based generator
   await generateClaudeTemplate({
     ...config,
     projectPath,
   });
 }
 
-// Re-export for backward compatibility
 export { generateClaudeTemplate } from "../generators/claude-generator.js";

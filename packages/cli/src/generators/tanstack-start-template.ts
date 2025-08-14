@@ -4,8 +4,6 @@ import { generateBaseTemplate } from "@/generators/base-generator.js";
 
 /**
  * Generate a TanStack Start project template
- * @param config - Project configuration
- * @param projectPath - Path where the project will be created
  */
 export async function generateTanStackStartTemplate(
   config: ProjectConfig,

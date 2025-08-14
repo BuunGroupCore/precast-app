@@ -96,10 +96,8 @@ export async function setupDeploymentConfig(
 
   consola.info(`Setting up ${deployConfig.name} deployment...`);
 
-  // Detect if this is a monorepo structure
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
-  // Determine deployment type
   let deploymentType: "static" | "fullstack" | "api" | "hybrid" = "fullstack";
   if (config.backend === "none" && config.database === "none") {
     deploymentType = "static";
@@ -113,18 +111,15 @@ export async function setupDeploymentConfig(
     deploymentType = "hybrid";
   }
 
-  // Determine the correct deployment path
   let deploymentPath = projectPath;
   let buildCommand = deployConfig.buildCommand || "npm run build";
   let outputDir = deployConfig.outputDir || "dist";
 
   if (isMonorepo) {
-    // For monorepos, deployment configs should go in the web app
     deploymentPath = path.join(projectPath, "apps", "web");
     buildCommand = "npm run build";
     outputDir = "dist";
 
-    // Special handling for Cloudflare Workers backend
     if (config.backend === "cloudflare-workers") {
       // Workers has its own deployment in apps/workers
       consola.info(
@@ -154,7 +149,6 @@ export async function setupDeploymentConfig(
       }
     }
 
-    // Update package.json scripts
     const packageJsonPath = path.join(projectPath, "package.json");
     if (await pathExists(packageJsonPath)) {
       const packageJson = await readJSON(packageJsonPath);
@@ -162,7 +156,6 @@ export async function setupDeploymentConfig(
       if (!packageJson.scripts) packageJson.scripts = {};
 
       if (isMonorepo) {
-        // For monorepos, add deployment scripts that work from the root
         switch (config.deploymentMethod) {
           case "cloudflare-pages":
             packageJson.scripts["deploy:web"] = "cd apps/web && wrangler pages deploy dist";
@@ -192,7 +185,6 @@ export async function setupDeploymentConfig(
             break;
         }
       } else {
-        // For single apps, use simple deployment scripts
         switch (config.deploymentMethod) {
           case "cloudflare-pages":
             packageJson.scripts.deploy = "wrangler pages deploy dist";

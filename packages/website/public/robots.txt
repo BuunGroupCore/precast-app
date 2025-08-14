@@ -1,6 +1,6 @@
 # Robots.txt for Precast.dev
 # https://precast.dev
-# Last updated: 2025-08-13
+# Last updated: 2025-08-14
 
 # Allow all crawlers
 User-agent: *

@@ -40,6 +40,7 @@ import {
  * Service information database.
  * Contains detailed metadata about all available technologies.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const serviceInfo = {
   react: {
     name: "React",
@@ -366,7 +367,7 @@ export function ServiceTooltip({
   delay = 300,
 }: ServiceTooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [timeoutId, setTimeoutId] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   const service = serviceInfo[serviceId];
   if (!service) return <>{children}</>;
@@ -519,6 +520,7 @@ export function ServiceTooltip({
  * Higher-Order Component for wrapping service buttons with tooltip functionality.
  * Automatically adds tooltip when serviceId prop is provided.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function withServiceTooltip<T extends { serviceId?: string }>(
   Component: React.ComponentType<T>,
   defaultPlacement: "top" | "bottom" | "left" | "right" = "top"

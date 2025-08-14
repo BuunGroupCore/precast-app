@@ -43,25 +43,170 @@ export async function setupPowerUps(
   powerUpIds: string[],
   typescript: boolean = true
 ): Promise<void> {
-  const config: ProjectConfig = {
-    name: path.basename(projectPath),
-    framework: framework as any,
-    backend: "none",
-    database: "none",
-    orm: "none",
-    styling: "css",
-    typescript,
-    git: false,
-    gitignore: false,
-    eslint: false,
-    prettier: false,
-    docker: false,
-    packageManager: "npm",
-    projectPath,
-    language: typescript ? "typescript" : "javascript",
-  };
+  if (!powerUpIds || powerUpIds.length === 0) {
+    return;
+  }
 
-  return setupPowerUpsWithConfig(config, projectPath, powerUpIds);
+  consola.info(`🚀 Setting up powerups: ${powerUpIds.join(", ")}...`);
+
+  try {
+    // Check if it's a monorepo by looking for apps directory
+    const isMonorepo = await pathExists(path.join(projectPath, "apps"));
+    const targetPath = isMonorepo ? path.join(projectPath, "apps", "web") : projectPath;
+
+    // Collect all dependencies and configurations
+    const allDependencies: Set<string> = new Set();
+    const allDevDependencies: Set<string> = new Set();
+    const allEnvVariables: Record<string, string> = {};
+    const allScripts: Record<string, string> = {};
+    const allPackageJsonConfigs: Record<string, any> = {};
+
+    for (const powerUpId of powerUpIds) {
+      const powerUpConfig = await loadPowerUpConfig(powerUpId);
+
+      if (!powerUpConfig) {
+        consola.warn(`PowerUp configuration not found for: ${powerUpId}`);
+        continue;
+      }
+
+      consola.info(`Setting up ${powerUpConfig.name}...`);
+
+      // Process dependencies
+      const deps =
+        powerUpConfig.dependencies?.[framework] || powerUpConfig.dependencies?.["*"] || [];
+      const devDeps =
+        powerUpConfig.devDependencies?.[framework] || powerUpConfig.devDependencies?.["*"] || [];
+
+      deps.forEach((dep) => allDependencies.add(dep));
+      devDeps.forEach((dep) => allDevDependencies.add(dep));
+
+      // Process environment variables
+      if (powerUpConfig.envVariables) {
+        Object.assign(allEnvVariables, powerUpConfig.envVariables);
+      }
+
+      // Process scripts
+      if (powerUpConfig.scripts) {
+        Object.assign(allScripts, powerUpConfig.scripts);
+      }
+
+      // Process package.json configurations
+      if (powerUpConfig.packageJsonConfig) {
+        Object.assign(allPackageJsonConfigs, powerUpConfig.packageJsonConfig);
+      }
+
+      // Process setup files
+      const backend = isMonorepo ? "express" : "none"; // Infer backend from monorepo status
+      const projectRootPath = isMonorepo ? projectPath : undefined;
+      await setupPowerUpFiles(
+        powerUpConfig,
+        targetPath,
+        framework,
+        typescript,
+        backend,
+        projectRootPath
+      );
+
+      // For Docker-based powerups, also create .env file in their docker directories
+      if (powerUpId === "ngrok" || powerUpId === "traefik") {
+        const dockerEnvPath = isMonorepo
+          ? path.join(projectPath, "docker", powerUpId)
+          : path.join(targetPath, "docker", powerUpId);
+
+        if (await pathExists(dockerEnvPath)) {
+          const dockerEnvFile = path.join(dockerEnvPath, ".env");
+          const envContent: string[] = [];
+
+          if (powerUpConfig.envVariables) {
+            for (const [key, value] of Object.entries(powerUpConfig.envVariables)) {
+              // Check for both NGROK_AUTHTOKEN and NGROK_AUTH_TOKEN variants
+              let systemValue = process.env[key];
+              if (!systemValue && key === "NGROK_AUTHTOKEN") {
+                systemValue = process.env["NGROK_AUTH_TOKEN"];
+              } else if (!systemValue && key === "NGROK_AUTH_TOKEN") {
+                systemValue = process.env["NGROK_AUTHTOKEN"];
+              }
+
+              const envValue = systemValue || value;
+              envContent.push(`${key}=${envValue}`);
+              if (systemValue) {
+                consola.info(`Using system ${key} for ${powerUpId}`);
+              }
+            }
+          }
+
+          if (envContent.length > 0) {
+            await writeFile(dockerEnvFile, envContent.join("\n"));
+            consola.success(`Created ${powerUpId} .env with environment variables`);
+          }
+        }
+      }
+
+      // Run special setup for specific powerups
+      const config: ProjectConfig = {
+        name: path.basename(projectPath),
+        framework: framework as any,
+        backend: isMonorepo ? "express" : "none", // Assume express if monorepo for now
+        database: "none",
+        orm: "none",
+        styling: "css",
+        typescript,
+        git: false,
+        gitignore: false,
+        eslint: false,
+        prettier: false,
+        docker: true,
+        packageManager: "npm",
+        projectPath,
+        language: typescript ? "typescript" : "javascript",
+      };
+      await runSpecialSetup(powerUpId, targetPath, config);
+    }
+
+    // Install dependencies
+    if (allDependencies.size > 0) {
+      consola.info("📦 Installing powerup dependencies...");
+      await installDependencies(Array.from(allDependencies), {
+        packageManager: "npm",
+        projectPath: targetPath,
+        dev: false,
+        context: "powerups",
+      });
+    }
+
+    if (allDevDependencies.size > 0) {
+      consola.info("📦 Installing powerup dev dependencies...");
+      await installDependencies(Array.from(allDevDependencies), {
+        packageManager: "npm",
+        projectPath: targetPath,
+        dev: true,
+        context: "powerups_dev",
+      });
+    }
+
+    // Update environment variables
+    if (Object.keys(allEnvVariables).length > 0) {
+      await updateEnvFile(targetPath, allEnvVariables);
+    }
+
+    // Update package.json scripts - for monorepos, update root package.json for docker scripts
+    if (Object.keys(allScripts).length > 0) {
+      const projectName = path.basename(projectPath);
+      // For monorepo, put docker-related scripts in root package.json
+      const scriptsPath = isMonorepo ? projectPath : targetPath;
+      await updatePackageJsonScripts(scriptsPath, allScripts, projectName);
+    }
+
+    // Update package.json configurations
+    if (Object.keys(allPackageJsonConfigs).length > 0) {
+      await updatePackageJsonConfig(targetPath, allPackageJsonConfigs);
+    }
+
+    consola.success("✅ PowerUps setup completed!");
+  } catch (error) {
+    consola.error("Failed to setup powerups:", error);
+    throw error;
+  }
 }
 
 /**
@@ -128,7 +273,50 @@ export async function setupPowerUpsWithConfig(
       }
 
       // Process setup files
-      await setupPowerUpFiles(powerUpConfig, targetPath, framework, config.typescript ?? true);
+      const projectRootPath = isMonorepo ? projectPath : undefined;
+      await setupPowerUpFiles(
+        powerUpConfig,
+        targetPath,
+        framework,
+        config.typescript ?? true,
+        config.backend,
+        projectRootPath
+      );
+
+      // For Docker-based powerups, also create .env file in their docker directories
+      if (powerUpId === "ngrok" || powerUpId === "traefik") {
+        const dockerEnvPath = isMonorepo
+          ? path.join(projectPath, "docker", powerUpId)
+          : path.join(targetPath, "docker", powerUpId);
+
+        if (await pathExists(dockerEnvPath)) {
+          const dockerEnvFile = path.join(dockerEnvPath, ".env");
+          const envContent: string[] = [];
+
+          if (powerUpConfig.envVariables) {
+            for (const [key, value] of Object.entries(powerUpConfig.envVariables)) {
+              // Check for both NGROK_AUTHTOKEN and NGROK_AUTH_TOKEN variants
+              let systemValue = process.env[key];
+              if (!systemValue && key === "NGROK_AUTHTOKEN") {
+                systemValue = process.env["NGROK_AUTH_TOKEN"];
+              } else if (!systemValue && key === "NGROK_AUTH_TOKEN") {
+                systemValue = process.env["NGROK_AUTHTOKEN"];
+              }
+
+              const envValue = systemValue || value;
+              envContent.push(`${key}=${envValue}`);
+              if (systemValue) {
+                consola.info(`Using system ${key} for ${powerUpId}`);
+              }
+            }
+          }
+
+          if (envContent.length > 0) {
+            await writeFile(dockerEnvFile, envContent.join("\n"));
+            consola.success(`Created ${powerUpId} .env with environment variables`);
+          }
+        }
+      }
 
       // Run special setup for specific powerups
       await runSpecialSetup(powerUpId, targetPath, config);
@@ -160,9 +348,12 @@ export async function setupPowerUpsWithConfig(
       await updateEnvFile(targetPath, allEnvVariables);
     }
 
-    // Update package.json scripts
+    // Update package.json scripts - for monorepos, update root package.json for docker scripts
     if (Object.keys(allScripts).length > 0) {
-      await updatePackageJsonScripts(targetPath, allScripts);
+      const projectName = path.basename(projectPath);
+      // For monorepo, put docker-related scripts in root package.json
+      const scriptsPath = isMonorepo ? projectPath : targetPath;
+      await updatePackageJsonScripts(scriptsPath, allScripts, projectName);
     }
 
     // Update package.json configurations
@@ -208,7 +399,9 @@ async function setupPowerUpFiles(
   powerUpConfig: PowerUpConfig,
   targetPath: string,
   framework: string,
-  typescript: boolean
+  typescript: boolean,
+  backend?: string,
+  projectRootPath?: string
 ): Promise<void> {
   if (!powerUpConfig.setupFiles) return;
 
@@ -267,21 +460,38 @@ async function setupPowerUpFiles(
 
     // Process template with Handlebars
     const template = Handlebars.compile(templateContent);
+
+    // Get the actual project name (for monorepos, go up to find the root)
+    const projectName = targetPath.includes("/apps/")
+      ? path.basename(path.dirname(path.dirname(targetPath)))
+      : path.basename(targetPath);
+
     const content = template({
       typescript,
       framework,
-      projectName: path.basename(targetPath),
+      backend: backend || "none",
+      projectName,
+      name: projectName, // Add 'name' for backward compatibility with templates
       nodeEnv: process.env.NODE_ENV || "development",
     });
 
-    // Determine output path
-    let outputPath = path.join(targetPath, file.output);
+    // Determine output path - use project root for docker-related files in monorepos
+    let basePath = targetPath;
 
-    // Adjust file extension for TypeScript/JavaScript
-    if (!typescript && outputPath.endsWith(".ts")) {
-      outputPath = outputPath.replace(/\.ts$/, ".js");
-    } else if (typescript && outputPath.endsWith(".js") && !outputPath.includes("config")) {
-      outputPath = outputPath.replace(/\.js$/, ".ts");
+    // For monorepo projects, put docker files at the root level
+    if (projectRootPath && file.output.startsWith("docker/")) {
+      basePath = projectRootPath;
+    }
+
+    let outputPath = path.join(basePath, file.output);
+
+    // Adjust file extension for TypeScript/JavaScript (but not for docker/config files)
+    if (!file.output.startsWith("docker/")) {
+      if (!typescript && outputPath.endsWith(".ts")) {
+        outputPath = outputPath.replace(/\.ts$/, ".js");
+      } else if (typescript && outputPath.endsWith(".js") && !outputPath.includes("config")) {
+        outputPath = outputPath.replace(/\.js$/, ".ts");
+      }
     }
 
     // Ensure directory exists
@@ -318,7 +528,22 @@ async function updateEnvFile(
           lines.push("\n# PowerUp Environment Variables");
           hasSection = true;
         }
-        lines.push(`${key}=${value}`);
+        // Check if the environment variable exists in the system
+        // Also check for NGROK_AUTHTOKEN vs NGROK_AUTH_TOKEN variants
+        let systemValue = process.env[key];
+        if (!systemValue && key === "NGROK_AUTHTOKEN") {
+          systemValue = process.env["NGROK_AUTH_TOKEN"];
+        } else if (!systemValue && key === "NGROK_AUTH_TOKEN") {
+          systemValue = process.env["NGROK_AUTHTOKEN"];
+        }
+
+        const envValue = systemValue || value;
+        lines.push(`${key}=${envValue}`);
+
+        // Log if we're using a system value
+        if (systemValue && filePath.endsWith(".env")) {
+          consola.info(`Using system environment variable for ${key}`);
+        }
       }
     }
 
@@ -338,7 +563,8 @@ async function updateEnvFile(
  */
 async function updatePackageJsonScripts(
   projectPath: string,
-  scripts: Record<string, string>
+  scripts: Record<string, string>,
+  projectName?: string
 ): Promise<void> {
   const packageJsonPath = path.join(projectPath, "package.json");
 
@@ -350,9 +576,14 @@ async function updatePackageJsonScripts(
   const packageJson = await readJson(packageJsonPath);
   packageJson.scripts = packageJson.scripts || {};
 
+  // Get the project name from package.json if not provided
+  const name = projectName || packageJson.name || path.basename(projectPath);
+
   for (const [key, value] of Object.entries(scripts)) {
     if (!packageJson.scripts[key]) {
-      packageJson.scripts[key] = value;
+      // Replace $(npm config get name) with the actual project name
+      const processedValue = value.replace(/\$\(npm config get name\)/g, name);
+      packageJson.scripts[key] = processedValue;
     }
   }
 
@@ -404,18 +635,18 @@ async function runSpecialSetup(
     case "eslint":
       await setupESLint(targetPath, config);
       break;
-    case "traefik":
+    case "ngrok":
+      await setupNgrokViteConfig(targetPath, config);
+      break;
+    case "traefik": {
       // Traefik requires Docker to be enabled
       if (!config.docker) {
         consola.warn("⚠️  Traefik requires Docker. Enabling Docker automatically...");
         config.docker = true;
       }
 
-      // Detect if monorepo or single repo
-      const projectRoot =
-        config.backend && config.backend !== "none" && config.backend !== "next-api"
-          ? path.dirname(path.dirname(targetPath)) // Go up to monorepo root
-          : targetPath;
+      // Setup traefik environment configuration
+      await setupTraefikEnvironment(targetPath, config);
 
       // Get framework-specific default ports
       const getFrameworkPort = (framework: string): number => {
@@ -468,6 +699,7 @@ async function runSpecialSetup(
       }
       consola.info("   5. View Traefik dashboard at http://traefik.localhost:8080 (admin/admin)");
       break;
+    }
     // Add more special setups as needed
   }
 }
@@ -512,6 +744,272 @@ async function setupPrettier(_projectPath: string, _config: ProjectConfig): Prom
 async function setupESLint(_projectPath: string, _config: ProjectConfig): Promise<void> {
   // Additional ESLint setup if needed
   consola.success("ESLint configuration added");
+}
+
+/**
+ * Setup ngrok Vite configuration to allow ngrok hosts
+ */
+async function setupNgrokViteConfig(projectPath: string, config: ProjectConfig): Promise<void> {
+  // Setup Vite config for frontend
+  await setupNgrokViteAllowedHosts(projectPath, config);
+
+  // Setup CORS for API if it exists
+  await setupNgrokApiCors(projectPath, config);
+}
+
+/**
+ * Setup ngrok allowed hosts in Vite config
+ */
+async function setupNgrokViteAllowedHosts(
+  projectPath: string,
+  config: ProjectConfig
+): Promise<void> {
+  // Only for Vite-based frameworks
+  const viteFrameworks = [
+    "react",
+    "vue",
+    "svelte",
+    "solid",
+    "vite",
+    "react-router",
+    "tanstack-router",
+    "tanstack-start",
+  ];
+  if (!viteFrameworks.includes(config.framework)) {
+    return;
+  }
+
+  // Find vite.config file
+  const viteConfigFiles = [
+    path.join(projectPath, "vite.config.ts"),
+    path.join(projectPath, "vite.config.js"),
+    path.join(projectPath, "vite.config.mjs"),
+  ];
+
+  let viteConfigPath: string | null = null;
+  for (const file of viteConfigFiles) {
+    if (await pathExists(file)) {
+      viteConfigPath = file;
+      break;
+    }
+  }
+
+  if (!viteConfigPath) {
+    consola.warn("Could not find vite.config file to add ngrok allowed hosts");
+    return;
+  }
+
+  // Read the vite config
+  let content = await readFile(viteConfigPath, "utf-8");
+
+  // Check if server.allowedHosts is already configured
+  if (content.includes("allowedHosts") || content.includes("ngrok")) {
+    consola.info("Vite config already has allowedHosts configuration");
+    return;
+  }
+
+  // Add server configuration for ngrok
+  const serverConfig = `  server: {
+    // Allow ngrok tunnels
+    allowedHosts: [
+      "localhost",
+      ".ngrok.app",
+      ".ngrok-free.app",
+      ".ngrok.io"
+    ]
+  },`;
+
+  // Find where to insert the server config
+  // Look for the defineConfig({ ... }) block
+  const defineConfigRegex = /defineConfig\s*\(\s*\{/;
+  const match = content.match(defineConfigRegex);
+
+  if (match && match.index !== undefined) {
+    // Insert after the opening brace of defineConfig
+    const insertPosition = match.index + match[0].length;
+
+    // Check if there are already properties in the config
+    const afterMatch = content.slice(insertPosition).trim();
+    if (afterMatch.startsWith("}")) {
+      // Empty config, just add the server config
+      content =
+        content.slice(0, insertPosition) +
+        "\n" +
+        serverConfig +
+        "\n" +
+        content.slice(insertPosition);
+    } else {
+      // Config has properties, add server config at the beginning
+      content =
+        content.slice(0, insertPosition) +
+        "\n" +
+        serverConfig +
+        "\n" +
+        content.slice(insertPosition);
+    }
+
+    await writeFile(viteConfigPath, content);
+    consola.success("Added ngrok allowed hosts to Vite configuration");
+  } else {
+    consola.warn("Could not find defineConfig in vite.config - manual configuration may be needed");
+  }
+}
+
+/**
+ * Setup ngrok CORS configuration for API server
+ */
+async function setupNgrokApiCors(projectPath: string, config: ProjectConfig): Promise<void> {
+  // Check if this is a monorepo with an API
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  if (!isMonorepo) {
+    return;
+  }
+
+  // Get the API path - in monorepos, it's the root path
+  const apiPath = projectPath.endsWith("/apps/web")
+    ? path.join(projectPath, "..", "..", "apps", "api")
+    : path.join(projectPath, "apps", "api");
+
+  // Find the constants file
+  const constantsFiles = [
+    path.join(apiPath, "src", "config", "constants.ts"),
+    path.join(apiPath, "src", "config", "constants.js"),
+    path.join(apiPath, "src", "constants.ts"),
+    path.join(apiPath, "src", "constants.js"),
+  ];
+
+  let constantsPath: string | null = null;
+  for (const file of constantsFiles) {
+    if (await pathExists(file)) {
+      constantsPath = file;
+      break;
+    }
+  }
+
+  if (!constantsPath) {
+    consola.warn("Could not find API constants file to update CORS configuration");
+    return;
+  }
+
+  // Read the constants file
+  let content = await readFile(constantsPath, "utf-8");
+
+  // Check if ngrok is already in CORS
+  if (content.includes("ngrok")) {
+    consola.info("API CORS already configured for ngrok");
+    return;
+  }
+
+  // Add ngrok domains to CORS origin array
+  const ngrokOrigins = `      // Allow ngrok tunnels
+      "https://*.ngrok.app",
+      "https://*.ngrok-free.app", 
+      "https://*.ngrok.io",`;
+
+  // Find the CORS_CONFIG origin array
+  const corsRegex = /origin:.*?\[([^\]]*)\]/s;
+  const match = content.match(corsRegex);
+
+  if (match && match.index !== undefined) {
+    // Insert ngrok origins into the existing array
+    const insertPosition = match.index + match[0].indexOf("[") + 1;
+
+    // Add ngrok origins after the opening bracket
+    content =
+      content.slice(0, insertPosition) + "\n" + ngrokOrigins + content.slice(insertPosition);
+
+    await writeFile(constantsPath, content);
+    consola.success("Added ngrok origins to API CORS configuration");
+  } else {
+    consola.warn("Could not find CORS_CONFIG origin array - manual configuration may be needed");
+  }
+}
+
+/**
+ * Setup traefik environment configuration
+ */
+async function setupTraefikEnvironment(projectPath: string, config: ProjectConfig): Promise<void> {
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
+  // Update frontend environment to use traefik routes
+  if (isMonorepo) {
+    // Get the actual project root (go up from apps/web if needed)
+    const projectRoot = projectPath.endsWith("/apps/web")
+      ? path.dirname(path.dirname(projectPath))
+      : projectPath;
+
+    // Update frontend .env files
+    const frontendEnvFiles = [
+      path.join(projectRoot, "apps", "web", ".env"),
+      path.join(projectRoot, "apps", "web", ".env.local"),
+      path.join(projectRoot, "apps", "web", ".env.example"),
+    ];
+
+    for (const envFile of frontendEnvFiles) {
+      if (await pathExists(envFile)) {
+        let content = await readFile(envFile, "utf-8");
+
+        // Check if we already have traefik config
+        if (content.includes("# Traefik Configuration")) {
+          continue;
+        }
+
+        // Add traefik configuration section
+        const traefikConfig = `
+# Traefik Configuration
+# When using traefik, uncomment the line below and comment the localhost version
+# VITE_API_URL=http://api.localhost
+# Default (without traefik):
+VITE_API_URL=http://localhost:3001
+`;
+
+        // Replace existing API_URL or append if not found
+        if (content.includes("VITE_API_URL")) {
+          content = content.replace(/VITE_API_URL=.*/, traefikConfig.trim());
+        } else {
+          content += "\n" + traefikConfig;
+        }
+
+        await writeFile(envFile, content);
+        consola.success(`Updated ${path.basename(envFile)} with traefik configuration`);
+      }
+    }
+
+    // Update backend .env files for Docker database connections
+    if (config.database === "postgres") {
+      const backendEnvFiles = [
+        path.join(projectRoot, "apps", "api", ".env"),
+        path.join(projectRoot, "apps", "api", ".env.example"),
+      ];
+
+      for (const envFile of backendEnvFiles) {
+        if (await pathExists(envFile)) {
+          let content = await readFile(envFile, "utf-8");
+
+          // Check if we already have Docker config
+          if (content.includes("# Docker Configuration")) {
+            continue;
+          }
+
+          // Add Docker database configuration
+          const dockerConfig = `
+# Docker Configuration
+# When running with Docker Compose, use the container name for the database host:
+# DATABASE_URL=postgresql://postgres:postgres@${config.name}-postgres:5432/${config.name}
+# Default (for local development without Docker):
+`;
+
+          // Insert before the DATABASE_URL line
+          if (content.includes("DATABASE_URL")) {
+            content = content.replace(/(DATABASE_URL=.*)/, dockerConfig.trim() + "\n$1");
+          }
+
+          await writeFile(envFile, content);
+          consola.success(`Updated ${path.basename(envFile)} with Docker database configuration`);
+        }
+      }
+    }
+  }
 }
 
 /**

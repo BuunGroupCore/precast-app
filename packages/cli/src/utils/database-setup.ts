@@ -1,7 +1,6 @@
 import * as path from "path";
 import { fileURLToPath } from "url";
 
-// eslint-disable-next-line no-restricted-imports
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
 
@@ -9,9 +8,9 @@ const { copy, ensureDir, pathExists, readdir, readFile, stat, writeFile } = fsEx
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
-import { installDependencies } from "./package-manager.js";
-import { logger } from "./logger.js";
 import { errorCollector } from "./error-collector.js";
+import { logger } from "./logger.js";
+import { installDependencies } from "./package-manager.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -204,6 +203,16 @@ async function setupORM(
       const rendered = template(context);
       await writeFile(path.join(drizzleDir, "index.ts"), rendered);
       logger.verbose("Created Drizzle connection");
+    }
+
+    // Generate drizzle.config.ts
+    const configTemplatePath = path.join(templateDir, "..", "..", "drizzle", "config.ts.hbs");
+    if (await pathExists(configTemplatePath)) {
+      const content = await readFile(configTemplatePath, "utf-8");
+      const template = Handlebars.compile(content);
+      const rendered = template(context);
+      await writeFile(path.join(targetPath, "drizzle.config.ts"), rendered);
+      logger.verbose("Created drizzle.config.ts");
     }
   }
 }

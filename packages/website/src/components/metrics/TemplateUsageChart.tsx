@@ -13,7 +13,8 @@ import {
 
 import { useTemplateMetrics } from "../../hooks/usePrecastAPI";
 
-interface TemplateUsageChartProps {}
+// No props needed for this component
+type TemplateUsageChartProps = Record<string, never>;
 
 // Template colors for variety
 const TEMPLATE_COLORS = [

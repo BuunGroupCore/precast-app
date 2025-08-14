@@ -8,7 +8,9 @@ import {
   SiPrisma,
   SiRedis,
   SiSupabase,
-  SiStripe
+  SiStripe,
+  SiCloudflare,
+  SiNgrok
 } from 'react-icons/si';
 import { 
   Server, 
@@ -20,7 +22,10 @@ import {
   Terminal,
   AlertTriangle,
   Shield,
-  User
+  User,
+  Route,
+  Globe,
+  Network
 } from 'lucide-react';
 
 interface TestResult {
@@ -35,6 +40,16 @@ interface SystemInfo {
   environment: string;
   apiPort?: number;
   dbPort?: number;
+}
+
+interface PrecastConfig {
+  framework?: string;
+  backend?: string;
+  database?: string;
+  orm?: string;
+  docker?: boolean;
+  powerups?: string[];
+  [key: string]: unknown;
 }
 
 interface Service {
@@ -81,6 +96,7 @@ export function PrecastWidget() {
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
+  const [precastConfig, setPrecastConfig] = useState<PrecastConfig | null>(null);
 
   {{#if authProvider}}
   // Auth testing state (must be at top level)
@@ -121,58 +137,182 @@ export function PrecastWidget() {
       api: <Activity {...iconProps} />,
       auth: <Shield {...iconProps} />,
       user: <User {...iconProps} />,
+      traefik: <Route {...iconProps} />,
+      ngrok: <Globe {...iconProps} />,
+      "cloudflare-tunnel": <SiCloudflare {...iconProps} />,
+      cloudflare: <SiCloudflare {...iconProps} />,
+      network: <Network {...iconProps} />,
+      tunnel: <Globe {...iconProps} />,
+      proxy: <Route {...iconProps} />,
     };
     return iconMap[service.toLowerCase()] || <Layers {...iconProps} />;
   };
 
-  // Dynamically build services based on what's configured
-  const buildServices = () => {
+  // Use useMemo to rebuild services when precastConfig changes
+  const services = React.useMemo(() => {
+    // Dynamically build services based on what's configured
     const detectedServices: Record<string, Service> = {};
-    
+
     {{#if backend}}
     // API service
     const apiUrl = getApiUrl();
     if (apiUrl) {
       detectedServices.api = {
         name: "API",
-        type: "{{backend}}",
+        type: precastConfig?.backend || "{{backend}}",
         port: apiUrl.includes(":") ? parseInt(apiUrl.split(":").pop() || "3001") : 3001,
         icon: "server",
-        testEndpoint: "/health"
+        testEndpoint: "/health",
       };
     }
     {{/if}}
-    
+
     {{#if database}}
     // Database service
-    detectedServices.database = {
-      name: "DATABASE",
-      type: "{{database}}",
-      port: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}},
-      icon: "{{database}}",
-      testEndpoint: "/health/database"
-    };
+    if (precastConfig?.database && precastConfig.database !== "none") {
+      detectedServices.database = {
+        name: "DATABASE",
+        type: precastConfig.database,
+        port: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}},
+        icon: precastConfig.database,
+        testEndpoint: "/health/database",
+      };
+    }
+    {{else}}
+    // Fallback database service when no database is configured
+    if (precastConfig?.database && precastConfig.database !== "none") {
+      detectedServices.database = {
+        name: "DATABASE",
+        type: precastConfig.database,
+        port: 5432,
+        icon: precastConfig.database,
+        testEndpoint: "/health/database",
+      };
+    }
     {{/if}}
-    
+
     {{#if docker}}
-    // Docker services
-    detectedServices.docker = {
-      name: "DOCKER",
-      type: "compose",
-      icon: "docker",
-      containers: [
-        {{#if (eq database 'postgres')}}
-        { name: "postgres:16-alpine", port: 5432, icon: "postgres" },
-        { name: "pgadmin4", port: 5050, icon: "database" }
-        {{else if (eq database 'mysql')}}
-        { name: "mysql:8", port: 3306, icon: "mysql" },
-        { name: "phpmyadmin", port: 8080, icon: "database" }
-        {{else if (eq database 'mongodb')}}
-        { name: "mongodb:7", port: 27017, icon: "mongodb" },
-        { name: "mongo-express", port: 8081, icon: "database" }
-        {{/if}}
-      ]
-    };
+    // Docker services - build containers array based on configuration
+    if (precastConfig?.docker) {
+      const containers: Array<{ name: string; port: number; icon: string }> = [];
+
+      // Add database container
+      if (precastConfig.database && precastConfig.database !== "none") {
+        switch (precastConfig.database) {
+          case "postgres":
+          case "postgresql":
+            containers.push(
+              { name: "postgres:16-alpine", port: 5432, icon: "postgres" },
+              { name: "pgadmin4", port: 5050, icon: "database" }
+            );
+            break;
+          case "mysql":
+            containers.push(
+              { name: "mysql:8", port: 3306, icon: "mysql" },
+              { name: "phpmyadmin", port: 8080, icon: "database" }
+            );
+            break;
+          case "mongodb":
+            containers.push(
+              { name: "mongodb:latest", port: 27017, icon: "mongodb" },
+              { name: "mongo-express", port: 8081, icon: "database" }
+            );
+            break;
+        }
+      }
+
+      // Add powerup containers
+      if (precastConfig.powerups && Array.isArray(precastConfig.powerups)) {
+        precastConfig.powerups.forEach((powerup) => {
+          switch (powerup) {
+            case "traefik":
+              containers.push(
+                { name: "traefik:v3.0", port: 8080, icon: "traefik" },
+                { name: "traefik-proxy", port: 80, icon: "proxy" }
+              );
+              break;
+            case "ngrok":
+              containers.push(
+                { name: "ngrok/ngrok:alpine", port: 4040, icon: "ngrok" }
+              );
+              break;
+            case "cloudflare-tunnel":
+              containers.push(
+                { name: "cloudflare/cloudflared", port: 0, icon: "cloudflare-tunnel" }
+              );
+              break;
+          }
+        });
+      }
+
+      detectedServices.docker = {
+        name: "DOCKER",
+        type: "compose",
+        icon: "docker",
+        containers,
+      };
+    }
+    {{else}}
+    // Fallback Docker service when docker isn't configured but detected in config
+    if (precastConfig?.docker) {
+      const containers: Array<{ name: string; port: number; icon: string }> = [];
+
+      // Add database container
+      if (precastConfig.database && precastConfig.database !== "none") {
+        switch (precastConfig.database) {
+          case "postgres":
+          case "postgresql":
+            containers.push(
+              { name: "postgres:16-alpine", port: 5432, icon: "postgres" },
+              { name: "pgadmin4", port: 5050, icon: "database" }
+            );
+            break;
+          case "mysql":
+            containers.push(
+              { name: "mysql:8", port: 3306, icon: "mysql" },
+              { name: "phpmyadmin", port: 8080, icon: "database" }
+            );
+            break;
+          case "mongodb":
+            containers.push(
+              { name: "mongodb:latest", port: 27017, icon: "mongodb" },
+              { name: "mongo-express", port: 8081, icon: "database" }
+            );
+            break;
+        }
+      }
+
+      // Add powerup containers
+      if (precastConfig.powerups && Array.isArray(precastConfig.powerups)) {
+        precastConfig.powerups.forEach((powerup) => {
+          switch (powerup) {
+            case "traefik":
+              containers.push(
+                { name: "traefik:v3.0", port: 8080, icon: "traefik" },
+                { name: "traefik-proxy", port: 80, icon: "proxy" }
+              );
+              break;
+            case "ngrok":
+              containers.push(
+                { name: "ngrok/ngrok:alpine", port: 4040, icon: "ngrok" }
+              );
+              break;
+            case "cloudflare-tunnel":
+              containers.push(
+                { name: "cloudflare/cloudflared", port: 0, icon: "cloudflare-tunnel" }
+              );
+              break;
+          }
+        });
+      }
+
+      detectedServices.docker = {
+        name: "DOCKER",
+        type: "compose",
+        icon: "docker",
+        containers,
+      };
+    }
     {{/if}}
     
     {{#if (includes plugins 'resend')}}
@@ -201,11 +341,50 @@ export function PrecastWidget() {
       icon: "auth"
     };
     {{/if}}
-    
+
     return detectedServices;
+  }, [precastConfig]);
+
+  const loadPrecastConfig = async () => {
+    try {
+      // Try to fetch precast.jsonc from the project root
+      const response = await fetch("/precast.jsonc");
+      if (response.ok) {
+        // Try to parse as JSON first (most precast.jsonc files are valid JSON)
+        try {
+          const config = await response.json();
+          setPrecastConfig(config);
+        } catch (jsonError) {
+          // If JSON parsing fails, try JSONC parsing
+          const text = await response.text();
+          const cleanJson = text
+            .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
+            .replace(/^\s*\/\/.*$/gm, "") // Remove single-line comments (only at start of line)
+            .replace(/,\s*([}\]])/g, "$1"); // Remove trailing commas
+          
+          const config = JSON.parse(cleanJson);
+          setPrecastConfig(config);
+        }
+      } else {
+        // Fallback to default config if file not found
+        setPrecastConfig({
+          docker: {{#if docker}}true{{else}}false{{/if}},
+          database: "{{database}}",
+          backend: "{{backend}}",
+          powerups: [{{#each powerups}}"{{this}}"{{#unless @last}},{{/unless}}{{/each}}],
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load precast config:", error);
+      // Set a default configuration
+      setPrecastConfig({
+        docker: {{#if docker}}true{{else}}false{{/if}},
+        database: "{{database}}",
+        backend: "{{backend}}",
+        powerups: [{{#each powerups}}"{{this}}"{{#unless @last}},{{/unless}}{{/each}}],
+      });
+    }
   };
-  
-  const services = buildServices();
 
   useEffect(() => {
     // Check if admin panel should be open by default (from localStorage)
@@ -214,23 +393,28 @@ export function PrecastWidget() {
       setIsOpen(true);
     }
 
+    // Load precast configuration
+    loadPrecastConfig();
+
     // Fetch system info
     fetchSystemInfo();
-    
-    {{#if docker}}
-    // Check Docker status on mount if Docker is configured
-    if (services.docker) {
+  }, []);
+
+  // Effect to check Docker status when config is loaded
+  useEffect(() => {
+    if (precastConfig?.docker && services.docker) {
       testDockerHealth();
     }
-    {{/if}}
-    
-    {{#if authProvider}}
-    // Check auth status on mount if auth is configured
-    if (services.auth) {
+  }, [precastConfig]);
+  
+  {{#if authProvider}}
+  // Effect to check auth status when config is loaded
+  useEffect(() => {
+    if (precastConfig && services.auth) {
       testAuthStatus();
     }
-    {{/if}}
-  }, []);
+  }, [precastConfig]);
+  {{/if}}
 
   if (!isDevelopment) {
     return null;
@@ -239,7 +423,20 @@ export function PrecastWidget() {
   const fetchSystemInfo = async () => {
     try {
       const apiUrl = getApiUrl() || "";
+      {{#if (includes powerups "ngrok")}}
+      const headers: HeadersInit = {};
+      
+      // Add ngrok header if using ngrok
+      if (apiUrl.includes('ngrok')) {
+        headers["ngrok-skip-browser-warning"] = "true";
+      }
+      
+      const response = await fetch(`${apiUrl}/api/health`, {
+        headers,
+      });
+      {{else}}
       const response = await fetch(`${apiUrl}/api/health`);
+      {{/if}}
       if (response.ok) {
         const data = await response.json();
         setSystemInfo({
@@ -255,7 +452,7 @@ export function PrecastWidget() {
       setSystemInfo({
         uptime: 0,
         environment: 'development',
-        apiPort: {{#if backend}}3001{{else}}undefined{{/if}},
+        apiPort: {{#if backend}}3001{{else}}0{{/if}},
         dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
       });
     }
@@ -278,11 +475,26 @@ export function PrecastWidget() {
     setLoading((prev) => ({ ...prev, database: true }));
     try {
       const apiUrl = getApiUrl() || "";
+      {{#if (includes powerups "ngrok")}}
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      
+      // Add ngrok header if using ngrok
+      if (apiUrl.includes('ngrok')) {
+        headers["ngrok-skip-browser-warning"] = "true";
+      }
+      
+      const response = await fetch(`${apiUrl}/api/health/database`, {
+        method: "GET",
+        headers,
+        credentials: "include",
+      });
+      {{else}}
       const response = await fetch(`${apiUrl}/api/health/database`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
+      {{/if}}
 
       const data = await response.json();
 
@@ -318,7 +530,20 @@ export function PrecastWidget() {
     setLoading((prev) => ({ ...prev, api: true }));
     try {
       const apiUrl = getApiUrl() || "";
+      {{#if (includes powerups "ngrok")}}
+      const headers: HeadersInit = {};
+      
+      // Add ngrok header if using ngrok
+      if (apiUrl.includes('ngrok')) {
+        headers["ngrok-skip-browser-warning"] = "true";
+      }
+      
+      const response = await fetch(`${apiUrl}/api/health`, {
+        headers,
+      });
+      {{else}}
       const response = await fetch(`${apiUrl}/api/health`);
+      {{/if}}
       const data = await response.json();
 
       if (response.ok) {
@@ -360,11 +585,26 @@ export function PrecastWidget() {
     try {
       // Check if database is accessible (which indicates Docker is running)
       const apiUrl = getApiUrl() || "";
+      {{#if (includes powerups "ngrok")}}
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      
+      // Add ngrok header if using ngrok
+      if (apiUrl.includes('ngrok')) {
+        headers["ngrok-skip-browser-warning"] = "true";
+      }
+      
+      const response = await fetch(`${apiUrl}/api/health/database`, {
+        method: "GET",
+        headers,
+        credentials: "include",
+      });
+      {{else}}
       const response = await fetch(`${apiUrl}/api/health/database`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
+      {{/if}}
 
       if (response.ok) {
         const data = await response.json();
@@ -785,7 +1025,7 @@ export function PrecastWidget() {
                   </button>
                   
                   {isExpanded && (
-                    <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-gray-900 border-2 border-black overflow-hidden rounded{{else}}code-block{{/if}}">
+                    <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-gray-900 border-2 border-black rounded max-h-40 overflow-y-auto{{else}}code-block{{/if}}">
                       <pre className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-green-400 overflow-x-auto max-w-full whitespace-pre-wrap break-all{{else}}json-highlighted{{/if}}">
                         <code 
                           className="language-json"
@@ -816,7 +1056,7 @@ export function PrecastWidget() {
                   )}
                 </div>
               ) : (
-                <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/10 overflow-hidden rounded{{else}}result-json{{/if}}">
+                <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/10 rounded max-h-40 overflow-y-auto{{else}}result-json{{/if}}">
                   <pre className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-black/70 overflow-x-auto max-w-full whitespace-pre-wrap break-all{{else}}json-content{{/if}}">
                     {JSON.stringify(result.details, null, 2)}
                   </pre>
@@ -965,29 +1205,31 @@ export function PrecastWidget() {
                         
                         {/* Test buttons for services that support testing */}
                         {(key === 'database' || key === 'api' || key === 'email' || key === 'docker') && (
-                          <button
-                            onClick={() => {
-                              if (key === 'database') testDatabaseConnection();
-                              else if (key === 'api') testApiHealth();
-                              {{#if docker}}
-                              else if (key === 'docker') testDockerHealth();
-                              {{/if}}
-                              {{#if (includes plugins 'resend')}}
-                              else if (key === 'email') testEmailService();
-                              {{/if}}
-                            }}
-                            disabled={loading[key]}
-                            className="{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-yellow-400 border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn{{/if}}"
-                          >
-                            {loading[key] ? (
-                              <span className="{{#if (eq styling 'tailwind')}}flex items-center justify-center{{else}}loading{{/if}}">
-                                <span className="{{#if (eq styling 'tailwind')}}inline-block w-4 h-4 border-2 border-black border-t-transparent animate-spin mr-2{{else}}spinner{{/if}}"></span>
-                                TESTING...
-                              </span>
-                            ) : (
-                              `RUN ${key === 'database' ? 'CONNECTION' : key === 'api' ? 'HEALTH' : key === 'docker' ? 'DOCKER' : key === 'email' ? 'EMAIL' : 'SERVICE'} TEST`
-                            )}
-                          </button>
+                          <div className="{{#if (eq styling 'tailwind')}}mb-4{{else}}test-btn-container{{/if}}">
+                            <button
+                              onClick={() => {
+                                if (key === 'database') testDatabaseConnection();
+                                else if (key === 'api') testApiHealth();
+                                {{#if docker}}
+                                else if (key === 'docker') testDockerHealth();
+                                {{/if}}
+                                {{#if (includes plugins 'resend')}}
+                                else if (key === 'email') testEmailService();
+                                {{/if}}
+                              }}
+                              disabled={loading[key]}
+                              className="{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-yellow-400 border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn{{/if}}"
+                            >
+                              {loading[key] ? (
+                                <span className="{{#if (eq styling 'tailwind')}}flex items-center justify-center{{else}}loading{{/if}}">
+                                  <span className="{{#if (eq styling 'tailwind')}}inline-block w-4 h-4 border-2 border-black border-t-transparent animate-spin mr-2{{else}}spinner{{/if}}"></span>
+                                  TESTING...
+                                </span>
+                              ) : (
+                                `RUN ${key === 'database' ? 'CONNECTION' : key === 'api' ? 'HEALTH' : key === 'docker' ? 'DOCKER' : key === 'email' ? 'EMAIL' : 'SERVICE'} TEST`
+                              )}
+                            </button>
+                          </div>
                         )}
 
                         {/* Enhanced Auth Testing UI */}
@@ -1080,16 +1322,16 @@ export function PrecastWidget() {
                         
                         {/* Docker containers list */}
                         {key === 'docker' && service.containers && Array.isArray(service.containers) && (
-                          <div className="{{#if (eq styling 'tailwind')}}space-y-2{{else}}containers-list{{/if}}">
+                          <div className="{{#if (eq styling 'tailwind')}}max-h-48 overflow-y-auto space-y-2 border border-black/20 rounded p-2{{else}}containers-list{{/if}}">
                             {(service.containers as Array<{name: string; port: number; icon: string}>).map((container, idx: number) => (
-                              <div key={idx} className="{{#if (eq styling 'tailwind')}}border border-black p-2{{else}}container-item{{/if}}">
+                              <div key={idx} className="{{#if (eq styling 'tailwind')}}border border-black p-2 bg-white{{else}}container-item{{/if}}">
                                 <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between{{else}}container-info{{/if}}">
                                   <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}container-name{{/if}}">
                                     {getServiceIcon(container.icon, 14)}
                                     <span className="{{#if (eq styling 'tailwind')}}text-xs font-mono{{else}}container-text{{/if}}">{container.name}</span>
                                   </div>
-                                  <span className="{{#if (eq styling 'tailwind')}}text-xs font-bold text-black bg-yellow-400 px-2{{else}}container-port{{/if}}">
-                                    {container.port}
+                                  <span className="{{#if (eq styling 'tailwind')}}text-xs font-bold text-black bg-yellow-400 px-2 py-1 border border-black{{else}}container-port{{/if}}">
+                                    {container.port === 0 ? "N/A" : container.port}
                                   </span>
                                 </div>
                               </div>
@@ -1097,7 +1339,9 @@ export function PrecastWidget() {
                           </div>
                         )}
                         
-                        <ResultDisplay service={key} />
+                        <div className="{{#if (eq styling 'tailwind')}}mt-4{{else}}result-display-container{{/if}}">
+                          <ResultDisplay service={key} />
+                        </div>
                       </div>
                     </div>
                   )

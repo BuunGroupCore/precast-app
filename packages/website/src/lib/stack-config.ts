@@ -38,6 +38,10 @@ import { PassportIcon } from "@/components/icons/PassportIcon";
 import { SassIcon } from "@/components/icons/SassIcon";
 import { TanStackIcon } from "@/components/icons/TanStackIcon";
 
+/**
+ * Configuration interface for technology stack options used in the builder.
+ * Defines properties for frameworks, backends, databases, and other stack components.
+ */
 export interface StackOption {
   id: string;
   name: string;

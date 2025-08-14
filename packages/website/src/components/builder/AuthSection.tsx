@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { FaUserShield } from "react-icons/fa";
 
 import { authProviders } from "@/lib/stack-config";
@@ -22,39 +22,42 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
    * @param auth - The auth provider to check
    * @returns true if the auth provider is compatible, false otherwise
    */
-  const isAuthCompatible = (auth: (typeof authProviders)[0]) => {
-    if (config.backend === "cloudflare-workers") {
-      if (auth.id === "better-auth") return false;
-      if (auth.id === "passport") return false;
-    }
+  const isAuthCompatible = useCallback(
+    (auth: (typeof authProviders)[0]) => {
+      if (config.backend === "cloudflare-workers") {
+        if (auth.id === "better-auth") return false;
+        if (auth.id === "passport") return false;
+      }
 
-    const requiresDatabase = ["auth.js", "better-auth", "passport", "lucia"].includes(auth.id);
-    if (requiresDatabase && (!config.database || config.database === "none")) {
-      return false;
-    }
-
-    if (auth.dependencies?.includes("react")) {
-      const frameworkToCheck =
-        config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
-
-      if (!["react", "next", "remix"].includes(frameworkToCheck)) {
+      const requiresDatabase = ["auth.js", "better-auth", "passport", "lucia"].includes(auth.id);
+      if (requiresDatabase && (!config.database || config.database === "none")) {
         return false;
       }
-    }
-    if (
-      auth.dependencies?.includes("node") &&
-      !["node", "express", "fastify", "hono"].includes(config.backend || "")
-    ) {
-      return false;
-    }
-    if (auth.dependencies?.includes("supabase") && config.database !== "supabase") {
-      return false;
-    }
-    if (auth.dependencies?.includes("firebase") && config.database !== "firebase") {
-      return false;
-    }
-    return true;
-  };
+
+      if (auth.dependencies?.includes("react")) {
+        const frameworkToCheck =
+          config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
+
+        if (!["react", "next", "remix"].includes(frameworkToCheck)) {
+          return false;
+        }
+      }
+      if (
+        auth.dependencies?.includes("node") &&
+        !["node", "express", "fastify", "hono"].includes(config.backend || "")
+      ) {
+        return false;
+      }
+      if (auth.dependencies?.includes("supabase") && config.database !== "supabase") {
+        return false;
+      }
+      if (auth.dependencies?.includes("firebase") && config.database !== "firebase") {
+        return false;
+      }
+      return true;
+    },
+    [config.backend, config.database, config.framework, config.uiFramework]
+  );
 
   const availableAuthProviders = authProviders.filter(
     (auth) => !auth.disabled && isAuthCompatible(auth)
@@ -73,8 +76,15 @@ export const AuthSection: React.FC<AuthSectionProps> = ({ config, setConfig }) =
         }));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.framework, config.uiFramework, config.backend, config.database]);
+  }, [
+    config.framework,
+    config.uiFramework,
+    config.backend,
+    config.database,
+    config.auth,
+    isAuthCompatible,
+    setConfig,
+  ]);
 
   return (
     <motion.div

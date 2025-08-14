@@ -1,10 +1,8 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
 
-// eslint-disable-next-line import/no-named-as-default-member
 const { existsSync } = fsExtra;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

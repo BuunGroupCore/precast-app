@@ -6,7 +6,7 @@ interface CommandSyntaxHighlightProps {
 
 export const CommandSyntaxHighlight: React.FC<CommandSyntaxHighlightProps> = ({ command }) => {
   const parseCommand = (cmd: string) => {
-    const segments: JSX.Element[] = [];
+    const segments: React.JSX.Element[] = [];
 
     // Handle multi-word flags like --mcp-servers
     const parts: string[] = [];

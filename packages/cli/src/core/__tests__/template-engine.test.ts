@@ -2,9 +2,9 @@ import os from "os";
 import path from "path";
 
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
-const { mkdtemp, ensureDir, remove, writeFile, readFile, readJSON, pathExists } = fsExtra;
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
+
+const { mkdtemp, ensureDir, remove, writeFile, readFile, readJSON, pathExists } = fsExtra;
 
 import { TemplateEngine } from "../template-engine.js";
 

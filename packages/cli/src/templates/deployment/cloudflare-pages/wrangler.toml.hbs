@@ -1,23 +1,36 @@
-name = "{{projectName}}"
+name = "{{name}}{{#if isMonorepo}}-web{{/if}}"
 compatibility_date = "2023-05-18"
+pages_build_output_dir = "{{deployment.outputDir}}"
+
+# Build configuration
+[build]
+command = "{{deployment.buildCommand}}"
+{{#if isMonorepo}}
+# For monorepo, the wrangler.toml is in apps/web
+# Build output is relative to this location
+{{else}}
+# Single app structure
+{{/if}}
 
 [env.production]
-account_id = "YOUR_ACCOUNT_ID"
-zone_id = "YOUR_ZONE_ID"
-
-[env.production.build]
-command = "{{deployment.buildCommand}}"
-cwd = "."
-
-[env.production.build.upload]
-format = "service-worker"
-
-[[env.production.route]]
-pattern = "{{projectName}}.pages.dev/*"
+# Add your Cloudflare account ID here
+# You can find it in the Cloudflare dashboard
+# account_id = "YOUR_ACCOUNT_ID"
 
 [env.preview]
-account_id = "YOUR_ACCOUNT_ID"
+# Preview deployments configuration
 
-[env.preview.build]
-command = "{{deployment.buildCommand}}"
-cwd = "."
+{{#if (eq deploymentType "fullstack")}}
+# Functions directory for API routes (if using Cloudflare Pages Functions)
+# [build.upload]
+# format = "service-worker"
+
+# [[kv_namespaces]]
+# binding = "KV"
+# id = "YOUR_KV_NAMESPACE_ID"
+{{/if}}
+
+{{#if (eq deploymentType "static")}}
+# Static site configuration
+# No additional configuration needed for static sites
+{{/if}}

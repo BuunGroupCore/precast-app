@@ -53,7 +53,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
         } else {
           dateStr = label.toString();
         }
-      } catch (e) {
+      } catch {
         dateStr = label.toString();
       }
     }

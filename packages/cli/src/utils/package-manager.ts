@@ -1,10 +1,12 @@
 import path from "path";
+
 import { consola } from "consola";
 import { execa } from "execa";
 import fsExtra from "fs-extra";
-import { logger, isVerbose } from "./logger.js";
+
 import { trackError, trackFallback, trackDependencyInstall } from "./analytics.js";
 import { errorCollector } from "./error-collector.js";
+import { logger, isVerbose } from "./logger.js";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
@@ -58,9 +60,10 @@ export const PACKAGE_MANAGERS: Record<PackageManager, PackageManagerConfig> = {
 };
 
 /**
- * Get the configuration for a specific package manager
- * @param packageManager - The package manager name
- * @returns The package manager configuration
+ * Get the configuration for a specific package manager with fallback to npm
+ *
+ * @param packageManager - The package manager identifier
+ * @returns Package manager configuration object
  */
 export function getPackageManagerConfig(packageManager: string): PackageManagerConfig {
   const pm = packageManager as PackageManager;
@@ -73,8 +76,10 @@ export function getPackageManagerConfig(packageManager: string): PackageManagerC
 }
 
 /**
- * Detect which package manager to use based on lock files and availability
- * @returns The detected package manager
+ * Detect which package manager to use based on existing lock files and system availability.
+ * Checks for lock files first, then falls back to available package managers.
+ *
+ * @returns The detected package manager identifier
  */
 export async function detectPackageManager(): Promise<PackageManager> {
   const fs = await import("fs-extra");
@@ -89,10 +94,11 @@ export async function detectPackageManager(): Promise<PackageManager> {
 }
 
 /**
- * Detect which package manager is available on the system (ignoring lock files)
- * This is useful for initial project creation where we shouldn't be influenced
- * by parent directory lock files
- * @returns The detected package manager
+ * Detect which package manager is available on the system (ignoring lock files).
+ * Used for initial project creation where parent directory lock files shouldn't influence the choice.
+ * Prefers newer package managers: bun > pnpm > yarn > npm.
+ *
+ * @returns The first available package manager, defaulting to npm
  */
 export async function detectAvailablePackageManager(): Promise<PackageManager> {
   // Check which package managers are available, preferring bun
@@ -383,7 +389,7 @@ export async function installAllDependencies(options: {
           installArgs.push("--ignore-workspace");
           consola.info("💡 Using --ignore-workspace flag as project is inside a pnpm workspace");
         }
-      } catch (_error) {
+      } catch {
         // Ignore errors when checking for workspace file
       }
     }

@@ -4,6 +4,13 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+{{#if (includes powerups "ngrok")}}
+  server: {
+    host: '0.0.0.0', // Listen on all interfaces for Docker/ngrok access
+    // Allow ngrok tunnels
+    allowedHosts: ["localhost", ".ngrok.app", ".ngrok-free.app", ".ngrok.io"],
+  },
+{{/if}}
   plugins: [react()],
   resolve: {
     alias: {

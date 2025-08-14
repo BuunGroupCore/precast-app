@@ -18,7 +18,6 @@ import { isValidAIAssistant } from "../prompts/ai-assistant.js";
 import { gatherProjectConfigWithNavigation } from "../prompts/config-prompts-with-navigation.js";
 import { gatherProjectConfig } from "../prompts/config-prompts.js";
 import { trackProjectCreation, displayTelemetryNotice } from "../utils/analytics.js";
-import { errorCollector } from "../utils/error-collector.js";
 import { setupApiClient } from "../utils/api-client-setup.js";
 import {
   theme,
@@ -28,6 +27,7 @@ import {
   divider,
 } from "../utils/cli-theme.js";
 import { UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
+import { errorCollector } from "../utils/error-collector.js";
 import { InteractiveTaskRunner, debugLog } from "../utils/interactive-ui.js";
 import {
   detectPackageManager,
@@ -38,8 +38,6 @@ import { runSecurityAudit } from "../utils/security-audit.js";
 import { setupUILibrary } from "../utils/ui-library-setup.js";
 import { addSecurityOverridesToProject } from "../utils/update-dependencies.js";
 
-/** File system utilities */
-// eslint-disable-next-line import/no-named-as-default-member
 const { pathExists, readdir, ensureDir } = fsExtra;
 
 /**
@@ -73,6 +71,8 @@ export interface InitOptions {
   powerups?: string[];
   plugins?: string[];
   colorPalette?: string;
+  deployment?: string;
+  autoDeploy?: boolean;
   debug?: boolean;
   debugAnalytics?: boolean;
   verbose?: boolean;
@@ -507,6 +507,23 @@ export async function initCommand(projectName: string | undefined, options: Init
       });
     }
 
+    // Deployment setup stage if needed
+    if (config.deploymentMethod && config.deploymentMethod !== "none") {
+      tasks.push({
+        id: "deployment-setup",
+        title: "Deployment Configuration",
+        status: "pending",
+        isStage: true,
+        subtasks: [
+          {
+            id: "deployment",
+            title: `Setting up ${config.deploymentMethod} deployment`,
+            status: "pending",
+          },
+        ],
+      });
+    }
+
     // Dependencies stage
     if (options.install || config.autoInstall) {
       tasks.push({
@@ -659,8 +676,30 @@ export async function initCommand(projectName: string | undefined, options: Init
     // Docker setup stage
     if (config.docker) {
       await taskRunner.runTask("docker", async () => {
-        debugLog("Setting up Docker configuration");
-        // Docker setup is handled in template generation
+        debugLog("Setting up Docker configuration and auto-deploy script");
+        const { setupDockerAutoDeploy } = await import("../utils/docker-auto-deploy-setup.js");
+        const { createTemplateEngine } = await import("../core/template-engine.js");
+        const { getTemplateRoot } = await import("../utils/template-path.js");
+
+        const templateRoot = getTemplateRoot();
+        const templateEngine = createTemplateEngine(templateRoot);
+
+        // Setup Docker auto-deploy script
+        await setupDockerAutoDeploy(config, projectPath, templateEngine, options.autoDeploy);
+      });
+    }
+
+    // Deployment setup stage
+    if (config.deploymentMethod && config.deploymentMethod !== "none") {
+      await taskRunner.runTask("deployment", async () => {
+        debugLog(`Setting up ${config.deploymentMethod} deployment`);
+        const { setupDeploymentConfig } = await import("../utils/deployment-setup.js");
+        const { createTemplateEngine } = await import("../core/template-engine.js");
+        const { getTemplateRoot } = await import("../utils/template-path.js");
+
+        const templateRoot = getTemplateRoot();
+        const templateEngine = createTemplateEngine(templateRoot);
+        await setupDeploymentConfig(config, projectPath, templateEngine);
       });
     }
 
@@ -872,7 +911,7 @@ export async function initCommand(projectName: string | undefined, options: Init
           "",
         ];
 
-        warnings.forEach((warn, index) => {
+        warnings.forEach((warn) => {
           warningLines.push(`${theme.accent("▸")} ${warn.task}: ${warn.error.split("\n")[0]}`);
         });
 
@@ -950,9 +989,9 @@ export async function initCommand(projectName: string | undefined, options: Init
     // Add Docker commands if Docker is configured
     if (config.docker) {
       commands.push(`# Start Docker services`);
+      commands.push(`npx create-precast-app@latest deploy`);
+      commands.push(`# Or use the npm script:`);
       commands.push(`${config.packageManager} run docker:up`);
-      commands.push(`# Or alternatively:`);
-      commands.push(`docker compose -f docker/${config.database}/docker-compose.yml up -d`);
     }
 
     // Add dev command
@@ -1035,7 +1074,10 @@ export async function initCommand(projectName: string | undefined, options: Init
 }
 
 /**
- * Initialize a git repository
+ * Initialize a git repository in the project directory.
+ * Sets up git configuration and creates an initial commit.
+ *
+ * @param projectPath - Path to the project directory
  */
 async function initializeGit(projectPath: string) {
   await execa("git", ["init"], { cwd: projectPath, stdio: "pipe" });

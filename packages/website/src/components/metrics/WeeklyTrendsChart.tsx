@@ -15,7 +15,8 @@ import {
 
 import { usePrecastAnalytics } from "../../hooks/usePrecastAPI";
 
-interface WeeklyTrendsChartProps {}
+// No props needed for this component
+type WeeklyTrendsChartProps = Record<string, never>;
 
 type MetricType = "all" | "frameworks" | "features" | "success";
 

@@ -468,7 +468,7 @@ function useAnalyticsEndpoint<T>(endpoint: string, cacheKey: string) {
             setLoading(false);
             return;
           }
-        } catch (cacheError) {
+        } catch {
           localStorage.removeItem(cacheKey);
         }
       }

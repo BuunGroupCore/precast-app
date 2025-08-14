@@ -2,9 +2,9 @@ import fs from "fs/promises";
 import path from "path";
 
 import { consola } from "consola";
-import { logger } from "../utils/logger.js";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
+import { logger } from "../utils/logger.js";
 
 import { getPluginManager } from "@/core/plugin-manager.js";
 import { createTemplateEngine } from "@/core/template-engine.js";
@@ -12,7 +12,11 @@ import { generateBackendTemplate } from "@/generators/backend-generator.js";
 import { getTemplateRoot } from "@/utils/template-path.js";
 
 /**
- * Map framework names to their new directory structure
+ * Map framework names to their template directory structure.
+ * Handles the reorganized template structure with ecosystem-based organization.
+ *
+ * @param framework - Framework identifier
+ * @returns Path to the framework's template directory
  */
 function getFrameworkPath(framework: string): string {
   const frameworkMap: Record<string, string> = {
@@ -52,12 +56,14 @@ function getFrameworkPath(framework: string): string {
 }
 
 /**
- * Generate package.json file for a project
- * @param config - Project configuration
- * @param projectPath - Project directory path
- * @param dependencies - Runtime dependencies
- * @param devDependencies - Development dependencies
- * @param additionalFields - Additional package.json fields
+ * Generate package.json file for a project with framework-specific configuration.
+ * Creates a complete package.json with dependencies, scripts, and metadata.
+ *
+ * @param config - Complete project configuration
+ * @param projectPath - Absolute path to the project directory
+ * @param dependencies - Array of runtime dependency names
+ * @param devDependencies - Array of development dependency names
+ * @param additionalFields - Extra fields to merge into package.json
  */
 export async function generatePackageJson(
   config: ProjectConfig,
@@ -92,11 +98,13 @@ export async function generatePackageJson(
 }
 
 /**
- * Generate the base template for a framework
- * @param framework - Framework name
- * @param config - Project configuration
- * @param projectPath - Project directory path
- * @param additionalDirs - Additional directories to copy
+ * Generate the base template for a framework with support for monorepo and single-app structures.
+ * Handles template copying, plugin management, and project structure generation.
+ *
+ * @param framework - Framework identifier (react, vue, next, etc.)
+ * @param config - Complete project configuration
+ * @param projectPath - Absolute path to the project directory
+ * @param additionalDirs - Additional template directories to copy with custom paths
  */
 export async function generateBaseTemplate(
   framework: string,
@@ -148,11 +156,13 @@ export async function generateBaseTemplate(
 }
 
 /**
- * Generate a single application project structure
- * @param framework - Framework name
+ * Generate a single application project structure (non-monorepo).
+ * Copies framework templates, common assets, styles, and pages.
+ *
+ * @param framework - Framework identifier
  * @param config - Project configuration
- * @param projectPath - Project directory path
- * @param templateEngine - Template engine instance
+ * @param projectPath - Absolute path to the project directory
+ * @param templateEngine - Template engine instance for processing files
  */
 async function generateSingleAppProject(
   framework: string,
@@ -189,14 +199,22 @@ async function generateSingleAppProject(
   if (framework !== "svelte") {
     const commonStylesDir = `common/styles`;
     try {
-      await templateEngine.copyTemplateDirectory(
-        commonStylesDir,
-        path.join(projectPath, "src/styles"),
-        config,
-        {
+      const stylesPath = path.join(projectPath, "src/styles");
+
+      // Skip if styles directory already has a globals.css file
+      const globalsPath = path.join(stylesPath, "globals.css");
+      const hasGlobals = await fs
+        .access(globalsPath)
+        .then(() => true)
+        .catch(() => false);
+
+      if (!hasGlobals) {
+        await templateEngine.copyTemplateDirectory(commonStylesDir, stylesPath, config, {
           overwrite: false, // Don't overwrite framework-specific styles
-        }
-      );
+        });
+      } else {
+        consola.debug("Skipping common styles - globals.css already exists");
+      }
     } catch (error) {
       consola.debug(`Common styles not found or error copying: ${error}`);
     }
@@ -237,9 +255,26 @@ async function generateSingleAppProject(
     try {
       const componentsPath = path.join(projectPath, "src/components");
 
-      await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
-        overwrite: false, // Don't overwrite framework-specific components
-      });
+      // Skip if components directory already has an index file
+      const indexPath = path.join(componentsPath, "index.ts");
+      const indexPathJs = path.join(componentsPath, "index.js");
+      const hasIndex =
+        (await fs
+          .access(indexPath)
+          .then(() => true)
+          .catch(() => false)) ||
+        (await fs
+          .access(indexPathJs)
+          .then(() => true)
+          .catch(() => false));
+
+      if (!hasIndex) {
+        await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
+          overwrite: false, // Don't overwrite framework-specific components
+        });
+      } else {
+        consola.debug("Skipping common components - index already exists");
+      }
     } catch (error) {
       // Log but don't fail if common components don't exist
       consola.debug(`Common components not found or error copying: ${error}`);
@@ -249,14 +284,28 @@ async function generateSingleAppProject(
   // Copy common config directory (constants.ts, etc.)
   const commonConfigDir = `common/config`;
   try {
-    await templateEngine.copyTemplateDirectory(
-      commonConfigDir,
-      path.join(projectPath, "src/config"),
-      config,
-      {
+    const configPath = path.join(projectPath, "src/config");
+
+    // Skip if config directory already has a constants file
+    const constantsPath = path.join(configPath, "constants.ts");
+    const constantsPathJs = path.join(configPath, "constants.js");
+    const hasConstants =
+      (await fs
+        .access(constantsPath)
+        .then(() => true)
+        .catch(() => false)) ||
+      (await fs
+        .access(constantsPathJs)
+        .then(() => true)
+        .catch(() => false));
+
+    if (!hasConstants) {
+      await templateEngine.copyTemplateDirectory(commonConfigDir, configPath, config, {
         overwrite: false, // Don't overwrite framework-specific config
-      }
-    );
+      });
+    } else {
+      consola.debug("Skipping common config - constants already exist");
+    }
   } catch (error) {
     // Log but don't fail if common config doesn't exist
     consola.debug(`Common config not found or error copying: ${error}`);
@@ -293,11 +342,13 @@ async function generateSingleAppProject(
 }
 
 /**
- * Generate a monorepo project structure with separate frontend and backend
- * @param framework - Frontend framework name
- * @param config - Project configuration
- * @param projectPath - Project directory path
- * @param templateEngine - Template engine instance
+ * Generate a monorepo project structure with separate frontend and backend applications.
+ * Creates a multi-package workspace with shared dependencies and configuration.
+ *
+ * @param framework - Frontend framework identifier
+ * @param config - Complete project configuration
+ * @param projectPath - Absolute path to the project directory
+ * @param templateEngine - Template engine instance for processing files
  */
 async function generateMonorepoProject(
   framework: string,
@@ -357,9 +408,20 @@ async function generateMonorepoProject(
     try {
       const stylesPath = path.join(webDir, "src/styles");
 
-      await templateEngine.copyTemplateDirectory(commonStylesDir, stylesPath, config, {
-        overwrite: false, // Don't overwrite framework-specific styles
-      });
+      // Skip if styles directory already has a globals.css file
+      const globalsPath = path.join(stylesPath, "globals.css");
+      const hasGlobals = await fs
+        .access(globalsPath)
+        .then(() => true)
+        .catch(() => false);
+
+      if (!hasGlobals) {
+        await templateEngine.copyTemplateDirectory(commonStylesDir, stylesPath, config, {
+          overwrite: false, // Don't overwrite framework-specific styles
+        });
+      } else {
+        consola.debug("Skipping common styles for monorepo - globals.css already exists");
+      }
     } catch (error) {
       consola.debug(`Common styles not found or error copying: ${error}`);
     }
@@ -385,9 +447,26 @@ async function generateMonorepoProject(
     try {
       const componentsPath = path.join(webDir, "src/components");
 
-      await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
-        overwrite: false, // Don't overwrite framework-specific components
-      });
+      // Skip if components directory already has an index file
+      const indexPath = path.join(componentsPath, "index.ts");
+      const indexPathJs = path.join(componentsPath, "index.js");
+      const hasIndex =
+        (await fs
+          .access(indexPath)
+          .then(() => true)
+          .catch(() => false)) ||
+        (await fs
+          .access(indexPathJs)
+          .then(() => true)
+          .catch(() => false));
+
+      if (!hasIndex) {
+        await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
+          overwrite: false, // Don't overwrite framework-specific components
+        });
+      } else {
+        consola.debug("Skipping common components for monorepo - index already exists");
+      }
     } catch (error) {
       // Log but don't fail if common components don't exist
       consola.debug(`Common components not found or error copying: ${error}`);
@@ -399,9 +478,26 @@ async function generateMonorepoProject(
   try {
     const configPath = path.join(webDir, "src/config");
 
-    await templateEngine.copyTemplateDirectory(commonConfigDir, configPath, config, {
-      overwrite: false, // Don't overwrite framework-specific config
-    });
+    // Skip if config directory already has a constants file
+    const constantsPath = path.join(configPath, "constants.ts");
+    const constantsPathJs = path.join(configPath, "constants.js");
+    const hasConstants =
+      (await fs
+        .access(constantsPath)
+        .then(() => true)
+        .catch(() => false)) ||
+      (await fs
+        .access(constantsPathJs)
+        .then(() => true)
+        .catch(() => false));
+
+    if (!hasConstants) {
+      await templateEngine.copyTemplateDirectory(commonConfigDir, configPath, config, {
+        overwrite: false, // Don't overwrite framework-specific config
+      });
+    } else {
+      consola.debug("Skipping common config for monorepo - constants already exist");
+    }
   } catch (error) {
     // Log but don't fail if common config doesn't exist
     consola.debug(`Common config not found or error copying: ${error}`);

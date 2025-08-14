@@ -1,15 +1,25 @@
 {
+  {{#if isMonorepo}}
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "{{deployment.buildCommand}}",
+  "outputDirectory": "{{deployment.outputDir}}",
+  "installCommand": "cd ../.. && {{packageManager}} install",
+  "devCommand": "npm run dev",
+  {{else}}
   "buildCommand": "{{deployment.buildCommand}}",
   "outputDirectory": "{{deployment.outputDir}}",
   "devCommand": "npm run dev",
   "installCommand": "{{packageManager}} install",
-  "framework": "{{#if (eq framework 'react')}}create-react-app{{else if (eq framework 'next')}}nextjs{{else if (eq framework 'vue')}}vue{{else if (eq framework 'svelte')}}svelte{{else}}static{{/if}}",
+  {{/if}}
+  "framework": "{{#if (eq framework 'react')}}create-react-app{{else if (eq framework 'next')}}nextjs{{else if (eq framework 'vue')}}vue{{else if (eq framework 'svelte')}}svelte{{else if (eq framework 'astro')}}astro{{else if (eq framework 'remix')}}remix{{else if (eq framework 'nuxt')}}nuxtjs{{else}}static{{/if}}",
+  {{#if (eq deploymentType 'fullstack')}}
   {{#if (eq framework 'next')}}
   "functions": {
-    "app/api/**/*.js": {
+    "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
   },
+  {{/if}}
   {{/if}}
   "headers": [
     {

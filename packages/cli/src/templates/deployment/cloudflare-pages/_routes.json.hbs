@@ -1,5 +1,27 @@
 {
   "version": 1,
+  {{#if (eq deploymentType "static")}}
+  "include": ["/*"],
+  "exclude": []
+  {{else if (eq deploymentType "fullstack")}}
+  "include": ["/*"],
+  "exclude": [
+    "/api/*",
+    "/_next/static/*",
+    "/static/*",
+    "/*.js",
+    "/*.css",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.gif",
+    "/*.svg",
+    "/*.ico",
+    "/*.woff",
+    "/*.woff2"
+  ]
+  {{else}}
   "include": ["/*"],
   "exclude": ["/api/*"]
+  {{/if}}
 }

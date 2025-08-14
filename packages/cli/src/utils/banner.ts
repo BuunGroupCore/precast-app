@@ -2,7 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
+
 const { pathExists, readFile, writeFile } = fsExtra;
 
 const __filename = fileURLToPath(import.meta.url);

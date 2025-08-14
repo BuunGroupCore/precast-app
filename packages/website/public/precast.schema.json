@@ -27,16 +27,17 @@
         "react",
         "vue",
         "angular",
-        "next",
-        "nuxt",
-        "astro",
-        "remix",
         "solid",
         "svelte",
-        "vite",
+        "tanstack-router",
+        "next",
+        "react-router",
+        "tanstack-start",
+        "nuxt",
+        "astro",
         "vanilla",
         "react-native",
-        "tanstack-start",
+        "vite",
         "none"
       ]
     },
@@ -53,7 +54,19 @@
     "backend": {
       "type": "string",
       "description": "Backend framework or runtime",
-      "enum": ["node", "express", "fastify", "nestjs", "hono", "cloudflare-workers", "none"]
+      "enum": [
+        "node",
+        "express",
+        "fastify",
+        "nestjs",
+        "hono",
+        "koa",
+        "next-api",
+        "cloudflare-workers",
+        "fastapi",
+        "convex",
+        "none"
+      ]
     },
     "database": {
       "type": "string",
@@ -111,8 +124,8 @@
     },
     "runtime": {
       "type": "string",
-      "description": "JavaScript runtime",
-      "enum": ["node", "bun", "deno", "edge-light"]
+      "description": "JavaScript runtime environment for executing backend code",
+      "enum": ["node", "bun", "deno"]
     },
     "typescript": {
       "type": "boolean",
@@ -199,26 +212,25 @@
       "items": {
         "type": "string",
         "enum": [
-          "storybook",
+          "biome",
+          "bundle-analyzer",
+          "cloudflare-tunnel",
+          "commitizen",
           "cypress",
-          "playwright",
-          "jest",
-          "vitest",
+          "eslint",
           "husky",
-          "commitlint",
+          "ngrok",
+          "nx",
+          "playwright",
+          "prettier",
+          "react-i18next",
           "semantic-release",
-          "sentry",
-          "datadog",
-          "github-actions",
-          "gitlab-ci",
-          "i18n",
-          "pwa",
-          "graphql",
-          "websocket",
-          "redis",
-          "elasticsearch",
-          "monitoring",
-          "analytics"
+          "storybook",
+          "traefik",
+          "turborepo",
+          "vite-pwa",
+          "vitest",
+          "vue-i18n"
         ]
       }
     },
@@ -296,14 +308,21 @@
       "items": {
         "type": "string",
         "enum": [
-          "stripe",
+          "algolia",
+          "cloudinary",
+          "docusaurus",
+          "fumadocs",
+          "google-analytics",
+          "meilisearch",
+          "nextra",
+          "posthog",
           "resend",
           "sendgrid",
+          "sentry",
           "socketio",
-          "pusher",
-          "twilio",
+          "stripe",
           "uploadthing",
-          "clerk-webhooks"
+          "vercel-analytics"
         ]
       }
     },
@@ -321,6 +340,31 @@
       "type": "string",
       "description": "Custom database username",
       "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+    },
+    "aiDocs": {
+      "type": "boolean",
+      "description": "Whether AI documentation files (SPEC.md, PRD.md) were generated",
+      "default": false
+    },
+    "generate": {
+      "type": "boolean",
+      "description": "Whether automatic ORM client generation was performed during installation",
+      "default": true
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Whether verbose logging was enabled during project creation",
+      "default": false
+    },
+    "debug": {
+      "type": "boolean",
+      "description": "Whether debug mode was enabled during project creation",
+      "default": false
+    },
+    "debugAnalytics": {
+      "type": "boolean",
+      "description": "Whether analytics debug logging was enabled",
+      "default": false
     }
   },
   "required": [

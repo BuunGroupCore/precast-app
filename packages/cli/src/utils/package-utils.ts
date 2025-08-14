@@ -1,7 +1,7 @@
 import path from "node:path";
 
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
+
 const { readJSON } = fsExtra;
 
 /**

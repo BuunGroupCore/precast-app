@@ -1,18 +1,16 @@
 import * as crypto from "crypto";
 import * as path from "path";
 
-import { logger } from "../utils/logger.js";
-// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
-
-// eslint-disable-next-line import/no-named-as-default-member
-const { writeFile, pathExists, readFile, readdir, ensureDir, readJson, writeJson } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
+import { errorCollector } from "../utils/error-collector.js";
+import { logger } from "../utils/logger.js";
 import { installDependencies } from "../utils/package-manager.js";
 import { getTemplateRoot } from "../utils/template-path.js";
-import { errorCollector } from "../utils/error-collector.js";
+
+const { writeFile, pathExists, readFile, readdir, ensureDir, readJson, writeJson } = fsExtra;
 
 interface AuthProvider {
   id: string;

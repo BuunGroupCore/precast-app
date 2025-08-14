@@ -25,7 +25,51 @@ const HOST = process.env.HOST || 'localhost';
 
 await fastify.register(helmet);
 await fastify.register(cors, {
+  {{#if (or (includes powerups "ngrok") (includes powerups "cloudflare-tunnel"))}}
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check if origin matches allowed patterns
+    const allowedOrigins = [
+      'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
+      'http://localhost:3000',
+      'http://localhost:4200',
+      'http://localhost:5173',
+    ];
+    
+    // Check for exact matches
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, origin);
+    }
+    
+    {{#if (includes powerups "ngrok")}}
+    // Check for ngrok domains
+    if (origin.match(/^https?:\/\/[a-z0-9-]+\.(ngrok-free\.app|ngrok\.app|ngrok\.io)$/)) {
+      return callback(null, origin);
+    }
+    {{/if}}
+    
+    {{#if (includes powerups "cloudflare-tunnel")}}
+    // Check for Cloudflare tunnel domains
+    if (origin.match(/\.trycloudflare\.com$/)) {
+      return callback(null, origin);
+    }
+    {{/if}}
+    
+    // Check for custom CLIENT_URL
+    if (process.env.CLIENT_URL && origin === process.env.CLIENT_URL) {
+      return callback(null, origin);
+    }
+    
+    // Reject other origins
+    callback(new Error('Not allowed by CORS'));
+  },
+  {{else}}
   origin: process.env.CLIENT_URL || 'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
+  {{/if}}
   credentials: true,
 });
 
@@ -76,9 +120,28 @@ fastify.setErrorHandler(async (error, request, reply) => {
 // Start server
 const start = async () => {
   try {
+    {{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
+    // Listen on all interfaces (0.0.0.0) to allow tunnel access
+    await fastify.listen({ port: PORT, host: '0.0.0.0' });
+    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+    console.log(`📋 Health check: http://${HOST}:${PORT}/api/health`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    {{#if (includes powerups "ngrok")}}
+    console.log(`🌐 ngrok tunnel access enabled on 0.0.0.0:${PORT}`);
+    {{/if}}
+    {{#if (includes powerups "traefik")}}
+    console.log(`🚦 Traefik proxy access enabled on 0.0.0.0:${PORT}`);
+    {{/if}}
+    {{#if (includes powerups "cloudflare-tunnel")}}
+    console.log(`☁️ Cloudflare tunnel access enabled on 0.0.0.0:${PORT}`);
+    {{/if}}
+    {{else}}
+    // Listen on localhost only
     await fastify.listen({ port: PORT, host: HOST });
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);
     console.log(`📋 Health check: http://${HOST}:${PORT}/api/health`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    {{/if}}
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

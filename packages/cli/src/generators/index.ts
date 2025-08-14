@@ -3,9 +3,9 @@ import { createTemplateEngine } from "../core/template-engine.js";
 import { setupAIContextFiles } from "../utils/ai-context-setup.js";
 import { setupAuthentication } from "../utils/auth-setup.js";
 import { setupClaudeIntegration } from "../utils/claude-setup.js";
+import { errorCollector } from "../utils/error-collector.js";
 import { logger } from "../utils/logger.js";
 import { getTemplateRoot } from "../utils/template-path.js";
-import { errorCollector } from "../utils/error-collector.js";
 
 import { generateAngularTemplate } from "./angular-template.js";
 import { generateAstroTemplate } from "./astro-template.js";
@@ -22,10 +22,14 @@ import { generateTanStackStartTemplate } from "./tanstack-start-template.js";
 import { generateVanillaTemplate } from "./vanilla-template.js";
 import { generateViteTemplate } from "./vite-template.js";
 import { generateVueTemplate } from "./vue-template.js";
+
 /**
- * Generate project template based on the selected framework
- * @param config - Project configuration
- * @param projectPath - Path where the project will be created
+ * Generate project template based on the selected framework.
+ * Orchestrates the entire project generation process including framework templates,
+ * AI integrations, database setup, authentication, and additional features.
+ *
+ * @param config - Complete project configuration object
+ * @param projectPath - Absolute path where the project will be created
  */
 export async function generateTemplate(config: ProjectConfig, projectPath: string) {
   logger.debug(`Generating ${config.framework} project...`);
@@ -42,14 +46,16 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     case "next":
       await generateNextTemplate(config, projectPath);
       break;
-    case "react-router":
+    case "react-router": {
       const { generateReactRouterTemplate } = await import("./react-router-template.js");
       await generateReactRouterTemplate(config, projectPath);
       break;
-    case "tanstack-router":
+    }
+    case "tanstack-router": {
       const { generateTanStackRouterTemplate } = await import("./tanstack-router-template.js");
       await generateTanStackRouterTemplate(config, projectPath);
       break;
+    }
     case "tanstack-start":
       await generateTanStackStartTemplate(config, projectPath);
       break;

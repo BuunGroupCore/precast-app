@@ -35,6 +35,10 @@ interface CompactSidebarProps {
 
 type TabType = "command" | "stack" | "actions";
 
+/**
+ * Compact sidebar component that displays command generation, stack summary, and quick actions.
+ * Features tabbed interface for better organization of project configuration options.
+ */
 export const CompactSidebar: React.FC<CompactSidebarProps> = ({
   config,
   setConfig,
@@ -52,9 +56,7 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
   const [activeTab, setActiveTab] = useState<TabType>("command");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Technology search mapping - only includes available (non-disabled) technologies
   const techSearchMap: Record<string, string> = {
-    // Frameworks (available)
     react: "framework",
     vue: "framework",
     svelte: "framework",
@@ -67,7 +69,6 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
     "react-router": "framework",
     "tanstack-router": "framework",
 
-    // Backends (available)
     express: "backend",
     hono: "backend",
     nodejs: "backend",
@@ -76,7 +77,6 @@ export const CompactSidebar: React.FC<CompactSidebarProps> = ({
     "cloudflare-workers": "backend",
     workers: "backend",
 
-    // Databases (available)
     postgres: "database",
     postgresql: "database",
     mysql: "database",

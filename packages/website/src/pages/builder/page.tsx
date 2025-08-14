@@ -260,7 +260,8 @@ export function BuilderPage() {
   };
 
   const loadProject = (project: SavedProject) => {
-    const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...projectConfig } = project;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, createdAt, updatedAt, ...projectConfig } = project;
     setConfig(projectConfig as ExtendedProjectConfig);
     setShowSaved(false);
   };
@@ -399,11 +400,12 @@ export function BuilderPage() {
       }
     }
 
-    parts.push("--yes");
+    /** Deployment method */
+    if (config.deploymentMethod && config.deploymentMethod !== "none") {
+      parts.push(`--deployment=${config.deploymentMethod}`);
+    }
 
-    /** Deployment method is not yet supported by the CLI
-     * --deploy (deploymentMethod)
-     */
+    parts.push("--yes");
 
     return parts.join(" ");
   };

@@ -1,4 +1,4 @@
-import { text, select, confirm, multiselect, cancel, isCancel } from "@clack/prompts";
+import { text, select, confirm, cancel, isCancel } from "@clack/prompts";
 import { consola } from "consola";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
@@ -569,7 +569,11 @@ export async function gatherProjectConfigWithNavigation(
         }
 
         case Step.DEPLOYMENT: {
-          if (options.yes) {
+          // Handle deployment from CLI option
+          if (options.deployment) {
+            state.deploymentMethod = options.deployment;
+            currentStep++;
+          } else if (options.yes) {
             currentStep++;
           } else {
             const deploymentOptions = Object.values(DEPLOYMENT_CONFIGS).map((config) => ({

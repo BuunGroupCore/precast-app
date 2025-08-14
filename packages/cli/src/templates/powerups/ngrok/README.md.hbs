@@ -16,9 +16,17 @@ ngrok provides secure tunnels to expose your local development environment to th
 
 1. Sign up for a free account at [ngrok.com](https://ngrok.com)
 2. Copy your auth token from the [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken)
-3. Add it to your `.env` file:
+3. Add it to your environment (choose one method):
 
+**Option A: Add to your shell profile (.bashrc, .zshrc, .profile):**
 ```bash
+export NGROK_AUTHTOKEN="your_auth_token_here"
+```
+
+**Option B: Add to your project's .env file:**
+```bash
+NGROK_AUTHTOKEN=your_auth_token_here
+# or (alternative naming)
 NGROK_AUTH_TOKEN=your_auth_token_here
 ```
 
@@ -54,22 +62,40 @@ Visit [http://localhost:4040](http://localhost:4040) to:
 **Frontend Only Setup:**
 - Local: `http://localhost:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}3000{{/if}}`
 - Public: `https://your-tunnel.ngrok.io`
+- Dashboard: [http://localhost:4040](http://localhost:4040)
 {{else}}
-**Full Stack Setup:**
-- Frontend Local: `http://app.localhost`
-- Frontend Public: `https://your-frontend.ngrok.io`
-- API Local: `http://api.localhost`
-- API Public: `https://your-api.ngrok.io`
+**Full Stack Setup (Monorepo with API):**
+
+This project runs **TWO separate ngrok tunnels** for complete connectivity:
+
+🌐 **Frontend Tunnel:**
+- Local: `http://localhost:{{#if (eq framework 'next')}}3000{{else if (eq framework 'nuxt')}}3000{{else if (eq framework 'react')}}5173{{else if (eq framework 'vue')}}5173{{else if (eq framework 'angular')}}4200{{else if (eq framework 'svelte')}}5173{{else if (eq framework 'solid')}}3000{{else if (eq framework 'astro')}}4321{{else if (eq framework 'react-router')}}5173{{else if (eq framework 'tanstack-router')}}5173{{else if (eq framework 'tanstack-start')}}3000{{else if (eq framework 'vite')}}5173{{else}}5173{{/if}}`
+- Public: `https://your-frontend.ngrok-free.app`
+- Dashboard: [http://localhost:4040](http://localhost:4040)
+
+🚀 **API Tunnel:**
+- Local: `http://localhost:{{#if (eq backend 'express')}}5000{{else if (eq backend 'fastify')}}3001{{else if (eq backend 'hono')}}3000{{else if (eq backend 'nest')}}3000{{else}}5000{{/if}}`
+- Public: `https://your-api.ngrok-free.app`
+- Dashboard: [http://localhost:4041](http://localhost:4041)
+
+⚠️ **IMPORTANT:** After starting ngrok, update your frontend's `.env` file:
+```env
+# In apps/web/.env
+VITE_API_URL=https://your-api-tunnel.ngrok-free.app
+```
+Replace with the actual API tunnel URL from port 4041's dashboard.
 {{/if}}
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Add these to your `.env` file:
+Add these to your environment:
 
 ```bash
-# Required
+# Required (use either variable name)
+NGROK_AUTHTOKEN=your_auth_token_here
+# or
 NGROK_AUTH_TOKEN=your_auth_token_here
 
 # Optional
@@ -167,6 +193,63 @@ When using both Traefik and ngrok:
 4. **HTTPS Only**: ngrok provides HTTPS by default
 5. **Request Inspection**: All traffic is visible in ngrok dashboard
 
+## 📝 Handling ngrok Browser Warning (Free Tier)
+
+The free tier shows a warning page, but **this is automatically handled by the included ngrok helper utility**.
+
+### Automatic Browser Warning Bypass
+
+{{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'vue') (eq framework 'svelte') (eq framework 'solid') (eq framework 'vite'))}}
+The ngrok helper utility is automatically included at `src/utils/ngrok-helper.ts` and:
+- ✅ Auto-detects when running through ngrok
+- ✅ Automatically adds bypass headers to all fetch requests
+- ✅ Patches XMLHttpRequest for older libraries
+- ✅ Works transparently - no code changes needed
+
+```typescript
+// The helper auto-initializes when imported
+import './utils/ngrok-helper';
+
+// Or use the utilities directly
+import { isNgrokTunnel, getNgrokHeaders } from './utils/ngrok-helper';
+
+// For axios users
+if (isNgrokTunnel()) {
+  axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
+}
+```
+{{else}}
+### For API Requests:
+```javascript
+// Add this header to skip the warning
+fetch('https://your-tunnel.ngrok.io/api', {
+  headers: {
+    'ngrok-skip-browser-warning': 'true'
+  }
+})
+```
+
+### For Frontend Development:
+```javascript
+// In your app, add a middleware or interceptor
+if (window.location.hostname.includes('ngrok')) {
+  // Auto-add header for all requests
+  const originalFetch = window.fetch;
+  window.fetch = (url, options = {}) => {
+    options.headers = {
+      ...options.headers,
+      'ngrok-skip-browser-warning': 'true'
+    };
+    return originalFetch(url, options);
+  };
+}
+```
+{{/if}}
+
+### To Remove Warning Completely:
+- Upgrade to any paid ngrok plan
+- Or use Cloudflare Tunnel PowerUp instead (no warnings)
+
 ## 🐛 Troubleshooting
 
 ### Tunnel Not Starting
@@ -184,9 +267,10 @@ npm run ngrok:down && npm run ngrok:up
 
 ### Auth Token Issues
 
-1. Verify token in `.env` file
+1. Verify token in your environment variables (check `echo $NGROK_AUTHTOKEN`)
 2. Check token validity at [dashboard.ngrok.com](https://dashboard.ngrok.com)
 3. Ensure no extra spaces in token
+4. If using shell profile, restart your terminal or run `source ~/.bashrc`
 
 ### Connection Refused
 

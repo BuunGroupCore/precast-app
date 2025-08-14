@@ -147,8 +147,11 @@
       "Bash(./test-tunneling-features.sh:*)",
       "Bash(npm run format:*)",
       "Bash(npm run lint:*)",
-      "Bash(npm run typecheck:*)"
+      "Bash(npm run typecheck:*)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash(awk:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

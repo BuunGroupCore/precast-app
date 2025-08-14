@@ -18,6 +18,9 @@
     "*.config.js",
     "*.config.cjs",
     "*.config.mjs",
-    "generated-tests/**"
+    "generated-tests/**",
+    "smart-test-generator.ts",
+    "my-app2/**",
+    "test-*/**"
   ]
 }

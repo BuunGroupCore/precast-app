@@ -1,13 +1,12 @@
 import path from "path";
 
-import { logger } from "../utils/logger.js";
 import fsExtra from "fs-extra";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
+import { logger } from "../utils/logger.js";
 import { getTemplateRoot } from "../utils/template-path.js";
 
-// eslint-disable-next-line import/no-named-as-default-member
 const { writeFile, ensureDir } = fsExtra;
 
 /**

@@ -1,6 +1,7 @@
 /**
- * Global error collector for the CLI
- * Collects all errors during execution and displays them at the end
+ * Global error collector for the CLI.
+ * Collects all errors and warnings during execution for batch display at the end.
+ * Provides debugging capabilities and persistent logging when needed.
  */
 
 export interface CollectedError {
@@ -83,7 +84,11 @@ class ErrorCollector {
 export const errorCollector = new ErrorCollector();
 
 /**
- * Write error to persistent log file for debugging
+ * Write error to persistent log file for debugging purposes.
+ * Creates a .precast-debug directory with detailed error logs when DEBUG_ERRORS is enabled.
+ *
+ * @param task - Name of the task that failed
+ * @param error - Error object or message to log
  */
 export function logErrorToFile(task: string, error: any) {
   if (!process.env.DEBUG_ERRORS) return;
@@ -108,7 +113,7 @@ export function logErrorToFile(task: string, error: any) {
 
     // Also write to stderr immediately
     process.stderr.write(`\n🐛 Error logged to: ${logFile}\n`);
-  } catch (logError) {
+  } catch {
     // Ignore logging errors
   }
 }

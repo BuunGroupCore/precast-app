@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+# Package Manager Enforcement Hook for Claude Code (PreToolUse)
+# Automatically enforces the correct package manager based on project configuration
+
+set -euo pipefail
+
+# Read the JSON input from stdin
+INPUT=$(cat)
+
+# Extract tool name from the JSON
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
+
+# Only process Bash tool calls
+if [[ "$TOOL_NAME" != "Bash" ]]; then
+  exit 0
+fi
+
+# Extract the command from the tool_input
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+
+if [[ -z "$COMMAND" ]]; then
+  exit 0
+fi
+
+# Function to get the configured package manager from precast.jsonc
+get_configured_package_manager() {
+  local config_file="precast.jsonc"
+  
+  # First, check if precast.jsonc exists
+  if [[ ! -f "$config_file" ]]; then
+    # If no config file, default to the package manager from template
+    echo "{{packageManager}}"
+    return
+  fi
+  
+  # Extract packageManager from precast.jsonc (this is the primary source of truth)
+  local pm=$(cat "$config_file" | grep -E '"packageManager"' | sed -E 's/.*"packageManager"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/' | head -1)
+  
+  if [[ -n "$pm" ]]; then
+    echo "$pm"
+    return
+  fi
+  
+  # If packageManager is not found, fallback to the template's package manager
+  echo "{{packageManager}}"
+}
+
+# Get the configured package manager
+CONFIGURED_PM=$(get_configured_package_manager)
+
+# Define package manager mappings
+declare -A PM_COMMANDS
+declare -A PM_EXEC_COMMANDS
+
+# Map package managers to their respective commands
+case "$CONFIGURED_PM" in
+  "bun")
+    PM_COMMANDS["install"]="bun"
+    PM_COMMANDS["add"]="bun"
+    PM_COMMANDS["remove"]="bun"
+    PM_COMMANDS["run"]="bun"
+    PM_EXEC_COMMANDS["exec"]="bunx"
+    ;;
+  "npm")
+    PM_COMMANDS["install"]="npm"
+    PM_COMMANDS["add"]="npm"
+    PM_COMMANDS["remove"]="npm"
+    PM_COMMANDS["run"]="npm"
+    PM_EXEC_COMMANDS["exec"]="npx"
+    ;;
+  "yarn")
+    PM_COMMANDS["install"]="yarn"
+    PM_COMMANDS["add"]="yarn"
+    PM_COMMANDS["remove"]="yarn"
+    PM_COMMANDS["run"]="yarn"
+    PM_EXEC_COMMANDS["exec"]="yarn dlx"
+    ;;
+  "pnpm")
+    PM_COMMANDS["install"]="pnpm"
+    PM_COMMANDS["add"]="pnpm"
+    PM_COMMANDS["remove"]="pnpm"
+    PM_COMMANDS["run"]="pnpm"
+    PM_EXEC_COMMANDS["exec"]="pnpm dlx"
+    ;;
+  *)
+    # Default to npm if unknown
+    PM_COMMANDS["install"]="npm"
+    PM_COMMANDS["add"]="npm"
+    PM_COMMANDS["remove"]="npm"
+    PM_COMMANDS["run"]="npm"
+    PM_EXEC_COMMANDS["exec"]="npx"
+    ;;
+esac
+
+# Check for incorrect package manager usage
+BLOCKED_COMMAND=""
+SUGGESTED_COMMAND=""
+
+# Define patterns for package managers
+if [[ "$CONFIGURED_PM" != "npm" ]] && echo "$COMMAND" | grep -qE '\bnpm\s+'; then
+  BLOCKED_COMMAND="$COMMAND"
+  SUGGESTED_COMMAND=$(echo "$COMMAND" | sed "s/\bnpm\b/${PM_COMMANDS["install"]}/")
+elif [[ "$CONFIGURED_PM" != "npm" ]] && echo "$COMMAND" | grep -qE '\bnpx\s+'; then
+  BLOCKED_COMMAND="$COMMAND"
+  SUGGESTED_COMMAND=$(echo "$COMMAND" | sed "s/\bnpx\b/${PM_EXEC_COMMANDS["exec"]}/")
+elif [[ "$CONFIGURED_PM" != "yarn" ]] && echo "$COMMAND" | grep -qE '\byarn\s+'; then
+  BLOCKED_COMMAND="$COMMAND"
+  SUGGESTED_COMMAND=$(echo "$COMMAND" | sed "s/\byarn\b/${PM_COMMANDS["install"]}/")
+elif [[ "$CONFIGURED_PM" != "pnpm" ]] && echo "$COMMAND" | grep -qE '\bpnpm\s+'; then
+  BLOCKED_COMMAND="$COMMAND"
+  SUGGESTED_COMMAND=$(echo "$COMMAND" | sed "s/\bpnpm\b/${PM_COMMANDS["install"]}/")
+elif [[ "$CONFIGURED_PM" != "bun" ]] && echo "$COMMAND" | grep -qE '\bbun\s+' && ! echo "$COMMAND" | grep -qE '\bbun\s+(test|build)'; then
+  # Allow bun test and bun build even when bun is not the primary package manager
+  BLOCKED_COMMAND="$COMMAND"
+  SUGGESTED_COMMAND=$(echo "$COMMAND" | sed "s/\bbun\b/${PM_COMMANDS["install"]}/")
+elif [[ "$CONFIGURED_PM" != "bun" ]] && echo "$COMMAND" | grep -qE '\bbunx\s+'; then
+  BLOCKED_COMMAND="$COMMAND"
+  SUGGESTED_COMMAND=$(echo "$COMMAND" | sed "s/\bbunx\b/${PM_EXEC_COMMANDS["exec"]}/")
+fi
+
+# If we found an incorrect package manager usage
+if [[ -n "$BLOCKED_COMMAND" ]]; then
+  # Log the enforcement
+  LOG_FILE=".claude/package-manager-enforcement.log"
+  mkdir -p .claude
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - Blocked: $BLOCKED_COMMAND | Suggested: $SUGGESTED_COMMAND" >> "$LOG_FILE"
+  
+  # Send error message to stderr for Claude to see
+  echo "Error: Please use '$CONFIGURED_PM' as the package manager for this project." >&2
+  echo "Suggested command: $SUGGESTED_COMMAND" >&2
+  echo "" >&2
+  echo "This project is configured to use '$CONFIGURED_PM' as defined in precast.jsonc" >&2
+  
+  # Exit with code 2 to signal Claude to correct
+  exit 2
+fi
+
+# Command is allowed
+exit 0

@@ -6,7 +6,6 @@ import fsExtra from "fs-extra";
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import type { TemplateEngine } from "../core/template-engine.js";
 
-// eslint-disable-next-line import/no-named-as-default-member
 const { pathExists, readJSON, writeJSON } = fsExtra;
 
 export interface DeploymentConfig {
@@ -97,44 +96,121 @@ export async function setupDeploymentConfig(
 
   consola.info(`Setting up ${deployConfig.name} deployment...`);
 
+  // Detect if this is a monorepo structure
+  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+
+  // Determine deployment type
+  let deploymentType: "static" | "fullstack" | "api" | "hybrid" = "fullstack";
+  if (config.backend === "none" && config.database === "none") {
+    deploymentType = "static";
+  } else if (config.backend !== "none" && config.database === "none") {
+    deploymentType = "api";
+  } else if (
+    config.framework === "next" ||
+    config.framework === "nuxt" ||
+    config.framework === "remix"
+  ) {
+    deploymentType = "hybrid";
+  }
+
+  // Determine the correct deployment path
+  let deploymentPath = projectPath;
+  let buildCommand = deployConfig.buildCommand || "npm run build";
+  let outputDir = deployConfig.outputDir || "dist";
+
+  if (isMonorepo) {
+    // For monorepos, deployment configs should go in the web app
+    deploymentPath = path.join(projectPath, "apps", "web");
+    buildCommand = "npm run build";
+    outputDir = "dist";
+
+    // Special handling for Cloudflare Workers backend
+    if (config.backend === "cloudflare-workers") {
+      // Workers has its own deployment in apps/workers
+      consola.info(
+        "Cloudflare Workers backend has its own deployment configuration in apps/workers"
+      );
+    }
+  }
+
   try {
     for (const configFile of deployConfig.configFiles) {
       const templatePath = `deployment/${config.deploymentMethod}/${configFile}.hbs`;
-      const outputPath = path.join(projectPath, configFile);
+      const outputPath = path.join(deploymentPath, configFile);
 
       try {
         await templateEngine.processTemplate(templatePath, outputPath, {
           ...config,
-          deployment: deployConfig,
+          deployment: {
+            ...deployConfig,
+            buildCommand,
+            outputDir,
+          },
+          isMonorepo,
+          deploymentType,
         });
       } catch (error) {
         consola.warn(`Failed to create ${configFile}:`, error);
       }
     }
 
+    // Update package.json scripts
     const packageJsonPath = path.join(projectPath, "package.json");
     if (await pathExists(packageJsonPath)) {
       const packageJson = await readJSON(packageJsonPath);
 
       if (!packageJson.scripts) packageJson.scripts = {};
 
-      switch (config.deploymentMethod) {
-        case "cloudflare-pages":
-          packageJson.scripts.deploy = "wrangler pages deploy dist";
-          packageJson.scripts["deploy:preview"] =
-            "wrangler pages deploy dist --compatibility-date=2023-05-18";
-          break;
-        case "vercel":
-          packageJson.scripts.deploy = "vercel --prod";
-          packageJson.scripts["deploy:preview"] = "vercel";
-          break;
-        case "netlify":
-          packageJson.scripts.deploy = "netlify deploy --prod --dir=dist";
-          packageJson.scripts["deploy:preview"] = "netlify deploy --dir=dist";
-          break;
-        case "github-pages":
-          packageJson.scripts["deploy:gh-pages"] = "gh-pages -d dist";
-          break;
+      if (isMonorepo) {
+        // For monorepos, add deployment scripts that work from the root
+        switch (config.deploymentMethod) {
+          case "cloudflare-pages":
+            packageJson.scripts["deploy:web"] = "cd apps/web && wrangler pages deploy dist";
+            packageJson.scripts["deploy:web:preview"] =
+              "cd apps/web && wrangler pages deploy dist --compatibility-date=2023-05-18";
+            if (config.backend === "cloudflare-workers") {
+              packageJson.scripts["deploy:workers"] = "cd apps/workers && wrangler deploy";
+              packageJson.scripts["deploy:workers:preview"] =
+                "cd apps/workers && wrangler deploy --env preview";
+              packageJson.scripts.deploy = "npm run deploy:web && npm run deploy:workers";
+            } else {
+              packageJson.scripts.deploy = "npm run deploy:web";
+            }
+            break;
+          case "vercel":
+            packageJson.scripts["deploy:web"] = "vercel --prod --cwd apps/web";
+            packageJson.scripts["deploy:web:preview"] = "vercel --cwd apps/web";
+            packageJson.scripts.deploy = "npm run deploy:web";
+            break;
+          case "netlify":
+            packageJson.scripts["deploy:web"] = "netlify deploy --prod --dir=apps/web/dist";
+            packageJson.scripts["deploy:web:preview"] = "netlify deploy --dir=apps/web/dist";
+            packageJson.scripts.deploy = "npm run deploy:web";
+            break;
+          case "github-pages":
+            packageJson.scripts["deploy:gh-pages"] = "gh-pages -d apps/web/dist";
+            break;
+        }
+      } else {
+        // For single apps, use simple deployment scripts
+        switch (config.deploymentMethod) {
+          case "cloudflare-pages":
+            packageJson.scripts.deploy = "wrangler pages deploy dist";
+            packageJson.scripts["deploy:preview"] =
+              "wrangler pages deploy dist --compatibility-date=2023-05-18";
+            break;
+          case "vercel":
+            packageJson.scripts.deploy = "vercel --prod";
+            packageJson.scripts["deploy:preview"] = "vercel";
+            break;
+          case "netlify":
+            packageJson.scripts.deploy = "netlify deploy --prod --dir=dist";
+            packageJson.scripts["deploy:preview"] = "netlify deploy --dir=dist";
+            break;
+          case "github-pages":
+            packageJson.scripts["deploy:gh-pages"] = "gh-pages -d dist";
+            break;
+        }
       }
 
       await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
@@ -142,7 +218,11 @@ export async function setupDeploymentConfig(
 
     consola.success(`${deployConfig.name} deployment configuration added!`);
 
-    const nextSteps = getDeploymentNextSteps(config.deploymentMethod);
+    const nextSteps = getDeploymentNextSteps(
+      config.deploymentMethod,
+      isMonorepo || undefined,
+      config.backend
+    );
     if (nextSteps.length > 0) {
       consola.box({
         title: `${deployConfig.name} Setup`,
@@ -157,44 +237,84 @@ export async function setupDeploymentConfig(
 /**
  * Get next steps for deployment setup
  * @param deploymentMethod - Deployment method identifier
+ * @param isMonorepo - Whether this is a monorepo project
+ * @param backend - Backend type if applicable
  * @returns List of next steps
  */
-function getDeploymentNextSteps(deploymentMethod: string): string[] {
+function getDeploymentNextSteps(
+  deploymentMethod: string,
+  isMonorepo?: boolean,
+  backend?: string
+): string[] {
+  const steps: string[] = [];
+
   switch (deploymentMethod) {
     case "cloudflare-pages":
-      return [
+      steps.push(
         "Install Wrangler CLI: npm install -g wrangler",
-        "Login to Cloudflare: wrangler login",
-        "Create Pages project: wrangler pages project create <project-name>",
-        "Deploy: npm run deploy",
-      ];
+        "Login to Cloudflare: wrangler login"
+      );
+
+      if (isMonorepo) {
+        steps.push("Create Pages project: wrangler pages project create <project-name>");
+
+        if (backend === "cloudflare-workers") {
+          steps.push(
+            "Deploy frontend: npm run deploy:web",
+            "Deploy Workers backend: npm run deploy:workers",
+            "Or deploy both: npm run deploy"
+          );
+        } else {
+          steps.push("Deploy frontend: npm run deploy:web");
+        }
+      } else {
+        steps.push(
+          "Create Pages project: wrangler pages project create <project-name>",
+          "Deploy: npm run deploy"
+        );
+      }
+      break;
+
+    case "vercel":
+      steps.push("Install Vercel CLI: npm install -g vercel", "Login to Vercel: vercel login");
+
+      if (isMonorepo) {
+        steps.push("Link project: cd apps/web && vercel link", "Deploy: npm run deploy:web");
+      } else {
+        steps.push("Deploy: npm run deploy");
+      }
+      break;
+
+    case "netlify":
+      steps.push(
+        "Install Netlify CLI: npm install -g netlify-cli",
+        "Login to Netlify: netlify login"
+      );
+
+      if (isMonorepo) {
+        steps.push("Connect site: cd apps/web && netlify init", "Deploy: npm run deploy:web");
+      } else {
+        steps.push("Connect site: netlify init", "Deploy: npm run deploy");
+      }
+      break;
+
     case "azure-static":
-      return [
+      steps.push(
         "Create Azure Static Web Apps resource in Azure portal",
         "Configure GitHub repository connection",
         "Update workflow file with your app details",
-        "Push to trigger deployment",
-      ];
-    case "vercel":
-      return [
-        "Install Vercel CLI: npm install -g vercel",
-        "Login to Vercel: vercel login",
-        "Deploy: npm run deploy",
-      ];
-    case "netlify":
-      return [
-        "Install Netlify CLI: npm install -g netlify-cli",
-        "Login to Netlify: netlify login",
-        "Connect site: netlify init",
-        "Deploy: npm run deploy",
-      ];
+        "Push to trigger deployment"
+      );
+      break;
+
     case "github-pages":
-      return [
+      steps.push(
         "Enable GitHub Pages in repository settings",
         "Configure workflow permissions for GITHUB_TOKEN",
-        "Push to trigger deployment workflow",
-      ];
-    default:
-      return [];
+        "Push to trigger deployment workflow"
+      );
+      break;
   }
+
+  return steps;
 }

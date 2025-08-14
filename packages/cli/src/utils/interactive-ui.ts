@@ -504,7 +504,7 @@ export class InteractiveTaskRunner {
           // Use logUpdate properly - it should handle clearing automatically
           logUpdate(newRender);
           this.lastRender = newRender;
-        } catch (error) {
+        } catch {
           // If logUpdate fails, fall back to console output
           console.log(newRender);
         }

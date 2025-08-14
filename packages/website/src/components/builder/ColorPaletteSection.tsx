@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { HexColorPicker } from "react-colorful";
 import { FaPalette, FaEdit, FaTimes, FaCheck } from "react-icons/fa";
 
@@ -32,6 +32,26 @@ export const ColorPaletteSection: React.FC<ColorPaletteSectionProps> = ({ config
   const [customColors, setCustomColors] = useState<ColorPalette["colors"]>(
     config.colorPalette?.colors || colorPalettes.find((p) => p.id === "shadcn")!.colors
   );
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+
+  // Close color picker on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
+        setEditingColor(null);
+      }
+    };
+
+    if (editingColor) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [editingColor]);
 
   const filteredPalettes =
     selectedCategory === "all"
@@ -124,16 +144,16 @@ export const ColorPaletteSection: React.FC<ColorPaletteSectionProps> = ({ config
         defaultCollapsed={true}
         summary={<PaletteSummary />}
         title={
-          <div className="flex items-center gap-3 flex-1">
-            <h3 className="font-display text-2xl">COLOR PALETTE</h3>
-            <div className="flex-1" />
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
+            <h3 className="font-display text-xl sm:text-2xl">COLOR PALETTE</h3>
+            <div className="hidden sm:block flex-1" />
             {!isCustomizing && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCustomize();
                 }}
-                className="px-2 sm:px-3 py-1 bg-comic-purple text-comic-white font-comic text-xs sm:text-sm rounded-lg border-2 border-comic-black hover:bg-comic-darkPurple transition-colors flex items-center gap-1 sm:gap-2 mr-4"
+                className="px-2 sm:px-3 py-1 bg-comic-purple text-comic-white font-comic text-xs sm:text-sm rounded-lg border-2 border-comic-black hover:bg-comic-darkPurple transition-colors flex items-center gap-1 sm:gap-2 sm:mr-4 self-start sm:self-auto"
               >
                 <FaEdit className="text-xs" />
                 <span className="hidden sm:inline">Customize</span>
@@ -190,8 +210,8 @@ export const ColorPaletteSection: React.FC<ColorPaletteSectionProps> = ({ config
                       )}
                     </div>
                   </button>
-                  {/* Custom Tooltip */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-comic-black text-comic-white font-comic text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                  {/* Custom Tooltip - Hidden on mobile */}
+                  <div className="hidden sm:block absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-comic-black text-comic-white font-comic text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
                     {palette.description}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                       <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-comic-black"></div>
@@ -246,11 +266,13 @@ export const ColorPaletteSection: React.FC<ColorPaletteSectionProps> = ({ config
                   <AnimatePresence>
                     {editingColor === key && (
                       <motion.div
+                        ref={colorPickerRef}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="absolute top-full left-0 mt-2 z-50 p-3 bg-comic-white rounded-lg border-3 border-comic-black shadow-xl"
-                        style={{ minWidth: "200px" }}
+                        className="fixed sm:absolute top-1/2 left-1/2 sm:top-full sm:left-0 transform -translate-x-1/2 -translate-y-1/2 sm:translate-x-0 sm:translate-y-0 sm:mt-2 z-[100] p-3 bg-comic-white rounded-lg border-3 border-comic-black shadow-xl"
+                        style={{ minWidth: "200px", maxWidth: "90vw" }}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <HexColorPicker
                           color={value}

@@ -34,6 +34,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
  * @returns Theme context with current theme and setTheme function
  * @throws Error if used outside of ThemeProvider
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {

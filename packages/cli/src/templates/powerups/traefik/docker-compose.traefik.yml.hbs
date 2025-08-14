@@ -9,9 +9,9 @@ services:
       - "8080:8080" # Dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ./traefik/dynamic:/etc/traefik/dynamic:ro
-      - ./traefik/certs:/etc/traefik/certs
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic:/etc/traefik/dynamic:ro
+      - ./certs:/etc/traefik/certs
     networks:
       - {{name}}_network
       - traefik_network

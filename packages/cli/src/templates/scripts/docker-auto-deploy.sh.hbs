@@ -1,0 +1,471 @@
+#!/bin/bash
+
+# Precast Auto Docker Deploy Script
+# Automatically starts Docker services based on project configuration
+# Generated: {{timestamp}}
+#
+# This script reads precast.jsonc configuration and automatically starts
+# required Docker services including databases and powerups
+
+set -e
+
+# Fix PATH for package manager postinstall scripts (Bun/npm/etc)
+# Add common Docker paths to PATH for better compatibility
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Icons
+DOCKER_ICON="🐳"
+DATABASE_ICON="🗄️"
+NETWORK_ICON="🌐"
+SUCCESS_ICON="✅"
+WARNING_ICON="⚠️"
+ERROR_ICON="❌"
+INFO_ICON="ℹ️"
+
+# Project configuration
+PROJECT_NAME="{{projectName}}"
+HAS_DOCKER={{hasDocker}}
+DATABASE="{{database}}"
+{{#if powerups}}
+POWERUPS=({{#each powerups}}"{{this}}"{{#unless @last}} {{/unless}}{{/each}})
+{{else}}
+POWERUPS=()
+{{/if}}
+
+# Log functions
+log_info() {
+    echo -e "${BLUE}${INFO_ICON} $1${NC}"
+}
+
+log_success() {
+    echo -e "${GREEN}${SUCCESS_ICON} $1${NC}"
+}
+
+log_warning() {
+    echo -e "${YELLOW}${WARNING_ICON} $1${NC}"
+}
+
+log_error() {
+    echo -e "${RED}${ERROR_ICON} $1${NC}"
+}
+
+log_docker() {
+    echo -e "${CYAN}${DOCKER_ICON} $1${NC}"
+}
+
+log_database() {
+    echo -e "${PURPLE}${DATABASE_ICON} $1${NC}"
+}
+
+log_network() {
+    echo -e "${YELLOW}${NETWORK_ICON} $1${NC}"
+}
+
+# Check if Docker is running
+check_docker() {
+    if ! docker info >/dev/null 2>&1; then
+        log_error "Docker is not running. Please start Docker and try again."
+        exit 1
+    fi
+    log_info "Docker is running"
+}
+
+# Check if docker-compose is available
+check_docker_compose() {
+    if ! command -v docker >/dev/null 2>&1; then
+        log_error "Docker is not installed. Please install Docker first."
+        exit 1
+    fi
+    
+    # Try docker compose (new) or docker-compose (legacy)
+    if docker compose version >/dev/null 2>&1; then
+        DOCKER_COMPOSE="docker compose"
+    elif docker-compose --version >/dev/null 2>&1; then
+        DOCKER_COMPOSE="docker-compose"
+    else
+        log_error "Docker Compose is not available. Please install Docker Compose."
+        exit 1
+    fi
+    
+    log_info "Using: $DOCKER_COMPOSE"
+}
+
+# Create Docker networks if they don't exist
+create_networks() {
+    log_network "Setting up Docker networks..."
+    
+    # Create default network for the project
+    if ! docker network ls | grep -q "${PROJECT_NAME}_network"; then
+        docker network create "${PROJECT_NAME}_network" >/dev/null 2>&1 || true
+        log_success "Created ${PROJECT_NAME}_network"
+    fi
+    
+    # Create traefik network if traefik powerup is enabled
+    for powerup in "${POWERUPS[@]}"; do
+        if [[ "$powerup" == "traefik" ]]; then
+            if ! docker network ls | grep -q "traefik_network"; then
+                docker network create traefik_network >/dev/null 2>&1 || true
+                log_success "Created traefik_network"
+            fi
+            break
+        fi
+    done
+    
+    # Create any missing networks that exist in docker-compose files
+    # This handles cases where template substitution might have failed
+    log_info "Checking for any missing external networks..."
+    
+    # Create specific networks based on project configuration
+    project_network="${PROJECT_NAME}_network"
+    if ! docker network ls | grep -q "$project_network"; then
+        docker network create "$project_network" >/dev/null 2>&1 || true
+        log_success "Created project network: $project_network"
+    fi
+    
+    # Handle cases where template variables weren't substituted properly
+    # This ensures networks with literal "_network" names get created
+    if [[ -f "docker/postgres/docker-compose.yml" ]] && grep -q "_network" "docker/postgres/docker-compose.yml"; then
+        if ! docker network ls | grep -q "_network"; then
+            docker network create "_network" >/dev/null 2>&1 || true
+            log_success "Created fallback network: _network"
+        fi
+    fi
+    
+    # Check powerup-specific networks
+    for powerup in "${POWERUPS[@]}"; do
+        case "$powerup" in
+            "traefik")
+                if [[ -f "docker/traefik/docker-compose.traefik.yml" ]] && grep -q "_network" "docker/traefik/docker-compose.traefik.yml"; then
+                    if ! docker network ls | grep -q "_network"; then
+                        docker network create "_network" >/dev/null 2>&1 || true
+                        log_success "Created fallback network for Traefik: _network"
+                    fi
+                fi
+                ;;
+        esac
+    done
+}
+
+# Start database services
+start_database() {
+    if [[ "$DATABASE" == "none" ]]; then
+        log_info "No database configured, skipping database setup"
+        return 0
+    fi
+    
+    log_database "Starting $DATABASE database..."
+    
+    case "$DATABASE" in
+        "postgres")
+            if [[ -f "docker/postgres/docker-compose.yml" ]]; then
+                $DOCKER_COMPOSE -f docker/postgres/docker-compose.yml up -d
+                log_success "PostgreSQL started successfully"
+                
+                # Wait for PostgreSQL to be ready
+                log_info "Waiting for PostgreSQL to be ready..."
+                sleep 3
+                
+                # Check if PostgreSQL is accessible
+                for i in {1..30}; do
+                    if $DOCKER_COMPOSE -f docker/postgres/docker-compose.yml exec -T postgres pg_isready -U postgres >/dev/null 2>&1; then
+                        log_success "PostgreSQL is ready"
+                        break
+                    fi
+                    if [[ $i -eq 30 ]]; then
+                        log_warning "PostgreSQL took longer than expected to start, but continuing..."
+                    fi
+                    sleep 1
+                done
+            else
+                log_warning "PostgreSQL docker-compose.yml not found"
+            fi
+            ;;
+        "mysql")
+            if [[ -f "docker/mysql/docker-compose.yml" ]]; then
+                $DOCKER_COMPOSE -f docker/mysql/docker-compose.yml up -d
+                log_success "MySQL started successfully"
+                
+                # Wait for MySQL to be ready
+                log_info "Waiting for MySQL to be ready..."
+                sleep 5
+                
+                for i in {1..30}; do
+                    if $DOCKER_COMPOSE -f docker/mysql/docker-compose.yml exec -T mysql mysqladmin ping -h localhost -u root -ppassword >/dev/null 2>&1; then
+                        log_success "MySQL is ready"
+                        break
+                    fi
+                    if [[ $i -eq 30 ]]; then
+                        log_warning "MySQL took longer than expected to start, but continuing..."
+                    fi
+                    sleep 1
+                done
+            else
+                log_warning "MySQL docker-compose.yml not found"
+            fi
+            ;;
+        "mongodb")
+            if [[ -f "docker/mongodb/docker-compose.yml" ]]; then
+                $DOCKER_COMPOSE -f docker/mongodb/docker-compose.yml up -d
+                log_success "MongoDB started successfully"
+                
+                # Wait for MongoDB to be ready
+                log_info "Waiting for MongoDB to be ready..."
+                sleep 3
+            else
+                log_warning "MongoDB docker-compose.yml not found"
+            fi
+            ;;
+        "redis")
+            if [[ -f "docker/redis/docker-compose.yml" ]]; then
+                $DOCKER_COMPOSE -f docker/redis/docker-compose.yml up -d
+                log_success "Redis started successfully"
+            else
+                log_warning "Redis docker-compose.yml not found"
+            fi
+            ;;
+        *)
+            log_info "Database type '$DATABASE' does not require Docker setup"
+            ;;
+    esac
+}
+
+# Start powerup services
+start_powerups() {
+    if [[ ${#POWERUPS[@]} -eq 0 ]]; then
+        log_info "No powerups configured, skipping powerup setup"
+        return 0
+    fi
+    
+    log_network "Starting powerup services..."
+    
+    for powerup in "${POWERUPS[@]}"; do
+        case "$powerup" in
+            "traefik")
+                if [[ -f "docker/traefik/docker-compose.traefik.yml" ]]; then
+                    log_network "Starting Traefik reverse proxy..."
+                    $DOCKER_COMPOSE -f docker/traefik/docker-compose.traefik.yml up -d
+                    log_success "Traefik started successfully"
+                    log_info "Traefik dashboard available at: http://traefik.localhost:8080"
+                else
+                    log_warning "Traefik docker-compose.traefik.yml not found"
+                fi
+                ;;
+            "ngrok")
+                if [[ -f "docker/ngrok/docker-compose.ngrok.yml" ]]; then
+                    log_network "Starting ngrok tunnel..."
+                    $DOCKER_COMPOSE -f docker/ngrok/docker-compose.ngrok.yml up -d
+                    log_success "ngrok started successfully"
+                    
+                    # Wait a moment for ngrok to establish tunnel
+                    sleep 3
+                    log_info "ngrok dashboard available at: http://localhost:4040"
+                    
+                    # Try to get the tunnel URL
+                    tunnel_url=$($DOCKER_COMPOSE -f docker/ngrok/docker-compose.ngrok.yml logs ngrok 2>/dev/null | grep -o 'https://[a-z0-9-]*\.ngrok[a-z.-]*' | tail -1 || echo "")
+                    if [[ -n "$tunnel_url" ]]; then
+                        log_success "ngrok tunnel: $tunnel_url"
+                    else
+                        log_info "ngrok tunnel URL will be available shortly. Check with: {{packageManager}} run ngrok:url"
+                    fi
+                else
+                    log_warning "ngrok docker-compose.ngrok.yml not found"
+                fi
+                ;;
+            "cloudflare-tunnel")
+                if [[ -f "docker/cloudflare-tunnel/docker-compose.cloudflare.yml" ]]; then
+                    log_network "Starting Cloudflare tunnel..."
+                    $DOCKER_COMPOSE -f docker/cloudflare-tunnel/docker-compose.cloudflare.yml up -d
+                    log_success "Cloudflare tunnel started successfully"
+                else
+                    log_warning "Cloudflare tunnel docker-compose.cloudflare.yml not found"
+                fi
+                ;;
+            *)
+                log_info "Powerup '$powerup' does not require Docker setup"
+                ;;
+        esac
+    done
+}
+
+# Show running services
+show_services() {
+    echo
+    log_docker "Docker Services Status:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    # Show database services
+    if [[ "$DATABASE" != "none" && -f "docker/$DATABASE/docker-compose.yml" ]]; then
+        echo -e "${PURPLE}${DATABASE_ICON} Database Services:${NC}"
+        $DOCKER_COMPOSE -f "docker/$DATABASE/docker-compose.yml" ps --format "table \{{.Name}}\t\{{.Status}}\t\{{.Ports}}" 2>/dev/null || echo "  No database services running"
+        echo
+    fi
+    
+    # Show powerup services
+    local has_powerup_services=false
+    for powerup in "${POWERUPS[@]}"; do
+        case "$powerup" in
+            "traefik")
+                if [[ -f "docker/traefik/docker-compose.traefik.yml" ]]; then
+                    if [[ "$has_powerup_services" == "false" ]]; then
+                        echo -e "${YELLOW}${NETWORK_ICON} Network Services:${NC}"
+                        has_powerup_services=true
+                    fi
+                    $DOCKER_COMPOSE -f docker/traefik/docker-compose.traefik.yml ps --format "table \{{.Name}}\t\{{.Status}}\t\{{.Ports}}" 2>/dev/null || true
+                fi
+                ;;
+            "ngrok")
+                if [[ -f "docker/ngrok/docker-compose.ngrok.yml" ]]; then
+                    if [[ "$has_powerup_services" == "false" ]]; then
+                        echo -e "${YELLOW}${NETWORK_ICON} Network Services:${NC}"
+                        has_powerup_services=true
+                    fi
+                    $DOCKER_COMPOSE -f docker/ngrok/docker-compose.ngrok.yml ps --format "table \{{.Name}}\t\{{.Status}}\t\{{.Ports}}" 2>/dev/null || true
+                fi
+                ;;
+        esac
+    done
+    
+    if [[ "$has_powerup_services" == "true" ]]; then
+        echo
+    fi
+    
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+# Show helpful URLs and next steps
+show_next_steps() {
+    echo
+    log_info "Next Steps:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    # Development commands
+    echo -e "${GREEN}🚀 Development:${NC}"
+    echo "  {{packageManager}} run dev          - Start development servers"
+    echo "  {{packageManager}} run dev:docker   - Start Docker + development servers"
+    echo
+    
+    # Database management
+    if [[ "$DATABASE" != "none" ]]; then
+        echo -e "${PURPLE}${DATABASE_ICON} Database Management:${NC}"
+        echo "  {{packageManager}} run docker:logs  - View database logs"
+        echo "  {{packageManager}} run docker:reset - Reset database (removes all data)"
+        echo "  {{packageManager}} run docker:down  - Stop database"
+        echo
+    fi
+    
+    # Powerup URLs and commands
+    for powerup in "${POWERUPS[@]}"; do
+        case "$powerup" in
+            "traefik")
+                echo -e "${YELLOW}${NETWORK_ICON} Traefik Reverse Proxy:${NC}"
+                echo "  Dashboard: http://traefik.localhost:8080"
+                echo "  {{packageManager}} run traefik:dashboard - Open dashboard"
+                echo "  {{packageManager}} run traefik:logs      - View logs"
+                echo
+                ;;
+            "ngrok")
+                echo -e "${YELLOW}${NETWORK_ICON} ngrok Tunnel:${NC}"
+                echo "  Dashboard: http://localhost:4040"
+                # Try to get the actual tunnel URL
+                tunnel_url=$($DOCKER_COMPOSE -f docker/ngrok/docker-compose.ngrok.yml logs ngrok 2>/dev/null | grep -o 'https://[a-z0-9-]*\.ngrok[a-z.-]*' | tail -1 || echo "")
+                if [[ -n "$tunnel_url" ]]; then
+                    echo -e "  ${GREEN}Public URL: ${tunnel_url}${NC}"
+                else
+                    echo "  Get URL: {{packageManager}} run ngrok:url"
+                fi
+                echo "  {{packageManager}} run ngrok:dashboard - Open dashboard"
+                echo
+                ;;
+        esac
+    done
+    
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_success "All services are ready! You can now run '{{packageManager}} run dev' to start development."
+    echo
+    echo -e "${GREEN}🚀 Quick Start:${NC}"
+    echo -e "  ${BOLD}{{packageManager}} run dev${NC}"
+}
+
+# Main execution
+main() {
+    echo
+    log_docker "Precast Auto Docker Deploy"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    if [[ "$HAS_DOCKER" != "true" ]]; then
+        log_info "Docker is not enabled for this project. Skipping Docker setup."
+        exit 0
+    fi
+    
+    # Preliminary checks
+    check_docker
+    check_docker_compose
+    
+    # Setup
+    create_networks
+    start_database
+    start_powerups
+    
+    # Status and next steps
+    show_services
+    show_next_steps
+}
+
+# Handle script arguments
+case "${1:-}" in
+    "stop")
+        log_info "Stopping all Docker services..."
+        
+        # Stop database
+        if [[ "$DATABASE" != "none" && -f "docker/$DATABASE/docker-compose.yml" ]]; then
+            $DOCKER_COMPOSE -f "docker/$DATABASE/docker-compose.yml" down
+        fi
+        
+        # Stop powerups
+        for powerup in "${POWERUPS[@]}"; do
+            case "$powerup" in
+                "traefik")
+                    if [[ -f "docker/traefik/docker-compose.traefik.yml" ]]; then
+                        $DOCKER_COMPOSE -f docker/traefik/docker-compose.traefik.yml down
+                    fi
+                    ;;
+                "ngrok")
+                    if [[ -f "docker/ngrok/docker-compose.ngrok.yml" ]]; then
+                        $DOCKER_COMPOSE -f docker/ngrok/docker-compose.ngrok.yml down
+                    fi
+                    ;;
+                "cloudflare-tunnel")
+                    if [[ -f "docker/cloudflare-tunnel/docker-compose.cloudflare.yml" ]]; then
+                        $DOCKER_COMPOSE -f docker/cloudflare-tunnel/docker-compose.cloudflare.yml down
+                    fi
+                    ;;
+            esac
+        done
+        
+        log_success "All services stopped"
+        ;;
+    "status")
+        show_services
+        ;;
+    "help"|"-h"|"--help")
+        echo "Usage: $0 [command]"
+        echo
+        echo "Commands:"
+        echo "  (no args)  Start all configured Docker services"
+        echo "  stop       Stop all Docker services"
+        echo "  status     Show running services status"
+        echo "  help       Show this help message"
+        ;;
+    *)
+        main
+        ;;
+esac

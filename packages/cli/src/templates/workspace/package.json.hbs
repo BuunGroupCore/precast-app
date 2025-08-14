@@ -32,8 +32,8 @@
     "db:studio": "cd apps/api && prisma studio",
     {{/if}}
     {{#if (and docker database (ne database "none"))}}
-    "setup": "{{packageManager}} install && echo '🐳 Please start Docker containers with: {{packageManager}} run docker:up' && echo '📝 Then run: {{packageManager}} run dev'",
-    "dev:docker": "{{packageManager}} run docker:up && sleep 5 && turbo run dev",
+    "setup": "{{packageManager}} install && echo '🐳 Start Docker services with: npx create-precast-app deploy' && echo '📝 Then run: {{packageManager}} run dev'",
+    "dev:docker": "npx create-precast-app deploy && sleep 3 && turbo run dev",
     {{/if}}
     "dev": "turbo run dev",
     "build": "turbo run build",

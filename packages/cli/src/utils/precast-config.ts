@@ -1,9 +1,9 @@
 import path from "node:path";
 
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
-const { writeFile, pathExists, readFile } = fsExtra;
 import * as JSONC from "jsonc-parser";
+
+const { writeFile, pathExists, readFile } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 

@@ -5,12 +5,13 @@ import { fileURLToPath } from "url";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
+
+import type { ProjectConfig } from "../../../shared/stack-config.js";
+
 import { logger } from "./logger.js";
 
 const { copy, ensureDir, pathExists, readdir, readFile, readJson, stat, writeFile, writeJson } =
   fsExtra;
-
-import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -230,13 +231,18 @@ ${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@
     if (await pathExists(packageJsonPath)) {
       const packageJson = await readJson(packageJsonPath);
 
+      // Use npx for all package managers since bunx has issues with npm packages
+      // Users can still use their preferred package manager to run the scripts
+      const executeCommand = "npx create-precast-app@latest";
+
       packageJson.scripts = {
         ...packageJson.scripts,
-        "docker:up": `docker compose -f docker/${database}/docker-compose.yml up -d`,
-        "docker:down": `docker compose -f docker/${database}/docker-compose.yml down`,
+        "docker:up": `${executeCommand} deploy`,
+        "docker:down": `${executeCommand} deploy --stop`,
         "docker:logs": `docker compose -f docker/${database}/docker-compose.yml logs -f`,
-        "docker:reset": `docker compose -f docker/${database}/docker-compose.yml down -v && docker compose -f docker/${database}/docker-compose.yml up -d`,
-        "docker:ps": `docker compose -f docker/${database}/docker-compose.yml ps`,
+        "docker:reset": `${executeCommand} deploy --destroy --approve && ${executeCommand} deploy`,
+        "docker:ps": `${executeCommand} deploy --status`,
+        "docker:destroy": `${executeCommand} deploy --destroy`,
       };
 
       await writeJson(packageJsonPath, packageJson, { spaces: 2 });

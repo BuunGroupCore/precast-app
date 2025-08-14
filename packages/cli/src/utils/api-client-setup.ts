@@ -1,7 +1,6 @@
 import path from "path";
 
 import { consola } from "consola";
-// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
@@ -10,7 +9,6 @@ import { createTemplateEngine } from "../core/template-engine.js";
 import { installDependencies } from "./package-manager.js";
 import { getTemplateRoot } from "./template-path.js";
 
-// eslint-disable-next-line import/no-named-as-default-member
 const { pathExists, ensureDir, writeFile, readFile } = fsExtra;
 
 /**

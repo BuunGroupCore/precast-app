@@ -65,14 +65,7 @@ export const DesignSection: React.FC<DesignSectionProps> = ({ config, setConfig 
       className="space-y-4"
     >
       <CollapsibleSection
-        title={
-          <div>
-            <h3 className="action-text text-2xl">DESIGN SYSTEM</h3>
-            <p className="font-comic text-sm text-comic-gray">
-              Customize your app&apos;s visual identity and design tokens
-            </p>
-          </div>
-        }
+        title={<h3 className="action-text text-2xl">DESIGN SYSTEM</h3>}
         icon={<FaBrush className="text-2xl text-comic-purple" />}
         defaultCollapsed={false}
         summary={
@@ -96,6 +89,9 @@ export const DesignSection: React.FC<DesignSectionProps> = ({ config, setConfig 
           ) : undefined
         }
       >
+        <p className="font-comic text-sm mb-4 text-comic-black/90">
+          Customize your app&apos;s visual identity and design tokens
+        </p>
         <div className="space-y-6">
           {/* Color Palette Section - directly integrated */}
           <ColorPaletteSection config={config} setConfig={setConfig} />

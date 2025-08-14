@@ -1,7 +1,7 @@
 import type { ProjectConfig } from "../../../shared/stack-config.js";
+import { logger } from "../utils/logger.js";
 
 import { generateBackendTemplate } from "./backend-generator.js";
-import { logger } from "../utils/logger.js";
 
 /**
  * Generate backend-only project template (no frontend framework)

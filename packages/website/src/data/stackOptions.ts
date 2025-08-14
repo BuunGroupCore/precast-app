@@ -88,12 +88,14 @@ export const frameworkDefs: StackOption[] = [
     name: "Astro",
     description: "Build faster websites with Astro's next-gen island architecture",
     recommended: ["typescript", "tailwind"],
+    disabled: true, // Disabled for future support
   },
   // Other
   {
     id: "vanilla",
     name: "Vanilla",
     description: "Plain JavaScript, no framework",
+    disabled: true, // Disabled for future support
   },
   {
     id: "react-native",

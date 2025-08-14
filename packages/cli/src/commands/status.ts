@@ -16,7 +16,6 @@ import {
   actionSymbols,
 } from "../utils/cli-theme.js";
 
-// eslint-disable-next-line import/no-named-as-default-member
 const { pathExists, readFile } = fsExtra;
 
 interface PrecastConfig {
@@ -48,7 +47,10 @@ interface PrecastConfig {
 }
 
 /**
- * Get color palette display with colored circles
+ * Get color palette display with colored circles showing the theme colors
+ *
+ * @param paletteId - ID of the color palette to display
+ * @returns Formatted string with color circles and palette name, or null if not found
  */
 async function getColorPaletteDisplay(paletteId: string): Promise<string | null> {
   try {
@@ -76,14 +78,17 @@ async function getColorPaletteDisplay(paletteId: string): Promise<string | null>
       .join("  ");
 
     return `${theme.accent("◇")} ${palette.name} palette\n     ${colorDisplay}`;
-  } catch (error) {
+  } catch {
     // If we can't load the palette, just return the name
     return null;
   }
 }
 
 /**
- * Create a beautiful tech stack display
+ * Create a formatted tech stack display organized by categories
+ *
+ * @param config - Project configuration containing tech stack information
+ * @returns Formatted string with organized tech stack sections
  */
 function createTechStackDisplay(config: PrecastConfig): string {
   const sections: string[] = [];
@@ -150,7 +155,11 @@ function createTechStackDisplay(config: PrecastConfig): string {
 }
 
 /**
- * Create health status display
+ * Create health status display by checking project files and configuration
+ *
+ * @param targetPath - Path to the project directory
+ * @param config - Project configuration for health checks
+ * @returns Formatted string with health check results
  */
 async function createHealthDisplay(targetPath: string, config: PrecastConfig): Promise<string> {
   const checks: string[] = [];
@@ -209,7 +218,12 @@ async function createHealthDisplay(targetPath: string, config: PrecastConfig): P
 }
 
 /**
- * Create quick commands display
+ * Create quick commands display with common development commands
+ *
+ * @param config - Project configuration to determine available commands
+ * @param hasNodeModules - Whether dependencies are installed
+ * @param hasDocker - Whether Docker configuration exists
+ * @returns Formatted string with quick command options
  */
 function createQuickCommands(
   config: PrecastConfig,

@@ -69,6 +69,10 @@ const categories: Record<FrameworkCategory, CategoryInfo> = {
   },
 };
 
+/**
+ * Framework selection section for choosing frontend frameworks and build tools.
+ * Organizes options into categories for better discovery.
+ */
 export const FrameworkSection: React.FC<FrameworkSectionProps> = ({ config, setConfig }) => {
   const [selectedCategory, setSelectedCategory] = useState<FrameworkCategory>("all");
   const [showViteLibraries, setShowViteLibraries] = useState(false);

@@ -77,7 +77,31 @@ app.use((err: Error, req: Request, res: Response) => {
   });
 });
 
-app.listen(SERVER_CONFIG.port, () => {
+{{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
+// Listen on all interfaces (0.0.0.0) to allow tunnel access
+app.listen(SERVER_CONFIG.port, "0.0.0.0", () => {
+  // eslint-disable-next-line no-console
+  console.log(`🚀 Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
+  // eslint-disable-next-line no-console
+  console.log(`📋 Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`);
+  // eslint-disable-next-line no-console
+  console.log(`🌍 Environment: ${APP_CONFIG.environment}`);
+  {{#if (includes powerups "ngrok")}}
+  // eslint-disable-next-line no-console
+  console.log(`🌐 ngrok tunnel access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
+  {{/if}}
+  {{#if (includes powerups "traefik")}}
+  // eslint-disable-next-line no-console
+  console.log(`🚦 Traefik proxy access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
+  {{/if}}
+  {{#if (includes powerups "cloudflare-tunnel")}}
+  // eslint-disable-next-line no-console
+  console.log(`☁️ Cloudflare tunnel access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
+  {{/if}}
+});
+{{else}}
+// Listen on localhost only
+app.listen(SERVER_CONFIG.port, SERVER_CONFIG.host, () => {
   // eslint-disable-next-line no-console
   console.log(`🚀 Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
   // eslint-disable-next-line no-console
@@ -85,3 +109,4 @@ app.listen(SERVER_CONFIG.port, () => {
   // eslint-disable-next-line no-console
   console.log(`🌍 Environment: ${APP_CONFIG.environment}`);
 });
+{{/if}}

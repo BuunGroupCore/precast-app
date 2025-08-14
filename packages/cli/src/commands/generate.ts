@@ -1,6 +1,6 @@
-import * as fs from "fs/promises";
-import * as path from "path";
 import { execSync } from "child_process";
+// import * as fs from "fs/promises";
+import * as path from "path";
 
 import { consola } from "consola";
 import fsExtra from "fs-extra";
@@ -12,7 +12,10 @@ interface GenerateOptions {
 }
 
 /**
- * Generate ORM client and rebuild shared types
+ * Generate ORM client and rebuild shared types for the current project.
+ * Supports Prisma, Drizzle, and TypeORM with automatic detection of monorepo structure.
+ *
+ * @param options - Generation options including ORM type override
  */
 export async function generateCommand(options: GenerateOptions): Promise<void> {
   try {
@@ -61,7 +64,7 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
       try {
         execSync("cd packages/shared && npm run build", { stdio: "inherit" });
         consola.success("✅ Shared package rebuilt successfully");
-      } catch (error) {
+      } catch {
         consola.warn("⚠️  Failed to rebuild shared package, but ORM generation was successful");
       }
     }
@@ -74,8 +77,12 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
   }
 }
 
+/**
+ * Generate Prisma client and optionally sync database schema
+ *
+ * @param workingDir - Directory containing the Prisma schema
+ */
 async function generatePrisma(workingDir: string): Promise<void> {
-  // Check if Prisma schema exists
   const schemaPath = path.join(workingDir, "prisma/schema.prisma");
   if (!(await pathExists(schemaPath))) {
     throw new Error("Prisma schema not found. Expected: prisma/schema.prisma");
@@ -94,8 +101,12 @@ async function generatePrisma(workingDir: string): Promise<void> {
   }
 }
 
+/**
+ * Generate Drizzle migrations from schema
+ *
+ * @param workingDir - Directory containing the Drizzle configuration
+ */
 async function generateDrizzle(workingDir: string): Promise<void> {
-  // Check if Drizzle config exists
   const hasConfig =
     (await pathExists(path.join(workingDir, "drizzle.config.ts"))) ||
     (await pathExists(path.join(workingDir, "drizzle.config.js")));
@@ -109,8 +120,12 @@ async function generateDrizzle(workingDir: string): Promise<void> {
   consola.success("✅ Drizzle migrations generated");
 }
 
+/**
+ * Validate TypeORM setup - TypeORM doesn't require generation
+ *
+ * @param workingDir - Directory containing the TypeORM data source
+ */
 async function generateTypeORM(workingDir: string): Promise<void> {
-  // Check if TypeORM data source exists
   const hasDataSource =
     (await pathExists(path.join(workingDir, "src/data-source.ts"))) ||
     (await pathExists(path.join(workingDir, "src/data-source.js")));

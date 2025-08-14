@@ -287,8 +287,8 @@ export function DesignSystemSelector({ value, onChange, colorPalette }: DesignSy
     <div className="space-y-4">
       {/* Live Preview Section - TODO: Enable after backend implementation for STYLING.md generation */}
       <div className="relative">
-        <div className="absolute -top-2 -right-2 z-10">
-          <span className="px-2 py-1 text-xs font-comic font-bold bg-comic-yellow text-comic-black rounded-full border-2 border-comic-black shadow-sm">
+        <div className="absolute -top-2 right-0 sm:-right-2 z-10">
+          <span className="px-1 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-comic font-bold bg-comic-yellow text-comic-black rounded-full border sm:border-2 border-comic-black shadow-sm">
             UNDER DEVELOPMENT
           </span>
         </div>
@@ -449,8 +449,8 @@ export function DesignSystemSelector({ value, onChange, colorPalette }: DesignSy
 
       {/* Design Elements Section - TODO: Backend implementation needed for STYLING.md generation */}
       <div className="relative">
-        <div className="absolute -top-2 -right-2 z-10">
-          <span className="px-2 py-1 text-xs font-comic font-bold bg-comic-yellow text-comic-black rounded-full border-2 border-comic-black shadow-sm">
+        <div className="absolute -top-2 right-0 sm:-right-2 z-10">
+          <span className="px-1 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-comic font-bold bg-comic-yellow text-comic-black rounded-full border sm:border-2 border-comic-black shadow-sm">
             UNDER DEVELOPMENT
           </span>
         </div>

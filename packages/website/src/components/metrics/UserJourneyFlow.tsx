@@ -12,7 +12,8 @@ import {
 
 import { useUserJourney } from "../../hooks/usePrecastAPI";
 
-interface UserJourneyFlowProps {}
+// No props needed for this component
+type UserJourneyFlowProps = Record<string, never>;
 
 export function UserJourneyFlow(_props: UserJourneyFlowProps) {
   const { data: journey, loading, error } = useUserJourney();

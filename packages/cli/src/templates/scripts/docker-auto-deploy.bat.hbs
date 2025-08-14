@@ -1,0 +1,366 @@
+@echo off
+setlocal enabledelayedexpansion
+
+rem Precast Auto Docker Deploy Script (Windows)
+rem Automatically starts Docker services based on project configuration
+rem Generated: {{timestamp}}
+rem
+rem This script reads precast.jsonc configuration and automatically starts
+rem required Docker services including databases and powerups
+
+rem Project configuration
+set PROJECT_NAME={{projectName}}
+set HAS_DOCKER={{hasDocker}}
+set DATABASE={{database}}
+set POWERUPS={{#each powerups}}"{{this}}"{{#unless @last}} {{/unless}}{{/each}}
+
+rem Colors (limited support in cmd)
+set RED=[91m
+set GREEN=[92m
+set YELLOW=[93m
+set BLUE=[94m
+set PURPLE=[95m
+set CYAN=[96m
+set NC=[0m
+
+rem Icons (fallback for Windows)
+set DOCKER_ICON=Docker
+set DATABASE_ICON=DB
+set NETWORK_ICON=NET
+set SUCCESS_ICON=OK
+set WARNING_ICON=WARN
+set ERROR_ICON=ERROR
+set INFO_ICON=INFO
+
+rem Add common Docker paths to PATH
+set "PATH=C:\Program Files\Docker\Docker\resources\bin;C:\ProgramData\DockerDesktop\version-bin;%PATH%"
+
+rem Log functions
+:log_info
+echo %BLUE%%INFO_ICON% %~1%NC%
+goto :eof
+
+:log_success
+echo %GREEN%%SUCCESS_ICON% %~1%NC%
+goto :eof
+
+:log_warning
+echo %YELLOW%%WARNING_ICON% %~1%NC%
+goto :eof
+
+:log_error
+echo %RED%%ERROR_ICON% %~1%NC%
+goto :eof
+
+:log_docker
+echo %CYAN%%DOCKER_ICON% %~1%NC%
+goto :eof
+
+:log_database
+echo %PURPLE%%DATABASE_ICON% %~1%NC%
+goto :eof
+
+:log_network
+echo %YELLOW%%NETWORK_ICON% %~1%NC%
+goto :eof
+
+rem Check if Docker is running
+:check_docker
+docker info >nul 2>&1
+if %errorlevel% neq 0 (
+    call :log_error "Docker is not running. Please start Docker Desktop and try again."
+    exit /b 1
+)
+call :log_info "Docker is running"
+goto :eof
+
+rem Check if docker-compose is available
+:check_docker_compose
+where docker >nul 2>&1
+if %errorlevel% neq 0 (
+    call :log_error "Docker is not installed. Please install Docker Desktop first."
+    exit /b 1
+)
+
+rem Try docker compose (new) or docker-compose (legacy)
+docker compose version >nul 2>&1
+if %errorlevel% equ 0 (
+    set DOCKER_COMPOSE=docker compose
+    call :log_info "Using: docker compose"
+    goto :eof
+)
+
+docker-compose --version >nul 2>&1
+if %errorlevel% equ 0 (
+    set DOCKER_COMPOSE=docker-compose
+    call :log_info "Using: docker-compose"
+    goto :eof
+)
+
+call :log_error "Docker Compose is not available. Please install Docker Desktop."
+exit /b 1
+
+rem Create Docker networks if they don't exist
+:create_networks
+call :log_network "Setting up Docker networks..."
+
+rem Create default network for the project
+docker network ls | findstr "%PROJECT_NAME%_network" >nul
+if %errorlevel% neq 0 (
+    docker network create "%PROJECT_NAME%_network" >nul 2>&1
+    call :log_success "Created %PROJECT_NAME%_network"
+)
+
+rem Create traefik network if traefik powerup is enabled
+echo %POWERUPS% | findstr "traefik" >nul
+if %errorlevel% equ 0 (
+    docker network ls | findstr "traefik_network" >nul
+    if !errorlevel! neq 0 (
+        docker network create traefik_network >nul 2>&1
+        call :log_success "Created traefik_network"
+    )
+)
+
+goto :eof
+
+rem Start database services
+:start_database
+if "%DATABASE%"=="none" (
+    call :log_info "No database configured, skipping database setup"
+    goto :eof
+)
+
+call :log_database "Starting %DATABASE% database..."
+
+if "%DATABASE%"=="postgres" (
+    if exist "docker\postgres\docker-compose.yml" (
+        %DOCKER_COMPOSE% -f docker\postgres\docker-compose.yml up -d
+        call :log_success "PostgreSQL started successfully"
+        
+        rem Wait for PostgreSQL to be ready
+        call :log_info "Waiting for PostgreSQL to be ready..."
+        timeout /t 3 /nobreak >nul
+        
+        rem Check if PostgreSQL is accessible (simplified check)
+        for /l %%i in (1,1,30) do (
+            %DOCKER_COMPOSE% -f docker\postgres\docker-compose.yml exec -T postgres pg_isready -U postgres >nul 2>&1
+            if !errorlevel! equ 0 (
+                call :log_success "PostgreSQL is ready"
+                goto :postgres_ready
+            )
+            if %%i equ 30 (
+                call :log_warning "PostgreSQL took longer than expected to start, but continuing..."
+            )
+            timeout /t 1 /nobreak >nul
+        )
+        :postgres_ready
+    ) else (
+        call :log_warning "PostgreSQL docker-compose.yml not found"
+    )
+)
+
+if "%DATABASE%"=="mysql" (
+    if exist "docker\mysql\docker-compose.yml" (
+        %DOCKER_COMPOSE% -f docker\mysql\docker-compose.yml up -d
+        call :log_success "MySQL started successfully"
+        timeout /t 5 /nobreak >nul
+    ) else (
+        call :log_warning "MySQL docker-compose.yml not found"
+    )
+)
+
+goto :eof
+
+rem Start powerup services
+:start_powerups
+if "%POWERUPS%"=="" (
+    call :log_info "No powerups configured, skipping powerup setup"
+    goto :eof
+)
+
+call :log_network "Starting powerup services..."
+
+echo %POWERUPS% | findstr "traefik" >nul
+if %errorlevel% equ 0 (
+    if exist "docker\traefik\docker-compose.traefik.yml" (
+        call :log_network "Starting Traefik reverse proxy..."
+        %DOCKER_COMPOSE% -f docker\traefik\docker-compose.traefik.yml up -d
+        call :log_success "Traefik started successfully"
+        call :log_info "Traefik dashboard available at: http://traefik.localhost:8080"
+    ) else (
+        call :log_warning "Traefik docker-compose.traefik.yml not found"
+    )
+)
+
+echo %POWERUPS% | findstr "ngrok" >nul
+if %errorlevel% equ 0 (
+    if exist "docker\ngrok\docker-compose.ngrok.yml" (
+        call :log_network "Starting ngrok tunnel..."
+        %DOCKER_COMPOSE% -f docker\ngrok\docker-compose.ngrok.yml up -d
+        call :log_success "ngrok started successfully"
+        timeout /t 3 /nobreak >nul
+        call :log_info "ngrok dashboard available at: http://localhost:4040"
+    ) else (
+        call :log_warning "ngrok docker-compose.ngrok.yml not found"
+    )
+)
+
+goto :eof
+
+rem Show running services
+:show_services
+echo.
+call :log_docker "Docker Services Status:"
+echo =====================================================================
+
+rem Show database services
+if not "%DATABASE%"=="none" (
+    if exist "docker\%DATABASE%\docker-compose.yml" (
+        echo %PURPLE%%DATABASE_ICON% Database Services:%NC%
+        %DOCKER_COMPOSE% -f "docker\%DATABASE%\docker-compose.yml" ps 2>nul || echo   No database services running
+        echo.
+    )
+)
+
+rem Show powerup services (simplified for Windows)
+echo %YELLOW%%NETWORK_ICON% Network Services:%NC%
+echo %POWERUPS% | findstr "traefik" >nul
+if %errorlevel% equ 0 (
+    if exist "docker\traefik\docker-compose.traefik.yml" (
+        %DOCKER_COMPOSE% -f docker\traefik\docker-compose.traefik.yml ps 2>nul
+    )
+)
+
+echo %POWERUPS% | findstr "ngrok" >nul
+if %errorlevel% equ 0 (
+    if exist "docker\ngrok\docker-compose.ngrok.yml" (
+        %DOCKER_COMPOSE% -f docker\ngrok\docker-compose.ngrok.yml ps 2>nul
+    )
+)
+
+echo =====================================================================
+goto :eof
+
+rem Show helpful URLs and next steps
+:show_next_steps
+echo.
+call :log_info "Next Steps:"
+echo =====================================================================
+
+rem Development commands
+echo %GREEN%Development:%NC%
+echo   npm run dev          - Start development servers
+echo   npm run dev:docker   - Start Docker + development servers
+echo.
+
+rem Database management
+if not "%DATABASE%"=="none" (
+    echo %PURPLE%%DATABASE_ICON% Database Management:%NC%
+    echo   npm run docker:logs  - View database logs
+    echo   npm run docker:reset - Reset database ^(removes all data^)
+    echo   npm run docker:down  - Stop database
+    echo.
+)
+
+rem Powerup URLs and commands
+echo %POWERUPS% | findstr "traefik" >nul
+if %errorlevel% equ 0 (
+    echo %YELLOW%%NETWORK_ICON% Traefik Reverse Proxy:%NC%
+    echo   Dashboard: http://traefik.localhost:8080
+    echo   npm run traefik:dashboard - Open dashboard
+    echo   npm run traefik:logs      - View logs
+    echo.
+)
+
+echo %POWERUPS% | findstr "ngrok" >nul
+if %errorlevel% equ 0 (
+    echo %YELLOW%%NETWORK_ICON% ngrok Tunnel:%NC%
+    echo   Dashboard: http://localhost:4040
+    echo   npm run ngrok:url       - Get tunnel URL
+    echo   npm run ngrok:dashboard - Open dashboard
+    echo.
+)
+
+echo =====================================================================
+call :log_success "All services are ready! You can now run 'npm run dev' to start development."
+goto :eof
+
+rem Main execution
+:main
+echo.
+call :log_docker "Precast Auto Docker Deploy"
+echo =====================================================================
+
+if not "%HAS_DOCKER%"=="true" (
+    call :log_info "Docker is not enabled for this project. Skipping Docker setup."
+    exit /b 0
+)
+
+rem Preliminary checks
+call :check_docker
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call :check_docker_compose
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+rem Setup
+call :create_networks
+call :start_database
+call :start_powerups
+
+rem Status and next steps
+call :show_services
+call :show_next_steps
+goto :eof
+
+rem Handle script arguments
+set COMMAND=%~1
+if "%COMMAND%"=="" set COMMAND=main
+
+if "%COMMAND%"=="stop" (
+    call :log_info "Stopping all Docker services..."
+    
+    rem Stop database
+    if not "%DATABASE%"=="none" (
+        if exist "docker\%DATABASE%\docker-compose.yml" (
+            %DOCKER_COMPOSE% -f "docker\%DATABASE%\docker-compose.yml" down
+        )
+    )
+    
+    rem Stop powerups
+    echo %POWERUPS% | findstr "traefik" >nul
+    if !errorlevel! equ 0 (
+        if exist "docker\traefik\docker-compose.traefik.yml" (
+            %DOCKER_COMPOSE% -f docker\traefik\docker-compose.traefik.yml down
+        )
+    )
+    
+    echo %POWERUPS% | findstr "ngrok" >nul
+    if !errorlevel! equ 0 (
+        if exist "docker\ngrok\docker-compose.ngrok.yml" (
+            %DOCKER_COMPOSE% -f docker\ngrok\docker-compose.ngrok.yml down
+        )
+    )
+    
+    call :log_success "All services stopped"
+    exit /b 0
+)
+
+if "%COMMAND%"=="status" (
+    call :show_services
+    exit /b 0
+)
+
+if "%COMMAND%"=="help" (
+    echo Usage: %~nx0 [command]
+    echo.
+    echo Commands:
+    echo   ^(no args^)  Start all configured Docker services
+    echo   stop       Stop all Docker services
+    echo   status     Show running services status
+    echo   help       Show this help message
+    exit /b 0
+)
+
+rem Default to main
+call :main

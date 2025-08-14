@@ -1,15 +1,13 @@
 import * as path from "path";
 
-import { logger } from "../utils/logger.js";
-// eslint-disable-next-line import/default
 import fsExtra from "fs-extra";
-
-// eslint-disable-next-line import/no-named-as-default-member
-const { writeFile, ensureDir, pathExists, readFile } = fsExtra;
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
+import { logger } from "../utils/logger.js";
 import { getTemplateRoot } from "../utils/template-path.js";
+
+const { writeFile, ensureDir, pathExists, readFile } = fsExtra;
 
 /**
  * Generate Claude Code integration for the project using templates
@@ -77,10 +75,18 @@ async function generateClaudeSettings(
   // Check if we should include the lint hook
   const hasLintHook = config.eslint || config.prettier;
 
+  // Package manager enforcement hook is always included
+  const hasPackageManagerHook = true;
+
+  // Security scanner hook is always included
+  const hasSecurityHook = true;
+
   const claudeContext = {
     ...config,
     allowedTools,
     hasLintHook,
+    hasPackageManagerHook,
+    hasSecurityHook,
     hasMcpServers: config.mcpServers && config.mcpServers.length > 0,
     mcpServers: config.mcpServers && config.mcpServers.length > 0 ? config.mcpServers : undefined,
   };
@@ -346,27 +352,54 @@ async function generateClaudeHooks(
   config: ProjectConfig & { mcpServers?: string[] },
   templateEngine: any
 ): Promise<void> {
-  // Only generate hooks if ESLint or Prettier are enabled
-  if (!config.eslint && !config.prettier) {
-    return;
-  }
-
   const hooksDir = path.join(config.projectPath, ".claude/hooks");
   await ensureDir(hooksDir);
 
-  // Generate lint-check hook
-  const hookPath = path.join(hooksDir, "lint-check.sh");
+  // Generate package manager enforcement hook (always included)
+  const pmHookPath = path.join(hooksDir, "enforce-package-manager.sh");
   await templateEngine.processTemplate(
-    "ai-context/claude/hooks/lint-check.sh.hbs",
-    hookPath,
+    "ai-context/claude/hooks/enforce-package-manager.sh.hbs",
+    pmHookPath,
     config
   );
 
   // Make the hook executable
   try {
-    await fsExtra.chmod(hookPath, 0o755);
+    await fsExtra.chmod(pmHookPath, 0o755);
   } catch (error) {
-    logger.verbose(`Could not set hook permissions: ${error}`);
+    logger.verbose(`Could not set package manager hook permissions: ${error}`);
+  }
+
+  // Generate security scanner hook (always included for safety)
+  const securityHookPath = path.join(hooksDir, "security-scanner.sh");
+  await templateEngine.processTemplate(
+    "ai-context/claude/hooks/security-scanner.sh.hbs",
+    securityHookPath,
+    config
+  );
+
+  // Make the hook executable
+  try {
+    await fsExtra.chmod(securityHookPath, 0o755);
+  } catch (error) {
+    logger.verbose(`Could not set security hook permissions: ${error}`);
+  }
+
+  // Generate lint-check hook if ESLint or Prettier are enabled
+  if (config.eslint || config.prettier) {
+    const lintHookPath = path.join(hooksDir, "lint-check.sh");
+    await templateEngine.processTemplate(
+      "ai-context/claude/hooks/lint-check.sh.hbs",
+      lintHookPath,
+      config
+    );
+
+    // Make the hook executable
+    try {
+      await fsExtra.chmod(lintHookPath, 0o755);
+    } catch (error) {
+      logger.verbose(`Could not set lint hook permissions: ${error}`);
+    }
   }
 
   logger.verbose("✅ Claude hooks generated");

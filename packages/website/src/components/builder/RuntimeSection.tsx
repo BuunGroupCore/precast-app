@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { FaCogs } from "react-icons/fa";
 
 import { ComicTooltip } from "@/components/ui/ComicTooltip";
@@ -14,13 +14,20 @@ interface RuntimeSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * Runtime environment selection component for choosing execution environments like Node.js, Bun, or Deno.
+ * Handles compatibility checking with selected framework.
+ */
 export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfig }) => {
-  const isRuntimeCompatible = (runtime: (typeof runtimes)[0]) => {
-    if (runtime.incompatible && runtime.incompatible.includes(config.framework)) {
-      return false;
-    }
-    return true;
-  };
+  const isRuntimeCompatible = useCallback(
+    (runtime: (typeof runtimes)[0]) => {
+      if (runtime.incompatible && runtime.incompatible.includes(config.framework)) {
+        return false;
+      }
+      return true;
+    },
+    [config.framework]
+  );
 
   /**
    * Automatically resets runtime selection when it becomes incompatible with the current framework
@@ -38,8 +45,7 @@ export const RuntimeSection: React.FC<RuntimeSectionProps> = ({ config, setConfi
         }));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.framework]);
+  }, [config.framework, config.runtime, isRuntimeCompatible, setConfig]);
 
   return (
     <motion.div

@@ -11,12 +11,9 @@ import { initCommand } from "./commands/init.js";
 import { statusCommand } from "./commands/status.js";
 import { telemetryCommand } from "./commands/telemetry.js";
 
-/** Current file and directory paths */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/** Package metadata for version information */
-// eslint-disable-next-line import/no-named-as-default-member
 const packageJson = await fsExtra.readJSON(path.join(__dirname, "..", "package.json"));
 
 /**
@@ -49,6 +46,7 @@ program
   .option("--no-eslint", "Skip ESLint configuration")
   .option("--no-prettier", "Skip Prettier configuration")
   .option("--docker", "Include Docker configuration")
+  .option("--auto-deploy", "Automatically start Docker services after project creation")
   .option(
     "--no-secure-passwords",
     "Use generic passwords instead of secure random ones (Docker only)"
@@ -79,6 +77,10 @@ program
     "--color-palette <palette>",
     "Color palette theme (minimal-pro, monochrome, gradient, midnight, breeze, electric, nature, sunset, developer, arctic)"
   )
+  .option(
+    "--deployment <method>",
+    "Deployment method (cloudflare-pages, vercel, netlify, github-pages, docker, aws, azure, gcp)"
+  )
   .option("--debug", "Enable debug mode for verbose output")
   .option("--debug-analytics", "Enable debug logging for analytics events")
   .option("-v, --verbose", "Show detailed installation logs")
@@ -99,6 +101,7 @@ program
       eslint: options.eslint,
       prettier: options.prettier,
       docker: options.docker,
+      autoDeploy: options.autoDeploy,
       securePasswords: options.securePasswords,
       install: options.install,
       generate: options.generate,
@@ -111,6 +114,7 @@ program
       powerups: options.powerups ? options.powerups.split(",") : undefined,
       plugins: options.plugins ? options.plugins.split(",") : undefined,
       colorPalette: options.colorPalette,
+      deployment: options.deployment,
       debug: options.debug,
       debugAnalytics: options.debugAnalytics,
       verbose: options.verbose,
@@ -170,6 +174,31 @@ program
   .action(async (options) => {
     const { generateCommand } = await import("./commands/generate.js");
     await generateCommand(options);
+  });
+
+program
+  .command("deploy")
+  .description("Deploy Docker services for the current project")
+  .option("--stop", "Stop all Docker services")
+  .option("--status", "Show status of running Docker services")
+  .option("--destroy", "Destroy all Docker services and data (DESTRUCTIVE)")
+  .option("--approve", "Skip confirmation prompts (use with --destroy)")
+  .option("--help-docker", "Show Docker auto-deploy help")
+  .option("--yes, -y", "Auto-confirm all prompts and update environment variables")
+  .option("--update-env", "Update environment variables with ngrok URLs")
+  .option("--skip-env-update", "Skip environment variable updates")
+  .action(async (options) => {
+    const { deployCommand } = await import("./commands/deploy.js");
+    await deployCommand({
+      stop: options.stop,
+      status: options.status,
+      destroy: options.destroy,
+      approve: options.approve,
+      help: options.helpDocker,
+      yes: options.yes,
+      updateEnv: options.updateEnv,
+      skipEnvUpdate: options.skipEnvUpdate,
+    });
   });
 
 program

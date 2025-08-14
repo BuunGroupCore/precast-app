@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+INPUT=$(cat)
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
+
+if [[ "$TOOL_NAME" != "Bash" ]]; then
+  exit 0
+fi
+
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+
+if [[ -z "$COMMAND" ]]; then
+  exit 0
+fi
+
+check_for_secrets() {
+  local content="$1"
+  local patterns=(
+    "sk-[a-zA-Z0-9]{48}"
+    "pk_live_[a-zA-Z0-9]{32}"
+    "sk_live_[a-zA-Z0-9]{32}"
+    "pk_test_[a-zA-Z0-9]{32}"
+    "sk_test_[a-zA-Z0-9]{32}"
+    "ghp_[a-zA-Z0-9]{36}"
+    "gho_[a-zA-Z0-9]{36}"
+    "github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}"
+    "AKIA[A-Z0-9]{16}"
+    "AIza[a-zA-Z0-9]{35}"
+    "ya29\.[a-zA-Z0-9_-]{100,}"
+    "AAPK[a-zA-Z0-9]{32}"
+    "EAA[a-zA-Z0-9]{100,}"
+    "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+    "sq0atp-[a-zA-Z0-9]{22}"
+    "sq0csp-[a-zA-Z0-9]{43}"
+    "r[ks]_live_[a-zA-Z0-9]{24}"
+    "r[ks]_test_[a-zA-Z0-9]{24}"
+    "xox[baprs]-[a-zA-Z0-9]{10,48}"
+    "-----BEGIN (RSA|DSA|EC|OPENSSH) PRIVATE KEY-----"
+    "Bearer [a-zA-Z0-9_=]+\.[a-zA-Z0-9_=]+\.[a-zA-Z0-9_=]+"
+    "mongodb(\+srv)?://[^/\s]+:[^/\s]+@"
+    "postgres://[^/\s]+:[^/\s]+@"
+    "mysql://[^/\s]+:[^/\s]+@"
+    "ftp://[^/\s]+:[^/\s]+@"
+    "redis://[^/\s]+:[^/\s]+@"
+  )
+  
+  for pattern in "${patterns[@]}"; do
+    if echo "$content" | grep -qE "$pattern"; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+if echo "$COMMAND" | grep -qE "^(cat|echo|printf|print).*\.(env|key|pem|p12|pfx)"; then
+  if echo "$COMMAND" | grep -qE "\.env\.example|\.env\.sample|\.env\.template"; then
+    exit 0
+  fi
+  
+  echo "Error: Attempting to display sensitive file content" >&2
+  echo "This command might expose secrets. Use caution when working with sensitive files." >&2
+  exit 2
+fi
+
+if echo "$COMMAND" | grep -qE "^git (add|commit|push)"; then
+  SENSITIVE_FILES=(
+    ".env"
+    ".env.local"
+    ".env.production"
+    ".env.development"
+    "*.key"
+    "*.pem"
+    "*.p12"
+    "*.pfx"
+    "id_rsa"
+    "id_dsa"
+    "id_ecdsa"
+    "id_ed25519"
+  )
+  
+  for file_pattern in "${SENSITIVE_FILES[@]}"; do
+    if echo "$COMMAND" | grep -qE "$file_pattern"; then
+      echo "Error: Attempting to commit sensitive file: $file_pattern" >&2
+      echo "Add this file to .gitignore instead." >&2
+      exit 2
+    fi
+  done
+  
+  if echo "$COMMAND" | grep -qE "git add (\.|--all|-A)"; then
+    for file_pattern in "${SENSITIVE_FILES[@]}"; do
+      if [[ -f "$file_pattern" ]] && ! grep -q "^$file_pattern$" .gitignore 2>/dev/null; then
+        echo "Warning: $file_pattern exists but is not in .gitignore" >&2
+        echo "Consider adding it to .gitignore before committing." >&2
+      fi
+    done
+  fi
+fi
+
+if echo "$COMMAND" | grep -qE "curl.*(-d|--data|--data-raw|--data-binary)"; then
+  DATA_PORTION=$(echo "$COMMAND" | sed -n 's/.*\(-d\|--data\|--data-raw\|--data-binary\)[[:space:]]*\([^[:space:]]*\).*/\2/p')
+  if check_for_secrets "$DATA_PORTION"; then
+    echo "Error: Potential secret detected in curl data" >&2
+    echo "Use environment variables instead of hardcoding secrets." >&2
+    exit 2
+  fi
+fi
+
+if echo "$COMMAND" | grep -qE "export [A-Z_]+=['\"]?[^'\"\s]+['\"]?"; then
+  EXPORT_VALUE=$(echo "$COMMAND" | sed -n "s/export [A-Z_]*=['\"]?\([^'\"]*\)['\"]?.*/\1/p")
+  if check_for_secrets "$EXPORT_VALUE"; then
+    echo "Error: Potential secret detected in export command" >&2
+    echo "Store secrets in .env files instead of exporting them directly." >&2
+    exit 2
+  fi
+fi
+
+if echo "$COMMAND" | grep -qE "^({{packageManager}}|npm|pnpm|bun|yarn) (audit|outdated)"; then
+  exit 0
+fi
+
+if echo "$COMMAND" | grep -qE "^({{packageManager}}|npm|pnpm|bun|yarn) install"; then
+  AUDIT_CMD=""
+  case "{{packageManager}}" in
+    "npm")
+      AUDIT_CMD="npm audit --audit-level=moderate"
+      ;;
+    "pnpm")
+      AUDIT_CMD="pnpm audit --audit-level=moderate"
+      ;;
+    "bun")
+      AUDIT_CMD="bun audit"
+      ;;
+    "yarn")
+      AUDIT_CMD="yarn audit --level moderate"
+      ;;
+  esac
+  
+  if [[ -n "$AUDIT_CMD" ]]; then
+    echo "Note: Remember to run '$AUDIT_CMD' after installation to check for vulnerabilities." >&2
+  fi
+fi
+
+exit 0

@@ -4,35 +4,44 @@ let verboseMode = false;
 let suppressOutput = false;
 
 /**
- * Set verbose mode for logging
+ * Set verbose mode for detailed logging output
+ *
+ * @param verbose - Whether to enable verbose logging
  */
 export function setVerboseMode(verbose: boolean) {
   verboseMode = verbose;
 }
 
 /**
- * Check if verbose mode is enabled
+ * Check if verbose mode is enabled via flag or environment variable
+ *
+ * @returns True if verbose logging is enabled
  */
 export function isVerbose(): boolean {
   return verboseMode || process.env.VERBOSE === "true";
 }
 
 /**
- * Set output suppression mode (for task runner)
+ * Set output suppression mode for hiding console output during task execution
+ *
+ * @param suppress - Whether to suppress console output
  */
 export function setSuppressOutput(suppress: boolean) {
   suppressOutput = suppress;
 }
 
 /**
- * Check if output should be suppressed
+ * Check if output should be suppressed (unless in verbose mode)
+ *
+ * @returns True if output should be suppressed
  */
 export function isSuppressed(): boolean {
   return suppressOutput && !isVerbose();
 }
 
 /**
- * Logger utility for formatted console output
+ * Logger utility for formatted console output with suppression support.
+ * Provides consistent styling and respects verbose/suppress modes.
  */
 export const logger = {
   /**

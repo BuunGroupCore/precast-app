@@ -2,9 +2,10 @@ import path from "path";
 
 import consola from "consola";
 import fs from "fs-extra";
-import { logger } from "./logger.js";
 
 import { ProjectConfig } from "../../../shared/stack-config.js";
+
+import { logger } from "./logger.js";
 
 export interface EnvVariable {
   key: string;

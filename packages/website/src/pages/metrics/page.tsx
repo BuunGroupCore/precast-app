@@ -209,8 +209,6 @@ export function MetricsPage() {
     commits: activity.commits,
   }));
 
-  // GitHub data is now handled by usePrecastAPI hook - no manual fetching needed
-
   const fetchNpmData = async () => {
     try {
       const [packageData, downloadsDay, downloadsWeek, downloadsMonth] = await Promise.all([

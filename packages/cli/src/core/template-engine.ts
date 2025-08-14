@@ -2,12 +2,12 @@ import path from "node:path";
 
 import { consola } from "consola";
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
-const { pathExists, readFile, ensureDir, writeFile, copy, readdir } = fsExtra;
 import { globby } from "globby";
 import handlebars from "handlebars";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
+
+const { pathExists, readFile, ensureDir, writeFile, copy, readdir } = fsExtra;
 export interface TemplateContext extends ProjectConfig {
   [key: string]: any;
 }
@@ -382,6 +382,39 @@ export class TemplateEngine {
     }
     const entries = await readdir(categoryPath, { withFileTypes: true });
     return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  }
+
+  /**
+   * Render a template and return the processed content as a string
+   * @param templatePath - Path to template file relative to template root
+   * @param context - Template context data
+   * @returns Processed template content
+   */
+  async renderTemplate(templatePath: string, context: TemplateContext): Promise<string> {
+    try {
+      // Ensure partials are registered before processing
+      await this.registerDefaultPartials();
+
+      const resolvedTemplatePath = path.isAbsolute(templatePath)
+        ? templatePath
+        : path.join(this.templateRoot, templatePath);
+
+      if (!(await pathExists(resolvedTemplatePath))) {
+        throw new Error(`Template file not found: ${resolvedTemplatePath}`);
+      }
+
+      const templateContent = await readFile(resolvedTemplatePath, "utf-8");
+      const template = handlebars.compile(templateContent);
+      const processedContent = template(context);
+
+      consola.debug(`Rendered template: ${templatePath}`);
+      return processedContent;
+    } catch (error) {
+      consola.error(`Error rendering template ${templatePath}:`, error);
+      throw new Error(
+        `Failed to render template: ${templatePath} (resolved: ${path.isAbsolute(templatePath) ? templatePath : path.join(this.templateRoot, templatePath)})`
+      );
+    }
   }
 }
 

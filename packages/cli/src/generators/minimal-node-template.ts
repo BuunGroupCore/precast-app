@@ -3,11 +3,10 @@ import path from "path";
 import fsExtra from "fs-extra";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
-
-import { generatePackageJson } from "./base-generator.js";
 import { logger } from "../utils/logger.js";
 
-// eslint-disable-next-line import/no-named-as-default-member
+import { generatePackageJson } from "./base-generator.js";
+
 const { writeFile, ensureDir } = fsExtra;
 
 /**

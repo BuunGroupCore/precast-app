@@ -16,6 +16,10 @@ interface DatabaseSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * Database configuration section for selecting database and ORM options.
+ * Handles compatibility checking between database and ORM selections.
+ */
 export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setConfig }) => {
   const [deploymentModalOpen, setDeploymentModalOpen] = useState(false);
   const [selectedDatabase, setSelectedDatabase] = useState<StackOption | null>(null);
@@ -48,8 +52,7 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
         }));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.database]);
+  }, [config.database, config.orm, setConfig]);
 
   const handleDatabaseSelect = (db: StackOption) => {
     if (db.deploymentOptions && (db.deploymentOptions.local || db.deploymentOptions.cloud)) {

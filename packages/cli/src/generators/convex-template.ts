@@ -1,10 +1,8 @@
 import path from "path";
 
-import { logger } from "../utils/logger.js";
-
 import { type ProjectConfig } from "../../../shared/stack-config.js";
-
 import { createTemplateEngine } from "../core/template-engine.js";
+import { logger } from "../utils/logger.js";
 import { getTemplateRoot } from "../utils/template-path.js";
 
 /**

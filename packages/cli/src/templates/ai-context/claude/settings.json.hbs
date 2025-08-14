@@ -5,9 +5,37 @@
       "{{this}}"{{#unless @last}},{{/unless}}
       {{/each}}
     ]
-  }{{#if hasLintHook}},
+  }{{#if hasPackageManagerHook}},
   "hooks": {
     "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/enforce-package-manager.sh"
+          }{{#if hasSecurityHook}},
+          {
+            "type": "command",
+            "command": ".claude/hooks/security-scanner.sh"
+          }{{/if}}
+        ]
+      }
+    ]{{#if hasLintHook}},
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/lint-check.sh"
+          }
+        ]
+      }
+    ]{{/if}}
+  }{{else}}{{#if hasLintHook}},
+  "hooks": {
+    "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
@@ -18,5 +46,5 @@
         ]
       }
     ]
-  }{{/if}}
+  }{{/if}}{{/if}}
 }

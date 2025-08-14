@@ -2,7 +2,7 @@ import path from "path";
 
 import { execa } from "execa";
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
+
 const { pathExists, ensureDir, writeFile, remove } = fsExtra;
 
 import { type ProjectConfig } from "../../shared/stack-config.js";

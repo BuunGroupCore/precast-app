@@ -17,7 +17,7 @@ interface AddOptions {
  * @param resource - Type of resource to add
  * @param options - Options for resource generation
  */
-export async function addCommand(resource: string | undefined, options: AddOptions) {
+export async function addCommand(_resource: string | undefined, _options: AddOptions) {
   consola.info("The 'add' command is currently under development.");
   consola.info("This feature will be available in a future release.");
   consola.info("Stay tuned for updates!");

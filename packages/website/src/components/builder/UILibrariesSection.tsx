@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { FaPaintBrush } from "react-icons/fa";
 
 import { ComicTooltip } from "@/components/ui/ComicTooltip";
@@ -19,29 +19,35 @@ interface UILibrariesSectionProps {
  * UI Libraries selection component with framework compatibility validation.
  */
 export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, setConfig }) => {
-  const isUILibraryCompatible = (lib: (typeof uiLibraries)[0]) => {
-    if (lib.frameworks.includes("*")) return true;
+  const isUILibraryCompatible = useCallback(
+    (lib: (typeof uiLibraries)[0]) => {
+      if (lib.frameworks.includes("*")) return true;
 
-    const frameworkToCheck =
-      config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
+      const frameworkToCheck =
+        config.framework === "vite" && config.uiFramework ? config.uiFramework : config.framework;
 
-    return lib.frameworks.includes(frameworkToCheck);
-  };
+      return lib.frameworks.includes(frameworkToCheck);
+    },
+    [config.framework, config.uiFramework]
+  );
 
-  const isUILibraryStyleCompatible = (lib: (typeof uiLibraries)[0]) => {
-    if (lib.incompatible && lib.incompatible.includes(config.styling)) {
-      return false;
-    }
+  const isUILibraryStyleCompatible = useCallback(
+    (lib: (typeof uiLibraries)[0]) => {
+      if (lib.incompatible && lib.incompatible.includes(config.styling)) {
+        return false;
+      }
 
-    if (!lib.requires) return true;
-    return lib.requires.every((req) => {
-      if (req === "tailwind") return config.styling === "tailwind";
-      if (req === "css") return config.styling === "css";
-      if (req === "scss") return config.styling === "scss";
-      if (req === "styled-components") return config.styling === "styled-components";
-      return true;
-    });
-  };
+      if (!lib.requires) return true;
+      return lib.requires.every((req) => {
+        if (req === "tailwind") return config.styling === "tailwind";
+        if (req === "css") return config.styling === "css";
+        if (req === "scss") return config.styling === "scss";
+        if (req === "styled-components") return config.styling === "styled-components";
+        return true;
+      });
+    },
+    [config.styling]
+  );
 
   /**
    * Automatically resets UI library selection when it becomes incompatible with framework or styling changes
@@ -61,8 +67,15 @@ export const UILibrariesSection: React.FC<UILibrariesSectionProps> = ({ config, 
         }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.framework, config.uiFramework, config.styling]);
+  }, [
+    config.framework,
+    config.uiFramework,
+    config.styling,
+    config.uiLibrary,
+    isUILibraryCompatible,
+    isUILibraryStyleCompatible,
+    setConfig,
+  ]);
 
   return (
     <motion.div

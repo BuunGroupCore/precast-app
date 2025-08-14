@@ -1,12 +1,16 @@
-{{#if typescript}}import type { Config } from 'drizzle-kit'{{/if}}
+import { defineConfig } from 'drizzle-kit';
+{{#unless typescript}}import { config } from 'dotenv';{{/unless}}
+{{#if typescript}}import { config } from 'dotenv';{{/if}}
+
+config();
 
 /**
  * Drizzle configuration
  * @description Configuration for Drizzle Kit migrations and schema management
  */
-{{#if typescript}}export default {{/if}}{
+export default defineConfig({
   schema: './src/db/schema.{{#if typescript}}ts{{else}}js{{/if}}',
-  out: './src/db/migrations',
+  out: './drizzle',
   {{#if (eq database "postgres")}}
   dialect: 'postgresql',
   {{else if (eq database "mysql")}}
@@ -16,13 +20,13 @@
   {{/if}}
   dbCredentials: {
     {{#if (eq database "postgres")}}
-    url: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
+    url: process.env.DATABASE_URL{{#if typescript}}!{{else}} || ''{{/if}},
     {{else if (eq database "mysql")}}
-    url: process.env.DATABASE_URL{{#unless typescript}} || ''{{/unless}},
+    url: process.env.DATABASE_URL{{#if typescript}}!{{else}} || ''{{/if}},
     {{else if (eq database "sqlite")}}
-    url: process.env.DATABASE_URL{{#unless typescript}} || 'sqlite.db'{{/unless}},
+    url: process.env.DATABASE_URL || './sqlite.db',
     {{/if}}
   },
   verbose: true,
   strict: true,
-}{{#if typescript}} satisfies Config{{/if}}
+});

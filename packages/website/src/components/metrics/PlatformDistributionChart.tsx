@@ -4,7 +4,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { usePrecastAnalytics } from "../../hooks/usePrecastAPI";
 
-interface PlatformDistributionChartProps {}
+// No props needed for this component
+type PlatformDistributionChartProps = Record<string, never>;
 
 // Platform colors matching comic book theme
 const PLATFORM_COLORS = {

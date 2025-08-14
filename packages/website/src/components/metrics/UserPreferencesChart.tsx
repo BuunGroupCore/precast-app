@@ -15,7 +15,8 @@ import {
 
 import { useUserPreferences } from "../../hooks/usePrecastAPI";
 
-interface UserPreferencesChartProps {}
+// No props needed for this component
+type UserPreferencesChartProps = Record<string, never>;
 
 // Preference colors matching comic book theme
 const PREFERENCE_COLORS = {

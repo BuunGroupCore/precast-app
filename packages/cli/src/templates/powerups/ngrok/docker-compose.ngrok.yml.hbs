@@ -1,29 +1,58 @@
+# Note: ngrok requires an auth token to function
+# Set NGROK_AUTHTOKEN or NGROK_AUTH_TOKEN in your environment or .env file
+# Get your token at: https://dashboard.ngrok.com/get-started/your-authtoken
 services:
+  {{#if (eq backend 'none')}}
+  # Single app configuration - just tunnel the frontend
   ngrok:
     image: ngrok/ngrok:alpine
     container_name: {{name}}_ngrok
     restart: unless-stopped
     environment:
-      - NGROK_AUTHTOKEN=${NGROK_AUTH_TOKEN:-}
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-${NGROK_AUTH_TOKEN:-}}
       - NGROK_REGION=${NGROK_REGION:-us}
-    {{#if (eq backend 'none')}}
     # Tunnel directly to frontend
-    command: http {{#if (eq framework 'next')}}host.docker.internal:3000{{else if (eq framework 'nuxt')}}host.docker.internal:3000{{else if (eq framework 'react')}}host.docker.internal:5173{{else if (eq framework 'vue')}}host.docker.internal:5173{{else if (eq framework 'angular')}}host.docker.internal:4200{{else if (eq framework 'svelte')}}host.docker.internal:5173{{else if (eq framework 'solid')}}host.docker.internal:3000{{else if (eq framework 'astro')}}host.docker.internal:4321{{else if (eq framework 'react-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-start')}}host.docker.internal:3000{{else if (eq framework 'vite')}}host.docker.internal:5173{{else}}host.docker.internal:3000{{/if}} --host-header=localhost
-    {{else}}
-    # Tunnel to Traefik if available, otherwise to frontend
-    command: http host.docker.internal:80 --host-header=app.localhost
-    {{/if}}
+    command: http {{#if (eq framework 'next')}}host.docker.internal:3000{{else if (eq framework 'nuxt')}}host.docker.internal:3000{{else if (eq framework 'react')}}host.docker.internal:5173{{else if (eq framework 'vue')}}host.docker.internal:5173{{else if (eq framework 'angular')}}host.docker.internal:4200{{else if (eq framework 'svelte')}}host.docker.internal:5173{{else if (eq framework 'solid')}}host.docker.internal:3000{{else if (eq framework 'astro')}}host.docker.internal:4321{{else if (eq framework 'react-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-start')}}host.docker.internal:3000{{else if (eq framework 'vite')}}host.docker.internal:5173{{else}}host.docker.internal:3000{{/if}}
     ports:
       - "4040:4040" # Web inspection interface
-    volumes:
-      - ./ngrok/ngrok.yml:/etc/ngrok.yml:ro
     networks:
       - {{name}}_network
-      {{#if (ne backend 'none')}}
-      - traefik_network
-      {{/if}}
     labels:
-      - "traefik.enable=false" # ngrok doesn't need to be exposed via Traefik
+      - "traefik.enable=false"
+  {{else}}
+  # Monorepo configuration - tunnel both frontend and API
+  ngrok-web:
+    image: ngrok/ngrok:alpine
+    container_name: {{name}}_ngrok_web
+    restart: unless-stopped
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-${NGROK_AUTH_TOKEN:-}}
+      - NGROK_REGION=${NGROK_REGION:-us}
+    # Tunnel to frontend
+    command: http {{#if (eq framework 'next')}}host.docker.internal:3000{{else if (eq framework 'nuxt')}}host.docker.internal:3000{{else if (eq framework 'react')}}host.docker.internal:5173{{else if (eq framework 'vue')}}host.docker.internal:5173{{else if (eq framework 'angular')}}host.docker.internal:4200{{else if (eq framework 'svelte')}}host.docker.internal:5173{{else if (eq framework 'solid')}}host.docker.internal:3000{{else if (eq framework 'astro')}}host.docker.internal:4321{{else if (eq framework 'react-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-router')}}host.docker.internal:5173{{else if (eq framework 'tanstack-start')}}host.docker.internal:3000{{else if (eq framework 'vite')}}host.docker.internal:5173{{else}}host.docker.internal:5173{{/if}}
+    ports:
+      - "4040:4040" # Web inspection interface for frontend
+    networks:
+      - {{name}}_network
+    labels:
+      - "traefik.enable=false"
+
+  ngrok-api:
+    image: ngrok/ngrok:alpine
+    container_name: {{name}}_ngrok_api
+    restart: unless-stopped
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-${NGROK_AUTH_TOKEN:-}}
+      - NGROK_REGION=${NGROK_REGION:-us}
+    # Tunnel to API backend
+    command: http {{#if (eq backend 'express')}}host.docker.internal:3001{{else if (eq backend 'fastify')}}host.docker.internal:3001{{else if (eq backend 'hono')}}host.docker.internal:3000{{else if (eq backend 'nest')}}host.docker.internal:3000{{else}}host.docker.internal:3001{{/if}}
+    ports:
+      - "4041:4040" # Web inspection interface for API (different port)
+    networks:
+      - {{name}}_network
+    labels:
+      - "traefik.enable=false"
+  {{/if}}
 
 networks:
   {{name}}_network:

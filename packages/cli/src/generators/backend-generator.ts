@@ -1,9 +1,9 @@
 import path from "path";
 
 import { consola } from "consola";
-import { logger } from "../utils/logger.js";
 
 import { type ProjectConfig } from "../../../shared/stack-config.js";
+import { logger } from "../utils/logger.js";
 
 import { createTemplateEngine } from "@/core/template-engine.js";
 import { getTemplateRoot } from "@/utils/template-path.js";

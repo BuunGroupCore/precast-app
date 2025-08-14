@@ -5,7 +5,7 @@
   "dependencies": {},
   "devDependencies": {},
   "envVariables": {
-    "NGROK_AUTH_TOKEN": "",
+    "NGROK_AUTHTOKEN": "",
     "NGROK_REGION": "us",
     "NGROK_SUBDOMAIN": "",
     "PUBLIC_TUNNEL_URL": "https://your-tunnel.ngrok.io"
@@ -19,6 +19,54 @@
   },
   "setupFiles": {
     "*": [
+      {
+        "template": "docker-compose.ngrok.yml.hbs",
+        "output": "docker/ngrok/docker-compose.ngrok.yml"
+      },
+      { "template": "ngrok.yml.hbs", "output": "docker/ngrok/ngrok.yml" },
+      { "template": "README.md.hbs", "output": "docker/ngrok/README.md" }
+    ],
+    "react": [
+      {
+        "template": "docker-compose.ngrok.yml.hbs",
+        "output": "docker/ngrok/docker-compose.ngrok.yml"
+      },
+      { "template": "ngrok.yml.hbs", "output": "docker/ngrok/ngrok.yml" },
+      { "template": "README.md.hbs", "output": "docker/ngrok/README.md" }
+    ],
+    "next": [
+      {
+        "template": "docker-compose.ngrok.yml.hbs",
+        "output": "docker/ngrok/docker-compose.ngrok.yml"
+      },
+      { "template": "ngrok.yml.hbs", "output": "docker/ngrok/ngrok.yml" },
+      { "template": "README.md.hbs", "output": "docker/ngrok/README.md" }
+    ],
+    "vue": [
+      {
+        "template": "docker-compose.ngrok.yml.hbs",
+        "output": "docker/ngrok/docker-compose.ngrok.yml"
+      },
+      { "template": "ngrok.yml.hbs", "output": "docker/ngrok/ngrok.yml" },
+      { "template": "README.md.hbs", "output": "docker/ngrok/README.md" }
+    ],
+    "svelte": [
+      {
+        "template": "docker-compose.ngrok.yml.hbs",
+        "output": "docker/ngrok/docker-compose.ngrok.yml"
+      },
+      { "template": "ngrok.yml.hbs", "output": "docker/ngrok/ngrok.yml" },
+      { "template": "README.md.hbs", "output": "docker/ngrok/README.md" }
+    ],
+    "solid": [
+      {
+        "template": "docker-compose.ngrok.yml.hbs",
+        "output": "docker/ngrok/docker-compose.ngrok.yml"
+      },
+      { "template": "ngrok.yml.hbs", "output": "docker/ngrok/ngrok.yml" },
+      { "template": "README.md.hbs", "output": "docker/ngrok/README.md" }
+    ],
+    "vite": [
       {
         "template": "docker-compose.ngrok.yml.hbs",
         "output": "docker/ngrok/docker-compose.ngrok.yml"

@@ -15,6 +15,9 @@ interface BackendSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * Backend framework selection component with serverless and edge computing options.
+ */
 export const BackendSection: React.FC<BackendSectionProps> = ({ config, setConfig }) => {
   return (
     <motion.div

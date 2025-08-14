@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface TooltipProps {
   children: React.ReactNode;
@@ -9,9 +9,18 @@ interface TooltipProps {
 
 export const Tooltip: React.FC<TooltipProps> = ({ children, content, delay = 500 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [timeoutId, setTimeoutId] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    // Detect touch device
+    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   const handleMouseEnter = () => {
+    // Don't show tooltip on touch devices via hover
+    if (isTouchDevice) return;
+
     const id = setTimeout(() => setIsVisible(true), delay);
     setTimeoutId(id);
   };
@@ -24,11 +33,18 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, delay = 500
     setIsVisible(false);
   };
 
+  const handleTouchStart = () => {
+    // Show tooltip briefly on touch
+    setIsVisible(true);
+    setTimeout(() => setIsVisible(false), 2000);
+  };
+
   return (
     <div
       className="relative w-full h-full"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
     >
       {children}
       <AnimatePresence>

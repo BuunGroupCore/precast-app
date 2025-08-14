@@ -7,8 +7,8 @@ import fs from "fs-extra";
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 import { getAllRequiredDeps, UI_LIBRARY_COMPATIBILITY } from "./dependency-checker.js";
-import { installDependencies } from "./package-manager.js";
 import { errorCollector } from "./error-collector.js";
+import { installDependencies } from "./package-manager.js";
 
 /**
  * Setup UI library for the project

@@ -9,6 +9,7 @@ import {
   FaFolderOpen,
   FaFileAlt,
   FaClipboardList,
+  FaLightbulb,
 } from "react-icons/fa";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -29,9 +30,14 @@ interface FileTreeNode {
   children?: FileTreeNode[];
 }
 
+/**
+ * AI Assistance configuration section for selecting and configuring AI coding assistants.
+ * Displays available AI options and generates appropriate configuration files.
+ */
 export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config, setConfig }) => {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [expandedFiles, setExpandedFiles] = useState<{ [key: string]: boolean }>({});
+  const [isGeneratedFilesExpanded, setIsGeneratedFilesExpanded] = useState(false);
 
   const toggleFolder = (folderPath: string) => {
     setExpandedFolders((prev) => {
@@ -52,11 +58,14 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
     }));
   };
 
+  /**
+   * Processes Handlebars-like template strings with project configuration values
+   * @param template - Template string with {{variable}} placeholders
+   * @param config - Project configuration to use for replacements
+   * @returns Processed template string
+   */
   const processTemplate = (template: string, config: ExtendedProjectConfig) => {
-    /** Simple Handlebars-like template processing */
     let processed = template;
-
-    /** Replace basic variables */
     processed = processed.replace(/\{\{name\}\}/g, config.name);
     processed = processed.replace(/\{\{projectName\}\}/g, config.name);
     processed = processed.replace(/\{\{framework\}\}/g, config.framework);
@@ -72,9 +81,6 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
     processed = processed.replace(/\{\{orm\}\}/g, config.orm);
     processed = processed.replace(/\{\{typescript\}\}/g, config.typescript ? "true" : "false");
 
-    /** Process conditionals
-     * {{#if variable}}content{{/if}}
-     */
     processed = processed.replace(
       /\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
       (_match, variable, content) => {
@@ -83,7 +89,6 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
       }
     );
 
-    /** {{#if (eq variable "value")}}content{{/if}} */
     processed = processed.replace(
       /\{\{#if\s+\(eq\s+(\w+)\s+"([^"]+)"\)\}\}([\s\S]*?)\{\{\/if\}\}/g,
       (_match, variable, compareValue, content) => {
@@ -92,7 +97,6 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
       }
     );
 
-    /** {{#if (ne variable "value")}}content{{/if}} */
     processed = processed.replace(
       /\{\{#if\s+\(ne\s+(\w+)\s+'([^']+)'\)\}\}([\s\S]*?)\{\{\/if\}\}/g,
       (_match, variable, compareValue, content) => {
@@ -101,7 +105,6 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
       }
     );
 
-    /** Clean up remaining Handlebars syntax */
     processed = processed.replace(/\{\{[^}]*\}\}/g, "");
 
     return processed.trim();
@@ -135,8 +138,13 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
     }
   };
 
+  /**
+   * Returns the content for a specific file based on AI assistant type
+   * @param filePath - Path of the file to get content for
+   * @param aiId - ID of the selected AI assistant
+   * @returns File content as a string
+   */
   const getFileContent = (filePath: string, aiId: string) => {
-    /** Match actual CLI generation structure */
     const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
     const templates: { [key: string]: { [key: string]: string } } = {
@@ -164,6 +172,38 @@ export const AIAssistanceSection: React.FC<AIAssistanceSectionProps> = ({ config
           : ""
       }
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/enforce-package-manager.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/security-scanner.sh"
+          }
+        ]
+      }
+    ]${
+      config.eslint || config.prettier
+        ? `,
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/lint-check.sh"
+          }
+        ]
+      }
+    ]`
+        : ""
+    }
   }
 }`,
         ".claude/mcp.json":
@@ -589,6 +629,135 @@ Provide clear, educational explanations with examples from the codebase.
 
 Use the architecture-guide agent for detailed insights:
 $ARGUMENTS`,
+        ".claude/hooks/enforce-package-manager.sh": `#!/usr/bin/env bash
+# Package Manager Enforcement Hook (PreToolUse)
+# Ensures correct package manager usage based on project configuration
+
+set -euo pipefail
+
+INPUT=$(cat)
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
+
+if [[ "$TOOL_NAME" != "Bash" ]]; then
+  exit 0
+fi
+
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+
+if [[ -z "$COMMAND" ]]; then
+  exit 0
+fi
+
+get_configured_package_manager() {
+  local config_file="precast.jsonc"
+  
+  if [[ ! -f "$config_file" ]]; then
+    echo "{{packageManager}}"
+    return
+  fi
+  
+  local pm=$(cat "$config_file" | grep -E '"packageManager"' | sed -E 's/.*"packageManager"[[:space:]]*:[[:space:]]*"([^"]+)".*/\\1/' | head -1)
+  
+  if [[ -n "$pm" ]]; then
+    echo "$pm"
+    return
+  fi
+  
+  echo "{{packageManager}}"
+}
+
+CONFIGURED_PM=$(get_configured_package_manager)
+
+# Check for incorrect package manager usage and provide corrections
+exit 0`,
+        ".claude/hooks/security-scanner.sh": `#!/usr/bin/env bash
+# Security Scanner Hook (PreToolUse)
+# Checks for exposed secrets and validates sensitive files
+
+set -euo pipefail
+
+INPUT=$(cat)
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
+
+if [[ "$TOOL_NAME" != "Bash" ]]; then
+  exit 0
+fi
+
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+
+if [[ -z "$COMMAND" ]]; then
+  exit 0
+fi
+
+# Check for sensitive file operations
+if echo "$COMMAND" | grep -qE "^(cat|echo|printf|print).*\\.(env|key|pem)"; then
+  if echo "$COMMAND" | grep -qE "\\.env\\.example|\\.env\\.sample|\\.env\\.template"; then
+    exit 0
+  fi
+  
+  echo "Error: Attempting to display sensitive file content" >&2
+  echo "Use caution when working with sensitive files." >&2
+  exit 2
+fi
+
+# Check for git operations with sensitive files
+if echo "$COMMAND" | grep -qE "^git (add|commit|push)"; then
+  SENSITIVE_FILES=(".env" ".env.local" "*.key" "*.pem")
+  
+  for file_pattern in "\${SENSITIVE_FILES[@]}"; do
+    if echo "$COMMAND" | grep -qE "$file_pattern"; then
+      echo "Error: Attempting to commit sensitive file: $file_pattern" >&2
+      echo "Add this file to .gitignore instead." >&2
+      exit 2
+    fi
+  done
+fi
+
+exit 0`,
+        ".claude/hooks/lint-check.sh": `#!/usr/bin/env bash
+# Lint Check Hook (PostToolUse)
+# Runs linting and formatting checks after file modifications
+
+set -euo pipefail
+
+INPUT=$(cat)
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // ""')
+
+if [[ -z "$FILE_PATH" ]]; then
+  exit 0
+fi
+
+# Check file extension
+EXT="\${FILE_PATH##*.}"
+
+case "$EXT" in
+  ts|tsx|js|jsx)
+    {{#if eslint}}
+    # Run ESLint
+    if command -v eslint &> /dev/null; then
+      eslint --fix "$FILE_PATH" 2>/dev/null || true
+    fi
+    {{/if}}
+    
+    {{#if prettier}}
+    # Run Prettier
+    if command -v prettier &> /dev/null; then
+      prettier --write "$FILE_PATH" 2>/dev/null || true
+    fi
+    {{/if}}
+    ;;
+  css|scss|less)
+    {{#if prettier}}
+    # Run Prettier for CSS files
+    if command -v prettier &> /dev/null; then
+      prettier --write "$FILE_PATH" 2>/dev/null || true
+    fi
+    {{/if}}
+    ;;
+esac
+
+exit 0`,
       },
       copilot: {
         ".github/copilot-instructions.md": `# GitHub Copilot Instructions for {{name}}
@@ -777,7 +946,6 @@ This is a modern {{framework}} application with the following architecture:
       },
     };
 
-    // Add documentation templates for all AI assistants
     const documentationTemplates: { [key: string]: string } = {
       "docs/ai/SPEC.md": `# {{name}} - Technical Specification
 
@@ -1185,14 +1353,16 @@ _[Describe the overall vision and purpose of the application]_
     return processTemplate(template, config);
   };
 
+  /**
+   * Builds a tree structure of files for the selected AI assistant
+   * @param aiId - ID of the selected AI assistant
+   * @returns Array of FileTreeNode representing the file structure
+   */
   const buildFileTree = (aiId: string): FileTreeNode[] => {
     const ai = aiAssistants.find((a) => a.id === aiId);
     if (!ai || !ai.files) return [];
 
-    // Start with base AI files
     const allFiles = [...ai.files];
-
-    // Add documentation files if enabled
     if (config.generateSpec ?? true) {
       allFiles.push("docs/ai/SPEC.md");
     }
@@ -1200,7 +1370,6 @@ _[Describe the overall vision and purpose of the application]_
       allFiles.push("docs/ai/PRD.md");
     }
 
-    // Only show mcp.json if MCP servers are selected
     const filteredFiles = allFiles.filter((file) => {
       if (file === ".claude/mcp.json") {
         return config.mcpServers && config.mcpServers.length > 0;
@@ -1208,7 +1377,6 @@ _[Describe the overall vision and purpose of the application]_
       return true;
     });
 
-    // Build tree structure from file paths
     const tree: FileTreeNode[] = [];
     const nodeMap = new Map<string, FileTreeNode>();
 
@@ -1245,56 +1413,112 @@ _[Describe the overall vision and purpose of the application]_
     return tree;
   };
 
-  const renderFileTree = (nodes: FileTreeNode[], level = 0): JSX.Element[] => {
-    return nodes.map((node) => (
-      <div key={node.path} style={{ marginLeft: `${level * 16}px` }}>
-        {node.type === "folder" ? (
-          <>
-            <button
-              onClick={() => toggleFolder(node.path)}
-              className="flex items-center gap-2 w-full text-left p-1 hover:bg-comic-white/10 rounded transition-colors"
-            >
-              {expandedFolders.has(node.path) ? (
-                <BuilderIcon icon={FaFolderOpen} className="text-comic-yellow text-sm" />
-              ) : (
-                <BuilderIcon icon={FaFolder} className="text-comic-yellow text-sm" />
+  /**
+   * Recursively renders the file tree structure as JSX
+   * @param nodes - Array of FileTreeNode to render
+   * @param level - Current nesting level for indentation
+   * @returns Array of JSX elements representing the tree
+   */
+  const renderFileTree = (nodes: FileTreeNode[], level = 0): React.JSX.Element[] => {
+    return nodes.map((node) => {
+      const isHook = node.path.includes(".claude/hooks/");
+      const isAgent = node.path.includes(".claude/agents/");
+      const isCommand = node.path.includes(".claude/commands/");
+      const isDoc = node.path.includes("docs/ai/");
+
+      let fileColor = "text-comic-black";
+      let bgHover = "hover:bg-comic-green/20";
+
+      if (isHook) {
+        fileColor = "text-comic-red";
+        bgHover = "hover:bg-comic-red/20";
+      } else if (isAgent) {
+        fileColor = "text-comic-blue";
+        bgHover = "hover:bg-comic-blue/20";
+      } else if (isCommand) {
+        fileColor = "text-comic-orange";
+        bgHover = "hover:bg-comic-orange/20";
+      } else if (isDoc) {
+        fileColor = "text-comic-purple";
+        bgHover = "hover:bg-comic-purple/20";
+      }
+
+      return (
+        <div key={node.path} style={{ marginLeft: `${level * 16}px` }}>
+          {node.type === "folder" ? (
+            <>
+              <button
+                onClick={() => toggleFolder(node.path)}
+                className={`flex items-center gap-2 w-full text-left p-2 rounded-lg transition-all transform hover:scale-[1.02] ${bgHover}`}
+                style={{
+                  border: "2px solid",
+                  borderColor: "var(--comic-black)",
+                  boxShadow: expandedFolders.has(node.path)
+                    ? "2px 2px 0 var(--comic-black)"
+                    : "none",
+                }}
+              >
+                {expandedFolders.has(node.path) ? (
+                  <BuilderIcon icon={FaFolderOpen} className="text-comic-yellow text-lg" />
+                ) : (
+                  <BuilderIcon icon={FaFolder} className="text-comic-yellow text-lg" />
+                )}
+                <span className="font-display text-sm font-bold uppercase text-comic-black">
+                  {node.name}/
+                </span>
+                {expandedFolders.has(node.path) ? (
+                  <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto text-comic-black" />
+                ) : (
+                  <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto text-comic-black" />
+                )}
+              </button>
+              {expandedFolders.has(node.path) && node.children && (
+                <div className="mt-1">{renderFileTree(node.children, level + 1)}</div>
               )}
-              <span className="font-mono text-xs font-bold">{node.name}/</span>
-              {expandedFolders.has(node.path) ? (
-                <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto" />
-              ) : (
-                <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto" />
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => toggleFile(node.path)}
+                className={`flex items-center gap-2 w-full text-left p-2 rounded-lg transition-all transform hover:scale-[1.02] ${bgHover}`}
+                style={{
+                  border: "2px solid",
+                  borderColor: "var(--comic-black)",
+                  boxShadow: expandedFiles[node.path] ? "2px 2px 0 var(--comic-black)" : "none",
+                }}
+              >
+                <BuilderIcon icon={FaFile} className={`${fileColor} text-lg`} />
+                <span className="font-comic text-xs font-bold text-comic-black">
+                  {node.name}
+                  {isHook && <span className="ml-2 text-[10px] text-comic-red">[HOOK]</span>}
+                  {isAgent && <span className="ml-2 text-[10px] text-comic-blue">[AGENT]</span>}
+                  {isCommand && <span className="ml-2 text-[10px] text-comic-orange">[CMD]</span>}
+                  {isDoc && <span className="ml-2 text-[10px] text-comic-purple">[DOC]</span>}
+                </span>
+                {expandedFiles[node.path] ? (
+                  <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto text-comic-black" />
+                ) : (
+                  <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto text-comic-black" />
+                )}
+              </button>
+              {expandedFiles[node.path] && (
+                <div
+                  className="mt-2 ml-4 p-3 rounded-lg border-2 border-comic-black"
+                  style={{
+                    backgroundColor: "var(--comic-white)",
+                    boxShadow: "3px 3px 0 var(--comic-black)",
+                  }}
+                >
+                  <pre className="text-xs font-mono text-comic-black whitespace-pre-wrap overflow-x-auto">
+                    {getFileContent(node.path, config.aiAssistant!)}
+                  </pre>
+                </div>
               )}
-            </button>
-            {expandedFolders.has(node.path) && node.children && (
-              <div>{renderFileTree(node.children, level + 1)}</div>
-            )}
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => toggleFile(node.path)}
-              className="flex items-center gap-2 w-full text-left p-1 hover:bg-comic-white/10 rounded transition-colors"
-            >
-              <BuilderIcon icon={FaFile} className="text-comic-green text-sm" />
-              <span className="font-mono text-xs">{node.name}</span>
-              {expandedFiles[node.path] ? (
-                <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto" />
-              ) : (
-                <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto" />
-              )}
-            </button>
-            {expandedFiles[node.path] && (
-              <div className="mt-2 ml-4 p-3 bg-comic-black/30 rounded border border-comic-white/10">
-                <pre className="text-xs font-mono text-comic-white whitespace-pre-wrap overflow-x-auto">
-                  {getFileContent(node.path, config.aiAssistant!)}
-                </pre>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    ));
+            </>
+          )}
+        </div>
+      );
+    });
   };
 
   return (
@@ -1346,7 +1570,7 @@ _[Describe the overall vision and purpose of the application]_
                 className="comic-panel bg-comic-yellow p-3 border-2 border-comic-black"
                 style={{ boxShadow: "3px 3px 0 var(--comic-black)" }}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                   <h4 className="font-display text-sm text-comic-black flex items-center gap-2">
                     <BuilderIcon icon={FaFileAlt} className="text-comic-red" />
                     AI DOCUMENTATION
@@ -1361,7 +1585,7 @@ _[Describe the overall vision and purpose of the application]_
                         generatePrd: !bothEnabled,
                       });
                     }}
-                    className={`px-2 py-1 rounded-lg font-comic text-xs border-2 border-comic-black transition-all ${
+                    className={`px-2 py-1 rounded-lg font-comic text-xs border-2 border-comic-black transition-all self-start sm:self-auto ${
                       (config.generateSpec ?? true) || (config.generatePrd ?? true)
                         ? "bg-comic-green text-comic-white"
                         : "bg-comic-white text-comic-black"
@@ -1421,10 +1645,82 @@ _[Describe the overall vision and purpose of the application]_
             </div>
 
             {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.files && (
-              <div className="mt-3 pt-3 border-t border-comic-white/20">
-                <p className="text-xs font-bold mb-2">Generated Files:</p>
-                <div className="bg-comic-black/20 rounded p-2 border border-comic-white/10">
-                  {renderFileTree(buildFileTree(config.aiAssistant!))}
+              <div className="mt-4">
+                <div
+                  className="comic-panel p-4 border-2 border-comic-black rounded-lg"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--comic-yellow) 0%, var(--comic-orange) 100%)",
+                    boxShadow: "4px 4px 0 var(--comic-black)",
+                  }}
+                >
+                  <div
+                    className="flex items-center justify-between cursor-pointer select-none"
+                    onClick={() => setIsGeneratedFilesExpanded(!isGeneratedFilesExpanded)}
+                  >
+                    <h4 className="font-display text-lg text-comic-black uppercase flex items-center gap-2">
+                      <BuilderIcon icon={FaFolder} className="text-comic-black" />
+                      Generated Files
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      {config.aiAssistant === "claude" && (
+                        <>
+                          <span className="px-2 py-1 bg-comic-red text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
+                            HOOKS
+                          </span>
+                          <span className="px-2 py-1 bg-comic-blue text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
+                            AGENTS
+                          </span>
+                          <span className="px-2 py-1 bg-comic-orange text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
+                            CMDS
+                          </span>
+                        </>
+                      )}
+                      {config.aiAssistant === "copilot" && (
+                        <span className="px-2 py-1 bg-comic-purple text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
+                          INSTRUCTIONS
+                        </span>
+                      )}
+                      {config.aiAssistant === "cursor" && (
+                        <span className="px-2 py-1 bg-comic-blue text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
+                          RULES
+                        </span>
+                      )}
+                      {config.aiAssistant === "gemini" && (
+                        <span className="px-2 py-1 bg-comic-green text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
+                          CONTEXT
+                        </span>
+                      )}
+                      <button
+                        className="p-1 rounded hover:bg-comic-black/10 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsGeneratedFilesExpanded(!isGeneratedFilesExpanded);
+                        }}
+                      >
+                        <BuilderIcon
+                          icon={isGeneratedFilesExpanded ? FaChevronDown : FaChevronRight}
+                          className="text-comic-black text-lg"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                  {isGeneratedFilesExpanded && (
+                    <>
+                      <div
+                        className="bg-comic-white rounded-lg p-3 border-2 border-comic-black overflow-auto max-h-96 mt-3"
+                        style={{ boxShadow: "inset 2px 2px 0 var(--comic-black)" }}
+                      >
+                        {renderFileTree(buildFileTree(config.aiAssistant!))}
+                      </div>
+                      <div className="mt-3 p-2 bg-comic-black/10 rounded border-2 border-comic-black">
+                        <p className="font-comic text-xs text-comic-black text-center font-bold flex items-center justify-center gap-2">
+                          <FaLightbulb className="text-comic-yellow" />
+                          Click files to preview their content
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}

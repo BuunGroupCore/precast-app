@@ -12,6 +12,10 @@ interface InstallOptionsSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * Package manager and installation options configuration section.
+ * Allows selection of package manager and auto-install preferences.
+ */
 export const InstallOptionsSection: React.FC<InstallOptionsSectionProps> = ({
   config,
   setConfig,
@@ -31,7 +35,6 @@ export const InstallOptionsSection: React.FC<InstallOptionsSectionProps> = ({
           Configure package management - choose your package manager and auto-install settings
         </p>
 
-        {/* Auto Install Toggle */}
         <div className="mb-4">
           <label className="flex items-center gap-3 cursor-pointer">
             <div className="relative">

@@ -14,7 +14,8 @@ import {
 
 import { usePrecastAnalytics } from "../../hooks/usePrecastAPI";
 
-interface CLIVersionChartProps {}
+// No props needed for this component
+type CLIVersionChartProps = Record<string, never>;
 
 // Helper function to compare semantic versions
 function compareVersions(a: string, b: string): number {
@@ -232,9 +233,7 @@ export function CLIVersionChart(_props: CLIVersionChartProps) {
           />
           <YAxis tick={{ fontSize: 12, fontFamily: "Comic Sans MS, cursive", fill: "#374151" }} />
           <Tooltip
-            content={(props) => (
-              <CustomTooltip {...props} latestVersion={latestVersion} label={props.label} />
-            )}
+            content={(props) => <CustomTooltip {...props} latestVersion={latestVersion} />}
           />
           <Bar dataKey="users" radius={[4, 4, 0, 0]} stroke="#000" strokeWidth={1}>
             {versionData.map((entry, index) => (

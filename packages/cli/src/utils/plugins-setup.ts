@@ -4,10 +4,10 @@ import { fileURLToPath } from "url";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
-import { logger } from "./logger.js";
 
 import type { ProjectConfig } from "../../../shared/stack-config.js";
 
+import { logger } from "./logger.js";
 import { installDependencies } from "./package-manager.js";
 import { getTemplateRoot } from "./template-path.js";
 

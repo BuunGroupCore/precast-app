@@ -15,6 +15,10 @@ interface StylingSectionProps {
   setConfig: React.Dispatch<React.SetStateAction<ExtendedProjectConfig>>;
 }
 
+/**
+ * Styling configuration section for selecting CSS frameworks and styling solutions.
+ * Checks framework compatibility with various styling options.
+ */
 export const StylingSection: React.FC<StylingSectionProps> = ({ config, setConfig }) => {
   const isStylingCompatible = (style: (typeof stylings)[0]) => {
     const frameworkToCheck =

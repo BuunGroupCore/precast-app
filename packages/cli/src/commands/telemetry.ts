@@ -2,7 +2,6 @@ import { homedir } from "os";
 import { join } from "path";
 
 import fsExtra from "fs-extra";
-// eslint-disable-next-line import/no-named-as-default-member
 const { readFile, writeFile, pathExists } = fsExtra;
 
 import { isTelemetryEnabled } from "../utils/analytics.js";

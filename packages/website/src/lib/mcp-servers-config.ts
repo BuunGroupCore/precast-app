@@ -1,7 +1,8 @@
 import { IconType } from "react-icons";
-import { FaGithub, FaFileCode, FaSearch } from "react-icons/fa";
+import { FaGithub, FaFileCode } from "react-icons/fa";
 import { SiPostgresql, SiMongodb, SiSupabase } from "react-icons/si";
 
+import { BraveIcon } from "@/components/icons/BraveIcon";
 import { CloudflareIcon } from "@/components/icons/CloudflareIcon";
 import { MCPIcon } from "@/components/icons/MCPIcon";
 
@@ -119,9 +120,9 @@ export const mcpServers: MCPServer[] = [
   },
 
   {
-    id: "github",
-    name: "GitHub",
-    description: "Official GitHub repository management and API access",
+    id: "github-official",
+    name: "GitHub (Official)",
+    description: "Official GitHub MCP server for repository management",
     icon: FaGithub,
     category: "productivity",
     triggers: {
@@ -129,19 +130,26 @@ export const mcpServers: MCPServer[] = [
     },
     config: {
       server_name: "github",
-      command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-github"],
+      command: "docker",
+      args: [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN:-${GITHUB_PERSONAL_ACCESS_TOKEN}}",
+        "ghcr.io/github/github-mcp-server",
+      ],
       env: {
-        GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_PERSONAL_ACCESS_TOKEN}",
+        GITHUB_TOKEN: "${GITHUB_TOKEN:-${GITHUB_PERSONAL_ACCESS_TOKEN}}",
       },
     },
-    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
+    repository: "https://github.com/github/github-mcp-server",
   },
   {
     id: "brave-search",
     name: "Brave Search",
     description: "Search the web using Brave Search API",
-    icon: FaSearch,
+    icon: BraveIcon,
     category: "productivity",
     triggers: {
       any: false,

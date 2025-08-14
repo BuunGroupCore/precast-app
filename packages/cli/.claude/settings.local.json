@@ -28,8 +28,24 @@
       "WebFetch(domain:awslabs.github.io)",
       "Bash(pnpm update:*)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "Bash(npm ls:*)",
+      "Bash(eslint --version)",
+      "Bash(./node_modules/.bin/eslint:*)",
+      "Bash(../../node_modules/.bin/eslint --version)",
+      "Bash(../../node_modules/.bin/eslint . --ext .ts,.tsx,.js,.jsx)",
+      "Bash(for pkg in cli website ui utils hooks shared)",
+      "Bash(do echo \"=== $pkg ===\")",
+      "Bash(done)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm run lint:*)",
+      "Bash(docker logs:*)",
+      "Bash(psql:*)",
+      "Bash(docker run:*)",
+      "Bash(for file in ClerkIcon.tsx LuciaIcon.tsx NeonIcon.tsx PassportIcon.tsx PlanetScaleIcon.tsx TursoIcon.tsx)",
+      "Bash(do sed -i '1i import React from \"\"react\"\";\\n' \"$file\")"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": ["/home/sacha", "/"]
   }
 }

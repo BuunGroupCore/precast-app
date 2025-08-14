@@ -1,6 +1,7 @@
 import { text, select, confirm, multiselect } from "@clack/prompts";
 import { consola } from "consola";
 
+import { colorPalettes, defaultColorPalette } from "../../../shared/src/color-palettes.js";
 import { type ProjectConfig } from "../../../shared/stack-config.js";
 import {
   frameworkDefs,
@@ -11,7 +12,6 @@ import {
   runtimeDefs,
   uiFrameworkDefs,
 } from "../../../shared/stack-config.js";
-import { colorPalettes, defaultColorPalette } from "../../../shared/src/color-palettes.js";
 import type { InitOptions } from "../commands/init.js";
 import { getFilteredAuthOptions, isAuthProviderCompatibleWithStack } from "../utils/auth-setup.js";
 import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
@@ -284,7 +284,9 @@ export async function gatherProjectConfig(
   }
 
   let deploymentMethod: string | undefined;
-  if (!options.yes) {
+  if (options.deployment) {
+    deploymentMethod = options.deployment;
+  } else if (!options.yes) {
     const deploymentOptions = Object.values(DEPLOYMENT_CONFIGS)
       .filter((config) => !config.disabled)
       .map((config) => ({

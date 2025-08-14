@@ -1,14 +1,11 @@
 {{#if typescript}}import { createRootRoute, Link, Outlet, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Layout } from '@/components/layout';
+import { NotFound } from '@/components/NotFound';
 {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
 import { PrecastWidget } from '@/components/precast/PrecastWidget';
 {{/if}}
-{{#if (eq styling "tailwind")}}
-import appCss from '@/styles/tailwind.css?url';
-{{else}}
 import appCss from '@/styles/globals.css?url';
-{{/if}}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -17,6 +14,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
+  notFoundComponent: NotFound,
 });
 
 function RootComponent() {
@@ -40,14 +38,11 @@ function RootComponent() {
 }{{else}}import { createRootRoute, Link, Outlet, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Layout } from '@/components/layout';
+import { NotFound } from '@/components/NotFound';
 {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
 import { PrecastWidget } from '@/components/precast/PrecastWidget';
 {{/if}}
-{{#if (eq styling "tailwind")}}
-import appCss from '@/styles/tailwind.css?url';
-{{else}}
 import appCss from '@/styles/globals.css?url';
-{{/if}}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -56,6 +51,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
+  notFoundComponent: NotFound,
 });
 
 function RootComponent() {

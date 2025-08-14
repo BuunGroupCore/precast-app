@@ -34,7 +34,8 @@ export interface PowerUp {
     | "accessibility"
     | "optimization"
     | "workflow"
-    | "routing";
+    | "routing"
+    | "infrastructure";
   /** Compatible frameworks, * for all */
   frameworks?: string[];
   /** Required dependencies */
@@ -43,6 +44,8 @@ export interface PowerUp {
   requiresBackend?: boolean;
   /** Is this power-up in beta? */
   beta?: boolean;
+  /** Server context - api, web, or both */
+  serverContext?: "api" | "web" | "both";
   /** Recommendation configuration */
   recommended?: {
     /** Recommended for these frameworks */
@@ -70,6 +73,7 @@ export const powerUps: PowerUp[] = [
     icon: SiStorybook,
     category: "testing",
     frameworks: ["react", "vue", "angular", "svelte", "solid", "next", "nuxt", "remix"],
+    serverContext: "web",
     recommended: {
       frameworks: ["react", "vue", "angular"],
       styling: ["tailwind", "css"],
@@ -177,6 +181,7 @@ export const powerUps: PowerUp[] = [
     icon: FaCheckCircle,
     category: "testing",
     frameworks: ["*"],
+    serverContext: "both",
     recommended: {
       frameworks: ["vite", "vue", "svelte", "solid", "react"],
       reason: "Native Vite integration for blazing fast tests",
@@ -189,6 +194,7 @@ export const powerUps: PowerUp[] = [
     icon: FaCheckCircle,
     category: "testing",
     frameworks: ["*"],
+    serverContext: "web",
     recommended: {
       frameworks: ["next", "nuxt", "remix", "astro"],
       reason: "Best for server-side rendered apps",
@@ -201,6 +207,7 @@ export const powerUps: PowerUp[] = [
     icon: SiCypress,
     category: "testing",
     frameworks: ["*"],
+    serverContext: "web",
   },
 
   /** Optimization */
@@ -257,6 +264,7 @@ export const powerUps: PowerUp[] = [
     icon: FaSearch,
     category: "optimization",
     frameworks: ["next"],
+    serverContext: "web",
     recommended: {
       frameworks: ["next"],
       reason: "De facto SEO solution for Next.js",
@@ -270,6 +278,7 @@ export const powerUps: PowerUp[] = [
     category: "optimization",
     frameworks: ["react"],
     dependencies: ["react"],
+    serverContext: "web",
   },
 
   /** Internationalization */
@@ -342,9 +351,10 @@ export const powerUps: PowerUp[] = [
     description:
       "Modern reverse proxy - enables custom domains, HTTPS, and solves CORS issues in development",
     icon: FaRoute,
-    category: "workflow",
+    category: "infrastructure",
     frameworks: ["*"],
     dependencies: ["docker"],
+    serverContext: "api",
     recommended: {
       backends: ["express", "fastify", "hono", "nest", "next-api"],
       reason: "Essential for API development with OAuth, webhooks, and microservices",
@@ -358,9 +368,10 @@ export const powerUps: PowerUp[] = [
     description:
       "Expose your local dev to the internet - perfect for webhooks, OAuth callbacks, and mobile testing",
     icon: FaGlobe,
-    category: "workflow",
+    category: "infrastructure",
     frameworks: ["*"],
     dependencies: ["docker"],
+    serverContext: "both",
     recommended: {
       backends: ["express", "fastify", "hono", "nest"],
       reason: "Essential for webhook development with Stripe, GitHub, Twilio, etc.",
@@ -371,9 +382,10 @@ export const powerUps: PowerUp[] = [
     name: "Cloudflare Tunnel",
     description: "Secure tunnel with custom domains, DDoS protection, and zero-trust security",
     icon: FaCloud,
-    category: "workflow",
+    category: "infrastructure",
     frameworks: ["*"],
     dependencies: ["docker"],
+    serverContext: "both",
     beta: true,
     recommended: {
       backends: ["express", "fastify", "hono", "nest"],
@@ -424,5 +436,6 @@ export const powerUpCategories = [
   { id: "accessibility", name: "Accessibility", icon: FaAccessibleIcon },
   { id: "optimization", name: "Optimization", icon: FaBolt },
   { id: "workflow", name: "Workflow", icon: FaGitAlt },
+  { id: "infrastructure", name: "Infrastructure", icon: FaGlobe },
   { id: "routing", name: "Routing", icon: FaRoute },
 ];

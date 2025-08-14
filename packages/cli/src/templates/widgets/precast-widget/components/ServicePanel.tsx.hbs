@@ -1,0 +1,171 @@
+/**
+ * ServicePanel Component
+ * Extracted from PrecastWidget - main panel container
+ */
+
+import React from 'react';
+import { ServiceDefinition, TestResult, SystemInfo, AuthMode } from '../types';
+import { ServiceTabBar } from './ServiceTabBar';
+import { ServiceCard } from './ServiceCard';
+
+interface ServicePanelProps {
+  isOpen: boolean;
+  isMinimized: boolean;
+  services: Record<string, ServiceDefinition>;
+  activeTab: string;
+  testResults: Record<string, TestResult>;
+  loading: Record<string, boolean>;
+  systemInfo: SystemInfo | null;
+  
+  // Event handlers
+  onToggle: () => void;
+  onMinimize: () => void;
+  onTabChange: (tab: string) => void;
+  
+  // Test functions
+  onTestDatabase?: () => void;
+  onTestApi?: () => void;
+  onTestDocker?: () => void;
+  onTestEmail?: () => void;
+  onTestAuth?: () => void;
+  onTestAuthStatus?: () => void;
+  
+  // Auth-specific props
+  authMode?: AuthMode;
+  authEmail?: string;
+  authPassword?: string;
+  authName?: string;
+  onAuthModeChange?: (mode: AuthMode) => void;
+  onAuthEmailChange?: (email: string) => void;
+  onAuthPasswordChange?: (password: string) => void;
+  onAuthNameChange?: (name: string) => void;
+}
+
+/**
+ * Main Service Panel Component
+ * Exact copy from original PrecastWidget main panel (lines 1098-1352)
+ */
+export function ServicePanel({
+  isOpen,
+  isMinimized,
+  services,
+  activeTab,
+  testResults,
+  loading,
+  systemInfo,
+  onToggle,
+  onMinimize,
+  onTabChange,
+  onTestDatabase,
+  onTestApi,
+  onTestDocker,
+  onTestEmail,
+  onTestAuth,
+  onTestAuthStatus,
+  authMode,
+  authEmail,
+  authPassword,
+  authName,
+  onAuthModeChange,
+  onAuthEmailChange,
+  onAuthPasswordChange,
+  onAuthNameChange,
+}: ServicePanelProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}fixed bottom-6 right-6 z-50 flex{{else}}precast-panel-container{{/if}}">
+      {/* Side Tab Navigation */}
+      <ServiceTabBar 
+        services={services}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        isMinimized={isMinimized}
+      />
+
+      {/* Main Panel */}
+      <div
+        className={`{{#if (eq styling 'tailwind')}}bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 ${isMinimized ? 'w-72 h-14' : 'w-[420px] max-h-[85vh]'}{{else}}precast-main-panel{{/if}}`}
+        {{#unless (eq styling 'tailwind')}}
+        data-minimized={isMinimized}
+        {{/unless}}
+      >
+        {/* Header */}
+        <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between p-3 border-b-2 border-black bg-yellow-400{{else}}panel-header{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}header-title{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-white border-2 border-black flex items-center justify-center p-1{{else}}header-logo{{/if}}">
+              <img 
+                src="https://precast.dev/logo.png" 
+                alt="Precast" 
+                className="{{#if (eq styling 'tailwind')}}w-full h-full object-contain{{else}}logo-img{{/if}}"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <div className="{{#if (eq styling 'tailwind')}}w-4 h-4 bg-black hidden{{else}}logo-fallback hidden{{/if}}"></div>
+            </div>
+            <div>
+              <h3 className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase tracking-wider text-sm{{else}}panel-title{{/if}}">
+                PRECAST
+              </h3>
+              <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/70 font-mono{{else}}panel-subtitle{{/if}}">
+                {systemInfo?.environment ? `ENV: ${systemInfo.environment.toUpperCase()}` : "VALIDATOR_v1.0"}
+              </p>
+            </div>
+          </div>
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-1{{else}}header-controls{{/if}}">
+            <button
+              onClick={onMinimize}
+              className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-white border-2 border-black hover:bg-yellow-400 transition-colors flex items-center justify-center{{else}}control-btn{{/if}}"
+              title={isMinimized ? "Expand" : "Minimize"}
+            >
+              <span className="{{#if (eq styling 'tailwind')}}font-bold text-lg leading-none{{else}}control-icon{{/if}}">
+                {isMinimized ? "+" : "-"}
+              </span>
+            </button>
+            <button
+              onClick={onToggle}
+              className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-black hover:bg-gray-800 transition-colors flex items-center justify-center{{else}}control-btn control-close{{/if}}"
+              title="Close"
+            >
+              <span className="{{#if (eq styling 'tailwind')}}text-white font-bold text-sm{{else}}close-icon{{/if}}">✕</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        {!isMinimized && (
+          <div className="{{#if (eq styling 'tailwind')}}p-4 overflow-y-auto max-h-[calc(85vh-4rem)] bg-white{{else}}panel-content{{/if}}">
+            {/* Dynamic tab content based on active service */}
+            {Object.entries(services).map(([key, service]) => 
+              activeTab === key && (
+                <div key={key} className="{{#if (eq styling 'tailwind')}}space-y-4{{else}}tab-content{{/if}}">
+                  <ServiceCard
+                    service={service}
+                    testResults={testResults}
+                    loading={loading}
+                    onTestDatabase={onTestDatabase}
+                    onTestApi={onTestApi}
+                    onTestDocker={onTestDocker}
+                    onTestEmail={onTestEmail}
+                    onTestAuth={onTestAuth}
+                    onTestAuthStatus={onTestAuthStatus}
+                    authMode={authMode}
+                    authEmail={authEmail}
+                    authPassword={authPassword}
+                    authName={authName}
+                    onAuthModeChange={onAuthModeChange}
+                    onAuthEmailChange={onAuthEmailChange}
+                    onAuthPasswordChange={onAuthPasswordChange}
+                    onAuthNameChange={onAuthNameChange}
+                  />
+                </div>
+              )
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

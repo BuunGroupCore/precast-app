@@ -1,4 +1,6 @@
-import { useState } from "react";
+{{#if (eq framework "next")}}'use client';
+
+{{/if}}import { useState } from "react";
 import { Terminal, Play, Database{{#if docker}}, Server{{/if}}{{#if (eq orm 'prisma')}}, Globe{{/if}}, Package } from "lucide-react";
 
 /**

@@ -1,14 +1,126 @@
 {
   "name": "precast-widget",
   "displayName": "Precast Validation Widget",
-  "description": "Service validation widget that tests Docker containers, databases, and API endpoints",
+  "description": "Modular service validation widget that tests Docker containers, databases, and API endpoints with extensible architecture",
   "category": "development",
   "widget": true,
   "files": {
     "react": [
       {
+        "from": "index.ts.hbs",
+        "to": "src/components/precast/index.ts"
+      },
+      {
         "from": "PrecastWidget.tsx.hbs",
         "to": "src/components/precast/PrecastWidget.tsx"
+      },
+      {
+        "from": "types/index.ts.hbs",
+        "to": "src/components/precast/types/index.ts"
+      },
+      {
+        "from": "hooks/usePrecastConfig.ts.hbs",
+        "to": "src/components/precast/hooks/usePrecastConfig.ts"
+      },
+      {
+        "from": "hooks/useSystemInfo.ts.hbs",
+        "to": "src/components/precast/hooks/useSystemInfo.ts"
+      },
+      {
+        "from": "hooks/useServiceRegistry.ts.hbs",
+        "to": "src/components/precast/hooks/useServiceRegistry.ts"
+      },
+      {
+        "from": "hooks/useGenericTesting.ts.hbs",
+        "to": "src/components/precast/hooks/useGenericTesting.ts"
+      },
+      {
+        "from": "hooks/useApiRequest.ts.hbs",
+        "to": "src/components/precast/hooks/useApiRequest.ts"
+      },
+      {
+        "from": "components/FloatingButton.tsx.hbs",
+        "to": "src/components/precast/components/FloatingButton.tsx"
+      },
+      {
+        "from": "components/ServicePanel.tsx.hbs",
+        "to": "src/components/precast/components/ServicePanel.tsx"
+      },
+      {
+        "from": "components/ServiceTabBar.tsx.hbs",
+        "to": "src/components/precast/components/ServiceTabBar.tsx"
+      },
+      {
+        "from": "components/ServiceCard.tsx.hbs",
+        "to": "src/components/precast/components/ServiceCard.tsx"
+      },
+      {
+        "from": "components/TestButton.tsx.hbs",
+        "to": "src/components/precast/components/TestButton.tsx"
+      },
+      {
+        "from": "components/ResultDisplay.tsx.hbs",
+        "to": "src/components/precast/components/ResultDisplay.tsx"
+      },
+      {
+        "from": "components/AuthTestForm.tsx.hbs",
+        "to": "src/components/precast/components/AuthTestForm.tsx"
+      },
+      {
+        "from": "components/DockerContainerList.tsx.hbs",
+        "to": "src/components/precast/components/DockerContainerList.tsx"
+      },
+      {
+        "from": "services/serviceRegistry.ts.hbs",
+        "to": "src/components/precast/services/serviceRegistry.ts"
+      },
+      {
+        "from": "services/baseService.ts.hbs",
+        "to": "src/components/precast/services/baseService.ts"
+      },
+      {
+        "from": "services/apiService.ts.hbs",
+        "to": "src/components/precast/services/apiService.ts"
+      },
+      {
+        "from": "services/databaseService.ts.hbs",
+        "to": "src/components/precast/services/databaseService.ts"
+      },
+      {
+        "from": "services/dockerService.ts.hbs",
+        "to": "src/components/precast/services/dockerService.ts"
+      },
+      {
+        "from": "services/authService.ts.hbs",
+        "to": "src/components/precast/services/authService.ts"
+      },
+      {
+        "from": "services/emailService.ts.hbs",
+        "to": "src/components/precast/services/emailService.ts"
+      },
+      {
+        "from": "services/paymentService.ts.hbs",
+        "to": "src/components/precast/services/paymentService.ts"
+      },
+      {
+        "from": "utils/serviceIcons.tsx.hbs",
+        "to": "src/components/precast/utils/serviceIcons.tsx"
+      },
+      {
+        "from": "utils/environmentUtils.ts.hbs",
+        "to": "src/components/precast/utils/environmentUtils.ts"
+      },
+      {
+        "from": "utils/constants.ts.hbs",
+        "to": "src/components/precast/utils/constants.ts"
+      },
+      {
+        "from": "README.md",
+        "to": "src/components/precast/README.md"
+      },
+      {
+        "from": "docs/adding-services.md",
+        "to": "src/components/precast/docs/adding-services.md"
       }
     ],
     "vue": [
@@ -51,18 +163,34 @@
   "requiredEnvVars": [],
   "documentation": {
     "setup": [
-      "1. The PrecastWidget is automatically added to your App component",
-      "2. Ensure API routes are registered in your backend",
-      "3. If using Docker, ensure services are running: docker-compose up",
-      "4. Configure VITE_API_URL if API is on a different port",
-      "5. The widget only appears in development mode"
+      "1. The modular PrecastWidget is automatically added to your App component",
+      "2. Import from '@/components/precast' - the main entry point",
+      "3. Ensure API routes are registered in your backend",
+      "4. If using Docker, ensure services are running: docker-compose up",
+      "5. Configure VITE_API_URL if API is on a different port",
+      "6. The widget only appears in development mode"
     ],
     "usage": [
       "Look for the floating button in the bottom-right corner",
       "Click to open the Precast validation widget",
       "Test Docker containers and services with one click",
       "Validates database connections, email services, and more",
-      "View detailed results and error messages"
+      "View detailed results and error messages",
+      "Services auto-register based on your project configuration"
+    ],
+    "architecture": [
+      "Modular design with hooks, components, and services",
+      "Extensible service registry for adding new tests",
+      "Component-based UI with reusable parts",
+      "TypeScript support with comprehensive type definitions",
+      "Framework-agnostic with Handlebars templating"
+    ],
+    "extending": [
+      "See docs/adding-services.md for detailed extension guide",
+      "Follow established patterns in existing services",
+      "Add new services to services/ directory",
+      "Register services in serviceRegistry.ts.hbs",
+      "Update serviceIcons.ts.hbs for new service icons"
     ],
     "docker": [
       "The widget communicates with Docker services via your API",

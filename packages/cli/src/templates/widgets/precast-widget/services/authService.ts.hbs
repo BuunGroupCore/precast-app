@@ -1,0 +1,393 @@
+/**
+ * Authentication Service Testing Module
+ * Extracted from PrecastWidget - exact copy of auth testing functions
+ */
+
+import { TestResult, ServiceTestContext, AuthMode } from '../types';
+
+{{#if authProvider}}
+/**
+ * Test authentication status endpoint
+ * Exact copy from original PrecastWidget (lines 716-805)
+ */
+export const testAuthStatus = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, authStatus: true }));
+  try {
+    {{#if (eq authProvider 'better-auth')}}
+    // Try Better Auth's built-in ok endpoint
+    const okResponse = await fetch(`${apiUrl}/api/auth/ok`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    if (okResponse.ok) {
+      const data = await okResponse.text();
+      addTestResult("authStatus", {
+        success: true,
+        message: "AUTH SERVICE HEALTHY",
+        details: {
+          endpoint: "/api/auth/ok",
+          response: data,
+          status: "Better Auth is responding correctly"
+        },
+      });
+    } else {
+      addTestResult("authStatus", {
+        success: false,
+        message: "AUTH SERVICE UNHEALTHY",
+        details: `Auth health check returned ${okResponse.status}`,
+      });
+    }
+    {{else if (eq authProvider 'auth.js')}}
+    // Test Auth.js providers endpoint
+    const response = await fetch(`${apiUrl}/api/auth/providers`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    
+    if (response.ok) {
+      const providers = await response.json();
+      addTestResult("authStatus", {
+        success: true,
+        message: "AUTH.JS SERVICE HEALTHY",
+        details: {
+          endpoint: "/api/auth/providers",
+          providers: providers.providers || [],
+          status: "Auth.js is responding correctly"
+        },
+      });
+    } else {
+      addTestResult("authStatus", {
+        success: false,
+        message: "AUTH.JS SERVICE UNHEALTHY",
+        details: `Auth.js health check returned ${response.status}`,
+      });
+    }
+    {{else}}
+    // Generic auth health check
+    const response = await fetch(`${apiUrl}/api/health/auth`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      addTestResult("authStatus", {
+        success: true,
+        message: "AUTH SERVICE HEALTHY",
+        details: data
+      });
+    } else {
+      addTestResult("authStatus", {
+        success: false,
+        message: "AUTH SERVICE UNHEALTHY",
+        details: `Auth health check returned ${response.status}`,
+      });
+    }
+    {{/if}}
+  } catch (error) {
+    addTestResult("authStatus", {
+      success: false,
+      message: "AUTH SERVICE UNREACHABLE",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, authStatus: false }));
+  }
+};
+
+/**
+ * Test authentication endpoints with user input
+ * Exact copy from original PrecastWidget (lines 811-965)
+ */
+export const testAuthService = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string,
+  authMode: AuthMode,
+  authEmail: string,
+  authPassword: string,
+  authName: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, auth: true }));
+  try {
+    {{#if (eq authProvider 'better-auth')}}
+    let response;
+    let responseData;
+    
+    if (authMode === 'signup') {
+      // Test registration endpoint
+      response = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword,
+          name: authName
+        }),
+      });
+    } else {
+      // Test signin endpoint
+      response = await fetch(`${apiUrl}/api/auth/sign-in/email`, {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword
+        }),
+      });
+    }
+    {{else if (eq authProvider 'auth.js')}}
+    let response;
+    let responseData;
+    
+    if (authMode === 'signup') {
+      // Auth.js doesn't have built-in signup, use custom endpoint
+      response = await fetch(`${apiUrl}/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword,
+          name: authName
+        }),
+      });
+    } else {
+      // Get CSRF token first
+      const csrfResponse = await fetch(`${apiUrl}/api/auth/csrf`, {
+        credentials: "include",
+      });
+      const { csrfToken } = await csrfResponse.json();
+      
+      // Test signin endpoint with credentials provider
+      response = await fetch(`${apiUrl}/api/auth/callback/credentials`, {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword,
+          csrfToken,
+          redirect: false,
+          json: true
+        }),
+      });
+    }
+    {{else}}
+    // Generic auth test for other providers
+    let response;
+    let responseData;
+    
+    if (authMode === 'signup') {
+      response = await fetch(`${apiUrl}/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword,
+          name: authName
+        }),
+      });
+    } else {
+      response = await fetch(`${apiUrl}/api/auth/signin`, {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword
+        }),
+      });
+    }
+    {{/if}}
+
+    try {
+      responseData = await response.json();
+    } catch {
+      responseData = await response.text();
+    }
+
+    if (response.ok) {
+      addTestResult("auth", {
+        success: true,
+        message: authMode === 'signup' ? "SIGN-UP SUCCESSFUL" : "SIGN-IN SUCCESSFUL",
+        details: {
+          email: authEmail,
+          response: responseData,
+          status: response.status
+        },
+      });
+      
+      // Test session after successful auth
+      const sessionResponse = await fetch(`${apiUrl}/api/auth/get-session`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      
+      if (sessionResponse.ok) {
+        const sessionData = await sessionResponse.json();
+        addTestResult("authSession", {
+          success: true,
+          message: "SESSION ACTIVE",
+          details: sessionData,
+        });
+      }
+    } else {
+      addTestResult("auth", {
+        success: false,
+        message: authMode === 'signup' ? "SIGN-UP FAILED" : "SIGN-IN FAILED",
+        details: {
+          status: response.status,
+          error: responseData,
+          hint: response.status === 401 ? "Invalid credentials or user doesn't exist" : 
+                response.status === 409 ? "User already exists" : 
+                response.status === 403 ? "CORS issue - check trustedOrigins" : 
+                "Check server logs for details"
+        },
+      });
+    }
+  } catch (error) {
+    addTestResult("auth", {
+      success: false,
+      message: "AUTH REQUEST FAILED",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, auth: false }));
+  }
+};
+
+/**
+ * Simplified auth status test for service registry
+ */
+export const testAuthStatusSimple = async (context: ServiceTestContext): Promise<TestResult> => {
+  try {
+    {{#if (eq authProvider 'better-auth')}}
+    const response = await fetch(`${context.apiUrl}/api/auth/ok`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.text();
+      return {
+        success: true,
+        message: "AUTH SERVICE HEALTHY",
+        details: {
+          endpoint: "/api/auth/ok",
+          response: data,
+          status: "Better Auth is responding correctly"
+        },
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "AUTH SERVICE UNHEALTHY",
+        details: `Auth health check returned ${response.status}`,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    {{else if (eq authProvider 'auth.js')}}
+    const response = await fetch(`${context.apiUrl}/api/auth/providers`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+    
+    if (response.ok) {
+      const providers = await response.json();
+      return {
+        success: true,
+        message: "AUTH.JS SERVICE HEALTHY",
+        details: {
+          endpoint: "/api/auth/providers",
+          providers: providers.providers || [],
+          status: "Auth.js is responding correctly"
+        },
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "AUTH.JS SERVICE UNHEALTHY",
+        details: `Auth.js health check returned ${response.status}`,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    {{else}}
+    const response = await fetch(`${context.apiUrl}/api/health/auth`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        success: true,
+        message: "AUTH SERVICE HEALTHY",
+        details: data,
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "AUTH SERVICE UNHEALTHY",
+        details: `Auth health check returned ${response.status}`,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    {{/if}}
+  } catch (error) {
+    return {
+      success: false,
+      message: "AUTH SERVICE UNREACHABLE",
+      details: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+/**
+ * Check if auth service is available
+ */
+export const isAuthServiceAvailable = (): boolean => {
+  return true; // Auth service is available when auth provider is configured
+};
+{{else}}
+// No auth provider configured
+export const testAuthStatus = async (): Promise<void> => {
+  console.warn('Auth service not configured');
+};
+
+export const testAuthService = async (): Promise<void> => {
+  console.warn('Auth service not configured');
+};
+
+export const testAuthStatusSimple = async (): Promise<TestResult> => {
+  return {
+    success: false,
+    message: "AUTH NOT CONFIGURED",
+    details: "No authentication provider configured for this project",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+export const isAuthServiceAvailable = (): boolean => {
+  return false;
+};
+{{/if}}

@@ -1,0 +1,117 @@
+/**
+ * AuthTestForm Component
+ * Extracted from PrecastWidget - authentication testing UI
+ */
+
+import React from 'react';
+import { AuthMode } from '../types';
+import { TestButton } from './TestButton';
+
+interface AuthTestFormProps {
+  authMode: AuthMode;
+  authEmail: string;
+  authPassword: string;
+  authName: string;
+  isLoading: boolean;
+  onModeChange: (mode: AuthMode) => void;
+  onEmailChange: (email: string) => void;
+  onPasswordChange: (password: string) => void;
+  onNameChange: (name: string) => void;
+  onTest: () => void;
+  onStatusTest: () => void;
+  isStatusLoading: boolean;
+}
+
+{{#if authProvider}}
+/**
+ * Authentication Testing Form Component
+ * Exact copy from original PrecastWidget (lines 1237-1321)
+ */
+export function AuthTestForm({
+  authMode,
+  authEmail,
+  authPassword,
+  authName,
+  isLoading,
+  onModeChange,
+  onEmailChange,
+  onPasswordChange,
+  onNameChange,
+  onTest,
+  onStatusTest,
+  isStatusLoading,
+}: AuthTestFormProps) {
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}space-y-3{{else}}auth-test-container{{/if}}">
+      {/* Mode selector */}
+      <div className="{{#if (eq styling 'tailwind')}}flex gap-2{{else}}auth-mode-selector{{/if}}">
+        <button
+          onClick={() => onModeChange('signup')}
+          className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signup' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}auth-mode-btn{{/if}}`}
+          {{#unless (eq styling 'tailwind')}}data-active={authMode === 'signup'}{{/unless}}
+        >
+          SIGN UP
+        </button>
+        <button
+          onClick={() => onModeChange('signin')}
+          className={`{{#if (eq styling 'tailwind')}}flex-1 px-3 py-2 border-2 border-black font-bold uppercase text-xs tracking-wider transition-all duration-150 ${authMode === 'signin' ? 'bg-yellow-400 text-black' : 'bg-white text-black hover:bg-gray-100'}{{else}}auth-mode-btn{{/if}}`}
+          {{#unless (eq styling 'tailwind')}}data-active={authMode === 'signin'}{{/unless}}
+        >
+          SIGN IN
+        </button>
+      </div>
+
+      {/* Input fields */}
+      <div className="{{#if (eq styling 'tailwind')}}space-y-2{{else}}auth-inputs{{/if}}">
+        <input
+          type="email"
+          value={authEmail}
+          onChange={(e) => onEmailChange(e.target.value)}
+          placeholder="Email"
+          className="{{#if (eq styling 'tailwind')}}w-full px-3 py-2 border-2 border-black text-sm font-mono{{else}}input-field{{/if}}"
+        />
+        <input
+          type="password"
+          value={authPassword}
+          onChange={(e) => onPasswordChange(e.target.value)}
+          placeholder="Password"
+          className="{{#if (eq styling 'tailwind')}}w-full px-3 py-2 border-2 border-black text-sm font-mono{{else}}input-field{{/if}}"
+        />
+        {authMode === 'signup' && (
+          <input
+            type="text"
+            value={authName}
+            onChange={(e) => onNameChange(e.target.value)}
+            placeholder="Name"
+            className="{{#if (eq styling 'tailwind')}}w-full px-3 py-2 border-2 border-black text-sm font-mono{{else}}input-field{{/if}}"
+          />
+        )}
+      </div>
+
+      {/* Test button */}
+      <TestButton
+        onClick={onTest}
+        isLoading={isLoading}
+        variant="primary"
+      >
+        {`TEST ${authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}`}
+      </TestButton>
+
+      {/* Auth status test button */}
+      <TestButton
+        onClick={onStatusTest}
+        isLoading={isStatusLoading}
+        variant="secondary"
+        className="{{#if (eq styling 'tailwind')}}mt-2{{/if}}"
+      >
+        CHECK STATUS ENDPOINT
+      </TestButton>
+    </div>
+  );
+}
+{{else}}
+// Auth not configured - return empty component
+export function AuthTestForm() {
+  return null;
+}
+{{/if}}

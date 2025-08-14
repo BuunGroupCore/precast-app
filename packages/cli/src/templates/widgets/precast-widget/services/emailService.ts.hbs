@@ -1,0 +1,161 @@
+/**
+ * Email Service Testing Module
+ * Extracted from PrecastWidget - exact copy of testEmailService function
+ */
+
+import { TestResult, ServiceTestContext } from '../types';
+
+{{#if (includes plugins 'resend')}}
+/**
+ * Email Service Test
+ * Tests the email service (Resend) through API
+ * Exact copy from original PrecastWidget (lines 649-707)
+ */
+export const testEmailService = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, email: true }));
+  try {
+    // First test email service health
+    const healthResponse = await fetch(`${apiUrl}/api/email/health`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    if (!healthResponse.ok) {
+      throw new Error("Email service unavailable");
+    }
+
+    // Then send a test email
+    const testResponse = await fetch(`${apiUrl}/api/email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        type: "notification",
+        to: "test@example.com", // This would normally come from config
+        subject: "{{name}} - Email Service Test",
+        title: "Email Service Test",
+        message: "This is a test email from your {{name}} application. Email service is working correctly!"
+      }),
+    });
+
+    const data = await testResponse.json();
+
+    if (testResponse.ok) {
+      addTestResult("email", {
+        success: true,
+        message: "EMAIL SERVICE ACTIVE",
+        details: {
+          provider: "Resend",
+          status: "Email sent successfully",
+          id: data.id,
+        },
+      });
+    } else {
+      addTestResult("email", {
+        success: false,
+        message: "EMAIL SEND FAILED",
+        details: data.error || "Failed to send test email",
+      });
+    }
+  } catch (error) {
+    addTestResult("email", {
+      success: false,
+      message: "EMAIL SERVICE ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, email: false }));
+  }
+};
+
+/**
+ * Simplified email test for use with service registry
+ */
+export const testEmailServiceSimple = async (context: ServiceTestContext): Promise<TestResult> => {
+  try {
+    // First test email service health
+    const healthResponse = await fetch(`${context.apiUrl}/api/email/health`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+
+    if (!healthResponse.ok) {
+      throw new Error("Email service unavailable");
+    }
+
+    // Then send a test email
+    const testResponse = await fetch(`${context.apiUrl}/api/email`, {
+      method: "POST",
+      headers: context.headers,
+      credentials: "include",
+      body: JSON.stringify({
+        type: "notification",
+        to: "test@example.com",
+        subject: "{{name}} - Email Service Test",
+        title: "Email Service Test",
+        message: "This is a test email from your {{name}} application. Email service is working correctly!"
+      }),
+    });
+
+    const data = await testResponse.json();
+
+    if (testResponse.ok) {
+      return {
+        success: true,
+        message: "EMAIL SERVICE ACTIVE",
+        details: {
+          provider: "Resend",
+          status: "Email sent successfully",
+          id: data.id,
+        },
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "EMAIL SEND FAILED",
+        details: data.error || "Failed to send test email",
+        timestamp: new Date().toISOString(),
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "EMAIL SERVICE ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+/**
+ * Check if email service is available
+ */
+export const isEmailServiceAvailable = (): boolean => {
+  return true; // Email service is available when Resend plugin is configured
+};
+{{else}}
+// No email service configured
+export const testEmailService = async (): Promise<void> => {
+  console.warn('Email service not configured');
+};
+
+export const testEmailServiceSimple = async (): Promise<TestResult> => {
+  return {
+    success: false,
+    message: "EMAIL NOT CONFIGURED",
+    details: "No email service configured for this project",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+export const isEmailServiceAvailable = (): boolean => {
+  return false;
+};
+{{/if}}

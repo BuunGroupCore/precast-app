@@ -211,16 +211,32 @@ async function generateSingleAppProject(
     }
   }
 
+  // Handle pages differently for Next.js (app directory) vs other frameworks
   const commonPagesDir = `common/pages`;
   try {
-    await templateEngine.copyTemplateDirectory(
-      commonPagesDir,
-      path.join(projectPath, "src/pages"),
-      config,
-      {
-        overwrite: true,
-      }
-    );
+    if (framework === "next") {
+      // For Next.js, copy page content into app directory structure
+      // Copy home page content to app directory
+      const homePagesDir = `${commonPagesDir}/home`;
+      const notFoundPagesDir = `${commonPagesDir}/not-found`;
+
+      // Home page content should be merged with app/page.tsx
+      // Not-found page content should go to app/not-found.tsx
+
+      // For now, we'll copy the components that the pages use
+      // The actual page content is already in the Next.js app/page.tsx template
+      consola.debug("Next.js uses app directory - page components will be available");
+    } else {
+      // For other frameworks, copy pages as usual
+      await templateEngine.copyTemplateDirectory(
+        commonPagesDir,
+        path.join(projectPath, "src/pages"),
+        config,
+        {
+          overwrite: true,
+        }
+      );
+    }
   } catch (error) {
     consola.debug(`Common pages not found or error copying: ${error}`);
   }
@@ -402,15 +418,19 @@ async function generateMonorepoProject(
     }
   }
 
-  const commonPagesDir = `common/pages`;
-  try {
-    const pagesPath = path.join(webDir, "src/pages");
+  // For Next.js, skip copying common pages since they use app directory
+  // For other frameworks, copy pages as usual
+  if (framework !== "next") {
+    const commonPagesDir = `common/pages`;
+    try {
+      const pagesPath = path.join(webDir, "src/pages");
 
-    await templateEngine.copyTemplateDirectory(commonPagesDir, pagesPath, config, {
-      overwrite: true,
-    });
-  } catch (error) {
-    consola.debug(`Common pages not found or error copying: ${error}`);
+      await templateEngine.copyTemplateDirectory(commonPagesDir, pagesPath, config, {
+        overwrite: true,
+      });
+    } catch (error) {
+      consola.debug(`Common pages not found or error copying: ${error}`);
+    }
   }
 
   const reactFrameworks = ["react", "next", "react-router", "tanstack-router", "tanstack-start"];

@@ -1,0 +1,166 @@
+'use client';
+
+import { ArrowLeft, Home, Terminal, AlertTriangle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+
+/**
+ * 404 Not Found page - Brutalist terminal-style error page
+ */
+export default function NotFound() {
+  const router = useRouter();
+  const navigate = (path: string | number) => {
+    if (typeof path === 'number') {
+      router.back();
+    } else {
+      router.push(path);
+    }
+  };
+  const [typedText, setTypedText] = useState("");
+  const fullText = "> ERROR 404: RESOURCE_NOT_FOUND";
+  
+  useEffect(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= fullText.length) {
+        setTypedText(fullText.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 50);
+    
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}flex-1 flex items-center justify-center px-4 py-12{{else}}error-page{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}max-w-2xl w-full{{else}}error-container{{/if}}">
+        {/* Terminal window */}
+        <div className="{{#if (eq styling 'tailwind')}}border-4 border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]{{else}}error-terminal{{/if}}">
+          {/* Terminal header */}
+          <div className="{{#if (eq styling 'tailwind')}}bg-black px-4 py-2 flex items-center justify-between{{else}}terminal-header{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}terminal-title-group{{/if}}">
+              <Terminal size={16} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+              <span className="{{#if (eq styling 'tailwind')}}text-yellow-400 font-mono text-sm uppercase tracking-wider{{else}}terminal-title{{/if}}">
+                System Error
+              </span>
+            </div>
+            <div className="{{#if (eq styling 'tailwind')}}flex space-x-2{{else}}terminal-controls{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-red-500 border border-red-700{{else}}control-dot control-red{{/if}}"></div>
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-yellow-400 border border-yellow-600{{else}}control-dot control-yellow{{/if}}"></div>
+              <div className="{{#if (eq styling 'tailwind')}}w-3 h-3 bg-green-500 border border-green-700{{else}}control-dot control-green{{/if}}"></div>
+            </div>
+          </div>
+          
+          {/* Terminal content */}
+          <div className="{{#if (eq styling 'tailwind')}}p-8 font-mono{{else}}error-details{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}text-black text-lg mb-4{{else}}terminal-prompt{{/if}}">
+              {typedText}
+              <span className="{{#if (eq styling 'tailwind')}}animate-pulse{{else}}terminal-cursor{{/if}}">_</span>
+            </div>
+            
+            {/* Error details */}
+            <div className="{{#if (eq styling 'tailwind')}}space-y-2 text-sm mb-6{{else}}error-logs{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}flex items-start space-x-2{{else}}log-item{{/if}}">
+                <span className="{{#if (eq styling 'tailwind')}}text-red-600{{else}}error-status error-fail{{/if}}">[FAIL]</span>
+                <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}log-message{{/if}}">Route not found in application registry</span>
+              </div>
+              <div className="{{#if (eq styling 'tailwind')}}flex items-start space-x-2{{else}}log-item{{/if}}">
+                <span className="{{#if (eq styling 'tailwind')}}text-yellow-600{{else}}error-status error-warn{{/if}}">[WARN]</span>
+                <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}log-message{{/if}}">Attempted to access: {typeof window !== 'undefined' ? window.location.pathname : ''}</span>
+              </div>
+              <div className="{{#if (eq styling 'tailwind')}}flex items-start space-x-2{{else}}log-item{{/if}}">
+                <span className="{{#if (eq styling 'tailwind')}}text-black/60{{else}}error-status error-info{{/if}}">[INFO]</span>
+                <span className="{{#if (eq styling 'tailwind')}}text-black{{else}}log-message{{/if}}">Timestamp: {new Date().toISOString()}</span>
+              </div>
+            </div>
+
+            {/* ASCII art 404 */}
+            <div className="{{#if (eq styling 'tailwind')}}bg-yellow-400 border-2 border-black p-4 mb-6{{else}}ascii-box{{/if}}">
+              <pre className="{{#if (eq styling 'tailwind')}}text-black text-xs text-center font-mono{{else}}ascii-art{{/if}}">
+{`╔══════════════════════════════╗
+║  ██╗  ██╗ ██████╗ ██╗  ██╗  ║
+║  ██║  ██║██╔═████╗██║  ██║  ║
+║  ███████║██║██╔██║███████║  ║
+║  ╚════██║████╔╝██║╚════██║  ║
+║       ██║╚██████╔╝     ██║  ║
+║       ╚═╝ ╚═════╝      ╚═╝  ║
+╚══════════════════════════════╝`}
+              </pre>
+            </div>
+
+            {/* Error message */}
+            <div className="{{#if (eq styling 'tailwind')}}border-2 border-black p-4 mb-6{{else}}error-message-box{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}flex items-start space-x-3{{else}}error-message-content{{/if}}">
+                <AlertTriangle className="{{#if (eq styling 'tailwind')}}text-yellow-600 mt-0.5{{else}}icon-warning{{/if}}" size={20} />
+                <div>
+                  <h2 className="{{#if (eq styling 'tailwind')}}text-black font-bold uppercase text-lg mb-2{{else}}error-title{{/if}}">Page Not Found</h2>
+                  <p className="{{#if (eq styling 'tailwind')}}text-black/70 text-sm{{else}}error-description{{/if}}">
+                    The requested resource could not be located on this server. 
+                    Please verify the URL and try again.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stack trace (fake but fun) */}
+            <details className="{{#if (eq styling 'tailwind')}}mb-6{{else}}stack-trace{{/if}}">
+              <summary className="{{#if (eq styling 'tailwind')}}cursor-pointer text-xs text-black/60 hover:text-black uppercase tracking-wider{{else}}stack-trace-summary{{/if}}">
+                [Click to expand stack trace]
+              </summary>
+              <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/20 text-xs text-black/60 font-mono{{else}}stack-trace-content{{/if}}">
+                <div>at Router.match (/src/app/[...not-found]/route.ts:42:15)</div>
+                <div>at Application.handleRequest (/src/app/layout.tsx:128:23)</div>
+                <div>at processRequest (/node_modules/next/router.js:95:12)</div>
+                <div>at async Server.respond (/src/server.ts:67:5)</div>
+              </div>
+            </details>
+
+            {/* Action prompt */}
+            <div className="{{#if (eq styling 'tailwind')}}text-black text-sm mb-4{{else}}action-prompt{{/if}}">
+              <span className="{{#if (eq styling 'tailwind')}}text-black/60{{else}}prompt-symbol{{/if}}">$</span> Select recovery option:
+            </div>
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="{{#if (eq styling 'tailwind')}}flex gap-4 mt-6{{else}}action-buttons{{/if}}">
+          <button
+            onClick={() => navigate(-1)}
+            className="{{#if (eq styling 'tailwind')}}group flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black border-2 border-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150{{else}}btn-brutalist btn-brutalist-white{{/if}}"
+          >
+            <ArrowLeft size={16} className="{{#if (eq styling 'tailwind')}}group-hover:-translate-x-1 transition-transform{{else}}btn-icon{{/if}}" />
+            <span>GO BACK</span>
+          </button>
+
+          <button
+            onClick={() => navigate("/")}
+            className="{{#if (eq styling 'tailwind')}}group flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black border-2 border-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150{{else}}btn-brutalist{{/if}}"
+          >
+            <Home size={16} />
+            <span>HOME</span>
+          </button>
+        </div>
+
+        {/* System status indicators */}
+        <div className="{{#if (eq styling 'tailwind')}}flex justify-center mt-8{{else}}system-status{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}inline-flex items-center gap-6 px-6 py-3 bg-black text-yellow-400 font-mono text-xs uppercase{{else}}system-bar{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center gap-2{{else}}status-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-2 h-2 bg-green-500 animate-pulse{{else}}status-indicator status-ok{{/if}}"></div>
+              <span>SYSTEM: OK</span>
+            </div>
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center gap-2{{else}}status-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-2 h-2 bg-yellow-400 animate-pulse{{else}}status-indicator status-warning{{/if}}"></div>
+              <span>ROUTER: ERROR</span>
+            </div>
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center gap-2{{else}}status-item{{/if}}">
+              <div className="{{#if (eq styling 'tailwind')}}w-2 h-2 bg-green-500 animate-pulse{{else}}status-indicator status-ok{{/if}}"></div>
+              <span>API: OK</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

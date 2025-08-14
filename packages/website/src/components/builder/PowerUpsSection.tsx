@@ -315,7 +315,7 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
               setConfig({ ...config, docker: !config.docker });
             }
           }}
-          className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 h-[80px] flex flex-col ${
+          className={`p-3 border-3 border-comic-black rounded-lg transition-all duration-200 transform hover:scale-105 h-[80px] flex flex-col relative ${
             config.docker
               ? "bg-comic-yellow text-comic-black"
               : "bg-comic-white text-comic-black hover:bg-comic-gray/10"
@@ -323,6 +323,11 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
           style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
           title="Add containerization support with Dockerfile"
         >
+          {config.docker && (
+            <div className="absolute -top-2 -right-2 bg-comic-blue text-comic-white rounded-full p-1 border-2 border-comic-black">
+              <FaDocker className="text-xs" />
+            </div>
+          )}
           <div className="flex items-center gap-2 mb-1 pr-1">
             <BuilderIcon icon={FaDocker} className="text-lg" />
             <span className="font-display text-sm">Docker</span>
@@ -451,6 +456,30 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
                       {powerup.beta && (
                         <span className="bg-comic-purple text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
                           BETA
+                        </span>
+                      )}
+                      {powerup.serverContext === "api" && (
+                        <span
+                          className="bg-comic-blue text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black"
+                          title="Best for API servers"
+                        >
+                          API
+                        </span>
+                      )}
+                      {powerup.serverContext === "web" && (
+                        <span
+                          className="bg-comic-orange text-comic-white text-[9px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black"
+                          title="Best for web servers"
+                        >
+                          WEB
+                        </span>
+                      )}
+                      {powerup.category === "infrastructure" && (
+                        <span
+                          className="bg-comic-darkBlue text-comic-white p-1 rounded-full border border-comic-black"
+                          title="Infrastructure tool"
+                        >
+                          <FaDocker className="text-[10px]" />
                         </span>
                       )}
                       {isAvailable && powerup.isRecommended && !enhances && (

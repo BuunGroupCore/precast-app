@@ -830,7 +830,7 @@ async function setupNgrokViteAllowedHosts(
  * Setup ngrok CORS configuration for API server
  */
 async function setupNgrokApiCors(projectPath: string, config: ProjectConfig): Promise<void> {
-  // Check if this is a monorepo with an API
+  // Check if this is a monorepo with a separate API
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
   if (!isMonorepo) {
     return;
@@ -840,6 +840,14 @@ async function setupNgrokApiCors(projectPath: string, config: ProjectConfig): Pr
   const apiPath = projectPath.endsWith("/apps/web")
     ? path.join(projectPath, "..", "..", "apps", "api")
     : path.join(projectPath, "apps", "api");
+
+  // Check if API directory exists first
+  if (!(await pathExists(apiPath))) {
+    consola.debug(
+      "API directory not found yet - CORS configuration will be needed when API is set up"
+    );
+    return;
+  }
 
   // Find the constants file
   const constantsFiles = [
@@ -858,7 +866,13 @@ async function setupNgrokApiCors(projectPath: string, config: ProjectConfig): Pr
   }
 
   if (!constantsPath) {
-    consola.warn("Could not find API constants file to update CORS configuration");
+    consola.info(
+      "ℹ API CORS configuration: You'll need to add ngrok origins to your API's CORS settings"
+    );
+    consola.info("  Add these origins to your CORS configuration:");
+    consola.info("    - https://*.ngrok.app");
+    consola.info("    - https://*.ngrok-free.app");
+    consola.info("    - https://*.ngrok.io");
     return;
   }
 
@@ -948,10 +962,14 @@ VITE_API_URL=http://localhost:3001
 
     // Update backend .env files for Docker database connections
     if (config.database === "postgres") {
-      const backendEnvFiles = [
-        path.join(projectRoot, "apps", "api", ".env"),
-        path.join(projectRoot, "apps", "api", ".env.example"),
-      ];
+      // Check if API directory exists first
+      const apiDir = path.join(projectRoot, "apps", "api");
+      if (!(await pathExists(apiDir))) {
+        consola.debug("API directory not found - skipping backend env configuration");
+        return;
+      }
+
+      const backendEnvFiles = [path.join(apiDir, ".env"), path.join(apiDir, ".env.example")];
 
       for (const envFile of backendEnvFiles) {
         if (await pathExists(envFile)) {

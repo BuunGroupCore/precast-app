@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { Layout } from '@/components/layout'
 {{#if (eq styling "scss")}}
-import './globals.scss'
+import '@/styles/globals.scss'
 {{else}}
-import './globals.css'
+import '@/styles/globals.css'
 {{/if}}
+import { PrecastWidget } from '@/components/precast/PrecastWidget'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,7 +30,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="{{#if (eq styling "tailwind")}}font-sans{{else}}font-family: var(--font-sans){{/if}}">{children}</body>
+      <body className="{{#if (eq styling "tailwind")}}font-sans{{else}}font-family: var(--font-sans){{/if}}">
+        <Layout>
+          {children}
+        </Layout>
+        <PrecastWidget />
+      </body>
     </html>
   )
 }

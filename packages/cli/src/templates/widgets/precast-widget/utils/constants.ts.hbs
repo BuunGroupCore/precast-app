@@ -1,0 +1,198 @@
+/**
+ * Constants and shared values for PrecastWidget
+ */
+
+/**
+ * Widget configuration constants
+ */
+export const WIDGET_CONFIG = {
+  // LocalStorage keys
+  STORAGE_KEYS: {
+    ADMIN_PANEL_OPEN: 'adminPanelOpen',
+    WIDGET_SETTINGS: 'precastWidgetSettings',
+  },
+  
+  // UI constants
+  UI: {
+    PANEL_WIDTH: 420,
+    PANEL_HEIGHT_MAX: '85vh',
+    TAB_WIDTH: 48,
+    TAB_HEIGHT: 48,
+    FLOATING_BUTTON_SIZE: 24,
+  },
+  
+  // Timing constants
+  TIMING: {
+    ANIMATION_DURATION: 150,
+    TEST_TIMEOUT: 30000,
+    RETRY_DELAY: 1000,
+  },
+  
+  // Test result statuses
+  TEST_STATUS: {
+    PENDING: 'pending',
+    RUNNING: 'running',
+    SUCCESS: 'success',
+    FAILED: 'failed',
+    ERROR: 'error',
+  } as const,
+} as const;
+
+/**
+ * Service categories for organization
+ */
+export const SERVICE_CATEGORIES = {
+  INFRASTRUCTURE: 'infrastructure',
+  MONITORING: 'monitoring', 
+  COMMUNICATION: 'communication',
+  ANALYTICS: 'analytics',
+  PAYMENT: 'payment',
+  AUTH: 'auth',
+  STORAGE: 'storage',
+} as const;
+
+/**
+ * Default service configuration
+ */
+export const DEFAULT_SERVICES = {
+  API: {
+    name: 'API',
+    type: '{{backend}}',
+    icon: 'server',
+    category: SERVICE_CATEGORIES.INFRASTRUCTURE,
+    port: 3001,
+    healthEndpoint: '/api/health',
+  },
+  {{#if database}}
+  DATABASE: {
+    name: 'DATABASE',
+    type: '{{database}}',
+    icon: '{{database}}',
+    category: SERVICE_CATEGORIES.INFRASTRUCTURE,
+    port: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}},
+    healthEndpoint: '/api/health/database',
+  },
+  {{/if}}
+  {{#if docker}}
+  DOCKER: {
+    name: 'DOCKER',
+    type: 'compose',
+    icon: 'docker',
+    category: SERVICE_CATEGORIES.INFRASTRUCTURE,
+  },
+  {{/if}}
+  {{#if authProvider}}
+  AUTH: {
+    name: 'AUTH',
+    type: '{{authProvider}}',
+    icon: 'auth',
+    category: SERVICE_CATEGORIES.AUTH,
+    healthEndpoint: '{{#if (eq authProvider "better-auth")}}/api/auth/ok{{else if (eq authProvider "auth.js")}}/api/auth/providers{{else}}/api/health/auth{{/if}}',
+  },
+  {{/if}}
+  {{#if (includes plugins 'resend')}}
+  EMAIL: {
+    name: 'EMAIL',
+    type: 'resend',
+    icon: 'mail',
+    category: SERVICE_CATEGORIES.COMMUNICATION,
+    healthEndpoint: '/api/email/health',
+  },
+  {{/if}}
+  {{#if (includes plugins 'stripe')}}
+  PAYMENT: {
+    name: 'PAYMENT',
+    type: 'stripe',
+    icon: 'stripe',
+    category: SERVICE_CATEGORIES.PAYMENT,
+    healthEndpoint: '/api/stripe/health',
+  },
+  {{/if}}
+} as const;
+
+/**
+ * Error messages
+ */
+export const ERROR_MESSAGES = {
+  NETWORK: 'Network connection failed',
+  TIMEOUT: 'Request timeout',
+  INVALID_RESPONSE: 'Invalid response format',
+  SERVICE_UNAVAILABLE: 'Service unavailable',
+  CONFIGURATION_ERROR: 'Configuration error',
+  AUTHENTICATION_FAILED: 'Authentication failed',
+  PERMISSION_DENIED: 'Permission denied',
+} as const;
+
+/**
+ * Success messages
+ */
+export const SUCCESS_MESSAGES = {
+  API_HEALTHY: 'API HEALTHY',
+  DATABASE_CONNECTED: 'DATABASE CONNECTED',
+  DOCKER_RUNNING: 'DOCKER RUNNING',
+  EMAIL_SERVICE_ACTIVE: 'EMAIL SERVICE ACTIVE',
+  PAYMENT_SERVICE_ACTIVE: 'PAYMENT SERVICE ACTIVE',
+  AUTH_SERVICE_HEALTHY: 'AUTH SERVICE HEALTHY',
+  SIGN_UP_SUCCESSFUL: 'SIGN-UP SUCCESSFUL',
+  SIGN_IN_SUCCESSFUL: 'SIGN-IN SUCCESSFUL',
+  SESSION_ACTIVE: 'SESSION ACTIVE',
+} as const;
+
+/**
+ * Loading messages
+ */
+export const LOADING_MESSAGES = {
+  TESTING: 'TESTING...',
+  CHECKING: 'CHECKING...',
+  CONNECTING: 'CONNECTING...',
+  AUTHENTICATING: 'AUTHENTICATING...',
+} as const;
+
+/**
+ * CSS class utilities for styling consistency
+ */
+export const CSS_CLASSES = {
+  // Tailwind classes
+  TAILWIND: {
+    BUTTON_PRIMARY: 'w-full px-4 py-3 bg-yellow-400 border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed',
+    BUTTON_SECONDARY: 'w-full px-4 py-3 bg-white border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed',
+    INPUT_FIELD: 'w-full px-3 py-2 border-2 border-black text-sm font-mono',
+    CARD: 'border-2 border-black p-4 bg-white',
+    FLOATING_BUTTON: 'fixed bottom-6 right-6 z-50 bg-yellow-400 border-2 border-black p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 group',
+    PANEL: 'bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200',
+  },
+  
+  // Pure CSS fallback classes
+  FALLBACK: {
+    BUTTON_PRIMARY: 'test-btn',
+    BUTTON_SECONDARY: 'test-btn status-btn',
+    INPUT_FIELD: 'input-field',
+    CARD: 'service-card',
+    FLOATING_BUTTON: 'precast-floating-btn',
+    PANEL: 'precast-main-panel',
+  },
+} as const;
+
+/**
+ * Get appropriate CSS class based on styling configuration
+ */
+export const getStyleClass = (element: keyof typeof CSS_CLASSES.TAILWIND): string => {
+  {{#if (eq styling 'tailwind')}}
+  return CSS_CLASSES.TAILWIND[element];
+  {{else}}
+  return CSS_CLASSES.FALLBACK[element];
+  {{/if}}
+};
+
+/**
+ * Test configuration defaults
+ */
+export const TEST_DEFAULTS = {
+  AUTH: {
+    EMAIL: 'test@example.com',
+    PASSWORD: 'TestPassword123!',
+    NAME: 'Test User',
+  },
+  TIMEOUT: 30000,
+  RETRY_ATTEMPTS: 3,
+} as const;

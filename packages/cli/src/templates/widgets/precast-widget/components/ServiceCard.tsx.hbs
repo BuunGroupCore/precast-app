@@ -1,0 +1,165 @@
+/**
+ * ServiceCard Component
+ * Extracted from PrecastWidget - individual service display and testing
+ */
+
+import React from 'react';
+import { ServiceDefinition, TestResult, AuthMode } from '../types';
+import { getServiceIcon } from '../utils/serviceIcons';
+import { TestButton } from './TestButton';
+import { AuthTestForm } from './AuthTestForm';
+import { DockerContainerList } from './DockerContainerList';
+import { ResultDisplay } from './ResultDisplay';
+
+interface ServiceCardProps {
+  service: ServiceDefinition;
+  testResults: Record<string, TestResult>;
+  loading: Record<string, boolean>;
+  
+  // Test functions
+  onTestDatabase?: () => void;
+  onTestApi?: () => void;
+  onTestDocker?: () => void;
+  onTestEmail?: () => void;
+  onTestAuth?: () => void;
+  onTestAuthStatus?: () => void;
+  
+  // Auth-specific props
+  authMode?: AuthMode;
+  authEmail?: string;
+  authPassword?: string;
+  authName?: string;
+  onAuthModeChange?: (mode: AuthMode) => void;
+  onAuthEmailChange?: (email: string) => void;
+  onAuthPasswordChange?: (password: string) => void;
+  onAuthNameChange?: (name: string) => void;
+}
+
+/**
+ * Service Card Component
+ * Exact copy from original PrecastWidget service display logic (lines 1179-1346)
+ */
+export function ServiceCard({
+  service,
+  testResults,
+  loading,
+  onTestDatabase,
+  onTestApi,
+  onTestDocker,
+  onTestEmail,
+  onTestAuth,
+  onTestAuthStatus,
+  authMode = 'signup',
+  authEmail = 'test@example.com',
+  authPassword = 'TestPassword123!',
+  authName = 'Test User',
+  onAuthModeChange,
+  onAuthEmailChange,
+  onAuthPasswordChange,
+  onAuthNameChange,
+}: ServiceCardProps) {
+  const serviceKey = service.key;
+  const statusResult = serviceKey === 'auth' ? testResults.authStatus : testResults[serviceKey];
+
+  // Determine which test function to call
+  const getTestFunction = () => {
+    switch (serviceKey) {
+      case 'database':
+        return onTestDatabase;
+      case 'api':
+        return onTestApi;
+      case 'docker':
+        return onTestDocker;
+      case 'email':
+        return onTestEmail;
+      default:
+        return undefined;
+    }
+  };
+
+  const testFunction = getTestFunction();
+
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}border-2 border-black p-4 bg-white{{else}}service-card{{/if}}">
+      <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-3{{else}}service-header{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}service-info{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-yellow-400 border-2 border-black flex items-center justify-center{{else}}service-icon{{/if}}">
+            {getServiceIcon(service.icon, 20)}
+          </div>
+          <div>
+            <h3 className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase text-sm{{else}}service-name{{/if}}">
+              {service.type?.toUpperCase() || service.name}
+            </h3>
+            {service.port && (
+              <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 font-mono{{else}}service-port{{/if}}">
+                PORT: {service.port}
+              </p>
+            )}
+          </div>
+        </div>
+        <span
+          className={`{{#if (eq styling 'tailwind')}}px-3 py-1 text-xs font-bold uppercase tracking-wider border-2 border-black ${statusResult?.success ? 'bg-black text-yellow-400' : 'bg-yellow-400 text-black'}{{else}}status-badge{{/if}}`}
+          {{#unless (eq styling 'tailwind')}}
+          data-success={statusResult?.success}
+          {{/unless}}
+        >
+          {statusResult?.success ? "ONLINE" : "UNKNOWN"}
+        </span>
+      </div>
+      
+      {/* Test buttons for services that support testing */}
+      {(serviceKey === 'database' || serviceKey === 'api' || serviceKey === 'email' || serviceKey === 'docker') && testFunction && (
+        <div className="{{#if (eq styling 'tailwind')}}mb-4{{else}}test-btn-container{{/if}}">
+          <TestButton
+            onClick={testFunction}
+            isLoading={loading[serviceKey] || false}
+            variant="primary"
+          >
+            {`RUN ${serviceKey === 'database' ? 'CONNECTION' : serviceKey === 'api' ? 'HEALTH' : serviceKey === 'docker' ? 'DOCKER' : serviceKey === 'email' ? 'EMAIL' : 'SERVICE'} TEST`}
+          </TestButton>
+        </div>
+      )}
+
+      {{#if authProvider}}
+      {/* Enhanced Auth Testing UI */}
+      {serviceKey === 'auth' && onAuthModeChange && onAuthEmailChange && onAuthPasswordChange && onAuthNameChange && onTestAuth && onTestAuthStatus && (
+        <AuthTestForm
+          authMode={authMode}
+          authEmail={authEmail}
+          authPassword={authPassword}
+          authName={authName}
+          isLoading={loading.auth || false}
+          onModeChange={onAuthModeChange}
+          onEmailChange={onAuthEmailChange}
+          onPasswordChange={onAuthPasswordChange}
+          onNameChange={onAuthNameChange}
+          onTest={onTestAuth}
+          onStatusTest={onTestAuthStatus}
+          isStatusLoading={loading.authStatus || false}
+        />
+      )}
+      {{/if}}
+      
+      {/* Docker containers list */}
+      {serviceKey === 'docker' && service.containers && (
+        <DockerContainerList containers={service.containers} />
+      )}
+      
+      <div className="{{#if (eq styling 'tailwind')}}mt-4{{else}}result-display-container{{/if}}">
+        <ResultDisplay service={serviceKey} testResults={testResults} />
+        
+        {{#if authProvider}}
+        {/* Show auth session result if available */}
+        {serviceKey === 'auth' && testResults.authSession && (
+          <ResultDisplay service="authSession" testResults={testResults} />
+        )}
+        
+        {/* Show auth status result if available */}
+        {serviceKey === 'auth' && testResults.authStatus && (
+          <ResultDisplay service="authStatus" testResults={testResults} />
+        )}
+        {{/if}}
+      </div>
+    </div>
+  );
+}

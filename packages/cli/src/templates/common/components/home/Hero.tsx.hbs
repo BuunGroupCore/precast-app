@@ -1,4 +1,6 @@
-import { APP_CONFIG } from "@/config/constants";
+{{#if (eq framework "next")}}'use client';
+
+{{/if}}import { APP_CONFIG } from "@/config/constants";
 import { Terminal, Zap, Database, Server } from "lucide-react";
 import { 
   {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
@@ -61,7 +63,8 @@ import { useState, useEffect } from "react";
  */
 export function Hero() {
   const [typedText, setTypedText] = useState("");
-  const fullText = `> INITIALIZING ${APP_CONFIG.displayName}...`;
+  const appName = APP_CONFIG?.displayName || '{{name}}';
+  const fullText = `> INITIALIZING ${appName.toUpperCase()}...`;
   
   useEffect(() => {
     let index = 0;
@@ -174,7 +177,7 @@ export function Hero() {
       {/* Project title with brutalist style - reduced size */}
       <div className="{{#if (eq styling 'tailwind')}}text-center mb-8{{else}}project-title{{/if}}">
         <h1 className="{{#if (eq styling 'tailwind')}}inline-block text-3xl sm:text-4xl lg:text-5xl font-black uppercase text-black bg-yellow-400 px-6 py-3 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150{{else}}hero-title{{/if}}">
-          {APP_CONFIG.displayName.toUpperCase()}
+          {appName.toUpperCase()}
         </h1>
       </div>
 

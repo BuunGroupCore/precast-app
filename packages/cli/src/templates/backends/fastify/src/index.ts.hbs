@@ -34,10 +34,12 @@ await fastify.register(cors, {
     
     // Check if origin matches allowed patterns
     const allowedOrigins = [
-      'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
+      'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "tanstack-start")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
       'http://localhost:3000',
       'http://localhost:4200',
       'http://localhost:5173',
+      'http://localhost:7000',{{#if (eq framework "tanstack-start")}}
+      // TanStack Start can use different ports{{/if}}
     ];
     
     // Check for exact matches
@@ -68,7 +70,14 @@ await fastify.register(cors, {
     callback(new Error('Not allowed by CORS'));
   },
   {{else}}
-  origin: process.env.CLIENT_URL || 'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
+  origin: process.env.CLIENT_URL?.split(',') || [
+    'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "tanstack-start")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
+    'http://localhost:3000',
+    'http://localhost:4200',
+    'http://localhost:5173',
+    'http://localhost:7000',{{#if (eq framework "tanstack-start")}}
+    // TanStack Start can use different ports{{/if}}
+  ],
   {{/if}}
   credentials: true,
 });

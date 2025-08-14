@@ -1,0 +1,43 @@
+/**
+ * ServiceTabBar Component
+ * Extracted from PrecastWidget - side tab navigation
+ */
+
+import React from 'react';
+import { ServiceDefinition } from '../types';
+import { getServiceIcon } from '../utils/serviceIcons';
+
+interface ServiceTabBarProps {
+  services: Record<string, ServiceDefinition>;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  isMinimized: boolean;
+}
+
+/**
+ * Side Tab Navigation Component
+ * Exact copy from original PrecastWidget (lines 1101-1119)
+ */
+export function ServiceTabBar({ services, activeTab, onTabChange, isMinimized }: ServiceTabBarProps) {
+  if (isMinimized) return null;
+
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}flex flex-col mr-0{{else}}side-tabs{{/if}}">
+      {Object.entries(services).map(([key, service]) => (
+        <button
+          key={key}
+          onClick={() => onTabChange(key)}
+          className={`{{#if (eq styling 'tailwind')}}w-12 h-12 border-2 border-black border-r-0 flex items-center justify-center transition-all duration-150 ${activeTab === key ? 'bg-yellow-400 shadow-[-2px_0px_0px_0px_rgba(0,0,0,1)]' : 'bg-white hover:bg-gray-100'} ${key === Object.keys(services)[0] ? '' : 'border-t-0'}{{else}}side-tab{{/if}}`}
+          title={service.name}
+          {{#unless (eq styling 'tailwind')}}
+          data-active={activeTab === key}
+          {{/unless}}
+        >
+          <div className="{{#if (eq styling 'tailwind')}}transform scale-125{{else}}tab-icon{{/if}}">
+            {getServiceIcon(service.icon, 20)}
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+}

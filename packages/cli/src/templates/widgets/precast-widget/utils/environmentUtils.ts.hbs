@@ -1,0 +1,136 @@
+/**
+ * Environment Utilities
+ * Framework-specific environment variable access and utilities
+ */
+
+/**
+ * Framework-specific environment variable access
+ * Gets the API URL based on the current framework
+ */
+export const getApiUrl = (): string | undefined => {
+  {{#if (eq framework "next")}}
+  return process.env.NEXT_PUBLIC_API_URL;
+  {{else if (eq framework "nuxt")}}
+  return process.env.NUXT_PUBLIC_API_URL;
+  {{else if (eq framework "react-router")}}
+  return process.env.REACT_APP_API_URL;
+  {{else}}
+  return import.meta.env.VITE_API_URL;
+  {{/if}}
+};
+
+/**
+ * Check if we're in development mode
+ * Framework-specific development environment detection
+ */
+export const isDevelopment = (): boolean => {
+  {{#if (eq framework "next")}}
+  return process.env.NODE_ENV === 'development';
+  {{else if (eq framework "nuxt")}}
+  return process.env.NODE_ENV === 'development';
+  {{else if (eq framework "react-router")}}
+  return process.env.NODE_ENV === 'development';
+  {{else}}
+  return import.meta.env.DEV || import.meta.env.MODE === 'development';
+  {{/if}}
+};
+
+/**
+ * Get API headers with framework-specific considerations
+ * Includes special headers for tunneling services like ngrok
+ */
+export const getApiHeaders = (apiUrl?: string): HeadersInit => {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json"
+  };
+  
+  {{#if (includes powerups "ngrok")}}
+  // Add ngrok header if using ngrok tunneling
+  if (apiUrl && apiUrl.includes('ngrok')) {
+    headers["ngrok-skip-browser-warning"] = "true";
+  }
+  {{/if}}
+  
+  return headers;
+};
+
+/**
+ * Get simple headers for GET requests
+ */
+export const getSimpleApiHeaders = (apiUrl?: string): HeadersInit => {
+  const headers: HeadersInit = {};
+  
+  {{#if (includes powerups "ngrok")}}
+  // Add ngrok header if using ngrok tunneling
+  if (apiUrl && apiUrl.includes('ngrok')) {
+    headers["ngrok-skip-browser-warning"] = "true";
+  }
+  {{/if}}
+  
+  return headers;
+};
+
+/**
+ * Get environment-specific configuration
+ */
+export const getEnvironmentConfig = () => {
+  return {
+    apiUrl: getApiUrl(),
+    isDev: isDevelopment(),
+    framework: '{{framework}}',
+    backend: '{{backend}}',
+    database: '{{database}}',
+    styling: '{{styling}}',
+    {{#if authProvider}}
+    authProvider: '{{authProvider}}',
+    {{/if}}
+    {{#if docker}}
+    docker: true,
+    {{else}}
+    docker: false,
+    {{/if}}
+    {{#if powerups}}
+    powerups: [{{#each powerups}}'{{this}}'{{#unless @last}},{{/unless}}{{/each}}],
+    {{else}}
+    powerups: [],
+    {{/if}}
+    {{#if plugins}}
+    plugins: [{{#each plugins}}'{{this}}'{{#unless @last}},{{/unless}}{{/each}}],
+    {{else}}
+    plugins: [],
+    {{/if}}
+  };
+};
+
+/**
+ * Validate API URL format
+ */
+export const isValidApiUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Get default ports for different services
+ */
+export const getDefaultPorts = () => {
+  return {
+    api: {{#if backend}}3001{{else}}3000{{/if}},
+    {{#if database}}
+    database: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}},
+    {{/if}}
+    {{#if (includes powerups "traefik")}}
+    traefik: 8080,
+    traefik_proxy: 80,
+    {{/if}}
+    {{#if (includes powerups "ngrok")}}
+    ngrok: 4040,
+    {{/if}}
+    redis: 6379,
+    elasticsearch: 9200,
+  };
+};

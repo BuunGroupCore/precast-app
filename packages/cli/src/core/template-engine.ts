@@ -208,7 +208,7 @@ export class TemplateEngine {
     });
 
     for (const file of files) {
-      if (this.shouldSkipFile(file, context)) {
+      if (this.shouldSkipFile(file, context, sourceDir)) {
         continue;
       }
 
@@ -236,9 +236,10 @@ export class TemplateEngine {
    * Determine if a file should be skipped based on context
    * @param file - File path
    * @param context - Template context
+   * @param sourceDir - Source directory for template
    * @returns True if file should be skipped
    */
-  private shouldSkipFile(file: string, context: TemplateContext): boolean {
+  private shouldSkipFile(file: string, context: TemplateContext, sourceDir?: string): boolean {
     const fileName = path.basename(file);
 
     const isConfigFile = fileName.match(/\.(config|rc)\.(js|mjs|cjs)\.hbs$/);
@@ -280,15 +281,31 @@ export class TemplateEngine {
       return true;
     }
 
+    // Skip TypeScript files when TypeScript is disabled
     if (!context.typescript && (fileName.endsWith(".ts.hbs") || fileName.endsWith(".tsx.hbs"))) {
       return true;
     }
-    if (
-      context.typescript &&
-      (fileName.endsWith(".js.hbs") || fileName.endsWith(".jsx.hbs")) &&
-      !isConfigFile
-    ) {
-      return true;
+
+    // When TypeScript is enabled:
+    // - Skip JS/JSX files (except config files which may need both)
+    // - Skip JS config files if a TS version exists
+    if (context.typescript) {
+      // For config files, check if a TypeScript version exists
+      if (isConfigFile && fileName.endsWith(".js.hbs")) {
+        const tsConfigName = fileName.replace(/\.js\.hbs$/, ".ts.hbs");
+        const tsConfigPath = path.join(path.dirname(file), tsConfigName);
+        if (sourceDir) {
+          const fullTsConfigPath = path.join(this.templateRoot, sourceDir, tsConfigPath);
+          // Skip JS config if TS version exists
+          if (fsExtra.pathExistsSync(fullTsConfigPath)) {
+            return true;
+          }
+        }
+      }
+      // Skip non-config JS/JSX files when TypeScript is enabled
+      else if ((fileName.endsWith(".js.hbs") || fileName.endsWith(".jsx.hbs")) && !isConfigFile) {
+        return true;
+      }
     }
     if (context.styling !== "scss" && fileName.endsWith(".scss.hbs")) {
       return true;
@@ -296,9 +313,12 @@ export class TemplateEngine {
     if (fileName === "style.scss.hbs" && context.styling !== "scss") {
       return true;
     }
+    // Skip Tailwind/PostCSS configs when not using Tailwind
     if (
       (fileName === "tailwind.config.js.hbs" ||
+        fileName === "tailwind.config.ts.hbs" ||
         fileName === "postcss.config.js.hbs" ||
+        fileName === "postcss.config.ts.hbs" ||
         fileName === "tailwind.config.mjs.hbs" ||
         fileName === "postcss.config.mjs.hbs") &&
       context.styling !== "tailwind"

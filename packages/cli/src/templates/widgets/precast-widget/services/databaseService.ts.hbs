@@ -1,0 +1,130 @@
+/**
+ * Database Service Testing Module
+ * Extracted from PrecastWidget - exact copy of testDatabaseConnection function
+ */
+
+import { TestResult, ServiceTestContext } from '../types';
+
+{{#if database}}
+/**
+ * Database Connection Test
+ * Tests the database connection through the API
+ * Exact copy from original PrecastWidget (lines 474-523)
+ */
+export const testDatabaseConnection = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, database: true }));
+  try {
+    {{#if (includes powerups "ngrok")}}
+    const headers: HeadersInit = { "Content-Type": "application/json" };
+    
+    // Add ngrok header if using ngrok
+    if (apiUrl.includes('ngrok')) {
+      headers["ngrok-skip-browser-warning"] = "true";
+    }
+    
+    const response = await fetch(`${apiUrl}/api/health/database`, {
+      method: "GET",
+      headers,
+      credentials: "include",
+    });
+    {{else}}
+    const response = await fetch(`${apiUrl}/api/health/database`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    {{/if}}
+
+    const data = await response.json();
+
+    if (response.ok) {
+      addTestResult("database", {
+        success: true,
+        message: "DATABASE CONNECTED",
+        details: data,
+      });
+    } else {
+      addTestResult("database", {
+        success: false,
+        message: "CONNECTION FAILED",
+        details: data.error,
+      });
+    }
+  } catch (error) {
+    addTestResult("database", {
+      success: false,
+      message: "NETWORK ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, database: false }));
+  }
+};
+
+/**
+ * Simplified database test for use with service registry
+ */
+export const testDatabaseConnectionSimple = async (context: ServiceTestContext): Promise<TestResult> => {
+  try {
+    const response = await fetch(`${context.apiUrl}/api/health/database`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: "DATABASE CONNECTED",
+        details: data,
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "CONNECTION FAILED",
+        details: data.error,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "NETWORK ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+/**
+ * Check if database service is available
+ */
+export const isDatabaseServiceAvailable = (): boolean => {
+  return true; // Database service is available when database is configured
+};
+{{else}}
+// No database configured - database service not available
+export const testDatabaseConnection = async (): Promise<void> => {
+  console.warn('Database service not configured');
+};
+
+export const testDatabaseConnectionSimple = async (): Promise<TestResult> => {
+  return {
+    success: false,
+    message: "DATABASE NOT CONFIGURED",
+    details: "No database configured for this project",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+export const isDatabaseServiceAvailable = (): boolean => {
+  return false;
+};
+{{/if}}

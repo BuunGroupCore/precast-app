@@ -1,0 +1,76 @@
+/**
+ * usePrecastConfig Hook
+ * Handles loading and managing precast configuration
+ * Extracted from PrecastWidget loadPrecastConfig function
+ */
+
+import { useState, useEffect } from 'react';
+import { PrecastConfig } from '../types';
+
+/**
+ * Hook to load and manage Precast configuration
+ * Exact copy of loadPrecastConfig logic from original PrecastWidget (lines 348-387)
+ */
+export function usePrecastConfig() {
+  const [precastConfig, setPrecastConfig] = useState<PrecastConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadPrecastConfig = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Try to fetch precast.jsonc from the project root
+      const response = await fetch("/precast.jsonc");
+      if (response.ok) {
+        // Try to parse as JSON first (most precast.jsonc files are valid JSON)
+        try {
+          const config = await response.json();
+          setPrecastConfig(config);
+        } catch (jsonError) {
+          // If JSON parsing fails, try JSONC parsing
+          const text = await response.text();
+          const cleanJson = text
+            .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
+            .replace(/^\s*\/\/.*$/gm, "") // Remove single-line comments (only at start of line)
+            .replace(/,\s*([}\]])/g, "$1"); // Remove trailing commas
+          
+          const config = JSON.parse(cleanJson);
+          setPrecastConfig(config);
+        }
+      } else {
+        // Fallback to default config if file not found
+        setPrecastConfig({
+          docker: {{#if docker}}true{{else}}false{{/if}},
+          database: "{{database}}",
+          backend: "{{backend}}",
+          powerups: [{{#each powerups}}"{{this}}"{{#unless @last}},{{/unless}}{{/each}}],
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load precast config:", error);
+      setError(error instanceof Error ? error.message : "Unknown error");
+      // Set a default configuration
+      setPrecastConfig({
+        docker: {{#if docker}}true{{else}}false{{/if}},
+        database: "{{database}}",
+        backend: "{{backend}}",
+        powerups: [{{#each powerups}}"{{this}}"{{#unless @last}},{{/unless}}{{/each}}],
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPrecastConfig();
+  }, []);
+
+  return {
+    precastConfig,
+    isLoading,
+    error,
+    reloadConfig: loadPrecastConfig,
+  };
+}

@@ -273,24 +273,68 @@ export async function setupPrecastWidget(
       hasReactIcons: true,
     };
 
-    // Process PrecastWidget floating component
-    const widgetTemplatePath = path.join(widgetPath, "PrecastWidget.tsx.hbs");
-    if (await pathExists(widgetTemplatePath)) {
-      const widgetTemplate = await readFile(widgetTemplatePath, "utf-8");
-      const widgetContent = Handlebars.compile(widgetTemplate)({
+    // Load widget configuration
+    const widgetConfigPath = path.join(widgetPath, "config.json");
+    let widgetConfig: PluginConfig | null = null;
+
+    if (await pathExists(widgetConfigPath)) {
+      widgetConfig = (await readJson(widgetConfigPath)) as PluginConfig;
+    }
+
+    // Process all widget files based on config.json
+    if (widgetConfig && widgetConfig.widgets?.files && widgetConfig.widgets.files.react) {
+      const templateContext = {
         ...updatedConfig,
         plugins: config.plugins || [],
         database: config.database || "none",
         authProvider:
           config.authProvider && config.authProvider !== "none" ? config.authProvider : undefined,
-      });
+      };
 
-      const componentDir = path.join(frontendPath, "src", "components", "precast");
-      await ensureDir(componentDir);
-      await writeFile(path.join(componentDir, "PrecastWidget.tsx"), widgetContent);
+      // Process each file from the config
+      for (const fileEntry of widgetConfig.widgets.files.react) {
+        const templatePath = path.join(widgetPath, fileEntry.from);
+
+        // For Next.js, components stay at src/components level (not in app/)
+        let adjustedTargetPath = fileEntry.to;
+        // No adjustment needed - components go to src/components for all frameworks
+
+        const targetPath = path.join(frontendPath, adjustedTargetPath);
+
+        if (await pathExists(templatePath)) {
+          const templateContent = await readFile(templatePath, "utf-8");
+          const processedContent = Handlebars.compile(templateContent)(templateContext);
+
+          // Ensure target directory exists
+          await ensureDir(path.dirname(targetPath));
+          await writeFile(targetPath, processedContent);
+
+          logger.verbose(`✅ Copied widget file: ${fileEntry.from} -> ${adjustedTargetPath}`);
+        } else {
+          logger.warn(`Widget template not found: ${fileEntry.from}`);
+        }
+      }
     } else {
-      logger.warn("PrecastWidget template not found");
-      return;
+      // Fallback to old behavior for backward compatibility
+      const widgetTemplatePath = path.join(widgetPath, "PrecastWidget.tsx.hbs");
+      if (await pathExists(widgetTemplatePath)) {
+        const widgetTemplate = await readFile(widgetTemplatePath, "utf-8");
+        const widgetContent = Handlebars.compile(widgetTemplate)({
+          ...updatedConfig,
+          plugins: config.plugins || [],
+          database: config.database || "none",
+          authProvider:
+            config.authProvider && config.authProvider !== "none" ? config.authProvider : undefined,
+        });
+
+        // Components go to src/components for all frameworks (including Next.js)
+        const componentDir = path.join(frontendPath, "src", "components", "precast");
+        await ensureDir(componentDir);
+        await writeFile(path.join(componentDir, "PrecastWidget.tsx"), widgetContent);
+      } else {
+        logger.warn("PrecastWidget template not found");
+        return;
+      }
     }
 
     // Process API health routes if backend exists

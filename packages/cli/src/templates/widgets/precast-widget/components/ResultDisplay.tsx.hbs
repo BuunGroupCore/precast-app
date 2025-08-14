@@ -1,0 +1,112 @@
+{{#if (eq framework "next")}}'use client';
+
+{{/if}}/**
+ * ResultDisplay Component
+ * Extracted from PrecastWidget - exact copy of ResultDisplay function
+ */
+
+import React, { useState } from 'react';
+import { Activity, AlertTriangle } from 'lucide-react';
+import { TestResult, AuthDetails } from '../types';
+
+interface ResultDisplayProps {
+  service: string;
+  testResults: Record<string, TestResult>;
+}
+
+/**
+ * ResultDisplay Component
+ * Exact copy from original PrecastWidget (lines 979-1070)
+ */
+export function ResultDisplay({ service, testResults }: ResultDisplayProps) {
+  const result = testResults[service];
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (!result) return null;
+
+  // Check if this is an auth result with large response data
+  const isAuthResult = service === 'auth' || service === 'authSession';
+  const hasLargeDetails = result.details && typeof result.details === "object" && 
+                         Object.keys(result.details).length > 3;
+  const shouldCollapse = isAuthResult && result.success && hasLargeDetails;
+
+  return (
+    <div
+      className={`{{#if (eq styling 'tailwind')}}mt-3 p-3 border-2 border-black ${result.success ? 'bg-white' : 'bg-yellow-400'}{{else}}result-display{{/if}}`}
+      {{#unless (eq styling 'tailwind')}}style=\{{backgroundColor: result.success ? 'var(--color-light)' : 'var(--color-primary)'}}{{/unless}}
+    >
+      <div className="{{#if (eq styling 'tailwind')}}flex items-start space-x-2{{else}}result-content{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}w-4 h-4 mt-0.5 bg-black flex items-center justify-center{{else}}result-icon{{/if}}">
+          {result.success ? (
+            <Activity size={12} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+          ) : (
+            <AlertTriangle size={12} className="{{#if (eq styling 'tailwind')}}text-yellow-400{{else}}icon-primary{{/if}}" />
+          )}
+        </div>
+        <div className="{{#if (eq styling 'tailwind')}}flex-1 min-w-0{{else}}result-details{{/if}}">
+          <p className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase text-xs tracking-wide break-words{{else}}result-message{{/if}}">
+            {result.message}
+          </p>
+          <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 mt-1 font-mono{{else}}result-timestamp{{/if}}">
+            {new Date(result.timestamp).toLocaleTimeString()}
+          </p>
+          
+          {result.details && typeof result.details === "object" && result.details !== null ? (
+            shouldCollapse ? (
+              <div className="{{#if (eq styling 'tailwind')}}mt-2{{else}}collapsible-details{{/if}}">
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="{{#if (eq styling 'tailwind')}}w-full text-left px-3 py-2 bg-black text-yellow-400 border-2 border-black hover:bg-gray-800 transition-colors flex items-center justify-between{{else}}expand-btn{{/if}}"
+                >
+                  <span className="{{#if (eq styling 'tailwind')}}text-xs font-bold uppercase tracking-wider{{else}}expand-text{{/if}}">
+                    {isExpanded ? 'Hide' : 'Show'} Response Details
+                  </span>
+                  <span className="{{#if (eq styling 'tailwind')}}text-xs font-mono{{else}}expand-arrow{{/if}}">
+                    {isExpanded ? '▼' : '▶'}
+                  </span>
+                </button>
+                
+                {isExpanded && (
+                  <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-gray-900 border-2 border-black rounded max-h-40 overflow-y-auto{{else}}code-block{{/if}}">
+                    <pre className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-green-400 overflow-x-auto max-w-full whitespace-pre-wrap break-all{{else}}json-highlighted{{/if}}">
+                      <code 
+                        className="language-json"
+                        dangerouslySetInnerHTML=\{{
+                          __html: JSON.stringify(result.details, null, 2)
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/("[\w]+"):/g, '<span style="color: #60a5fa">$1</span>:')
+                            .replace(/(:\s*"[^"]*")/g, '<span style="color: #fde047">$1</span>')
+                            .replace(/(:\s*\d+)/g, '<span style="color: #c084fc">$1</span>')
+                            .replace(/(:\s*true|:\s*false)/g, '<span style="color: #f87171">$1</span>')
+                            .replace(/(:\s*null)/g, '<span style="color: #9ca3af">$1</span>')
+                        }}
+                      />
+                    </pre>
+                  </div>
+                )}
+                
+                {!isExpanded && result.details && (
+                  <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/10 rounded{{else}}summary-box{{/if}}">
+                    <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/70 font-mono{{else}}summary-text{{/if}}">
+                      ✓ User: {(result.details as AuthDetails).email || (result.details as AuthDetails).user?.email || 'Authenticated'}
+                      {Boolean((result.details as AuthDetails).session) && <><br />✓ Session created</>}
+                      {Boolean((result.details as AuthDetails).token) && <><br />✓ Token received</>}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="{{#if (eq styling 'tailwind')}}mt-2 p-2 bg-black/5 border border-black/10 rounded max-h-40 overflow-y-auto{{else}}result-json{{/if}}">
+                <pre className="{{#if (eq styling 'tailwind')}}text-xs font-mono text-black/70 overflow-x-auto max-w-full whitespace-pre-wrap break-all{{else}}json-content{{/if}}">
+                  {JSON.stringify(result.details, null, 2)}
+                </pre>
+              </div>
+            )
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,253 @@
+/**
+ * Base Service Interface and Template
+ * Provides a standardized pattern for all service testing implementations
+ */
+
+import { TestResult, ServiceTestContext } from '../types';
+
+/**
+ * Base interface that all service testers should implement
+ */
+export interface BaseServiceTester {
+  /**
+   * Test the service health/connectivity
+   */
+  test(context: ServiceTestContext): Promise<TestResult>;
+  
+  /**
+   * Optional: Test service-specific functionality
+   */
+  testAdvanced?(context: ServiceTestContext, options?: Record<string, unknown>): Promise<TestResult>;
+  
+  /**
+   * Get service display name
+   */
+  getDisplayName(): string;
+  
+  /**
+   * Get service type/category
+   */
+  getServiceType(): string;
+  
+  /**
+   * Check if service is available/configured
+   */
+  isAvailable(context: ServiceTestContext): boolean;
+}
+
+/**
+ * Abstract base class for service testers
+ * Provides common functionality and error handling patterns
+ */
+export abstract class AbstractServiceTester implements BaseServiceTester {
+  protected serviceName: string;
+  protected serviceType: string;
+  
+  constructor(serviceName: string, serviceType: string) {
+    this.serviceName = serviceName;
+    this.serviceType = serviceType;
+  }
+  
+  abstract test(context: ServiceTestContext): Promise<TestResult>;
+  
+  getDisplayName(): string {
+    return this.serviceName;
+  }
+  
+  getServiceType(): string {
+    return this.serviceType;
+  }
+  
+  abstract isAvailable(context: ServiceTestContext): boolean;
+  
+  /**
+   * Helper method to create consistent test results
+   */
+  protected createTestResult(
+    success: boolean, 
+    message: string, 
+    details?: unknown
+  ): TestResult {
+    return {
+      success,
+      message,
+      details,
+      timestamp: new Date().toISOString(),
+    };
+  }
+  
+  /**
+   * Helper method to handle common API request patterns
+   */
+  protected async makeApiRequest(
+    url: string, 
+    options: RequestInit = {},
+    context: ServiceTestContext
+  ): Promise<Response> {
+    const { headers: contextHeaders } = context;
+    
+    const requestOptions: RequestInit = {
+      ...options,
+      headers: {
+        ...contextHeaders,
+        ...options.headers,
+      },
+      credentials: 'include',
+    };
+    
+    return fetch(url, requestOptions);
+  }
+  
+  /**
+   * Helper method for common error handling
+   */
+  protected handleError(error: unknown, serviceName: string): TestResult {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return this.createTestResult(
+      false,
+      `${serviceName.toUpperCase()} ERROR`,
+      errorMessage
+    );
+  }
+  
+  /**
+   * Helper method to validate response format
+   */
+  protected async parseJsonResponse(response: Response): Promise<unknown> {
+    try {
+      return await response.json();
+    } catch {
+      // If JSON parsing fails, try to get text response
+      return await response.text();
+    }
+  }
+}
+
+/**
+ * Factory function to create service testers
+ * This pattern allows for easy extension of new service types
+ */
+export type ServiceTesterFactory = (config?: Record<string, unknown>) => BaseServiceTester;
+
+/**
+ * Registry of available service tester factories
+ * Add new service types here for automatic registration
+ */
+export const SERVICE_TESTER_REGISTRY: Record<string, ServiceTesterFactory> = {
+  // Core services will be registered here by their respective modules
+  // Example:
+  // 'api': (config) => new ApiServiceTester(config),
+  // 'database': (config) => new DatabaseServiceTester(config),
+  // 'docker': (config) => new DockerServiceTester(config),
+  // etc.
+};
+
+/**
+ * Helper function to register a new service tester
+ */
+export function registerServiceTester(
+  serviceKey: string, 
+  factory: ServiceTesterFactory
+): void {
+  SERVICE_TESTER_REGISTRY[serviceKey] = factory;
+}
+
+/**
+ * Helper function to get a service tester by key
+ */
+export function getServiceTester(
+  serviceKey: string, 
+  config?: Record<string, unknown>
+): BaseServiceTester | null {
+  const factory = SERVICE_TESTER_REGISTRY[serviceKey];
+  return factory ? factory(config) : null;
+}
+
+/**
+ * Common test patterns that can be reused across services
+ */
+export class CommonTestPatterns {
+  /**
+   * Standard health check test pattern
+   */
+  static async healthCheck(
+    context: ServiceTestContext,
+    endpoint: string,
+    serviceName: string
+  ): Promise<TestResult> {
+    try {
+      const response = await fetch(`${context.apiUrl}${endpoint}`, {
+        headers: context.headers,
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          success: true,
+          message: `${serviceName.toUpperCase()} HEALTHY`,
+          details: data,
+          timestamp: new Date().toISOString(),
+        };
+      } else {
+        return {
+          success: false,
+          message: `${serviceName.toUpperCase()} UNHEALTHY`,
+          details: `Status: ${response.status}`,
+          timestamp: new Date().toISOString(),
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `${serviceName.toUpperCase()} UNREACHABLE`,
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+  
+  /**
+   * Standard POST request test pattern
+   */
+  static async postRequest(
+    context: ServiceTestContext,
+    endpoint: string,
+    body: Record<string, unknown>,
+    serviceName: string
+  ): Promise<TestResult> {
+    try {
+      const response = await fetch(`${context.apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: context.headers,
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        return {
+          success: true,
+          message: `${serviceName.toUpperCase()} SUCCESS`,
+          details: data,
+          timestamp: new Date().toISOString(),
+        };
+      } else {
+        return {
+          success: false,
+          message: `${serviceName.toUpperCase()} FAILED`,
+          details: data,
+          timestamp: new Date().toISOString(),
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `${serviceName.toUpperCase()} ERROR`,
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+}

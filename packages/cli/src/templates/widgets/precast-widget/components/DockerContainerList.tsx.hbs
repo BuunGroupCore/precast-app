@@ -1,0 +1,43 @@
+/**
+ * DockerContainerList Component
+ * Extracted from PrecastWidget - Docker containers display
+ */
+
+import React from 'react';
+import { getServiceIcon } from '../utils/serviceIcons';
+
+interface Container {
+  name: string;
+  port: number;
+  icon: string;
+}
+
+interface DockerContainerListProps {
+  containers: Container[];
+}
+
+/**
+ * Docker Container List Component
+ * Exact copy from original PrecastWidget (lines 1324-1340)
+ */
+export function DockerContainerList({ containers }: DockerContainerListProps) {
+  if (!containers || containers.length === 0) return null;
+
+  return (
+    <div className="{{#if (eq styling 'tailwind')}}max-h-48 overflow-y-auto space-y-2 border border-black/20 rounded p-2{{else}}containers-list{{/if}}">
+      {containers.map((container, idx: number) => (
+        <div key={idx} className="{{#if (eq styling 'tailwind')}}border border-black p-2 bg-white{{else}}container-item{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between{{else}}container-info{{/if}}">
+            <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}container-name{{/if}}">
+              {getServiceIcon(container.icon, 14)}
+              <span className="{{#if (eq styling 'tailwind')}}text-xs font-mono{{else}}container-text{{/if}}">{container.name}</span>
+            </div>
+            <span className="{{#if (eq styling 'tailwind')}}text-xs font-bold text-black bg-yellow-400 px-2 py-1 border border-black{{else}}container-port{{/if}}">
+              {container.port === 0 ? "N/A" : container.port}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

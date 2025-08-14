@@ -149,7 +149,8 @@
       "Bash(npm run lint:*)",
       "Bash(npm run typecheck:*)",
       "Bash(if [ -f \"$file\" ])",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "WebSearch"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

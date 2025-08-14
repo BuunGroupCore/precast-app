@@ -19,10 +19,24 @@ app.use('*', logger());
 // CORS configuration
 app.use('*', cors({
   origin: (origin) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return true;
+    
     const allowedOrigins = process.env.NODE_ENV === 'production'
-      ? ['https://{{name}}.com']
-      : ['http://localhost:3000', 'http://localhost:5173'];
-    return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+      ? [
+          'https://{{name}}.com', // Update with your domain
+          process.env.CLIENT_URL,
+        ].filter(Boolean)
+      : [
+          process.env.CLIENT_URL,
+          'http://localhost:{{#if (eq framework "next")}}3000{{else if (eq framework "nuxt")}}3000{{else if (eq framework "remix")}}3000{{else if (eq framework "tanstack-start")}}3000{{else if (eq framework "astro")}}4321{{else if (eq framework "angular")}}4200{{else if (eq framework "vue")}}5173{{else if (eq framework "react")}}5173{{else if (eq framework "vite")}}5173{{else if (eq framework "svelte")}}5173{{else if (eq framework "solid")}}3000{{else}}5173{{/if}}',
+          'http://localhost:3000',
+          'http://localhost:4200',
+          'http://localhost:5173', 
+          'http://localhost:7000',{{#if (eq framework "tanstack-start")}}
+          // TanStack Start can use different ports{{/if}}
+        ].filter(Boolean);
+    return allowedOrigins.includes(origin);
   },
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

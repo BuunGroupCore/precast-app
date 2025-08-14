@@ -1,0 +1,49 @@
+/**
+ * TestButton Component
+ * Reusable test button for service testing
+ */
+
+import React from 'react';
+
+interface TestButtonProps {
+  onClick: () => void;
+  isLoading: boolean;
+  disabled?: boolean;
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary';
+  className?: string;
+}
+
+/**
+ * Reusable Test Button Component
+ * Extracted and standardized from original PrecastWidget test buttons
+ */
+export function TestButton({ 
+  onClick, 
+  isLoading, 
+  disabled = false, 
+  children, 
+  variant = 'primary',
+  className = '' 
+}: TestButtonProps) {
+  const baseClasses = variant === 'primary' 
+    ? "{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-yellow-400 border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn{{/if}}"
+    : "{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-white border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn status-btn{{/if}}";
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled || isLoading}
+      className={`${baseClasses} ${className}`}
+    >
+      {isLoading ? (
+        <span className="{{#if (eq styling 'tailwind')}}flex items-center justify-center{{else}}loading{{/if}}">
+          <span className="{{#if (eq styling 'tailwind')}}inline-block w-4 h-4 border-2 border-black border-t-transparent animate-spin mr-2{{else}}spinner{{/if}}"></span>
+          TESTING...
+        </span>
+      ) : (
+        children
+      )}
+    </button>
+  );
+}

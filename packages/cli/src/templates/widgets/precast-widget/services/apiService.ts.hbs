@@ -1,0 +1,128 @@
+/**
+ * API Service Testing Module
+ * Extracted from PrecastWidget - exact copy of testApiHealth function
+ */
+
+import { TestResult, ServiceTestContext } from '../types';
+import { getApiHeaders } from '../utils/environmentUtils';
+
+{{#if backend}}
+/**
+ * API Health Check
+ * Tests the backend API health endpoint
+ * Exact copy from original PrecastWidget (lines 529-577)
+ */
+export const testApiHealth = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  setSystemInfo: (info: any) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, api: true }));
+  try {
+    {{#if (includes powerups "ngrok")}}
+    const headers: HeadersInit = {};
+    
+    // Add ngrok header if using ngrok
+    if (apiUrl.includes('ngrok')) {
+      headers["ngrok-skip-browser-warning"] = "true";
+    }
+    
+    const response = await fetch(`${apiUrl}/api/health`, {
+      headers,
+    });
+    {{else}}
+    const response = await fetch(`${apiUrl}/api/health`);
+    {{/if}}
+    const data = await response.json();
+
+    if (response.ok) {
+      addTestResult("api", {
+        success: true,
+        message: "API HEALTHY",
+        details: data,
+      });
+      setSystemInfo({
+        uptime: data.uptime || 0,
+        environment: data.environment || 'development',
+        apiPort: 3001,
+        dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+      });
+    } else {
+      addTestResult("api", {
+        success: false,
+        message: "API UNHEALTHY",
+        details: data,
+      });
+    }
+  } catch (error) {
+    addTestResult("api", {
+      success: false,
+      message: "API UNREACHABLE",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, api: false }));
+  }
+};
+
+/**
+ * Simplified API health test for use with service registry
+ */
+export const testApiHealthSimple = async (context: ServiceTestContext): Promise<TestResult> => {
+  try {
+    const response = await fetch(`${context.apiUrl}/api/health`, {
+      headers: context.headers,
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: "API HEALTHY",
+        details: data,
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "API UNHEALTHY",
+        details: data,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "API UNREACHABLE",
+      details: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+/**
+ * Check if API service is available
+ */
+export const isApiServiceAvailable = (): boolean => {
+  return true; // API service is always available when backend is configured
+};
+{{else}}
+// No backend configured - API service not available
+export const testApiHealth = async (): Promise<void> => {
+  console.warn('API service not configured');
+};
+
+export const testApiHealthSimple = async (): Promise<TestResult> => {
+  return {
+    success: false,
+    message: "API NOT CONFIGURED",
+    details: "No backend configured for this project",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+export const isApiServiceAvailable = (): boolean => {
+  return false;
+};
+{{/if}}

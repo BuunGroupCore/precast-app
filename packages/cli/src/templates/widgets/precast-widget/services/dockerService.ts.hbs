@@ -1,0 +1,153 @@
+/**
+ * Docker Service Testing Module
+ * Extracted from PrecastWidget - exact copy of testDockerHealth function
+ */
+
+import { TestResult, ServiceTestContext } from '../types';
+
+{{#if docker}}
+/**
+ * Docker Health Check
+ * Tests Docker containers through database connectivity
+ * Exact copy from original PrecastWidget (lines 583-643)
+ */
+export const testDockerHealth = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  services: any,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, docker: true }));
+  try {
+    // Check if database is accessible (which indicates Docker is running)
+    {{#if (includes powerups "ngrok")}}
+    const headers: HeadersInit = { "Content-Type": "application/json" };
+    
+    // Add ngrok header if using ngrok
+    if (apiUrl.includes('ngrok')) {
+      headers["ngrok-skip-browser-warning"] = "true";
+    }
+    
+    const response = await fetch(`${apiUrl}/api/health/database`, {
+      method: "GET",
+      headers,
+      credentials: "include",
+    });
+    {{else}}
+    const response = await fetch(`${apiUrl}/api/health/database`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    {{/if}}
+
+    if (response.ok) {
+      const data = await response.json();
+      addTestResult("docker", {
+        success: true,
+        message: "DOCKER RUNNING",
+        details: {
+          status: "Containers are running",
+          database: data.database || "Connected",
+          services: services.docker?.containers || []
+        },
+      });
+    } else if (response.status === 500 || response.status === 503) {
+      // Database connection failed - likely Docker is not running
+      addTestResult("docker", {
+        success: false,
+        message: "DOCKER NOT RUNNING",
+        details: "Docker containers may not be running. Run: cd docker && docker compose up -d",
+      });
+    } else {
+      addTestResult("docker", {
+        success: false,
+        message: "DOCKER STATUS UNKNOWN",
+        details: "Unable to determine Docker status",
+      });
+    }
+  } catch (error) {
+    addTestResult("docker", {
+      success: false,
+      message: "DOCKER CHECK FAILED",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, docker: false }));
+  }
+};
+
+/**
+ * Simplified Docker test for use with service registry
+ */
+export const testDockerHealthSimple = async (context: ServiceTestContext): Promise<TestResult> => {
+  try {
+    // Check if database is accessible (which indicates Docker is running)
+    const response = await fetch(`${context.apiUrl}/api/health/database`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        success: true,
+        message: "DOCKER RUNNING",
+        details: {
+          status: "Containers are running",
+          database: data.database || "Connected",
+        },
+        timestamp: new Date().toISOString(),
+      };
+    } else if (response.status === 500 || response.status === 503) {
+      // Database connection failed - likely Docker is not running
+      return {
+        success: false,
+        message: "DOCKER NOT RUNNING",
+        details: "Docker containers may not be running. Run: cd docker && docker compose up -d",
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "DOCKER STATUS UNKNOWN",
+        details: "Unable to determine Docker status",
+        timestamp: new Date().toISOString(),
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "DOCKER CHECK FAILED",
+      details: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+/**
+ * Check if Docker service is available
+ */
+export const isDockerServiceAvailable = (): boolean => {
+  return true; // Docker service is available when docker is configured
+};
+{{else}}
+// No Docker configured - Docker service not available
+export const testDockerHealth = async (): Promise<void> => {
+  console.warn('Docker service not configured');
+};
+
+export const testDockerHealthSimple = async (): Promise<TestResult> => {
+  return {
+    success: false,
+    message: "DOCKER NOT CONFIGURED",
+    details: "Docker is not configured for this project",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+export const isDockerServiceAvailable = (): boolean => {
+  return false;
+};
+{{/if}}

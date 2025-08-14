@@ -1,0 +1,122 @@
+/**
+ * Payment Service Testing Module
+ * Tests Stripe and other payment services
+ */
+
+import { TestResult, ServiceTestContext } from '../types';
+
+{{#if (includes plugins 'stripe')}}
+/**
+ * Test Stripe payment service
+ */
+export const testPaymentService = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, payment: true }));
+  try {
+    // Test Stripe service health
+    const healthResponse = await fetch(`${apiUrl}/api/stripe/health`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    if (healthResponse.ok) {
+      const data = await healthResponse.json();
+      addTestResult("payment", {
+        success: true,
+        message: "PAYMENT SERVICE ACTIVE",
+        details: {
+          provider: "Stripe",
+          status: "Service is responding correctly",
+          ...data
+        },
+      });
+    } else {
+      const error = await healthResponse.json();
+      addTestResult("payment", {
+        success: false,
+        message: "PAYMENT SERVICE ERROR",
+        details: error || "Stripe service health check failed",
+      });
+    }
+  } catch (error) {
+    addTestResult("payment", {
+      success: false,
+      message: "PAYMENT SERVICE UNREACHABLE",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, payment: false }));
+  }
+};
+
+/**
+ * Simplified payment test for service registry
+ */
+export const testPaymentServiceSimple = async (context: ServiceTestContext): Promise<TestResult> => {
+  try {
+    const response = await fetch(`${context.apiUrl}/api/stripe/health`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        success: true,
+        message: "PAYMENT SERVICE ACTIVE",
+        details: {
+          provider: "Stripe",
+          status: "Service is responding correctly",
+          ...data
+        },
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      const error = await response.json();
+      return {
+        success: false,
+        message: "PAYMENT SERVICE ERROR",
+        details: error || "Stripe service health check failed",
+        timestamp: new Date().toISOString(),
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "PAYMENT SERVICE UNREACHABLE",
+      details: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+/**
+ * Check if payment service is available
+ */
+export const isPaymentServiceAvailable = (): boolean => {
+  return true; // Payment service is available when Stripe plugin is configured
+};
+{{else}}
+// No payment service configured
+export const testPaymentService = async (): Promise<void> => {
+  console.warn('Payment service not configured');
+};
+
+export const testPaymentServiceSimple = async (): Promise<TestResult> => {
+  return {
+    success: false,
+    message: "PAYMENT NOT CONFIGURED",
+    details: "No payment service configured for this project",
+    timestamp: new Date().toISOString(),
+  };
+};
+
+export const isPaymentServiceAvailable = (): boolean => {
+  return false;
+};
+{{/if}}

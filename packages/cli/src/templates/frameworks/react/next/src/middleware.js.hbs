@@ -1,0 +1,42 @@
+{{#if (and (includes powerups "ngrok") (not (or (eq deploymentMethod "github-pages") (and (or (eq deploymentMethod "cloudflare-pages") (eq deploymentMethod "netlify")) (eq backend "none") (eq database "none")))))}}import { NextResponse } from 'next/server';
+
+export function middleware(request) {
+  // Allow ngrok tunnel hosts
+  const hostname = request.headers.get('host') || '';
+  
+  // Check if this is an ngrok tunnel
+  const isNgrokHost = hostname.includes('.ngrok.app') || 
+                     hostname.includes('.ngrok-free.app') || 
+                     hostname.includes('.ngrok.io') ||
+                     hostname.includes('.ngrok.com');
+  
+  if (isNgrokHost || hostname === 'localhost:3000' || hostname.startsWith('localhost:')) {
+    // Allow the request to proceed
+    const response = NextResponse.next();
+    
+    // Add CORS headers for ngrok tunnels
+    if (isNgrokHost) {
+      response.headers.set('Access-Control-Allow-Origin', '*');
+      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    }
+    
+    return response;
+  }
+  
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
+};
+{{/if}}

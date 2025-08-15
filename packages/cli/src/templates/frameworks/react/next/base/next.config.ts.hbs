@@ -2,8 +2,35 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ['@/components', '@/lib', '@/utils'],
-  },
+    optimizePackageImports: ['@/components', '@/lib', '@/utils'],{{#if (includes powerups "ngrok")}}
+    // Enable external host access for ngrok tunneling
+    allowMiddlewareResponseBody: true,{{/if}}
+  },{{#if (or (eq deploymentMethod "github-pages") (and (or (eq deploymentMethod "cloudflare-pages") (eq deploymentMethod "netlify")) (eq backend "none") (eq database "none")))}}
+  // Static export configuration for {{deploymentMethod}}
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },{{/if}}{{#if (includes powerups "ngrok")}}
+  // Configure for ngrok tunnel support
+  async headers() {
+    return [
+      {
+        // Apply headers to all routes
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },{{#if (not (or (eq deploymentMethod "github-pages") (and (or (eq deploymentMethod "cloudflare-pages") (eq deploymentMethod "netlify")) (eq backend "none") (eq database "none"))))}}
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },{{/if}}
+        ],
+      },
+    ];
+  },{{/if}}
 };
 
 export default nextConfig;

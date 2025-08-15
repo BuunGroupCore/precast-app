@@ -32,6 +32,8 @@ export interface PluginConfig {
   scripts?: Record<string, string>;
   setupFiles?: Record<string, Array<{ template: string; output: string }>>;
   backendSetupFiles?: Record<string, Array<{ template: string; output: string }>>;
+  // Support both widget config structures for backward compatibility
+  files?: Record<string, Array<{ from: string; to: string }>>;
   widgets?: {
     adminPanel?: boolean;
     files?: Record<string, Array<{ from: string; to: string }>>;
@@ -281,7 +283,7 @@ export async function setupPrecastWidget(
     }
 
     // Process all widget files based on config.json
-    if (widgetConfig && widgetConfig.widgets?.files && widgetConfig.widgets.files.react) {
+    if (widgetConfig && widgetConfig.files && widgetConfig.files.react) {
       const templateContext = {
         ...updatedConfig,
         plugins: config.plugins || [],
@@ -291,7 +293,7 @@ export async function setupPrecastWidget(
       };
 
       // Process each file from the config
-      for (const fileEntry of widgetConfig.widgets.files.react) {
+      for (const fileEntry of widgetConfig.files.react) {
         const templatePath = path.join(widgetPath, fileEntry.from);
 
         // For Next.js, components stay at src/components level (not in app/)

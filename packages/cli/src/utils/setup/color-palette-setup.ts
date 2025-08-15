@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { getColorPaletteById } from "@shared/src/color-palettes.js";
+import { getColorPaletteById } from "@shared/src/color-palettes.ts";
 import { type ProjectConfig } from "@shared/stack-config.js";
 import chalk from "chalk";
 
@@ -25,7 +25,7 @@ export async function setupColorPalette(config: ProjectConfig, projectPath: stri
 
     // Import colorPalettes to show valid options
     const { colorPalettes, getColorPalettesByCategory } = await import(
-      "@shared/src/color-palettes.js"
+      "@shared/src/color-palettes.ts"
     );
 
     // Check if it's a category name
@@ -79,7 +79,7 @@ export async function setupColorPalette(config: ProjectConfig, projectPath: stri
     await generateColorPaletteDocumentation(context, projectPath, templateEngine, templateRoot);
     if (config.styling === "tailwind") {
       // Use the generateTailwindConfig function from shared
-      const { generateTailwindConfig } = await import("@shared/src/color-palettes.js");
+      const { generateTailwindConfig } = await import("@shared/src/color-palettes.ts");
       const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
 
       // Check if tailwind config exists
@@ -152,7 +152,7 @@ module.exports = {
       await fs.mkdir(targetDir, { recursive: true });
 
       // Generate CSS content using the shared function
-      const { generateCSSVariables } = await import("@shared/src/color-palettes.js");
+      const { generateCSSVariables } = await import("@shared/src/color-palettes.ts");
       const cssContent = generateCSSVariables(palette);
       await fs.writeFile(targetFile, cssContent);
 

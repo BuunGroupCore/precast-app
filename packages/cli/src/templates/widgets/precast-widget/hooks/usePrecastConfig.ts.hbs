@@ -21,7 +21,14 @@ export function usePrecastConfig() {
     setError(null);
     
     try {
-      // Try to fetch precast.jsonc from the project root
+      // Try to fetch precast config - use API route for Next.js, direct file for others
+      {{#if (eq framework "next")}}
+      const response = await fetch("/api/precast-config");
+      if (response.ok) {
+        // For Next.js, API route already handles JSONC parsing
+        const config = await response.json();
+        setPrecastConfig(config);
+      {{else}}
       const response = await fetch("/precast.jsonc");
       if (response.ok) {
         // Try to parse as JSON first (most precast.jsonc files are valid JSON)
@@ -39,6 +46,7 @@ export function usePrecastConfig() {
           const config = JSON.parse(cleanJson);
           setPrecastConfig(config);
         }
+      {{/if}}
       } else {
         // Fallback to default config if file not found
         setPrecastConfig({

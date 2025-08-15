@@ -532,7 +532,9 @@ async function handleNgrokDeployment(
 
       if (options.yes || options.updateEnv) {
         shouldUpdate = true;
-        console.log(`${theme.info("✓ Auto-updating environment variables...")}`);
+        console.log(
+          `${theme.info("✓ Auto-updating environment variables (--yes flag detected)...")}`
+        );
       } else {
         const response = await confirm({
           message: "Update environment variables with ngrok URLs?",

@@ -150,7 +150,8 @@
       "Bash(npm run typecheck:*)",
       "Bash(if [ -f \"$file\" ])",
       "Bash(awk:*)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:duckdb.org)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

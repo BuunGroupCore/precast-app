@@ -35,8 +35,17 @@ cd packages/cli
 
 - **Commands**: `src/commands/` - CLI commands (init, deploy, generate)
 - **Templates**: `src/templates/` - Handlebars templates
-- **Generators**: `src/generators/` - Framework-specific logic
-- **Utils**: `src/utils/` - Helper functions
+- **Generators**: `src/generators/` - Organized by type:
+  - `frameworks/` - Frontend framework generators
+  - `backends/` - Backend generators
+  - `features/` - Feature generators (auth, etc.)
+- **Utils**: `src/utils/` - Organized utilities:
+  - `setup/` - Setup utilities (auth, database, etc.)
+  - `docker/` - Docker-related utilities
+  - `config/` - Configuration management
+  - `ui/` - UI utilities (logger, banner)
+  - `system/` - System utilities (package manager, etc.)
+  - `analytics/` - Analytics tracking
 
 ## 🔧 Common Development Tasks
 
@@ -77,7 +86,7 @@ VERBOSE=true ./dist/cli.js init test-app
 
 ### Adding a New Framework
 
-1. **Create Generator** - `src/generators/[framework]-template.ts`
+1. **Create Generator** - `src/generators/frameworks/[framework]-template.ts`
 
 ```typescript
 export async function generateMyFrameworkTemplate(

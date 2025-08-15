@@ -1,8 +1,7 @@
+import type { ProjectConfig } from "@shared/stack-config.js";
 import { consola } from "consola";
 
-import type { ProjectConfig } from "../../../shared/stack-config.js";
-
-import type { TemplateEngine } from "./template-engine.js";
+import type { TemplateEngine } from "@/core/template-engine.js";
 export interface PluginContext {
   config: ProjectConfig;
   projectPath: string;

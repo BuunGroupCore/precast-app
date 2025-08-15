@@ -56,7 +56,7 @@ Create `src/generators/vue-template.ts`:
 ```typescript
 import path from "path";
 import { fileURLToPath } from "url";
-import { type ProjectConfig } from "../../../shared/stack-config.js";
+import { type ProjectConfig } from "@shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
 import { getPluginManager } from "../core/plugin-manager.js";
 import { consola } from "consola";

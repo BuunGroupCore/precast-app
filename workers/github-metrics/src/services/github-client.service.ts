@@ -86,13 +86,35 @@ export class GitHubClientService {
   }
 
   /**
-   * Fetches recent commits
+   * Fetches recent commits with pagination
    * @returns {Promise<GitHubCommit[]>} List of recent commits
    */
   async getRecentCommits(): Promise<GitHubCommit[]> {
-    return this.makeRequest<GitHubCommit[]>(
-      `/repos/${this.owner}/${this.repo}/commits?per_page=100`
-    );
+    try {
+      const allCommits: GitHubCommit[] = [];
+      let page = 1;
+      const maxPages = 5; // Fetch up to 500 commits (5 pages * 100)
+      
+      while (page <= maxPages) {
+        const commits = await this.makeRequest<GitHubCommit[]>(
+          `/repos/${this.owner}/${this.repo}/commits?per_page=100&page=${page}`
+        );
+        
+        if (!commits || commits.length === 0) break;
+        
+        allCommits.push(...commits);
+        
+        // If we got less than 100, we've reached the end
+        if (commits.length < 100) break;
+        
+        page++;
+      }
+      
+      return allCommits;
+    } catch (error) {
+      // Return empty array on error to maintain backwards compatibility
+      return [];
+    }
   }
 
   /**
@@ -202,6 +224,181 @@ export class GitHubClientService {
         .reverse();
     } catch {
       return [];
+    }
+  }
+
+  /**
+   * Fetches pull request metrics
+   * @returns {Promise<{ open: number; closed: number; merged: number }>} Pull request counts
+   */
+  async getPullRequestMetrics(): Promise<{ open: number; closed: number; merged: number }> {
+    try {
+      // Get open PRs
+      const openPRs = await this.makeRequest<any[]>(
+        `/repos/${this.owner}/${this.repo}/pulls?state=open&per_page=100`
+      );
+      
+      // Get closed PRs (includes merged)
+      const closedPRs = await this.makeRequest<any[]>(
+        `/repos/${this.owner}/${this.repo}/pulls?state=closed&per_page=100`
+      );
+      
+      // Count merged PRs
+      const mergedCount = closedPRs.filter(pr => pr.merged_at !== null).length;
+      
+      return {
+        open: openPRs.length,
+        closed: closedPRs.length - mergedCount,
+        merged: mergedCount,
+      };
+    } catch {
+      return { open: 0, closed: 0, merged: 0 };
+    }
+  }
+
+  /**
+   * Fetches latest releases
+   * @returns {Promise<Release[]>} List of releases
+   */
+  async getLatestReleases(): Promise<Release[]> {
+    try {
+      const releases = await this.makeRequest<any[]>(
+        `/repos/${this.owner}/${this.repo}/releases?per_page=10`
+      );
+      
+      return releases.map(release => ({
+        id: release.id,
+        name: release.name || release.tag_name,
+        tag_name: release.tag_name,
+        published_at: release.published_at,
+        prerelease: release.prerelease,
+        draft: release.draft,
+        download_count: release.assets?.reduce((sum: number, asset: any) => 
+          sum + (asset.download_count || 0), 0) || 0,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Fetches sponsor information using GraphQL API
+   * @param {string} organizationName - GitHub organization name for sponsors
+   * @returns {Promise<{ count: number; totalMonthlyAmount: number }>} Sponsor metrics
+   */
+  async getSponsorMetrics(organizationName: string): Promise<{ 
+    count: number; 
+    totalMonthlyAmount: number;
+    sponsors: Array<{ login: string; amount: number }>;
+  }> {
+    try {
+      // GitHub GraphQL API for sponsors (requires special permissions)
+      const query = `
+        query {
+          organization(login: "${organizationName}") {
+            sponsorshipsAsMaintainer(first: 100) {
+              totalCount
+              edges {
+                node {
+                  sponsorEntity {
+                    ... on User {
+                      login
+                    }
+                    ... on Organization {
+                      login
+                    }
+                  }
+                  tier {
+                    monthlyPriceInDollars
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const authHeaders = await this.auth.getAuthHeaders();
+      const response = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!response.ok) {
+        throw new Error('GraphQL request failed');
+      }
+
+      const data = await response.json() as any;
+      const sponsorships = data?.data?.organization?.sponsorshipsAsMaintainer;
+      
+      if (!sponsorships) {
+        return { count: 0, totalMonthlyAmount: 0, sponsors: [] };
+      }
+
+      const sponsors = sponsorships.edges.map((edge: any) => ({
+        login: edge.node.sponsorEntity?.login || 'Anonymous',
+        amount: edge.node.tier?.monthlyPriceInDollars || 0,
+      }));
+
+      const totalMonthlyAmount = sponsors.reduce((sum: number, sponsor: any) => 
+        sum + sponsor.amount, 0);
+
+      return {
+        count: sponsorships.totalCount,
+        totalMonthlyAmount,
+        sponsors: sponsors.slice(0, 10), // Top 10 sponsors
+      };
+    } catch (error) {
+      // Sponsors API requires special permissions, return empty if failed
+      return { count: 0, totalMonthlyAmount: 0, sponsors: [] };
+    }
+  }
+
+  /**
+   * Fetches repository traffic stats (requires admin access)
+   * @returns {Promise<{ views: number; clones: number }>} Traffic metrics
+   */
+  async getTrafficMetrics(): Promise<{ views: number; clones: number; popular_paths: any[] }> {
+    try {
+      const [views, clones, paths] = await Promise.all([
+        this.makeRequest<any>(`/repos/${this.owner}/${this.repo}/traffic/views`),
+        this.makeRequest<any>(`/repos/${this.owner}/${this.repo}/traffic/clones`),
+        this.makeRequest<any>(`/repos/${this.owner}/${this.repo}/traffic/popular/paths`),
+      ]);
+
+      return {
+        views: views.count || 0,
+        clones: clones.count || 0,
+        popular_paths: paths || [],
+      };
+    } catch {
+      // Traffic API requires admin access
+      return { views: 0, clones: 0, popular_paths: [] };
+    }
+  }
+
+  /**
+   * Fetches code frequency stats
+   * @returns {Promise<{ additions: number; deletions: number }>} Code change metrics
+   */
+  async getCodeFrequency(): Promise<{ additions: number; deletions: number }> {
+    try {
+      const stats = await this.makeRequest<number[][]>(
+        `/repos/${this.owner}/${this.repo}/stats/code_frequency`
+      );
+      
+      // Sum up last 4 weeks of additions and deletions
+      const recentStats = stats.slice(-4);
+      const additions = recentStats.reduce((sum, week) => sum + (week[1] || 0), 0);
+      const deletions = Math.abs(recentStats.reduce((sum, week) => sum + (week[2] || 0), 0));
+      
+      return { additions, deletions };
+    } catch {
+      return { additions: 0, deletions: 0 };
     }
   }
 }

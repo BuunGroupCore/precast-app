@@ -14,7 +14,7 @@ import {
   createLink,
   statusSymbols,
   actionSymbols,
-} from "../utils/cli-theme.js";
+} from "@/utils/ui/cli-theme.js";
 
 const { pathExists, readFile } = fsExtra;
 
@@ -55,7 +55,7 @@ interface PrecastConfig {
 async function getColorPaletteDisplay(paletteId: string): Promise<string | null> {
   try {
     // Dynamically import the color palette module
-    const { getColorPaletteById } = await import("../../../shared/src/color-palettes.js");
+    const { getColorPaletteById } = await import("@shared/src/color-palettes.js");
     const palette = getColorPaletteById(paletteId);
 
     if (!palette) return null;

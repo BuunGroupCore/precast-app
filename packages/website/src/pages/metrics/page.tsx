@@ -187,9 +187,11 @@ export function MetricsPage() {
         contributors: githubMetrics.contributors,
         commits: githubMetrics.commits,
         releases: 0, // Not available in Precast API yet
-        lastCommit: new Date().toISOString(), // Use current time as fallback
-        createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(), // 6 months ago fallback
-        size: 2048, // Fallback
+        lastCommit: githubMetrics.pushed_at || githubMetrics.updated_at || new Date().toISOString(),
+        createdAt:
+          githubMetrics.created_at ||
+          new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
+        size: githubMetrics.size || 2048,
         language: githubMetrics.language,
         license: githubMetrics.license,
         issueBreakdown: precastIssueBreakdown.map((issue) => ({

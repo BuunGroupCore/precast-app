@@ -40,10 +40,61 @@ export interface CommitActivity {
  * @interface Release
  */
 export interface Release {
+  id?: number;
   name: string;
   tag_name: string;
   published_at: string;
-  html_url: string;
+  html_url?: string;
+  prerelease?: boolean;
+  draft?: boolean;
+  download_count?: number;
+}
+
+/**
+ * Pull request metrics
+ * @interface PullRequestMetrics
+ */
+export interface PullRequestMetrics {
+  open: number;
+  closed: number;
+  merged: number;
+}
+
+/**
+ * Sponsor information
+ * @interface SponsorMetrics
+ */
+export interface SponsorMetrics {
+  count: number;
+  totalMonthlyAmount: number;
+  sponsors: Array<{
+    login: string;
+    amount: number;
+  }>;
+}
+
+/**
+ * Traffic metrics
+ * @interface TrafficMetrics
+ */
+export interface TrafficMetrics {
+  views: number;
+  clones: number;
+  popular_paths: Array<{
+    path: string;
+    title: string;
+    count: number;
+    uniques: number;
+  }>;
+}
+
+/**
+ * Code frequency metrics
+ * @interface CodeFrequencyMetrics
+ */
+export interface CodeFrequencyMetrics {
+  additions: number;
+  deletions: number;
 }
 
 /**
@@ -64,6 +115,22 @@ export interface MetricsData {
     commits: number;
     language: string;
     license: string;
+    created_at?: string;
+    updated_at?: string;
+    pushed_at?: string;
+    topics?: string[];
+    size?: number;
+    default_branch?: string;
+    visibility?: string;
+    archived?: boolean;
+    disabled?: boolean;
+    has_issues?: boolean;
+    has_projects?: boolean;
+    has_wiki?: boolean;
+    has_pages?: boolean;
+    has_discussions?: boolean;
+    subscribers_count?: number;
+    network_count?: number;
   };
   /** Issue statistics and breakdown */
   issues: {
@@ -76,8 +143,16 @@ export interface MetricsData {
     total: number;
     recentActivity: CommitActivity[];
   };
+  /** Pull request metrics */
+  pullRequests?: PullRequestMetrics;
   /** Latest releases */
   releases: Release[];
+  /** Sponsor metrics */
+  sponsors?: SponsorMetrics;
+  /** Traffic metrics */
+  traffic?: TrafficMetrics;
+  /** Code frequency metrics */
+  codeFrequency?: CodeFrequencyMetrics;
   /** Last update timestamp */
   lastUpdated: string;
 }

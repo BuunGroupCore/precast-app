@@ -1,6 +1,5 @@
 import { select } from "@clack/prompts";
-
-import type { ProjectConfig } from "../../../shared/stack-config.js";
+import type { ProjectConfig } from "@shared/stack-config.js";
 
 /**
  * AI Assistant options available in the CLI

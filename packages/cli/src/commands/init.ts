@@ -1,10 +1,6 @@
 import path from "path";
 
 import { confirm, cancel } from "@clack/prompts";
-import chalk from "chalk";
-import { execa } from "execa";
-import fsExtra from "fs-extra";
-
 import {
   frameworkDefs,
   backendDefs,
@@ -12,31 +8,35 @@ import {
   ormDefs,
   stylingDefs,
   runtimeDefs,
-} from "../../../shared/stack-config.js";
-import { getConfigValidator } from "../core/config-validator.js";
-import { isValidAIAssistant } from "../prompts/ai-assistant.js";
-import { gatherProjectConfigWithNavigation } from "../prompts/config-prompts-with-navigation.js";
-import { gatherProjectConfig } from "../prompts/config-prompts.js";
-import { trackProjectCreation, displayTelemetryNotice } from "../utils/analytics.js";
-import { setupApiClient } from "../utils/api-client-setup.js";
+} from "@shared/stack-config.js";
+import chalk from "chalk";
+import { execa } from "execa";
+import fsExtra from "fs-extra";
+
+import { getConfigValidator } from "@/core/config-validator.js";
+import { isValidAIAssistant } from "@/prompts/ai-assistant.js";
+import { gatherProjectConfigWithNavigation } from "@/prompts/config-prompts-with-navigation.js";
+import { gatherProjectConfig } from "@/prompts/config-prompts.js";
+import { trackProjectCreation, displayTelemetryNotice } from "@/utils/analytics/analytics.js";
+import { setupApiClient } from "@/utils/setup/api-client-setup.js";
+import { setupUILibrary } from "@/utils/setup/ui-library-setup.js";
+import { UI_LIBRARY_COMPATIBILITY } from "@/utils/system/dependency-checker.js";
+import { errorCollector } from "@/utils/system/error-collector.js";
+import {
+  detectPackageManager,
+  checkPackageManagerAvailable,
+  installAllDependencies,
+} from "@/utils/system/package-manager.js";
+import { runSecurityAudit } from "@/utils/system/security-audit.js";
+import { addSecurityOverridesToProject } from "@/utils/system/update-dependencies.js";
 import {
   theme,
   createHeroBanner,
   createFancyBox,
   statusSymbols,
   divider,
-} from "../utils/cli-theme.js";
-import { UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
-import { errorCollector } from "../utils/error-collector.js";
-import { InteractiveTaskRunner, debugLog } from "../utils/interactive-ui.js";
-import {
-  detectPackageManager,
-  checkPackageManagerAvailable,
-  installAllDependencies,
-} from "../utils/package-manager.js";
-import { runSecurityAudit } from "../utils/security-audit.js";
-import { setupUILibrary } from "../utils/ui-library-setup.js";
-import { addSecurityOverridesToProject } from "../utils/update-dependencies.js";
+} from "@/utils/ui/cli-theme.js";
+import { InteractiveTaskRunner, debugLog } from "@/utils/ui/interactive-ui.js";
 
 const { pathExists, readdir, ensureDir } = fsExtra;
 
@@ -299,7 +299,7 @@ export async function initCommand(projectName: string | undefined, options: Init
   if (options.debugAnalytics) {
     process.env.DEBUG_ANALYTICS = "1";
   }
-  const { setVerboseMode, setSuppressOutput } = await import("../utils/logger.js");
+  const { setVerboseMode, setSuppressOutput } = await import("../utils/ui/logger.js");
   setVerboseMode(options.verbose || false);
 
   const debug = options.debug || process.env.DEBUG === "true";
@@ -446,7 +446,7 @@ export async function initCommand(projectName: string | undefined, options: Init
     }
 
     if (config.colorPalette) {
-      const { colorPalettes } = await import("../../../shared/src/color-palettes.js");
+      const { colorPalettes } = await import("@shared/src/color-palettes.js");
       const selectedPalette = colorPalettes.find((p) => p.id === config.colorPalette);
       const paletteName = selectedPalette?.name || config.colorPalette;
 
@@ -575,7 +575,7 @@ export async function initCommand(projectName: string | undefined, options: Init
     await taskRunner.runTask("create-files", async () => {
       debugLog("Creating project structure", { projectPath });
 
-      const { getPackageManagerVersion } = await import("../utils/package-manager.js");
+      const { getPackageManagerVersion } = await import("../utils/system/package-manager.js");
       config.packageManagerVersion = await getPackageManagerVersion(config.packageManager);
 
       const { generateTemplate } = await import("../generators/index.js");
@@ -584,7 +584,7 @@ export async function initCommand(projectName: string | undefined, options: Init
 
     await taskRunner.runTask("config", async () => {
       debugLog("Writing precast config");
-      const { writePrecastConfig } = await import("../utils/precast-config.js");
+      const { writePrecastConfig } = await import("../utils/config/precast-config.js");
       await writePrecastConfig(config);
 
       const pm = options.packageManager || (await detectPackageManager());
@@ -618,16 +618,18 @@ export async function initCommand(projectName: string | undefined, options: Init
     if (config.colorPalette) {
       await taskRunner.runTask("colors", async () => {
         debugLog(`Applying ${config.colorPalette} color theme`);
-        const { colorPalettes } = await import("../../../shared/src/color-palettes.js");
+        const { colorPalettes } = await import("@shared/src/color-palettes.js");
         selectedColorPalette = colorPalettes.find((p) => p.id === config.colorPalette);
       });
     }
     if (config.docker) {
       await taskRunner.runTask("docker", async () => {
         debugLog("Setting up Docker configuration and auto-deploy script");
-        const { setupDockerAutoDeploy } = await import("../utils/docker-auto-deploy-setup.js");
+        const { setupDockerAutoDeploy } = await import(
+          "../utils/docker/docker-auto-deploy-setup.js"
+        );
         const { createTemplateEngine } = await import("../core/template-engine.js");
-        const { getTemplateRoot } = await import("../utils/template-path.js");
+        const { getTemplateRoot } = await import("../utils/system/template-path.js");
 
         const templateRoot = getTemplateRoot();
         const templateEngine = createTemplateEngine(templateRoot);
@@ -638,9 +640,9 @@ export async function initCommand(projectName: string | undefined, options: Init
     if (config.deploymentMethod && config.deploymentMethod !== "none") {
       await taskRunner.runTask("deployment", async () => {
         debugLog(`Setting up ${config.deploymentMethod} deployment`);
-        const { setupDeploymentConfig } = await import("../utils/deployment-setup.js");
+        const { setupDeploymentConfig } = await import("../utils/setup/deployment-setup.js");
         const { createTemplateEngine } = await import("../core/template-engine.js");
-        const { getTemplateRoot } = await import("../utils/template-path.js");
+        const { getTemplateRoot } = await import("../utils/system/template-path.js");
 
         const templateRoot = getTemplateRoot();
         const templateEngine = createTemplateEngine(templateRoot);
@@ -681,7 +683,7 @@ export async function initCommand(projectName: string | undefined, options: Init
     if (!(options.install || config.autoInstall)) {
       await taskRunner.runTask("format", async () => {
         debugLog("Formatting generated code");
-        const { formatGeneratedCode } = await import("../utils/package-manager.js");
+        const { formatGeneratedCode } = await import("../utils/system/package-manager.js");
         await formatGeneratedCode(projectPath, config.prettier);
       });
     } else {
@@ -844,7 +846,7 @@ export async function initCommand(projectName: string | undefined, options: Init
     }
 
     if (process.env.DEBUG_ANALYTICS) {
-      const { getAnalyticsDebugMessages } = await import("../utils/analytics.js");
+      const { getAnalyticsDebugMessages } = await import("../utils/analytics/analytics.js");
       const analyticsMessages = getAnalyticsDebugMessages();
       if (analyticsMessages.length > 0) {
         console.log();

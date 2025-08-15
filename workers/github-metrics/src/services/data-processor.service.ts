@@ -37,6 +37,11 @@ export class DataProcessorService {
         closedIssuesCount,
         issueBreakdown,
         commitActivity,
+        pullRequests,
+        latestReleases,
+        sponsors,
+        traffic,
+        codeFrequency,
       ] = await Promise.all([
         this.client.getRepositoryData().catch((err) => {
           throw err;
@@ -47,6 +52,11 @@ export class DataProcessorService {
         this.client.getClosedIssuesCount().catch(() => 0),
         this.client.getIssueBreakdown().catch(() => []),
         this.client.getCommitActivity().catch(() => []),
+        this.client.getPullRequestMetrics().catch(() => ({ open: 0, closed: 0, merged: 0 })),
+        this.client.getLatestReleases().catch(() => []),
+        this.client.getSponsorMetrics("precast-app").catch(() => ({ count: 0, totalMonthlyAmount: 0, sponsors: [] })),
+        this.client.getTrafficMetrics().catch(() => ({ views: 0, clones: 0, popular_paths: [] })),
+        this.client.getCodeFrequency().catch(() => ({ additions: 0, deletions: 0 })),
       ]);
 
       const timestamp = new Date().toISOString();
@@ -64,6 +74,22 @@ export class DataProcessorService {
           commits: Array.isArray(commits) ? commits.length : 0,
           language: repo.language || "TypeScript",
           license: repo.license?.name || "MIT",
+          created_at: repo.created_at,
+          updated_at: repo.updated_at,
+          pushed_at: repo.pushed_at,
+          topics: repo.topics,
+          size: repo.size,
+          default_branch: repo.default_branch,
+          visibility: repo.visibility,
+          archived: repo.archived,
+          disabled: repo.disabled,
+          has_issues: repo.has_issues,
+          has_projects: repo.has_projects,
+          has_wiki: repo.has_wiki,
+          has_pages: repo.has_pages,
+          has_discussions: repo.has_discussions,
+          subscribers_count: repo.subscribers_count,
+          network_count: repo.network_count,
         },
         issues: {
           breakdown: issueBreakdown,
@@ -74,7 +100,11 @@ export class DataProcessorService {
           total: Array.isArray(commits) ? commits.length : 0,
           recentActivity: commitActivity,
         },
-        releases: (releases as Release[])?.slice(0, 10) || [],
+        pullRequests,
+        releases: (latestReleases as Release[])?.slice(0, 10) || [],
+        sponsors,
+        traffic,
+        codeFrequency,
         lastUpdated: timestamp,
       };
 

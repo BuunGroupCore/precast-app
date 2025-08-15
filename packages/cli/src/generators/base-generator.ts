@@ -1,15 +1,14 @@
 import fs from "fs/promises";
 import path from "path";
 
+import { type ProjectConfig } from "@shared/stack-config.js";
 import { consola } from "consola";
-
-import { type ProjectConfig } from "../../../shared/stack-config.js";
-import { logger } from "../utils/logger.js";
 
 import { getPluginManager } from "@/core/plugin-manager.js";
 import { createTemplateEngine } from "@/core/template-engine.js";
-import { generateBackendTemplate } from "@/generators/backend-generator.js";
-import { getTemplateRoot } from "@/utils/template-path.js";
+import { generateBackendTemplate } from "@/generators/features/backend-generator.js";
+import { getTemplateRoot } from "@/utils/system/template-path.js";
+import { logger } from "@/utils/ui/logger.js";
 
 /**
  * Map framework names to their template directory structure.
@@ -217,8 +216,8 @@ async function generateSingleAppProject(
     if (framework === "next") {
       // For Next.js, copy page content into app directory structure
       // Copy home page content to app directory
-      const homePagesDir = `${commonPagesDir}/home`;
-      const notFoundPagesDir = `${commonPagesDir}/not-found`;
+      const _homePagesDir = `${commonPagesDir}/home`;
+      const _notFoundPagesDir = `${commonPagesDir}/not-found`;
 
       // Home page content should be merged with app/page.tsx
       // Not-found page content should go to app/not-found.tsx

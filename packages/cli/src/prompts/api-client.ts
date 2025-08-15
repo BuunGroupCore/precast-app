@@ -1,7 +1,6 @@
 import { select } from "@clack/prompts";
+import type { ProjectConfig } from "@shared/stack-config.js";
 import pc from "picocolors";
-
-import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 interface ApiClientOption {
   value: string;

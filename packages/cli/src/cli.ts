@@ -6,10 +6,10 @@ import { fileURLToPath } from "url";
 import { Command } from "commander";
 import fsExtra from "fs-extra";
 
-import { addCommand } from "./commands/add.js";
-import { initCommand } from "./commands/init.js";
-import { statusCommand } from "./commands/status.js";
-import { telemetryCommand } from "./commands/telemetry.js";
+import { addCommand } from "@/commands/add.js";
+import { initCommand } from "@/commands/init.js";
+import { statusCommand } from "@/commands/status.js";
+import { telemetryCommand } from "@/commands/telemetry.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -162,7 +162,7 @@ program
   .description("Create a banner template file for customization")
   .action(async () => {
     /** Dynamically import banner utilities to avoid loading them unless needed */
-    const { createBannerTemplate } = await import("./utils/banner.js");
+    const { createBannerTemplate } = await import("./utils/ui/banner.js");
     await createBannerTemplate();
   });
 

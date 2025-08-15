@@ -8,6 +8,7 @@ import type { WorkerEnv, PostHogMetricsData } from "../types";
 export class R2StorageService {
   private bucket: R2Bucket;
   private readonly CACHE_KEY = "posthog-analytics.json";
+  private readonly SYNC_KEY = "posthog-sync-state.json";
   private readonly CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours
 
   constructor(env: WorkerEnv) {
@@ -41,14 +42,41 @@ export class R2StorageService {
   }
 
   /**
-   * Store metrics data in cache
+   * Store metrics data in cache with raw events
    */
-  async storeCachedData(data: PostHogMetricsData): Promise<void> {
+  async storeCachedData(data: PostHogMetricsData & { rawEvents?: any[] }): Promise<void> {
+    // Store the processed metrics
     await this.bucket.put(this.CACHE_KEY, JSON.stringify(data), {
       httpMetadata: {
         contentType: "application/json",
       },
     });
+    
+    // Store sync state with timestamp
+    const syncState = {
+      lastSyncTime: new Date().toISOString(),
+      eventCount: data.rawEvents?.length || 0,
+    };
+    await this.bucket.put(this.SYNC_KEY, JSON.stringify(syncState), {
+      httpMetadata: {
+        contentType: "application/json",
+      },
+    });
+  }
+  
+  /**
+   * Get last sync timestamp
+   */
+  async getLastSyncTimestamp(): Promise<string | null> {
+    try {
+      const object = await this.bucket.get(this.SYNC_KEY);
+      if (!object) return null;
+      
+      const syncState = await object.json<{ lastSyncTime: string; eventCount: number }>();
+      return syncState.lastSyncTime;
+    } catch (error) {
+      return null;
+    }
   }
 
   /**

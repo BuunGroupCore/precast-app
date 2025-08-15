@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import { usePrecastAnalytics } from "../../hooks/usePrecastAPI";
 import type { AnalyticsMetrics } from "../../hooks/usePrecastAPI";
 
 interface EventTimelineChartProps {
@@ -72,66 +73,60 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   return null;
 };
 
-interface CustomDotProps {
-  cx?: number;
-  cy?: number;
-  payload?: {
-    count?: number;
-  };
-}
-
-const CustomDot = (props: CustomDotProps) => {
-  const { cx, cy, payload } = props;
-  if (payload?.count && payload.count > 0) {
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={4}
-        fill="#FF6B6B"
-        stroke="#000"
-        strokeWidth={2}
-        className="hover:r-6 transition-all duration-200"
-      />
-    );
-  }
-  return null;
-};
-
 export function EventTimelineChart({ analytics }: EventTimelineChartProps) {
-  // Aggregate individual events by date
-  const aggregateEventsByDate = () => {
-    const dailyCounts = new Map<string, number>();
+  const { analyzeRawEvents } = usePrecastAnalytics();
 
-    (analytics.events?.timeline || []).forEach((event: Record<string, unknown>) => {
-      if (!event.timestamp) return;
+  // Get analyzed raw events data
+  const rawEventsAnalysis = analyzeRawEvents();
 
-      const date = new Date(event.timestamp as string);
-      if (isNaN(date.getTime())) return;
+  // Use raw events analysis if available, otherwise fall back to timeline data
+  const getTimelineData = () => {
+    // If we have raw events analysis with daily breakdown, use that
+    if (rawEventsAnalysis?.last30Days?.dailyBreakdown) {
+      // This already has 180 days (6 months) of data from the hook
+      return rawEventsAnalysis.last30Days.dailyBreakdown.map((item) => ({
+        date: item.date,
+        count: item.count,
+        formattedDate: item.date, // Already formatted as M/D
+      }));
+    }
 
-      const dateKey = date.toISOString().split("T")[0]; // YYYY-MM-DD format
-      dailyCounts.set(dateKey, (dailyCounts.get(dateKey) || 0) + 1);
-    });
-
-    return Array.from(dailyCounts.entries())
-      .map(([date, count]) => ({
-        date,
-        count,
-        formattedDate: new Date(date).toLocaleDateString("en-US", {
+    // Fall back to timeline data if no raw events
+    if (analytics.events?.timeline && analytics.events.timeline.length > 0) {
+      // Use the timeline data directly (it should already be aggregated by date)
+      return analytics.events.timeline.map((item) => ({
+        date: item.date,
+        count: item.count,
+        formattedDate: new Date(item.date).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         }),
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      }));
+    }
+
+    // If no data available, create empty 6-month timeline
+    const now = new Date();
+    const emptyData = [];
+    for (let i = 179; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      emptyData.push({
+        date: date.toISOString().split("T")[0],
+        count: 0,
+        formattedDate: `${date.getMonth() + 1}/${date.getDate()}`,
+      });
+    }
+    return emptyData;
   };
 
-  const timelineData = aggregateEventsByDate();
+  const timelineData = getTimelineData();
 
-  const totalEvents = timelineData.reduce((sum, item) => sum + item.count, 0);
-  const avgEvents = totalEvents > 0 ? Math.round(totalEvents / timelineData.length) : 0;
+  // Calculate stats - only count days with events for average
+  const daysWithEvents = timelineData.filter((item) => item.count > 0);
+  const totalEvents = timelineData.reduce((sum, item) => sum + (item.count || 0), 0);
+  const avgEvents = daysWithEvents.length > 0 ? Math.round(totalEvents / daysWithEvents.length) : 0;
   const peakDay = timelineData.reduce(
-    (max, item) => (item.count > max.count ? item : max),
-    timelineData[0] || { date: "", count: 0 }
+    (max, item) => ((item.count || 0) > (max.count || 0) ? item : max),
+    timelineData[0] || { date: "", count: 0, formattedDate: "" }
   );
 
   return (
@@ -149,19 +144,25 @@ export function EventTimelineChart({ analytics }: EventTimelineChartProps) {
       <div className="grid md:grid-cols-3 gap-4 mb-6">
         <div className="comic-panel p-4 bg-comic-blue text-center">
           <FaBolt className="text-2xl mx-auto mb-2 text-comic-white" />
-          <div className="action-text text-2xl text-comic-white">{avgEvents}</div>
+          <div className="action-text text-2xl text-comic-white">
+            {isNaN(avgEvents) ? 0 : avgEvents}
+          </div>
           <div className="font-display text-sm text-comic-white">DAILY AVERAGE</div>
         </div>
 
         <div className="comic-panel p-4 bg-comic-green text-center">
           <FaChartLine className="text-2xl mx-auto mb-2 text-comic-white" />
-          <div className="action-text text-2xl text-comic-white">{peakDay.count}</div>
+          <div className="action-text text-2xl text-comic-white">
+            {isNaN(peakDay.count) ? 0 : peakDay.count}
+          </div>
           <div className="font-display text-sm text-comic-white">PEAK DAY</div>
         </div>
 
         <div className="comic-panel p-4 bg-comic-red text-center">
           <FaBolt className="text-2xl mx-auto mb-2 text-comic-white" />
-          <div className="action-text text-2xl text-comic-white">{totalEvents}</div>
+          <div className="action-text text-2xl text-comic-white">
+            {isNaN(totalEvents) ? 0 : totalEvents}
+          </div>
           <div className="font-display text-sm text-comic-white">TOTAL EVENTS</div>
         </div>
       </div>
@@ -174,6 +175,7 @@ export function EventTimelineChart({ analytics }: EventTimelineChartProps) {
             <XAxis
               dataKey="formattedDate"
               tick={{ fontSize: 12, fontFamily: "Comic Sans MS, cursive", fill: "#000" }}
+              interval={Math.floor(timelineData.length / 10)} // Show about 10 labels for 180 days
             />
             <YAxis tick={{ fontSize: 12, fontFamily: "Comic Sans MS, cursive", fill: "#000" }} />
             <Tooltip content={<CustomTooltip />} />
@@ -182,7 +184,7 @@ export function EventTimelineChart({ analytics }: EventTimelineChartProps) {
               dataKey="count"
               stroke="#45B7D1"
               strokeWidth={3}
-              dot={<CustomDot />}
+              dot={false} // Don't show dots for all 180 points
               activeDot={{ r: 6, fill: "#45B7D1" }}
             />
           </LineChart>

@@ -22,6 +22,7 @@ import {
   WeeklyTrendsChart,
   TemplateUsageChart,
   UserPreferencesChart,
+  ErrorMetricsSection,
 } from "@/components/metrics";
 import { getTechIcon } from "@/components/metrics/tech-icons";
 import { ComicLoader } from "@/features/common";
@@ -488,6 +489,7 @@ export function CliUsageSection({
               <UserJourneyFlow />
               <TemplateUsageChart />
               <UserPreferencesChart />
+              <ErrorMetricsSection />
             </>
           )}
         </div>

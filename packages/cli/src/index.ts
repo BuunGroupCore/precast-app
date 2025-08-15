@@ -2,11 +2,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import chalk from "chalk";
-import { Command } from "commander";
-import inquirer from "inquirer";
-import ora from "ora";
-
 import {
   validateConfiguration,
   frameworkDefs,
@@ -16,10 +11,14 @@ import {
   stylingDefs,
   runtimeDefs,
   type ProjectConfig,
-} from "../../shared/stack-config.js";
+} from "@shared/stack-config.js";
+import chalk from "chalk";
+import { Command } from "commander";
+import inquirer from "inquirer";
+import ora from "ora";
 
-import { createProject } from "./create-project.js";
-import { logger } from "./utils/logger.js";
+import { createProject } from "@/create-project.js";
+import { logger } from "@/utils/ui/logger.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const program = new Command();

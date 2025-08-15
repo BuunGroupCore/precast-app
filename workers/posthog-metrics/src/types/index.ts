@@ -48,6 +48,7 @@ export interface PostHogMetricsData {
     breakdown: Record<string, number>;
     topFeatures: FeatureUsage[];
   };
+  rawEvents?: PostHogEvent[]; // Raw events for incremental updates
   // Advanced metrics
   stackCombinations?: StackCombination[];
   developerExperience?: DeveloperExperience;
@@ -308,6 +309,8 @@ export interface PostHogQueryResponse {
 export interface PostHogEventResponse {
   results: PostHogEvent[];
   count: number;
+  next?: string | null;
+  previous?: string | null;
 }
 
 export interface PostHogEvent {
@@ -324,6 +327,8 @@ export interface PostHogEvent {
 export interface PostHogPersonResponse {
   results: PostHogPerson[];
   count: number;
+  next?: string | null;
+  previous?: string | null;
 }
 
 export interface PostHogPerson {

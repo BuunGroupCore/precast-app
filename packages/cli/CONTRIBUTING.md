@@ -58,19 +58,39 @@ packages/cli/
 │   │   ├── config-validator.ts
 │   │   ├── template-engine.ts
 │   │   └── plugin-manager.ts
-│   ├── generators/           # Framework generators
+│   ├── generators/           # Template generators
+│   │   ├── frameworks/       # Frontend framework generators
+│   │   │   ├── react-template.ts
+│   │   │   ├── vue-template.ts
+│   │   │   └── [framework]-template.ts
+│   │   ├── backends/         # Backend generators
+│   │   │   ├── convex-template.ts
+│   │   │   └── [backend]-template.ts
+│   │   ├── features/         # Feature generators
+│   │   │   ├── auth-generator.ts
+│   │   │   └── backend-generator.ts
 │   │   ├── base-generator.ts
-│   │   ├── react-template.ts
-│   │   └── [framework]-template.ts
+│   │   └── index.ts
 │   ├── templates/            # Handlebars templates
 │   │   ├── frameworks/
 │   │   ├── backends/
 │   │   ├── database/
 │   │   └── features/
-│   ├── utils/               # Utility functions
-│   │   ├── package-manager.ts
-│   │   ├── analytics.ts
-│   │   └── [utility].ts
+│   ├── utils/               # Organized utility functions
+│   │   ├── setup/           # Setup utilities
+│   │   │   ├── auth-setup.ts
+│   │   │   └── database-setup.ts
+│   │   ├── docker/          # Docker utilities
+│   │   │   └── docker-setup.ts
+│   │   ├── config/          # Configuration utilities
+│   │   │   └── env-setup.ts
+│   │   ├── ui/              # UI utilities
+│   │   │   ├── logger.ts
+│   │   │   └── banner.ts
+│   │   ├── system/          # System utilities
+│   │   │   └── package-manager.ts
+│   │   └── analytics/       # Analytics
+│   │       └── analytics.ts
 │   └── prompts/            # Interactive prompts
 ├── tests/                  # Test files
 ├── docs/                   # Documentation

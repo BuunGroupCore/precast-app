@@ -479,7 +479,7 @@ The CLI implements graceful error recovery:
 ### Creating a Custom Generator
 
 ```typescript
-import { type ProjectConfig } from "../../../shared/stack-config.js";
+import { type ProjectConfig } from "@shared/stack-config.js";
 import { createTemplateEngine } from "../core/template-engine.js";
 import { getPluginManager } from "../core/plugin-manager.js";
 import { getTemplateRoot } from "../utils/template-path.js";

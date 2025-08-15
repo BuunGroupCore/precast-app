@@ -127,11 +127,16 @@ export function useGitHubApi(): UseGitHubApiReturn {
     commits: CommitData[];
   } | null> => {
     try {
+      console.log("Fetching from worker API:", WORKER_API_URL);
       const response = await fetch(WORKER_API_URL);
 
-      if (!response.ok) return null;
+      if (!response.ok) {
+        console.error("Worker API failed:", response.status, response.statusText);
+        return null;
+      }
 
       const data = await response.json();
+      console.log("Worker API data received:", data.repository);
 
       const transformedStats: GitHubStats = {
         stars: data.repository.stars || 0,
@@ -142,9 +147,11 @@ export function useGitHubApi(): UseGitHubApiReturn {
         contributors: data.repository.contributors || 0,
         commits: data.repository.commits || 0,
         releases: data.releases?.length || 0,
-        lastCommit: data.lastUpdated || new Date().toISOString(),
-        createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
-        size: 2048,
+        lastCommit: data.repository.pushed_at || data.lastUpdated || new Date().toISOString(),
+        createdAt:
+          data.repository.created_at ||
+          new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
+        size: data.repository.size || 2048,
         language: data.repository.language || "TypeScript",
         license: data.repository.license || "MIT",
         issueBreakdown: data.issues.breakdown.map((item: IssueBreakdownRaw) => ({
@@ -152,6 +159,9 @@ export function useGitHubApi(): UseGitHubApiReturn {
           icon: getIconComponent(item.icon),
         })),
       };
+
+      console.log("Transformed stats createdAt:", transformedStats.createdAt);
+      console.log("Repository created_at from API:", data.repository.created_at);
 
       return {
         stats: transformedStats,

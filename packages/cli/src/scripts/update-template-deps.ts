@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { consola } from "consola";
 
-import { updateTemplateDependencies } from "../utils/update-dependencies.js";
+import { updateTemplateDependencies } from "@/utils/system/update-dependencies.js";
 
 /**
  * Main function to update template dependencies

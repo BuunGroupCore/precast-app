@@ -8,7 +8,7 @@ import { DataProcessorService } from "./services/data-processor.service";
 import { PostHogAuthService } from "./services/posthog-auth.service";
 import { PostHogClientService } from "./services/posthog-client.service";
 import { R2StorageService } from "./services/r2-storage.service";
-import type { WorkerEnv, PostHogMetricsData } from "./types";
+import type { WorkerEnv, PostHogMetricsData, PostHogEventResponse, PostHogPersonResponse } from "./types";
 
 /**
  * Request handler interface
@@ -643,10 +643,107 @@ async function updateAnalytics(env: WorkerEnv): Promise<PostHogMetricsData> {
   const dataProcessor = new DataProcessorService();
   const storage = new R2StorageService(env);
 
-  // Fetch data from PostHog
+  // Get the last sync timestamp from storage
+  const lastSyncData = await storage.getLastSyncTimestamp();
+  const lastSyncTime = lastSyncData ? new Date(lastSyncData).toISOString() : null;
+  
+  // Get existing cached data
+  const existingData = await storage.getCachedData();
+  const existingRawEvents = existingData?.rawEvents || [];
+  
+  // If this is an incremental update (we have a sync timestamp)
+  if (lastSyncTime && existingData) {
+    // Fetch only NEW events since last sync
+    const PAGE_SIZE = 1000; // Smaller page size for incremental updates
+    
+    const [newEvents, persons] = await Promise.all([
+      clientService.fetchEvents({ 
+        limit: PAGE_SIZE,
+        after: lastSyncTime 
+      }),
+      clientService.fetchPersons({ limit: 100 }),
+    ]);
+    
+    // If we have new events, merge them with existing
+    if (newEvents.results.length > 0) {
+      // Merge new events with existing raw events
+      const allRawEvents = [...existingRawEvents, ...newEvents.results];
+      
+      // Keep only last 10000 events to prevent unbounded growth
+      const trimmedEvents = allRawEvents.slice(-10000);
+      
+      // Create a response object with all events for processing
+      const allEventsResponse: PostHogEventResponse = {
+        results: trimmedEvents,
+        count: trimmedEvents.length,
+        next: null,
+        previous: null
+      };
+      
+      // Process ALL events (existing + new) to get accurate metrics
+      const processedData = dataProcessor.processMetrics({
+        events: allEventsResponse,
+        persons,
+        projectId: env.POSTHOG_PROJECT_ID,
+      });
+      
+      // Store updated metrics with raw events
+      await storage.storeCachedData({
+        ...processedData,
+        rawEvents: trimmedEvents
+      });
+      
+      return processedData;
+    } else {
+      // No new events, return existing data
+      return existingData;
+    }
+  } else {
+    // First sync or no existing data - fetch initial dataset
+    return await fetchFullDataset(env);
+  }
+}
+
+// Helper function to merge metrics incrementally
+function mergeMetrics(
+  existing: PostHogMetricsData | null,
+  newData: PostHogMetricsData
+): PostHogMetricsData {
+  if (!existing) return newData;
+  
+  // Merge event counts
+  const mergedUsage = {
+    totalEvents: (existing.usage?.totalEvents || 0) + (newData.usage?.totalEvents || 0),
+    uniqueUsers: Math.max(existing.usage?.uniqueUsers || 0, newData.usage?.uniqueUsers || 0),
+    eventsLast30Days: newData.usage?.eventsLast30Days || existing.usage?.eventsLast30Days || 0,
+    eventsLast7Days: newData.usage?.eventsLast7Days || existing.usage?.eventsLast7Days || 0,
+    activeUsersLast30Days: newData.usage?.activeUsersLast30Days || existing.usage?.activeUsersLast30Days || 0,
+    activeUsersLast7Days: newData.usage?.activeUsersLast7Days || existing.usage?.activeUsersLast7Days || 0,
+  };
+  
+  // Use the latest data for everything else
+  return {
+    ...newData,
+    usage: mergedUsage,
+    lastUpdated: new Date().toISOString(),
+  };
+}
+
+// Helper function to fetch full dataset on first run
+async function fetchFullDataset(env: WorkerEnv): Promise<PostHogMetricsData> {
+  const authService = new PostHogAuthService(env);
+  authService.validateCredentials();
+
+  const clientService = new PostHogClientService(env);
+  const dataProcessor = new DataProcessorService();
+  const storage = new R2StorageService(env);
+  
+  // Fetch initial batch of events
+  const INITIAL_LIMIT = 5000; // Get a good sample for initial metrics
+  
   const [events, persons] = await Promise.all([
-    clientService.fetchEvents({ limit: 1000 }),
-    clientService.fetchPersons({ limit: 1000 }),
+    clientService.fetchEvents({ limit: INITIAL_LIMIT }),
+    clientService.fetchPersons({ limit: 100 }),
   ]);
 
   // Process the data
@@ -656,8 +753,11 @@ async function updateAnalytics(env: WorkerEnv): Promise<PostHogMetricsData> {
     projectId: env.POSTHOG_PROJECT_ID,
   });
 
-  // Store in R2
-  await storage.storeCachedData(processedData);
+  // Store in R2 WITH raw events for historical data
+  await storage.storeCachedData({
+    ...processedData,
+    rawEvents: events.results.slice(-10000) // Keep last 10000 events
+  });
 
   // Update completed successfully
   return processedData;

@@ -1,11 +1,10 @@
 import path from "node:path";
 
+import type { ProjectConfig } from "@shared/stack-config.js";
 import { consola } from "consola";
 import fsExtra from "fs-extra";
 import { globby } from "globby";
 import handlebars from "handlebars";
-
-import type { ProjectConfig } from "../../../shared/stack-config.js";
 
 const { pathExists, readFile, ensureDir, writeFile, copy, readdir } = fsExtra;
 export interface TemplateContext extends ProjectConfig {

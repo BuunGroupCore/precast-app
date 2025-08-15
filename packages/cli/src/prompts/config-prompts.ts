@@ -1,8 +1,6 @@
 import { text, select, confirm, multiselect } from "@clack/prompts";
-import { consola } from "consola";
-
-import { colorPalettes, defaultColorPalette } from "../../../shared/src/color-palettes.js";
-import { type ProjectConfig } from "../../../shared/stack-config.js";
+import { colorPalettes, defaultColorPalette } from "@shared/src/color-palettes.js";
+import { type ProjectConfig } from "@shared/stack-config.js";
 import {
   frameworkDefs,
   backendDefs,
@@ -11,15 +9,19 @@ import {
   stylingDefs,
   runtimeDefs,
   uiFrameworkDefs,
-} from "../../../shared/stack-config.js";
-import type { InitOptions } from "../commands/init.js";
-import { getFilteredAuthOptions, isAuthProviderCompatibleWithStack } from "../utils/auth-setup.js";
-import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "../utils/dependency-checker.js";
-import { DEPLOYMENT_CONFIGS } from "../utils/deployment-setup.js";
-import { detectAvailablePackageManager } from "../utils/package-manager.js";
+} from "@shared/stack-config.js";
+import { consola } from "consola";
 
-import { promptAIAssistant, isValidAIAssistant } from "./ai-assistant.js";
-import { promptApiClient } from "./api-client.js";
+import type { InitOptions } from "@/commands/init.js";
+import { promptAIAssistant, isValidAIAssistant } from "@/prompts/ai-assistant.js";
+import { promptApiClient } from "@/prompts/api-client.js";
+import {
+  getFilteredAuthOptions,
+  isAuthProviderCompatibleWithStack,
+} from "@/utils/setup/auth-setup.js";
+import { DEPLOYMENT_CONFIGS } from "@/utils/setup/deployment-setup.js";
+import { checkCompatibility, UI_LIBRARY_COMPATIBILITY } from "@/utils/system/dependency-checker.js";
+import { detectAvailablePackageManager } from "@/utils/system/package-manager.js";
 
 /**
  * Gather project configuration through interactive prompts

@@ -23,3 +23,4 @@ export { CLIVersionChart } from "./CLIVersionChart";
 export { WeeklyTrendsChart } from "./WeeklyTrendsChart";
 export { TemplateUsageChart } from "./TemplateUsageChart";
 export { UserPreferencesChart } from "./UserPreferencesChart";
+export { ErrorMetricsSection } from "./ErrorMetricsSection";

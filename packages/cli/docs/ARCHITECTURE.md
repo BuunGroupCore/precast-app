@@ -235,6 +235,43 @@ src/templates/
 └── common/         # Shared templates
     ├── styles/
     └── components/
+
+src/generators/
+├── frameworks/      # Frontend framework generators
+│   ├── react-template.ts
+│   ├── vue-template.ts
+│   ├── angular-template.ts
+│   └── [framework]-template.ts
+├── backends/        # Backend generators
+│   ├── convex-template.ts
+│   ├── cloudflare-workers-template.ts
+│   └── [backend]-template.ts
+├── features/        # Feature generators
+│   ├── auth-generator.ts
+│   ├── backend-generator.ts
+│   └── claude-generator.ts
+├── base-generator.ts  # Base generator class
+└── index.ts          # Main entry point
+
+src/utils/
+├── setup/           # Setup utilities
+│   ├── auth-setup.ts
+│   ├── database-setup.ts
+│   └── ui-library-setup.ts
+├── docker/          # Docker utilities
+│   ├── docker-setup.ts
+│   └── docker-auto-deploy-setup.ts
+├── config/          # Configuration utilities
+│   ├── env-setup.ts
+│   └── precast-config.ts
+├── ui/              # UI utilities
+│   ├── logger.ts
+│   └── banner.ts
+├── system/          # System utilities
+│   ├── package-manager.ts
+│   └── error-collector.ts
+└── analytics/       # Analytics
+    └── analytics.ts
 ```
 
 ## Generator Architecture
@@ -492,11 +529,12 @@ Format Output → Write File
 
 ### Adding New Frameworks
 
-1. Create generator in `src/generators/[framework]-template.ts`
+1. Create generator in `src/generators/frameworks/[framework]-template.ts`
 2. Add templates in `src/templates/frameworks/[framework]/`
 3. Update configuration in `packages/shared/stack-config.ts`
 4. Add validation rules in `src/core/config-validator.ts`
-5. Write tests in `tests/[framework].test.ts`
+5. Update the main generator index in `src/generators/index.ts`
+6. Write tests in `tests/[framework].test.ts`
 
 ### Adding New Features
 

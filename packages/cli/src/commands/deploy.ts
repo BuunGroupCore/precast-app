@@ -5,6 +5,13 @@ import { confirm } from "@clack/prompts";
 import fsExtra from "fs-extra";
 
 import {
+  updateEnvironmentVariables,
+  formatEnvUpdates,
+  validateNgrokUrls,
+} from "@/utils/config/environment-updater.js";
+import { waitForNgrokTunnels } from "@/utils/docker/ngrok-extractor.js";
+import { detectEnvironmentStructure } from "@/utils/system/framework-detection.js";
+import {
   theme,
   createHeroBanner,
   createFancyBox,
@@ -14,14 +21,7 @@ import {
   techBadge,
   createLink,
   comicDecorations,
-} from "../utils/cli-theme.js";
-import {
-  updateEnvironmentVariables,
-  formatEnvUpdates,
-  validateNgrokUrls,
-} from "../utils/environment-updater.js";
-import { detectEnvironmentStructure } from "../utils/framework-detection.js";
-import { waitForNgrokTunnels } from "../utils/ngrok-extractor.js";
+} from "@/utils/ui/cli-theme.js";
 
 const { pathExists, readJson } = fsExtra;
 

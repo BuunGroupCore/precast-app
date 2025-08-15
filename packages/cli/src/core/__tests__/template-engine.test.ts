@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 const { mkdtemp, ensureDir, remove, writeFile, readFile, readJSON, pathExists } = fsExtra;
 
-import { TemplateEngine } from "../template-engine.js";
+import { TemplateEngine } from "@/core/template-engine.js";
 
 describe("TemplateEngine", () => {
   let tempDir: string;

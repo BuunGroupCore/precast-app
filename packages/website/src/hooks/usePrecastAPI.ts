@@ -11,6 +11,22 @@ export interface PrecastMetrics {
   commits: number;
   language: string;
   license: string;
+  created_at?: string;
+  updated_at?: string;
+  pushed_at?: string;
+  size?: number;
+  topics?: string[];
+  default_branch?: string;
+  visibility?: string;
+  archived?: boolean;
+  disabled?: boolean;
+  has_issues?: boolean;
+  has_projects?: boolean;
+  has_wiki?: boolean;
+  has_pages?: boolean;
+  has_discussions?: boolean;
+  subscribers_count?: number;
+  network_count?: number;
 }
 
 export interface IssueBreakdown {
@@ -60,6 +76,38 @@ const ANALYTICS_CACHE_KEY = "precast_analytics_cache";
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes - matches worker update schedule
 
 // PostHog Analytics types
+export interface RawEvent {
+  id: string;
+  timestamp: string;
+  event: string;
+  properties: Record<string, unknown>;
+}
+
+export interface RawEventsAnalysis {
+  totalEvents: number;
+  last24Hours: {
+    count: number;
+    events: RawEvent[];
+    eventTypes: Record<string, number>;
+    uniqueUsers: number;
+  };
+  last7Days: {
+    count: number;
+    events: RawEvent[];
+    eventTypes: Record<string, number>;
+    uniqueUsers: number;
+  };
+  last30Days: {
+    count: number;
+    events: RawEvent[];
+    eventTypes: Record<string, number>;
+    uniqueUsers: number;
+    dailyBreakdown: Array<{ date: string; count: number }>;
+  };
+  frameworks: Record<string, number>;
+  getEventsInRange: (startDate: Date, endDate: Date) => RawEvent[];
+}
+
 export interface AnalyticsMetrics {
   timestamp: string;
   project: {
@@ -90,6 +138,7 @@ export interface AnalyticsMetrics {
       count: number;
     }>;
   };
+  rawEvents?: RawEvent[];
   frameworks: {
     breakdown: Record<string, number>;
     topFrameworks: Array<{
@@ -215,6 +264,7 @@ export interface UseAnalyticsResult {
   error: Error | null;
   lastUpdated: string | null;
   refetch: () => void;
+  analyzeRawEvents: () => RawEventsAnalysis | null;
 }
 
 /**
@@ -262,11 +312,17 @@ export function usePrecastAPI(): UsePrecastAPIResult {
         }
       }
 
-      // Fetch fresh data from Precast API worker
-      const response = await fetch(PRECAST_API_URL);
+      // Fetch fresh data directly from R2 public URL (bypasses worker)
+      let response = await fetch("https://github.precast.dev/metrics-data.json");
 
+      // If R2 direct access fails, fallback to worker endpoint
       if (!response.ok) {
-        throw new Error(`Precast API error: ${response.status} ${response.statusText}`);
+        console.warn("R2 direct access failed for GitHub metrics, falling back to worker endpoint");
+        response = await fetch(PRECAST_API_URL);
+
+        if (!response.ok) {
+          throw new Error(`Precast API error: ${response.status} ${response.statusText}`);
+        }
       }
 
       const data: PrecastAPIResponse = await response.json();
@@ -363,6 +419,20 @@ export function usePrecastAnalytics(): UseAnalyticsResult {
       setLoading(true);
       setError(null);
 
+      // Clean up old localStorage items to prevent quota issues
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("analytics_") && key !== ANALYTICS_CACHE_KEY) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach((key) => localStorage.removeItem(key));
+      } catch {
+        // Ignore cleanup errors
+      }
+
       // Check cache first
       const cachedData = localStorage.getItem(ANALYTICS_CACHE_KEY);
       if (cachedData) {
@@ -384,11 +454,17 @@ export function usePrecastAnalytics(): UseAnalyticsResult {
         }
       }
 
-      // Fetch fresh data from PostHog analytics worker
-      const response = await fetch(`${ANALYTICS_API_URL}/data`);
+      // Fetch fresh data directly from R2 public URL (bypasses worker)
+      let response = await fetch("https://analytics.precast.dev/posthog-analytics.json");
 
+      // If R2 direct access fails, fallback to worker endpoint
       if (!response.ok) {
-        throw new Error(`Analytics API error: ${response.status} ${response.statusText}`);
+        console.warn("R2 direct access failed, falling back to worker endpoint");
+        response = await fetch(`${ANALYTICS_API_URL}/data`);
+
+        if (!response.ok) {
+          throw new Error(`Analytics API error: ${response.status} ${response.statusText}`);
+        }
       }
 
       const data: AnalyticsMetrics = await response.json();
@@ -397,14 +473,43 @@ export function usePrecastAnalytics(): UseAnalyticsResult {
       setAnalytics(data);
       setLastUpdated(data.lastUpdated);
 
-      // Cache the fresh data
-      localStorage.setItem(
-        ANALYTICS_CACHE_KEY,
-        JSON.stringify({
+      // Cache the fresh data with error handling for quota exceeded
+      try {
+        // Clear old cache if quota is exceeded
+        const cacheData = JSON.stringify({
           data,
           cachedAt: Date.now(),
-        })
-      );
+        });
+
+        // Only cache if data is reasonable size (< 2MB)
+        if (cacheData.length < 2 * 1024 * 1024) {
+          localStorage.setItem(ANALYTICS_CACHE_KEY, cacheData);
+        }
+      } catch (storageError) {
+        // If quota exceeded, clear analytics cache and try again
+        if (storageError instanceof DOMException && storageError.name === "QuotaExceededError") {
+          console.warn("localStorage quota exceeded, clearing analytics cache");
+          localStorage.removeItem(ANALYTICS_CACHE_KEY);
+          // Try one more time with cleared cache
+          try {
+            const minimalData = JSON.stringify({
+              data: {
+                ...data,
+                // Only keep essential data to reduce size
+                events: {
+                  ...data.events,
+                  timeline: [], // Remove timeline data which can be large
+                },
+              },
+              cachedAt: Date.now(),
+            });
+            localStorage.setItem(ANALYTICS_CACHE_KEY, minimalData);
+          } catch {
+            // If still failing, just skip caching
+            console.warn("Unable to cache analytics data");
+          }
+        }
+      }
 
       setLoading(false);
     } catch (err) {
@@ -434,12 +539,129 @@ export function usePrecastAnalytics(): UseAnalyticsResult {
     fetchAnalytics();
   }, []);
 
+  // Helper functions to analyze raw events
+  const analyzeRawEvents = useCallback(() => {
+    if (!analytics?.rawEvents) return null;
+
+    const now = new Date();
+    const events = analytics.rawEvents;
+
+    // Filter events by time period
+    const getEventsInPeriod = (days: number) => {
+      const cutoffDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+      return events.filter((event) => {
+        const eventDate = new Date(event.timestamp);
+        return eventDate >= cutoffDate;
+      });
+    };
+
+    // Get events for different periods
+    const last7Days = getEventsInPeriod(7);
+    const last30Days = getEventsInPeriod(30);
+    const last24Hours = getEventsInPeriod(1);
+
+    // Count events by type
+    const countEventsByType = (eventList: RawEvent[]) => {
+      const counts: Record<string, number> = {};
+      eventList.forEach((event) => {
+        const eventType = event.event || "unknown";
+        counts[eventType] = (counts[eventType] || 0) + 1;
+      });
+      return counts;
+    };
+
+    // Get daily breakdown for last 6 months (180 days)
+    const getDailyBreakdown = () => {
+      const dailyData: Record<string, number> = {};
+      const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+
+      // Initialize all days for 6 months
+      for (let i = 0; i < 180; i++) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const dateKey = `${date.getMonth() + 1}/${date.getDate()}`;
+        dailyData[dateKey] = 0;
+      }
+
+      // Count events per day from all available events
+      events.forEach((event) => {
+        const eventDate = new Date(event.timestamp);
+        if (eventDate >= sixMonthsAgo) {
+          const dateKey = `${eventDate.getMonth() + 1}/${eventDate.getDate()}`;
+          if (dateKey in dailyData) {
+            dailyData[dateKey]++;
+          }
+        }
+      });
+
+      // Return sorted by date
+      return Object.entries(dailyData)
+        .map(([date, count]) => ({ date, count }))
+        .reverse(); // Reverse to show oldest first
+    };
+
+    // Get framework usage from events
+    const getFrameworkUsage = () => {
+      const frameworks: Record<string, number> = {};
+      events.forEach((event) => {
+        if (event.properties?.framework) {
+          const framework = event.properties.framework as string;
+          frameworks[framework] = (frameworks[framework] || 0) + 1;
+        }
+      });
+      return frameworks;
+    };
+
+    // Get unique users/sessions
+    const getUniqueUsers = (eventList: RawEvent[]) => {
+      const uniqueSessions = new Set();
+      eventList.forEach((event) => {
+        if (event.properties?.sessionId) {
+          uniqueSessions.add(event.properties.sessionId);
+        }
+      });
+      return uniqueSessions.size;
+    };
+
+    return {
+      totalEvents: events.length,
+      last24Hours: {
+        count: last24Hours.length,
+        events: last24Hours,
+        eventTypes: countEventsByType(last24Hours),
+        uniqueUsers: getUniqueUsers(last24Hours),
+      },
+      last7Days: {
+        count: last7Days.length,
+        events: last7Days,
+        eventTypes: countEventsByType(last7Days),
+        uniqueUsers: getUniqueUsers(last7Days),
+      },
+      last30Days: {
+        count: last30Days.length,
+        events: last30Days,
+        eventTypes: countEventsByType(last30Days),
+        uniqueUsers: getUniqueUsers(last30Days),
+        dailyBreakdown: getDailyBreakdown(),
+      },
+      frameworks: getFrameworkUsage(),
+
+      // Custom time range function
+      getEventsInRange: (startDate: Date, endDate: Date) => {
+        return events.filter((event) => {
+          const eventDate = new Date(event.timestamp);
+          return eventDate >= startDate && eventDate <= endDate;
+        });
+      },
+    };
+  }, [analytics]);
+
   return {
     analytics,
     loading,
     error,
     lastUpdated,
     refetch: fetchAnalytics,
+    analyzeRawEvents, // New function to analyze raw events
   };
 }
 

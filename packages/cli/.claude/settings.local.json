@@ -43,7 +43,10 @@
       "Bash(psql:*)",
       "Bash(docker run:*)",
       "Bash(for file in ClerkIcon.tsx LuciaIcon.tsx NeonIcon.tsx PassportIcon.tsx PlanetScaleIcon.tsx TursoIcon.tsx)",
-      "Bash(do sed -i '1i import React from \"\"react\"\";\\n' \"$file\")"
+      "Bash(do sed -i '1i import React from \"\"react\"\";\\n' \"$file\")",
+      "Bash(true)",
+      "Bash(tree:*)",
+      "Bash(rg:*)"
     ],
     "deny": [],
     "additionalDirectories": ["/home/sacha", "/"]

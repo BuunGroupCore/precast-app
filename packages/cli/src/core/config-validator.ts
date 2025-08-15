@@ -1,7 +1,6 @@
+import type { ProjectConfig } from "@shared/stack-config.js";
 import { consola } from "consola";
 import { z } from "zod";
-
-import type { ProjectConfig } from "../../../shared/stack-config.js";
 export interface ValidationResult {
   valid: boolean;
   errors: string[];

@@ -1,27 +1,27 @@
-import { type ProjectConfig } from "../../../shared/stack-config.js";
-import { createTemplateEngine } from "../core/template-engine.js";
-import { setupAIContextFiles } from "../utils/ai-context-setup.js";
-import { setupAuthentication } from "../utils/auth-setup.js";
-import { setupClaudeIntegration } from "../utils/claude-setup.js";
-import { errorCollector } from "../utils/error-collector.js";
-import { logger } from "../utils/logger.js";
-import { getTemplateRoot } from "../utils/template-path.js";
+import { type ProjectConfig } from "@shared/stack-config.js";
 
-import { generateAngularTemplate } from "./angular-template.js";
-import { generateAstroTemplate } from "./astro-template.js";
-import { generateConvexTemplate } from "./convex-template.js";
-import { generateFastApiTemplate } from "./fastapi-template.js";
-import { generateNextTemplate } from "./next-template.js";
-import { generateNoneTemplate } from "./none-template.js";
-import { generateNuxtTemplate } from "./nuxt-template.js";
-import { generateReactNativeTemplate } from "./react-native-template.js";
-import { generateReactTemplate } from "./react-template.js";
-import { generateSolidTemplate } from "./solid-template.js";
-import { generateSvelteTemplate } from "./svelte-template.js";
-import { generateTanStackStartTemplate } from "./tanstack-start-template.js";
-import { generateVanillaTemplate } from "./vanilla-template.js";
-import { generateViteTemplate } from "./vite-template.js";
-import { generateVueTemplate } from "./vue-template.js";
+import { createTemplateEngine } from "@/core/template-engine.js";
+import { generateConvexTemplate } from "@/generators/backends/convex-template.js";
+import { generateFastApiTemplate } from "@/generators/backends/fastapi-template.js";
+import { generateNoneTemplate } from "@/generators/backends/none-template.js";
+import { generateAngularTemplate } from "@/generators/frameworks/angular-template.js";
+import { generateAstroTemplate } from "@/generators/frameworks/astro-template.js";
+import { generateNextTemplate } from "@/generators/frameworks/next-template.js";
+import { generateNuxtTemplate } from "@/generators/frameworks/nuxt-template.js";
+import { generateReactNativeTemplate } from "@/generators/frameworks/react-native-template.js";
+import { generateReactTemplate } from "@/generators/frameworks/react-template.js";
+import { generateSolidTemplate } from "@/generators/frameworks/solid-template.js";
+import { generateSvelteTemplate } from "@/generators/frameworks/svelte-template.js";
+import { generateTanStackStartTemplate } from "@/generators/frameworks/tanstack-start-template.js";
+import { generateVanillaTemplate } from "@/generators/frameworks/vanilla-template.js";
+import { generateViteTemplate } from "@/generators/frameworks/vite-template.js";
+import { generateVueTemplate } from "@/generators/frameworks/vue-template.js";
+import { setupAIContextFiles } from "@/utils/setup/ai-context-setup.js";
+import { setupAuthentication } from "@/utils/setup/auth-setup.js";
+import { setupClaudeIntegration } from "@/utils/setup/claude-setup.js";
+import { errorCollector } from "@/utils/system/error-collector.js";
+import { getTemplateRoot } from "@/utils/system/template-path.js";
+import { logger } from "@/utils/ui/logger.js";
 
 /**
  * Generate project template based on the selected framework.
@@ -47,12 +47,16 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
       await generateNextTemplate(config, projectPath);
       break;
     case "react-router": {
-      const { generateReactRouterTemplate } = await import("./react-router-template.js");
+      const { generateReactRouterTemplate } = await import(
+        "@/generators/frameworks/react-router-template.js"
+      );
       await generateReactRouterTemplate(config, projectPath);
       break;
     }
     case "tanstack-router": {
-      const { generateTanStackRouterTemplate } = await import("./tanstack-router-template.js");
+      const { generateTanStackRouterTemplate } = await import(
+        "@/generators/frameworks/tanstack-router-template.js"
+      );
       await generateTanStackRouterTemplate(config, projectPath);
       break;
     }
@@ -101,7 +105,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
 
     if (config.mcpServers && config.mcpServers.length > 0) {
       try {
-        const { setupMCPConfiguration } = await import("../utils/mcp-setup.js");
+        const { setupMCPConfiguration } = await import("@/utils/setup/mcp-setup.js");
         await setupMCPConfiguration(projectPath, config);
       } catch (error) {
         logger.warn(`Failed to setup MCP configuration: ${error}`);
@@ -119,7 +123,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
     (config.styling === "css" || config.styling === "tailwind" || config.styling === "scss")
   ) {
     try {
-      const { setupColorPalette } = await import("../utils/color-palette-setup.js");
+      const { setupColorPalette } = await import("@/utils/setup/color-palette-setup.js");
       await setupColorPalette(config, projectPath);
     } catch (error) {
       logger.warn(`Failed to setup color palette: ${error}`);
@@ -129,7 +133,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
 
   if (config.database && config.database !== "none") {
     try {
-      const { setupDatabase } = await import("../utils/database-setup.js");
+      const { setupDatabase } = await import("@/utils/setup/database-setup.js");
       await setupDatabase(config, projectPath);
     } catch (error) {
       logger.warn(`Failed to setup database configuration: ${error}`);
@@ -143,7 +147,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
 
   if (config.powerups && config.powerups.length > 0) {
     try {
-      const { setupPowerUps } = await import("../utils/powerups-setup.js");
+      const { setupPowerUps } = await import("@/utils/setup/powerups-setup.js");
       await setupPowerUps(projectPath, config.framework, config.powerups, config.typescript);
     } catch (error) {
       logger.warn(`Failed to setup powerups: ${error}`);
@@ -153,7 +157,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
 
   if (config.plugins && config.plugins.length > 0) {
     try {
-      const { setupPlugins } = await import("../utils/plugins-setup.js");
+      const { setupPlugins } = await import("@/utils/setup/plugins-setup.js");
       await setupPlugins(config, projectPath, config.plugins);
     } catch (error) {
       logger.warn(`Failed to setup plugins: ${error}`);
@@ -168,7 +172,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
 
   if (shouldSetupAdminPanel) {
     try {
-      const { setupPrecastWidget } = await import("../utils/plugins-setup.js");
+      const { setupPrecastWidget } = await import("@/utils/setup/plugins-setup.js");
       await setupPrecastWidget(config, projectPath);
     } catch (error) {
       logger.warn(`Failed to setup admin panel: ${error}`);
@@ -179,7 +183,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   let dockerPasswords: Record<string, string> | undefined;
   if (config.docker && config.database && config.database !== "none") {
     try {
-      const { setupDockerCompose } = await import("../utils/docker-setup.js");
+      const { setupDockerCompose } = await import("@/utils/docker/docker-setup.js");
       const result = await setupDockerCompose(config, projectPath);
       dockerPasswords = result.passwords;
     } catch (error) {
@@ -189,7 +193,7 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   }
 
   try {
-    const { generateEnvFiles } = await import("../utils/env-setup.js");
+    const { generateEnvFiles } = await import("@/utils/config/env-setup.js");
     await generateEnvFiles(config, dockerPasswords);
     logger.verbose("✅ Environment files generated (.env, .env.example)");
   } catch (error) {

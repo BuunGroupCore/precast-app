@@ -4,7 +4,7 @@ import { join } from "path";
 import fsExtra from "fs-extra";
 const { readFile, writeFile, pathExists } = fsExtra;
 
-import { isTelemetryEnabled } from "../utils/analytics.js";
+import { isTelemetryEnabled } from "@/utils/analytics/analytics.js";
 import {
   theme,
   createHeroBanner,
@@ -12,7 +12,7 @@ import {
   divider,
   createLink,
   comicDecorations,
-} from "../utils/cli-theme.js";
+} from "@/utils/ui/cli-theme.js";
 
 const TELEMETRY_CONFIG_FILE = join(homedir(), ".precast-telemetry");
 

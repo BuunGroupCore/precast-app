@@ -1,18 +1,17 @@
 import path from "path";
 
+import { type ProjectConfig } from "@shared/stack-config.js";
 import { execa } from "execa";
 import fsExtra from "fs-extra";
 
 const { pathExists, ensureDir, writeFile, remove } = fsExtra;
 
-import { type ProjectConfig } from "../../shared/stack-config.js";
-
-import { createTemplateEngine } from "./core/template-engine.js";
-import { generateTemplate } from "./generators/index.js";
-import { setupDeploymentConfig } from "./utils/deployment-setup.js";
-import { logger } from "./utils/logger.js";
-import { writePrecastConfig } from "./utils/precast-config.js";
-import { getTemplateRoot } from "./utils/template-path.js";
+import { createTemplateEngine } from "@/core/template-engine.js";
+import { generateTemplate } from "@/generators/index.js";
+import { writePrecastConfig } from "@/utils/config/precast-config.js";
+import { setupDeploymentConfig } from "@/utils/setup/deployment-setup.js";
+import { getTemplateRoot } from "@/utils/system/template-path.js";
+import { logger } from "@/utils/ui/logger.js";
 
 /**
  * Create a new project with the given configuration

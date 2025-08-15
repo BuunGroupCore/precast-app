@@ -16,26 +16,30 @@ The Precast CLI (`create-precast-app`) is a TypeScript-based command-line tool t
 2. **Commands** (`src/commands/`)
    - `init.ts` - Primary project creation command
    - `add.ts` - Add features to existing projects
-   - `add-features.ts` - Batch feature additions
+   - `deploy.ts` - Docker management commands
+   - `generate.ts` - ORM client generation
+   - `status.ts` - Project status information
 
 3. **Generators** (`src/generators/`)
-   - Framework-specific template generators
-   - Each framework has its own generator (react, vue, angular, next, etc.)
+   - **frameworks/** - Frontend framework generators (react, vue, angular, next, etc.)
+   - **backends/** - Backend generators (convex, cloudflare-workers, etc.)
+   - **features/** - Feature generators (auth, backend, claude)
    - `base-generator.ts` - Shared generator logic
-   - Templates use Handlebars for dynamic content
+   - `index.ts` - Main generator orchestration
 
 4. **Templates** (`src/templates/`)
    - Handlebars templates organized by feature type
    - Framework-specific templates in `frameworks/`
-   - Shared templates for auth, database, styling, etc.
+   - Backend templates in `backends/`
+   - Feature templates for auth, database, styling, etc.
 
 5. **Utilities** (`src/utils/`)
-   - `claude-setup.ts` - Generates Claude Code integration
-   - `package-manager.ts` - Smart package manager detection/fallback
-   - `database-setup.ts` - Database configuration
-   - `auth-setup.ts` - Authentication provider setup
-   - `ui-library-setup.ts` - UI component library integration
-   - `mcp-setup.ts` - MCP server configuration for Claude
+   - **setup/** - Setup utilities (auth, database, UI libraries, MCP, Claude)
+   - **docker/** - Docker utilities (docker-setup, auto-deploy)
+   - **config/** - Configuration management (env, precast-config)
+   - **ui/** - UI utilities (logger, banner, interactive-ui)
+   - **system/** - System utilities (package-manager, error-collector)
+   - **analytics/** - Telemetry and analytics tracking
 
 ## Integration with Website Builder
 

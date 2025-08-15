@@ -209,10 +209,10 @@ MONGO_PASSWORD=${passwords.MONGO_PASSWORD}`
 ${database === "redis" ? `REDIS_PASSWORD=${passwords.REDIS_PASSWORD}` : ""}
 
 # Database URLs (passwords are URL-encoded)
-${database === "postgres" ? `DATABASE_URL=postgresql://postgres:${encodedPasswords.POSTGRES_PASSWORD}@localhost:5432/${context.name}` : ""}
-${database === "mysql" ? `DATABASE_URL=mysql://root:${encodedPasswords.MYSQL_ROOT_PASSWORD}@localhost:3306/${context.name}` : ""}
-${database === "mongodb" ? `MONGODB_URI=mongodb://root:${encodedPasswords.MONGO_ROOT_PASSWORD}@localhost:27017/${context.name}?authSource=admin` : ""}
-${database === "redis" ? `REDIS_URL=redis://:${encodedPasswords.REDIS_PASSWORD}@localhost:6379` : ""}
+${database === "postgres" ? `DATABASE_URL="postgresql://postgres:${encodedPasswords.POSTGRES_PASSWORD}@localhost:5432/${context.name}"` : ""}
+${database === "mysql" ? `DATABASE_URL="mysql://root:${encodedPasswords.MYSQL_ROOT_PASSWORD}@localhost:3306/${context.name}"` : ""}
+${database === "mongodb" ? `MONGODB_URI="mongodb://root:${encodedPasswords.MONGO_ROOT_PASSWORD}@localhost:27017/${context.name}?authSource=admin"` : ""}
+${database === "redis" ? `REDIS_URL="redis://:${encodedPasswords.REDIS_PASSWORD}@localhost:6379"` : ""}
 `.trim();
 
     await writeFile(path.join(dbDir, ".env"), envContent);

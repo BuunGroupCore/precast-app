@@ -24,7 +24,7 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
     return;
   }
 
-  const modernDatabases = ["neon", "planetscale", "turso", "cloudflare-d1"];
+  const modernDatabases = ["neon", "planetscale", "turso", "cloudflare-d1", "duckdb"];
   if (!config.orm || config.orm === "none") {
     if (!modernDatabases.includes(config.database || "")) {
       return;
@@ -43,6 +43,7 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
       planetscale: "mysql",
       turso: "sqlite",
       "cloudflare-d1": "sqlite",
+      duckdb: "duckdb",
     };
 
     const context = {
@@ -68,7 +69,9 @@ export async function setupDatabase(config: ProjectConfig, projectPath: string):
     if (config.orm && config.orm !== "none") {
       logger.verbose(`Setting up ${config.orm === "prisma" ? "Prisma" : config.orm} ORM...`);
       await setupORM(config, targetPath, context);
-    } else if (["neon", "planetscale", "turso", "cloudflare-d1"].includes(config.database || "")) {
+    } else if (
+      ["neon", "planetscale", "turso", "cloudflare-d1", "duckdb"].includes(config.database || "")
+    ) {
       await setupDatabaseConnection(config, targetPath, context);
     }
 
@@ -266,7 +269,11 @@ async function setupDatabaseConnection(
         existingContent = await readFile(filePath, "utf-8");
       }
 
-      if (!existingContent.includes("DATABASE_URL") && !existingContent.includes("TURSO_")) {
+      if (
+        !existingContent.includes("DATABASE_URL") &&
+        !existingContent.includes("TURSO_") &&
+        !existingContent.includes("DUCKDB_")
+      ) {
         await writeFile(filePath, existingContent + "\n" + rendered);
       }
     }
@@ -348,6 +355,21 @@ async function setupDatabasePackages(config: ProjectConfig, targetPath: string):
     packages.push("@planetscale/database");
   } else if (config.database === "turso") {
     packages.push("@libsql/client");
+  } else if (config.database === "duckdb") {
+    // Add appropriate DuckDB package based on project capabilities
+    const hasBackend = config.backend && config.backend !== "none";
+    const hasServerFramework = !["vanilla", "react", "vue", "angular", "svelte", "solid"].includes(
+      config.framework
+    );
+    const isServerSide = hasBackend || hasServerFramework;
+    const isClientSide = config.framework !== "none";
+
+    if (isServerSide) {
+      packages.push("@duckdb/node-api");
+    }
+    if (isClientSide) {
+      packages.push("@duckdb/duckdb-wasm");
+    }
   }
 
   if (config.orm === "prisma") {

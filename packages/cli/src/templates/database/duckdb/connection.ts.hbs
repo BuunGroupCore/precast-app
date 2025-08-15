@@ -1,0 +1,293 @@
+/**
+ * DuckDB Database Connection
+ * 
+ * DuckDB is an embedded analytical database perfect for static web applications:
+ * - Runs entirely client-side in browsers (no server required)
+ * - Processes CSV, Parquet, and JSON files directly
+ * - Excellent performance for analytical workloads
+ * - Works offline once loaded
+ * - Compatible with static hosting (Netlify, Vercel, GitHub Pages)
+ * 
+ * {{#if (hasServerFramework framework)}}Server-side configuration using @duckdb/node-api{{/if}}
+ * {{#if (hasClientFramework framework)}}Client-side configuration using @duckdb/duckdb-wasm (WASM){{/if}}
+ */
+
+{{#if (hasServerFramework framework)}}
+import { DuckDBInstance } from '@duckdb/node-api';
+import path from 'path';
+
+export class DuckDBConnection {
+  private static instance: DuckDBInstance | null = null;
+  private static connection: any = null;
+
+  static async getInstance(): Promise<DuckDBInstance> {
+    if (!this.instance) {
+      this.instance = await DuckDBInstance.create();
+      console.log('DuckDB instance created');
+    }
+    return this.instance;
+  }
+
+  static async getConnection() {
+    if (!this.connection) {
+      const instance = await this.getInstance();
+      this.connection = await instance.connect();
+      
+      // Initialize tables
+      await this.initializeTables();
+      console.log('DuckDB connection established');
+    }
+    return this.connection;
+  }
+
+  private static async initializeTables() {
+    try {
+      await this.connection.runAndReadAll(`
+        CREATE TABLE IF NOT EXISTS analytics (
+          id INTEGER PRIMARY KEY,
+          event_name VARCHAR,
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          properties JSON,
+          user_id VARCHAR
+        );
+      `);
+      
+      await this.connection.runAndReadAll(`
+        CREATE TABLE IF NOT EXISTS app_logs (
+          id INTEGER PRIMARY KEY,
+          level VARCHAR,
+          message TEXT,
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          metadata JSON
+        );
+      `);
+      
+      console.log('DuckDB tables initialized');
+    } catch (error) {
+      console.warn('DuckDB table initialization warning:', error);
+    }
+  }
+
+  static async query(sql: string): Promise<any> {
+    const connection = await this.getConnection();
+    return await connection.runAndReadAll(sql);
+  }
+
+  static async close(): Promise<void> {
+    if (this.connection) {
+      await this.connection.close();
+      this.connection = null;
+    }
+    if (this.instance) {
+      // DuckDBInstance doesn't have a close method - it's automatically cleaned up
+      this.instance = null;
+    }
+  }
+}
+
+// Common query patterns
+export const queries = {
+  analytics: {
+    dailyEvents: `
+      SELECT 
+        DATE_TRUNC('day', timestamp) as date,
+        COUNT(*) as event_count
+      FROM analytics 
+      WHERE timestamp >= CURRENT_DATE - INTERVAL 30 DAY
+      GROUP BY DATE_TRUNC('day', timestamp)
+      ORDER BY date DESC;
+    `,
+    popularEvents: `
+      SELECT 
+        event_name,
+        COUNT(*) as count
+      FROM analytics 
+      GROUP BY event_name 
+      ORDER BY count DESC 
+      LIMIT 10;
+    `,
+  },
+  
+  // Load external data files (perfect for static sites with public datasets)
+  loadData: {
+    parquet: (url: string) => `SELECT * FROM read_parquet('${url}') LIMIT 100;`,
+    csv: (url: string) => `SELECT * FROM read_csv_auto('${url}') LIMIT 100;`,
+    json: (url: string) => `SELECT * FROM read_json_auto('${url}') LIMIT 100;`,
+    // Example: Load public datasets
+    sampleData: `
+      -- Load NYC taxi data (public dataset example)
+      CREATE TABLE nyc_taxi AS 
+      SELECT * FROM read_parquet('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet')
+      LIMIT 10000;
+    `
+  }
+};
+{{/if}}
+
+{{#if (hasClientFramework framework)}}
+import * as duckdb from '@duckdb/duckdb-wasm';
+
+export class DuckDBClientConnection {
+  private static db: duckdb.AsyncDuckDB | null = null;
+  private static connection: duckdb.AsyncDuckDBConnection | null = null;
+
+  static async init(): Promise<void> {
+    if (!this.db) {
+      // Load DuckDB WASM bundles
+      const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+      const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+      
+      const worker = new Worker(bundle.mainWorker!);
+      const logger = new duckdb.ConsoleLogger();
+      
+      this.db = new duckdb.AsyncDuckDB(logger, worker);
+      await this.db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      
+      console.log('DuckDB WASM initialized');
+    }
+  }
+
+  static async getConnection(): Promise<duckdb.AsyncDuckDBConnection> {
+    if (!this.connection) {
+      await this.init();
+      this.connection = await this.db!.connect();
+      
+      // Initialize client-side tables
+      await this.initializeClientTables();
+    }
+    return this.connection;
+  }
+
+  private static async initializeClientTables() {
+    try {
+      await this.connection!.query(`
+        CREATE TABLE IF NOT EXISTS user_events (
+          id INTEGER PRIMARY KEY,
+          event_type VARCHAR,
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          user_id VARCHAR,
+          properties JSON
+        );
+      `);
+      
+      await this.connection!.query(`
+        CREATE TABLE IF NOT EXISTS page_views (
+          id INTEGER PRIMARY KEY,
+          page_url VARCHAR,
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          user_id VARCHAR,
+          session_id VARCHAR
+        );
+      `);
+    } catch (error) {
+      console.warn('Client table initialization warning:', error);
+    }
+  }
+
+  static async query(sql: string): Promise<any> {
+    const connection = await this.getConnection();
+    const result = await connection.query(sql);
+    return result.toArray();
+  }
+
+  static async loadRemoteData(url: string, tableName: string = 'remote_data'): Promise<void> {
+    const connection = await this.getConnection();
+    
+    if (url.endsWith('.parquet')) {
+      await connection.query(`
+        CREATE OR REPLACE TABLE ${tableName} AS 
+        SELECT * FROM read_parquet('${url}');
+      `);
+    } else if (url.endsWith('.csv')) {
+      await connection.query(`
+        CREATE OR REPLACE TABLE ${tableName} AS 
+        SELECT * FROM read_csv_auto('${url}');
+      `);
+    }
+  }
+
+  static async close(): Promise<void> {
+    if (this.connection) {
+      await this.connection.close();
+      this.connection = null;
+    }
+    if (this.db) {
+      await this.db.terminate();
+      this.db = null;
+    }
+  }
+}
+
+// Client-side analytics utilities
+export const clientAnalytics = {
+  trackEvent: async (eventType: string, properties: any = {}) => {
+    const connection = await DuckDBClientConnection.getConnection();
+    await connection.query(`
+      INSERT INTO user_events (event_type, user_id, properties)
+      VALUES ('${eventType}', '${getUserId()}', '${JSON.stringify(properties)}');
+    `);
+  },
+  
+  trackPageView: async (pageUrl: string) => {
+    const connection = await DuckDBClientConnection.getConnection();
+    await connection.query(`
+      INSERT INTO page_views (page_url, user_id, session_id)
+      VALUES ('${pageUrl}', '${getUserId()}', '${getSessionId()}');
+    `);
+  },
+  
+  getEventSummary: async () => {
+    return await DuckDBClientConnection.query(`
+      SELECT 
+        event_type,
+        COUNT(*) as count,
+        DATE_TRUNC('day', timestamp) as date
+      FROM user_events 
+      GROUP BY event_type, DATE_TRUNC('day', timestamp)
+      ORDER BY date DESC, count DESC;
+    `);
+  }
+};
+
+// Helper functions - implement based on your app
+function getUserId(): string {
+  return localStorage.getItem('userId') || crypto.randomUUID();
+}
+
+function getSessionId(): string {
+  let sessionId = sessionStorage.getItem('sessionId');
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    sessionStorage.setItem('sessionId', sessionId);
+  }
+  return sessionId;
+}
+{{/if}}
+
+{{#if (and (hasServerFramework framework) (hasClientFramework framework))}}
+// Unified interface for both server and client
+export const DuckDB = {
+  async query(sql: string): Promise<any> {
+    if (typeof window === 'undefined') {
+      // Server-side
+      return await DuckDBConnection.query(sql);
+    } else {
+      // Client-side
+      return await DuckDBClientConnection.query(sql);
+    }
+  },
+  
+  async loadData(url: string, tableName?: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      // Server-side: Load into persistent database
+      const sql = url.endsWith('.parquet') 
+        ? `CREATE OR REPLACE TABLE ${tableName || 'imported_data'} AS SELECT * FROM read_parquet('${url}');`
+        : `CREATE OR REPLACE TABLE ${tableName || 'imported_data'} AS SELECT * FROM read_csv_auto('${url}');`;
+      await DuckDBConnection.query(sql);
+    } else {
+      // Client-side: Load into memory
+      await DuckDBClientConnection.loadRemoteData(url, tableName);
+    }
+  }
+};
+{{/if}}

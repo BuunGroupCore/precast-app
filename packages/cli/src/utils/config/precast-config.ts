@@ -6,7 +6,7 @@ import * as JSONC from "jsonc-parser";
 
 const { writeFile, pathExists, readFile } = fsExtra;
 
-import { getPackageVersion } from "@/utils/system/package-utils.js";
+import { getPackageVersion } from "@/utils/system/package-manager.js";
 
 const PRECAST_CONFIG_FILE = "precast.jsonc";
 

@@ -151,7 +151,9 @@
       "Bash(if [ -f \"$file\" ])",
       "Bash(awk:*)",
       "WebSearch",
-      "WebFetch(domain:duckdb.org)"
+      "WebFetch(domain:duckdb.org)",
+      "WebFetch(domain:shell.duckdb.org)",
+      "WebFetch(domain:www.timlrx.com)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

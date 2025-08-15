@@ -4,6 +4,8 @@ import { consola } from "consola";
 import { execa } from "execa";
 import fsExtra from "fs-extra";
 
+const { readJSON } = fsExtra;
+
 import { trackError, trackFallback, trackDependencyInstall } from "@/utils/analytics/analytics.js";
 import { errorCollector } from "@/utils/system/error-collector.js";
 import { logger, isVerbose } from "@/utils/ui/logger.js";
@@ -532,5 +534,19 @@ bun.lockb`;
   } catch (error) {
     consola.error("❌ Prettier formatting failed:", error);
     consola.warn("⚠️ Code formatting skipped - files may not follow project style guidelines");
+  }
+}
+
+/**
+ * Get the version number from package.json
+ * @returns Package version string
+ */
+export async function getPackageVersion(): Promise<string> {
+  try {
+    const packageJsonPath = path.join(import.meta.dirname, "../../package.json");
+    const packageJson = await readJSON(packageJsonPath);
+    return packageJson.version || "1.0.0";
+  } catch {
+    return "1.0.0";
   }
 }

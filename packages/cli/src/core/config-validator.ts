@@ -362,6 +362,7 @@ export class ConfigValidator {
       mysql: ["prisma", "drizzle", "none"],
       mongodb: ["mongoose", "prisma", "none"],
       sqlite: ["prisma", "drizzle", "none"],
+      duckdb: ["none", "prisma", "drizzle"], // DuckDB works best with native SQL, but ORMs are compatible
       none: ["none"],
     };
     return recommendations[database] || ["none"];

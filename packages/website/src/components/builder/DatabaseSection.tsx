@@ -116,7 +116,8 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                 db.deploymentOptions && (db.deploymentOptions.local || db.deploymentOptions.cloud);
               const deploymentBadge =
                 isSelected && hasDeploymentOptions && config.databaseDeployment;
-              const isCloudOnly = !hasDeploymentOptions && db.id !== "none";
+              const isCloudOnly = !hasDeploymentOptions && db.id !== "none" && db.id !== "duckdb";
+              const isEmbedded = db.id === "duckdb";
 
               return (
                 <ComicTooltip key={db.id} content={db.description || ""}>
@@ -147,6 +148,11 @@ export const DatabaseSection: React.FC<DatabaseSectionProps> = ({ config, setCon
                       {isCloudOnly && (
                         <span className="bg-comic-orange text-comic-white text-[8px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
                           CLOUD ONLY
+                        </span>
+                      )}
+                      {isEmbedded && (
+                        <span className="bg-comic-purple text-comic-white text-[8px] font-comic font-bold px-1.5 py-0.5 rounded-full border border-comic-black">
+                          EMBEDDED
                         </span>
                       )}
                     </div>

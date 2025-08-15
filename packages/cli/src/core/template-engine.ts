@@ -63,6 +63,23 @@ export class TemplateEngine {
     this.registerHelper("stripHash", (hexCode: string) =>
       hexCode ? hexCode.replace("#", "") : ""
     );
+
+    // Framework detection helpers for DuckDB templates
+    this.registerHelper("hasServerFramework", function (this: TemplateContext) {
+      const hasBackend = this.backend && this.backend !== "none";
+      const hasServerFramework = ![
+        "vanilla",
+        "react",
+        "vue",
+        "angular",
+        "svelte",
+        "solid",
+      ].includes(this.framework);
+      return hasBackend || hasServerFramework;
+    });
+    this.registerHelper("hasClientFramework", function (this: TemplateContext) {
+      return this.framework !== "none";
+    });
   }
 
   /**

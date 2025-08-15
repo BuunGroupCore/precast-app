@@ -1,17 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    optimizePackageImports: ['@/components', '@/lib', '@/utils'],{{#if (includes powerups "ngrok")}}
-    // Enable external host access for ngrok tunneling
-    allowMiddlewareResponseBody: true,{{/if}}
+    optimizePackageImports: ['@/components', '@/lib', '@/utils'],
   },{{#if (or (eq deploymentMethod "github-pages") (and (or (eq deploymentMethod "cloudflare-pages") (eq deploymentMethod "netlify")) (eq backend "none") (eq database "none")))}}
   // Static export configuration for {{deploymentMethod}}
   output: 'export',
   trailingSlash: true,
   images: {
     unoptimized: true,
-  },{{/if}}{{#if (includes powerups "ngrok")}}
+  },{{/if}}{{#if (and (includes powerups "ngrok") (not (or (eq deploymentMethod "github-pages") (and (or (eq deploymentMethod "cloudflare-pages") (eq deploymentMethod "netlify")) (eq backend "none") (eq database "none")))))}}
   // Configure for ngrok tunnel support
+  allowedDevOrigins: [
+    "localhost:3000",
+    "*.ngrok.app",
+    "*.ngrok-free.app", 
+    "*.ngrok.io",
+    "*.ngrok.com"
+  ],
   async headers() {
     return [
       {
@@ -21,11 +26,11 @@ const nextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN',
-          },{{#if (not (or (eq deploymentMethod "github-pages") (and (or (eq deploymentMethod "cloudflare-pages") (eq deploymentMethod "netlify")) (eq backend "none") (eq database "none"))))}}
+          },
           {
             key: 'Access-Control-Allow-Origin',
             value: '*',
-          },{{/if}}
+          },
         ],
       },
     ];

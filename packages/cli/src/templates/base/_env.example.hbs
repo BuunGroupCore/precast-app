@@ -7,16 +7,16 @@ APP_URL=http://localhost:3000
 {{#if (not (eq database "none"))}}
 # Database
 {{#if (eq database "postgres")}}
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/{{kebabCase name}}
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/{{kebabCase name}}"
 {{/if}}
 {{#if (eq database "mysql")}}
-DATABASE_URL=mysql://root:password@localhost:3306/{{kebabCase name}}
+DATABASE_URL="mysql://root:password@localhost:3306/{{kebabCase name}}"
 {{/if}}
 {{#if (eq database "mongodb")}}
-DATABASE_URL=mongodb://localhost:27017/{{kebabCase name}}
+DATABASE_URL="mongodb://localhost:27017/{{kebabCase name}}"
 {{/if}}
 {{#if (eq database "sqlite")}}
-DATABASE_URL=file:./dev.db
+DATABASE_URL="file:./dev.db"
 {{/if}}
 {{#if (eq database "supabase")}}
 SUPABASE_URL=https://your-project.supabase.co

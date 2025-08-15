@@ -761,7 +761,28 @@ function formatEnvFile(
           lines.push(`# REQUIRED - Please set this value`);
         }
 
-        lines.push(`${variable.key}=${value}`);
+        // Quote certain sensitive variables that may contain special characters
+        const needsQuotes =
+          variable.key.includes("DATABASE_URL") ||
+          variable.key.includes("MONGODB_URI") ||
+          variable.key.includes("REDIS_URL") ||
+          value.includes("!") ||
+          value.includes("@") ||
+          value.includes("#") ||
+          value.includes("$") ||
+          value.includes("%") ||
+          value.includes("^") ||
+          value.includes("&") ||
+          value.includes("*") ||
+          value.includes("(") ||
+          value.includes(")") ||
+          value.includes(" ");
+
+        if (needsQuotes && value) {
+          lines.push(`${variable.key}="${value}"`);
+        } else {
+          lines.push(`${variable.key}=${value}`);
+        }
         lines.push("");
       }
     }

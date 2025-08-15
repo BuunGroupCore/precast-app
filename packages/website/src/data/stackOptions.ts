@@ -257,6 +257,13 @@ export const databaseDefs: StackOption[] = [
     incompatible: ["prisma", "typeorm", "mongoose"],
   },
   {
+    id: "duckdb",
+    name: "DuckDB",
+    description: "In-process analytical database for static sites and data apps",
+    recommended: ["typescript"],
+    incompatible: ["mongoose"], // MongoDB ORM incompatible with SQL
+  },
+  {
     id: "none",
     name: "None",
     description: "No database",
@@ -296,6 +303,7 @@ export const ormDefs: StackOption[] = [
       "supabase",
       "firebase",
       "cloudflare-d1",
+      "duckdb",
       "turso",
       "neon",
       "planetscale",

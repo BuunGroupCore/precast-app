@@ -579,6 +579,19 @@ export const databases: StackOption[] = [
     },
   },
   {
+    id: "duckdb",
+    name: "DuckDB",
+    icon: "duckdb",
+    color: "text-comic-yellow",
+    description: "Open-source embedded SQL database - runs entirely in your app, no server needed!",
+    recommended: ["typescript"],
+    incompatible: ["mongoose"],
+    recommendedFor: {
+      frameworks: ["react", "vue", "vite", "next"],
+      reason: "Runs entirely client-side with WASM - no server required!",
+    },
+  },
+  {
     id: "none",
     name: "None",
     icon: null,
@@ -626,7 +639,7 @@ export const orms: StackOption[] = [
     color: "text-comic-green",
     description: "Elegant MongoDB object modeling for Node.js",
     dependencies: ["node"],
-    incompatible: ["postgres", "mysql", "supabase", "firebase", "none"],
+    incompatible: ["postgres", "mysql", "supabase", "firebase", "duckdb", "none"],
   },
   {
     id: "none",

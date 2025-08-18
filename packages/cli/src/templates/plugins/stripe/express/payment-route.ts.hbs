@@ -1,4 +1,10 @@
 {{#if typescript}}
+/**
+ * Stripe Payment Integration for Express
+ * @module stripePayment
+ * @description Complete Stripe payment processing with webhooks and customer management
+ */
+
 import { Router, Request, Response } from "express";
 import Stripe from "stripe";
 
@@ -14,17 +20,20 @@ interface CreatePaymentIntentBody {
   metadata?: Record<string, string>;
 }
 
-// Create a payment intent
+/**
+ * Create a payment intent for processing payments
+ * @route POST /create-intent
+ * @param {CreatePaymentIntentBody} req.body - Payment intent data
+ * @returns {object} Client secret for payment processing
+ */
 router.post("/create-intent", async (req: Request<{}, {}, CreatePaymentIntentBody>, res: Response) => {
   try {
     const { amount, currency = "usd", metadata } = req.body;
 
-    // Validate amount
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
@@ -45,7 +54,12 @@ router.post("/create-intent", async (req: Request<{}, {}, CreatePaymentIntentBod
   }
 });
 
-// Webhook endpoint for Stripe events
+/**
+ * Webhook endpoint for processing Stripe events
+ * @route POST /webhook
+ * @param {Request} req - Express request with Stripe event data
+ * @returns {object} Confirmation of event processing
+ */
 router.post("/webhook", async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"] as string;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -68,18 +82,15 @@ router.post("/webhook", async (req: Request, res: Response) => {
     return res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : "Unknown error"}`);
   }
 
-  // Handle the event
   switch (event.type) {
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       console.log("Payment succeeded:", paymentIntent.id);
-      // TODO: Fulfill the order, update database, send email, etc.
       break;
 
     case "payment_intent.payment_failed":
       const failedPayment = event.data.object as Stripe.PaymentIntent;
       console.log("Payment failed:", failedPayment.id);
-      // TODO: Handle failed payment
       break;
 
     case "charge.succeeded":
@@ -92,7 +103,6 @@ router.post("/webhook", async (req: Request, res: Response) => {
     case "customer.subscription.deleted":
       const subscription = event.data.object as Stripe.Subscription;
       console.log(`Subscription ${event.type}:`, subscription.id);
-      // TODO: Handle subscription lifecycle events
       break;
 
     default:
@@ -102,7 +112,12 @@ router.post("/webhook", async (req: Request, res: Response) => {
   res.json({ received: true });
 });
 
-// Get payment methods for a customer
+/**
+ * Retrieve payment methods for a customer
+ * @route GET /payment-methods/:customerId
+ * @param {string} req.params.customerId - Stripe customer ID
+ * @returns {object} List of customer's payment methods
+ */
 router.get("/payment-methods/:customerId", async (req: Request, res: Response) => {
   try {
     const { customerId } = req.params;
@@ -121,7 +136,12 @@ router.get("/payment-methods/:customerId", async (req: Request, res: Response) =
   }
 });
 
-// Create a customer
+/**
+ * Create a new Stripe customer
+ * @route POST /create-customer
+ * @param {object} req.body - Customer data (email, name, metadata)
+ * @returns {object} Created customer object
+ */
 router.post("/create-customer", async (req: Request, res: Response) => {
   try {
     const { email, name, metadata } = req.body;
@@ -143,6 +163,12 @@ router.post("/create-customer", async (req: Request, res: Response) => {
 
 export default router;
 {{else}}
+/**
+ * Stripe Payment Integration for Express (JavaScript)
+ * @module stripePayment
+ * @description Complete Stripe payment processing with webhooks and customer management
+ */
+
 const { Router } = require("express");
 const Stripe = require("stripe");
 
@@ -152,17 +178,18 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 
 const router = Router();
 
-// Create a payment intent
+/**
+ * Create a payment intent for processing payments
+ * @route POST /create-intent
+ */
 router.post("/create-intent", async (req, res) => {
   try {
     const { amount, currency = "usd", metadata } = req.body;
 
-    // Validate amount
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
@@ -183,7 +210,10 @@ router.post("/create-intent", async (req, res) => {
   }
 });
 
-// Webhook endpoint for Stripe events
+/**
+ * Webhook endpoint for processing Stripe events
+ * @route POST /webhook
+ */
 router.post("/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -206,18 +236,15 @@ router.post("/webhook", async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
   switch (event.type) {
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object;
       console.log("Payment succeeded:", paymentIntent.id);
-      // TODO: Fulfill the order, update database, send email, etc.
       break;
 
     case "payment_intent.payment_failed":
       const failedPayment = event.data.object;
       console.log("Payment failed:", failedPayment.id);
-      // TODO: Handle failed payment
       break;
 
     case "charge.succeeded":
@@ -230,7 +257,6 @@ router.post("/webhook", async (req, res) => {
     case "customer.subscription.deleted":
       const subscription = event.data.object;
       console.log(`Subscription ${event.type}:`, subscription.id);
-      // TODO: Handle subscription lifecycle events
       break;
 
     default:
@@ -240,7 +266,10 @@ router.post("/webhook", async (req, res) => {
   res.json({ received: true });
 });
 
-// Get payment methods for a customer
+/**
+ * Retrieve payment methods for a customer
+ * @route GET /payment-methods/:customerId
+ */
 router.get("/payment-methods/:customerId", async (req, res) => {
   try {
     const { customerId } = req.params;
@@ -259,7 +288,10 @@ router.get("/payment-methods/:customerId", async (req, res) => {
   }
 });
 
-// Create a customer
+/**
+ * Create a new Stripe customer
+ * @route POST /create-customer
+ */
 router.post("/create-customer", async (req, res) => {
   try {
     const { email, name, metadata } = req.body;

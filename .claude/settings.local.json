@@ -153,7 +153,20 @@
       "WebSearch",
       "WebFetch(domain:duckdb.org)",
       "WebFetch(domain:shell.duckdb.org)",
-      "WebFetch(domain:www.timlrx.com)"
+      "WebFetch(domain:www.timlrx.com)",
+      "Bash(__NEW_LINE__ mv auth.ts.hbs config.ts.hbs)",
+      "Bash(__NEW_LINE__ mv signup-route.ts.hbs handlers.ts.hbs)",
+      "Bash(__NEW_LINE__ ls -la)",
+      "Bash(tree:*)",
+      "Bash(__NEW_LINE__ mkdir -p /home/sacha/repositories/precast-app/packages/cli/src/templates/common/auth/{components,hooks,services,styles})",
+      "Bash(__NEW_LINE__ ls -la /home/sacha/repositories/precast-app/packages/cli/src/templates/common/auth/)",
+      "Bash(__NEW_LINE__ mkdir -p /home/sacha/repositories/precast-app/packages/cli/src/templates/common/features)",
+      "Bash(__NEW_LINE__ ls -la /home/sacha/repositories/precast-app/packages/cli/src/templates/common/features/)",
+      "Bash(__NEW_LINE__ mv /home/sacha/repositories/precast-app/packages/cli/src/templates/common/auth /home/sacha/repositories/precast-app/packages/cli/src/templates/common/features/auth)",
+      "Bash(psql:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

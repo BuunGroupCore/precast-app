@@ -1,13 +1,23 @@
+/**
+ * Email API Route
+ * @module email-api
+ * @description Next.js API route for sending emails via Resend
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 
 import { sendEmail } from '@/services/email';
 
+/**
+ * Handles POST requests for sending emails
+ * @param {NextRequest} request - The incoming request
+ * @returns {Promise<NextResponse>} JSON response with success/error status
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { to, subject, html, text, type } = body;
 
-    // Validate required fields
     if (!to || !subject) {
       return NextResponse.json(
         { error: 'Missing required fields: to, subject' },
@@ -15,7 +25,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email format (basic validation)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const emails = Array.isArray(to) ? to : [to];
     const invalidEmails = emails.filter((email: string) => !emailRegex.test(email));
@@ -27,7 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send email based on type
     let result;
     switch (type) {
       case 'welcome': {
@@ -70,7 +78,6 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        // Custom email
         if (!html && !text) {
           return NextResponse.json(
             { error: 'Either html or text content is required' },
@@ -98,32 +105,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Example usage:
-// POST /api/email
-// Content-Type: application/json
-//
-// Welcome email:
-// {
-//   "type": "welcome",
-//   "to": "user@example.com",
-//   "subject": "Welcome!",
-//   "name": "John Doe"
-// }
-//
-// Password reset email:
-// {
-//   "type": "password-reset",
-//   "to": "user@example.com", 
-//   "subject": "Reset Your Password",
-//   "resetToken": "abc123",
-//   "resetUrl": "https://example.com/reset-password"
-// }
-//
-// Custom email:
-// {
-//   "to": "user@example.com",
-//   "subject": "Custom Subject",
-//   "html": "<h1>Custom HTML Content</h1>",
-//   "text": "Custom text content"
-// }

@@ -1,4 +1,10 @@
 {{#if typescript}}
+/**
+ * Stripe Checkout Components
+ * @module stripe-checkout
+ * @description React components for Stripe payment processing
+ */
+
 import React, { useState, FormEvent } from "react";
 import {
   PaymentElement,
@@ -8,7 +14,6 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe, Stripe, StripeElementsOptions } from "@stripe/stripe-js";
 
-// Initialize Stripe
 const stripePromise: Promise<Stripe | null> = loadStripe(
   process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
 );
@@ -18,6 +23,11 @@ interface CheckoutFormProps {
   currency?: string;
 }
 
+/**
+ * Internal checkout form component with Stripe Elements
+ * @param {CheckoutFormProps} props - Component props
+ * @returns {JSX.Element} Checkout form element
+ */
 function CheckoutFormContent({ amount, currency = "usd" }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -34,7 +44,6 @@ function CheckoutFormContent({ amount, currency = "usd" }: CheckoutFormProps) {
 
     setProcessing(true);
 
-    // Create payment intent on your server
     const response = await fetch("/api/payment/create-intent", {
       method: "POST",
       headers: {
@@ -45,7 +54,6 @@ function CheckoutFormContent({ amount, currency = "usd" }: CheckoutFormProps) {
 
     const { clientSecret } = await response.json();
 
-    // Confirm payment with Stripe
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
@@ -87,11 +95,15 @@ function CheckoutFormContent({ amount, currency = "usd" }: CheckoutFormProps) {
   );
 }
 
+/**
+ * Main checkout form component with Stripe Elements provider
+ * @param {CheckoutFormProps} props - Component props
+ * @returns {JSX.Element} Complete checkout form with Elements wrapper
+ */
 export function CheckoutForm({ amount, currency = "usd" }: CheckoutFormProps) {
   const [clientSecret, setClientSecret] = useState("");
 
   React.useEffect(() => {
-    // Create PaymentIntent as soon as the component loads
     fetch("/api/payment/create-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -157,7 +169,6 @@ function CheckoutFormContent({ amount, currency = "usd" }) {
 
     setProcessing(true);
 
-    // Create payment intent on your server
     const response = await fetch("/api/payment/create-intent", {
       method: "POST",
       headers: {
@@ -168,7 +179,6 @@ function CheckoutFormContent({ amount, currency = "usd" }) {
 
     const { clientSecret } = await response.json();
 
-    // Confirm payment with Stripe
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {

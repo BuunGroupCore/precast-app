@@ -10,6 +10,7 @@ import { addCommand } from "@/commands/add.js";
 import { initCommand } from "@/commands/init.js";
 import { statusCommand } from "@/commands/status.js";
 import { telemetryCommand } from "@/commands/telemetry.js";
+import { enhancedHelp } from "@/utils/ui/enhanced-help.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +26,43 @@ program
   .name("create-precast-app")
   .description("CLI to scaffold modern web applications with your chosen stack")
   .version(packageJson.version);
+
+// Override default help with our enhanced help system
+program.configureHelp({
+  helpWidth: 80,
+  sortSubcommands: false,
+});
+
+// Custom help command with beautiful styling
+program
+  .command("help [command]")
+  .description("Display help information with beautiful styling")
+  .action(async (command) => {
+    if (command) {
+      // Find the specific command and show its help
+      const targetCommand = program.commands.find(
+        (cmd) => cmd.name() === command || cmd.aliases().includes(command)
+      );
+      if (targetCommand) {
+        await enhancedHelp.showCommandHelp(targetCommand);
+      } else {
+        console.log(`Unknown command: ${command}`);
+        await enhancedHelp.showMainHelp(program);
+      }
+    } else {
+      await enhancedHelp.showMainHelp(program);
+    }
+  });
+
+// Override the default --help behavior with our enhanced help
+program.helpOption(false); // Disable default help
+program.option("-h, --help", "Display help information with beautiful styling");
+
+// Handle help flag manually
+program.on("option:help", async () => {
+  await enhancedHelp.showMainHelp(program);
+  process.exit(0);
+});
 program
   .command("init [project-name]", { isDefault: true })
   .description("Create a new project")
@@ -114,7 +152,7 @@ program
       powerups: options.powerups ? options.powerups.split(",") : undefined,
       plugins: options.plugins ? options.plugins.split(",") : undefined,
       colorPalette: options.colorPalette,
-      deployment: options.deployment,
+      deploymentMethod: options.deployment,
       debug: options.debug,
       debugAnalytics: options.debugAnalytics,
       verbose: options.verbose,
@@ -132,7 +170,6 @@ program
   .option("--no-typescript", "Generate JavaScript instead of TypeScript")
   .action(async (resource, options) => {
     await addCommand(resource, {
-      name: options.name,
       ui: options.ui,
       auth: options.auth,
       apiClient: options.apiClient,
@@ -151,19 +188,22 @@ program
 
 program
   .command("list")
-  .description("List available templates and features")
-  .action(async () => {
-    /** @todo Implement list command to show available templates and features */
-    console.log("List command not yet implemented");
-  });
-
-program
-  .command("banner")
-  .description("Create a banner template file for customization")
-  .action(async () => {
-    /** Dynamically import banner utilities to avoid loading them unless needed */
-    const { createBannerTemplate } = await import("./utils/ui/banner.js");
-    await createBannerTemplate();
+  .description("List available downloadable components and features")
+  .option(
+    "-c, --category <category>",
+    "Filter by category (authentication, dashboard, payments, ui, utils, etc.)"
+  )
+  .option("-s, --search <term>", "Search features by name or description")
+  .option("-f, --format <format>", "Display format (grid, table, compact)", "grid")
+  .option("-v, --verbose", "Show detailed statistics and information")
+  .action(async (options) => {
+    const { listCommand } = await import("./commands/list.js");
+    await listCommand({
+      category: options.category,
+      search: options.search,
+      format: options.format,
+      verbose: options.verbose,
+    });
   });
 
 program
@@ -184,7 +224,7 @@ program
   .option("--destroy", "Destroy all Docker services and data (DESTRUCTIVE)")
   .option("--approve", "Skip confirmation prompts (use with --destroy)")
   .option("--help-docker", "Show Docker auto-deploy help")
-  .option("--yes, -y", "Auto-confirm all prompts and update environment variables")
+  .option("-y, --yes", "Auto-confirm all prompts and update environment variables")
   .option("--update-env", "Update environment variables with ngrok URLs")
   .option("--skip-env-update", "Skip environment variable updates")
   .action(async (options) => {
@@ -199,6 +239,54 @@ program
       updateEnv: options.updateEnv,
       skipEnvUpdate: options.skipEnvUpdate,
     });
+  });
+
+// Setup turbo commands with proper nested structure
+const turboCmd = program
+  .command("turbo")
+  .description("Turbo monorepo build system with enhanced TUI");
+
+// Show turbo help when no subcommand is provided
+turboCmd.action(async () => {
+  const { showTurboHelp } = await import("./commands/turbo/index.js");
+  await showTurboHelp();
+});
+
+// Turbo build subcommand
+turboCmd
+  .command("build")
+  .description("Run Turbo build with TUI dashboard")
+  .option("--filter <packages...>", "Filter packages to build")
+  .option("--no-parallel", "Run builds sequentially")
+  .option("--no-cache", "Force rebuild without cache")
+  .option("--force", "Force rebuild all packages")
+  .option("--output-logs <type>", "Output log type (full, errors-only, new-only)", "errors-only")
+  .option("--no-dashboard", "Disable TUI dashboard")
+  .option("--demo", "Run dashboard demo")
+  .action(async (options) => {
+    if (options.demo) {
+      const { runTurboDashboardDemo } = await import("./commands/turbo/build.js");
+      await runTurboDashboardDemo();
+    } else {
+      const { turboBuildCommand } = await import("./commands/turbo/build.js");
+      await turboBuildCommand({
+        filter: options.filter,
+        parallel: options.parallel,
+        cache: options.cache,
+        force: options.force,
+        outputLogs: options.outputLogs,
+        dashboard: options.dashboard,
+      });
+    }
+  });
+
+// Turbo dev subcommand
+turboCmd
+  .command("dev")
+  .description("Run Turbo dev with interactive task management")
+  .action(async () => {
+    const { devCommand } = await import("./commands/turbo/dev.js");
+    await devCommand();
   });
 
 program

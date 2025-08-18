@@ -1,0 +1,42 @@
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { auth } from '@/features/auth/auth{{#if typescript}}.js{{/if}}';
+
+/**
+ * Better Auth routes for Fastify
+ */
+export async function authRoutes(fastify: FastifyInstance) {
+  /**
+   * Handle all Better Auth endpoints
+   * When registered at /api/auth, this will handle /api/auth/*
+   * Converts Fastify request to Web API Request for Better Auth
+   */
+  fastify.route({
+    method: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    url: '*',
+    async handler(request: FastifyRequest, reply: FastifyReply) {
+      // Create Web API Request from Fastify request
+      const url = new URL(request.url, `http://${request.headers.host}`);
+      const headers = new Headers();
+      
+      Object.entries(request.headers).forEach(([key, value]) => {
+        if (value) headers.append(key, value.toString());
+      });
+
+      const req = new Request(url.toString(), {
+        method: request.method,
+        headers,
+        body: ['POST', 'PUT', 'PATCH'].includes(request.method) && request.body 
+          ? JSON.stringify(request.body) 
+          : undefined,
+      });
+
+      const response = await auth.handler(req);
+      
+      reply.status(response.status);
+      response.headers.forEach((value, key) => reply.header(key, value));
+      
+      const body = await response.text();
+      reply.send(body || null);
+    }
+  });
+}

@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "features": ["auth", "dashboard", "payments", "analytics", "ui-kit", "email"],
+  "categories": {
+    "authentication": {
+      "description": "User authentication and authorization features",
+      "features": ["auth"]
+    },
+    "dashboard": {
+      "description": "Admin dashboards with charts and analytics",
+      "features": ["dashboard"]
+    },
+    "payments": {
+      "description": "Payment processing and subscription management",
+      "features": ["payments"]
+    },
+    "analytics": {
+      "description": "Event tracking and analytics integration",
+      "features": ["analytics"]
+    },
+    "ui": {
+      "description": "User interface components and design systems",
+      "features": ["ui-kit"]
+    },
+    "communication": {
+      "description": "Email, notifications, and messaging features",
+      "features": ["email"]
+    }
+  }
+}

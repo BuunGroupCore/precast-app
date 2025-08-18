@@ -1,0 +1,88 @@
+{{#if (eq framework "next")}}'use client';
+
+{{/if}}/**
+ * Social Login Component
+ * @module SocialLogin
+ * @description Social authentication buttons for Google and GitHub login
+ */
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+import { AuthButton } from './AuthButton';
+
+/**
+ * Props for the SocialLogin component
+ */
+interface SocialLoginProps {
+  onGoogleClick?: () => void;
+  onGithubClick?: () => void;
+  isLoading?: boolean;
+  className?: string;
+}
+
+/**
+ * Social login buttons for OAuth providers
+ * @param {SocialLoginProps} props - Component props
+ * @returns {JSX.Element} Social login component
+ */
+export function SocialLogin({
+  onGoogleClick,
+  onGithubClick,
+  isLoading = false,
+  className = ''
+}: SocialLoginProps) {
+  const handleGoogleLogin = () => {
+    if (onGoogleClick) {
+      onGoogleClick();
+    } else {
+      window.location.href = '/api/auth/signin/google';
+    }
+  };
+
+  const handleGithubLogin = () => {
+    if (onGithubClick) {
+      onGithubClick();
+    } else {
+      window.location.href = '/api/auth/signin/github';
+    }
+  };
+
+  return (
+    <div className={`space-y-3 ${className}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <AuthButton
+          type="button"
+          variant="outline"
+          onClick={handleGoogleLogin}
+          disabled={isLoading}
+          className="w-full group"
+        >
+          <FaGoogle className="h-5 w-5 mr-3 text-red-500 group-hover:text-red-600 transition-colors" />
+          Continue with Google
+        </AuthButton>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <AuthButton
+          type="button"
+          variant="outline"
+          onClick={handleGithubLogin}
+          disabled={isLoading}
+          className="w-full group"
+        >
+          <FaGithub className="h-5 w-5 mr-3 text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+          Continue with GitHub
+        </AuthButton>
+      </motion.div>
+    </div>
+  );
+}

@@ -1,6 +1,12 @@
+/**
+ * Express Server Configuration
+ * @module server
+ * @description Main Express.js server with authentication, API routes, and health checks
+ */
+
 import cors from "cors";
 import { config } from "dotenv";
-import express, { Request, Response, json, urlencoded } from "express";
+import express, { {{#if typescript}}type {{/if}}Request, {{#if typescript}}type {{/if}}Response, json, urlencoded } from "express";
 import helmet from "helmet";
 
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
@@ -10,7 +16,11 @@ import healthRoutes from "@/api/routes/health{{#if typescript}}.js{{/if}}";
 import emailRoutes from "@/api/routes/email{{#if typescript}}.js{{/if}}";
 {{/if}}
 {{#if authProvider}}
-import authRoutes from "@/api/routes/auth{{#if typescript}}.js{{/if}}";
+{{#if (eq authProvider "better-auth")}}
+import { auth } from "@/features/auth/auth{{#if typescript}}.js{{/if}}";
+{{else}}
+import authRoutes from "@/features/auth/routes{{#if typescript}}.js{{/if}}";
+{{/if}}
 {{/if}}
 import { 
   APP_CONFIG, 
@@ -23,7 +33,6 @@ config();
 
 const app = express();
 
-// Middleware
 app.use(helmet());
 app.use(cors(CORS_CONFIG));
 app.use(json());
@@ -36,9 +45,58 @@ app.use("/api", healthRoutes);
 app.use("/api", emailRoutes);
 {{/if}}
 {{#if authProvider}}
+{{#if (eq authProvider "better-auth")}}
+/**
+ * Better Auth route handler
+ * @description Converts Express requests to Web API requests for Better Auth compatibility
+ */
+app.all("/api/auth*", async (req, res) => {
+  try {
+    const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    const headers{{#if typescript}}: HeadersInit{{/if}} = {};
+    
+    for (const [key, value] of Object.entries(req.headers)) {
+      if (typeof value === 'string') {
+        headers[key] = value;
+      } else if (Array.isArray(value)) {
+        headers[key] = value.join(', ');
+      }
+    }
+    
+    const webRequest = new Request(url, {
+      method: req.method,
+      headers,
+      body: req.method !== 'GET' && req.method !== 'HEAD' 
+        ? JSON.stringify(req.body) 
+        : undefined,
+      credentials: 'include',
+    });
+    
+    const response = await auth.handler(webRequest);
+    
+    response.headers.forEach((value, key) => {
+      res.setHeader(key, value);
+    });
+    
+    res.status(response.status);
+    const body = await response.text();
+    res.send(body);
+    
+  } catch (error) {
+    console.error('Better Auth handler error:', error);
+    res.status(500).json({ 
+      error: {{#if typescript}}error instanceof Error ? error.message : {{/if}}'Internal server error' 
+    });
+  }
+});
+{{else}}
 app.use("/api/auth", authRoutes);
 {{/if}}
+{{/if}}
 
+/**
+ * Health check endpoint
+ */
 app.get(HEALTH_CHECK_CONFIG.path, (req: Request, res: Response) => {
   res.json({ 
     status: "ok", 
@@ -49,6 +107,9 @@ app.get(HEALTH_CHECK_CONFIG.path, (req: Request, res: Response) => {
   });
 });
 
+/**
+ * Hello world endpoint
+ */
 app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (req: Request, res: Response) => {
   res.json({ 
     message: `Hello from ${APP_CONFIG.name}!`,
@@ -56,7 +117,9 @@ app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (req: Request, res: Response) => {
   });
 });
 
-// 404 handler
+/**
+ * 404 handler for unmatched routes
+ */
 app.use("*", (req: Request, res: Response) => {
   res.status(404).json({ 
     error: "Route not found",
@@ -64,11 +127,11 @@ app.use("*", (req: Request, res: Response) => {
   });
 });
 
-// Error handler
+/**
+ * Global error handler
+ */
 app.use((err: Error, req: Request, res: Response) => {
-  // Log error in development only
   if (process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line no-console
     console.error(err.stack);
   }
   res.status(500).json({ 
@@ -78,35 +141,30 @@ app.use((err: Error, req: Request, res: Response) => {
 });
 
 {{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
-// Listen on all interfaces (0.0.0.0) to allow tunnel access
+/**
+ * Start server with tunnel access (all interfaces)
+ */
 app.listen(SERVER_CONFIG.port, "0.0.0.0", () => {
-  // eslint-disable-next-line no-console
-  console.log(`🚀 Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
-  // eslint-disable-next-line no-console
-  console.log(`📋 Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`);
-  // eslint-disable-next-line no-console
-  console.log(`🌍 Environment: ${APP_CONFIG.environment}`);
+  console.log(`[SERVER] Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
+  console.log(`[API] Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`);
+  console.log(`[INFO] Environment: ${APP_CONFIG.environment}`);
   {{#if (includes powerups "ngrok")}}
-  // eslint-disable-next-line no-console
-  console.log(`🌐 ngrok tunnel access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
+  console.log(`[NETWORK] ngrok tunnel access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
   {{/if}}
   {{#if (includes powerups "traefik")}}
-  // eslint-disable-next-line no-console
-  console.log(`🚦 Traefik proxy access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
+  console.log(`[NETWORK] Traefik proxy access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
   {{/if}}
   {{#if (includes powerups "cloudflare-tunnel")}}
-  // eslint-disable-next-line no-console
-  console.log(`☁️ Cloudflare tunnel access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
+  console.log(`[NETWORK] Cloudflare tunnel access enabled on 0.0.0.0:${SERVER_CONFIG.port}`);
   {{/if}}
 });
 {{else}}
-// Listen on localhost only
+/**
+ * Start server on localhost only
+ */
 app.listen(SERVER_CONFIG.port, SERVER_CONFIG.host, () => {
-  // eslint-disable-next-line no-console
-  console.log(`🚀 Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
-  // eslint-disable-next-line no-console
-  console.log(`📋 Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`);
-  // eslint-disable-next-line no-console
-  console.log(`🌍 Environment: ${APP_CONFIG.environment}`);
+  console.log(`[SERVER] Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
+  console.log(`[API] Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`);
+  console.log(`[INFO] Environment: ${APP_CONFIG.environment}`);
 });
 {{/if}}

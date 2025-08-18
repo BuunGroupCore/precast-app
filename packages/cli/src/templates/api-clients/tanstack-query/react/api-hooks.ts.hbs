@@ -1,8 +1,19 @@
+/**
+ * TanStack Query API Hooks
+ * @module apiHooks
+ * @description React hooks for API operations using TanStack Query
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = process.env.{{#if (eq framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:3001";
 
-// Generic fetch function
+/**
+ * Generic API fetch function with error handling
+ * @param {string} endpoint - API endpoint path
+ * @param {RequestInit} [options] - Fetch options
+ * @returns {Promise<T>} API response data
+ */
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
@@ -19,7 +30,10 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
   return response.json();
 }
 
-// Example: Get all users
+/**
+ * Hook to fetch all users
+ * @returns {UseQueryResult<User[]>} Query result with users data
+ */
 export function useUsers() {
   return useQuery({
     queryKey: ["users"],
@@ -27,7 +41,11 @@ export function useUsers() {
   });
 }
 
-// Example: Get single user
+/**
+ * Hook to fetch a single user by ID
+ * @param {string} id - User ID
+ * @returns {UseQueryResult<User>} Query result with user data
+ */
 export function useUser(id: string) {
   return useQuery({
     queryKey: ["users", id],
@@ -36,7 +54,10 @@ export function useUser(id: string) {
   });
 }
 
-// Example: Create user mutation
+/**
+ * Hook to create a new user
+ * @returns {UseMutationResult} Mutation result for user creation
+ */
 export function useCreateUser() {
   const queryClient = useQueryClient();
 
@@ -52,13 +73,18 @@ export function useCreateUser() {
   });
 }
 
-// Types (should be imported from shared types in real app)
+/**
+ * User data interface
+ */
 interface User {
   id: string;
   name: string;
   email: string;
 }
 
+/**
+ * User creation data transfer object
+ */
 interface CreateUserDto {
   name: string;
   email: string;

@@ -1,13 +1,15 @@
 /**
  * Service Registry for PrecastWidget
- * Extensible system for registering and managing service tests
+ * @module serviceRegistry
+ * @description Extensible system for registering and managing service tests
  */
 
 import { ServiceDefinition, PrecastConfig } from '../types';
 
 /**
  * Get all available services based on project configuration
- * This function dynamically builds the services list based on what's configured
+ * @param {PrecastConfig | null} precastConfig - Project configuration object
+ * @returns {Record<string, ServiceDefinition>} Map of service definitions
  */
 export function getAvailableServices(precastConfig: PrecastConfig | null): Record<string, ServiceDefinition> {
   const services: Record<string, ServiceDefinition> = {};
@@ -37,7 +39,7 @@ export function getAvailableServices(precastConfig: PrecastConfig | null): Recor
       category: 'infrastructure',
       testFunction: 'testDatabaseConnection',
       healthEndpoint: '/api/health/database',
-      port: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}},
+      port: {{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}},
     };
   }
   {{else}}
@@ -271,6 +273,8 @@ export function getAvailableServices(precastConfig: PrecastConfig | null): Recor
 
 /**
  * Get services grouped by category for organized display
+ * @param {Record<string, ServiceDefinition>} services - Services to group
+ * @returns {Record<string, ServiceDefinition[]>} Services grouped by category
  */
 export function getServicesByCategory(services: Record<string, ServiceDefinition>) {
   const categorized: Record<string, ServiceDefinition[]> = {
@@ -302,6 +306,8 @@ export function getServicesByCategory(services: Record<string, ServiceDefinition
 
 /**
  * Get the default active tab based on available services
+ * @param {Record<string, ServiceDefinition>} services - Available services
+ * @returns {string} Default service key to use as active tab
  */
 export function getDefaultActiveTab(services: Record<string, ServiceDefinition>): string {
   // Priority order for default tab

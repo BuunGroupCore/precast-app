@@ -1,0 +1,154 @@
+{{#if (eq framework "next")}}'use client';
+
+{{/if}}/**
+ * Authentication Modal Component
+ * @module AuthModal
+ * @description Modal dialog for login and signup forms with smooth animations
+ */
+
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
+import { LoginForm } from './LoginForm';
+import { SignupForm } from './SignupForm';
+
+/**
+ * Props for the AuthModal component
+ */
+interface AuthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  mode?: 'login' | 'signup';
+  onModeChange?: (mode: 'login' | 'signup') => void;
+  onLogin?: (email: string, password: string) => Promise<void>;
+  onSignup?: (email: string, password: string, name: string) => Promise<void>;
+  isLoading?: boolean;
+  error?: string | null;
+  showSocialLogin?: boolean;
+}
+
+/**
+ * Authentication modal with login/signup forms
+ * @param {AuthModalProps} props - Component props
+ * @returns {JSX.Element} Authentication modal component
+ */
+export function AuthModal({
+  isOpen,
+  onClose,
+  mode = 'login',
+  onModeChange,
+  onLogin,
+  onSignup,
+  isLoading = false,
+  error,
+  showSocialLogin = true
+}: AuthModalProps) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && !isLoading) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, isLoading, onClose]);
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget && !isLoading) {
+      onClose();
+    }
+  };
+
+  const handleModeSwitch = (newMode: 'login' | 'signup') => {
+    if (onModeChange) {
+      onModeChange(newMode);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={handleBackdropClick}
+        >
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", duration: 0.5 }}
+            className="relative w-full max-w-md"
+          >
+            <button
+              onClick={onClose}
+              disabled={isLoading}
+              className="absolute -top-2 -right-2 z-10 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg
+                       text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                       transition-all duration-200 hover:scale-110"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+              <AnimatePresence mode="wait">
+                {mode === 'login' ? (
+                  <motion.div
+                    key="login"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <LoginForm
+                      onSubmit={onLogin || (async () => {})}
+                      onSignupClick={() => handleModeSwitch('signup')}
+                      isLoading={isLoading}
+                      error={error}
+                      showSocialLogin={showSocialLogin}
+                      className="border-0 shadow-none"
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="signup"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <SignupForm
+                      onSubmit={onSignup || (async () => {})}
+                      onLoginClick={() => handleModeSwitch('login')}
+                      isLoading={isLoading}
+                      error={error}
+                      showSocialLogin={showSocialLogin}
+                      className="border-0 shadow-none"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}

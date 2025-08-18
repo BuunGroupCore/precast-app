@@ -1,0 +1,25 @@
+/**
+ * Drizzle Database Configuration
+ * @module drizzleConfig
+ * @description Configuration for Drizzle ORM database operations and migrations
+ */
+
+import { defineConfig } from 'drizzle-kit'
+import * as dotenv from 'dotenv'
+
+dotenv.config()
+
+export default defineConfig({
+  schema: './src/db/schema.ts',
+  out: './drizzle',
+  dialect: '{{#if (eq database "postgres")}}postgresql{{else if (eq database "mysql")}}mysql{{else if (eq database "sqlite")}}sqlite{{else}}postgresql{{/if}}',
+  dbCredentials: {
+    {{#if (eq database "sqlite")}}
+    url: process.env.DATABASE_URL || 'file:./dev.db',
+    {{else}}
+    url: process.env.DATABASE_URL!,
+    {{/if}}
+  },
+  verbose: true,
+  strict: true,
+})

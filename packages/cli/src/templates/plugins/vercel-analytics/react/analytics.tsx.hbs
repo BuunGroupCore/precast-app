@@ -1,4 +1,10 @@
 {{#if typescript}}
+/**
+ * Vercel Analytics Integration
+ * @module analytics
+ * @description Comprehensive Vercel Analytics integration with React hooks and utilities
+ */
+
 import React, { useEffect } from 'react';
 import { inject } from '@vercel/analytics';
 
@@ -7,15 +13,16 @@ interface AnalyticsConfig {
   debug?: boolean;
 }
 
-/**
- * Vercel Analytics Provider Component
- * Initializes Vercel Analytics for the entire application
- */
 interface AnalyticsProviderProps {
   children: React.ReactNode;
   config?: AnalyticsConfig;
 }
 
+/**
+ * Vercel Analytics provider component that initializes analytics for the entire application
+ * @param {AnalyticsProviderProps} props - Provider configuration
+ * @returns {JSX.Element} Provider wrapper component
+ */
 export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ 
   children, 
   config = {} 
@@ -23,7 +30,6 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
   const { enabled = true, debug = false } = config;
 
   useEffect(() => {
-    // Only inject analytics in production or if explicitly enabled
     const shouldInject = enabled && (process.env.NODE_ENV === 'production' || debug);
     
     if (shouldInject) {
@@ -40,10 +46,10 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
 
 /**
  * Hook for tracking custom events with Vercel Analytics
+ * @returns {Object} Analytics tracking functions
  */
 export const useAnalytics = () => {
   const track = (eventName: string, properties?: Record<string, any>) => {
-    // Check if analytics is available
     if (typeof window !== 'undefined' && (window as any).va) {
       try {
         (window as any).va('track', eventName, properties);
@@ -90,6 +96,8 @@ export const useAnalytics = () => {
 
 /**
  * Higher-order component for automatic page view tracking
+ * @param {React.ComponentType} WrappedComponent - Component to wrap
+ * @returns {React.ComponentType} Enhanced component with analytics
  */
 export function withAnalytics<P extends object>(
   WrappedComponent: React.ComponentType<P>
@@ -113,6 +121,8 @@ export function withAnalytics<P extends object>(
 
 /**
  * Component for tracking clicks on specific elements
+ * @param {TrackClickProps} props - Click tracking configuration
+ * @returns {React.ReactElement} Enhanced child element with click tracking
  */
 interface TrackClickProps {
   children: React.ReactElement;
@@ -131,14 +141,12 @@ export const TrackClick: React.FC<TrackClickProps> = ({
     return (event: React.MouseEvent) => {
       track(eventName, properties);
       
-      // Call original onClick handler if it exists
       if (originalOnClick) {
         originalOnClick();
       }
     };
   };
 
-  // Clone the child element and add our click handler
   const child = React.Children.only(children);
   return React.cloneElement(child, {
     onClick: handleClick(child.props.onClick),
@@ -146,7 +154,9 @@ export const TrackClick: React.FC<TrackClickProps> = ({
 };
 
 /**
- * Custom hook for tracking form submissions
+ * Custom hook for tracking form submissions and interactions
+ * @param {string} formName - Name identifier for the form
+ * @returns {Object} Form tracking functions
  */
 export const useFormAnalytics = (formName: string) => {
   const { track } = useAnalytics();
@@ -191,7 +201,6 @@ export const useFormAnalytics = (formName: string) => {
  * Utility functions for common tracking scenarios
  */
 export const analytics = {
-  // E-commerce tracking
   trackPurchase: (orderId: string, amount: number, currency = 'USD') => {
     if (typeof window !== 'undefined' && (window as any).va) {
       (window as any).va('track', 'purchase', {
@@ -202,7 +211,6 @@ export const analytics = {
     }
   },
 
-  // User engagement tracking
   trackVideoPlay: (videoId: string, duration?: number) => {
     if (typeof window !== 'undefined' && (window as any).va) {
       (window as any).va('track', 'video_play', {
@@ -212,7 +220,6 @@ export const analytics = {
     }
   },
 
-  // Content tracking
   trackDownload: (fileName: string, fileType: string) => {
     if (typeof window !== 'undefined' && (window as any).va) {
       (window as any).va('track', 'download', {
@@ -222,7 +229,6 @@ export const analytics = {
     }
   },
 
-  // Newsletter/signup tracking
   trackSignup: (method: string, source?: string) => {
     if (typeof window !== 'undefined' && (window as any).va) {
       (window as any).va('track', 'signup', {
@@ -233,45 +239,7 @@ export const analytics = {
   },
 };
 
-// Default export for easy import
 export default AnalyticsProvider;
-
-// Example usage:
-//
-// 1. Wrap your app with AnalyticsProvider:
-// import { AnalyticsProvider } from './analytics';
-//
-// function App() {
-//   return (
-//     <AnalyticsProvider config={{ enabled: true, debug: false }}>
-//       <YourAppContent />
-//     </AnalyticsProvider>
-//   );
-// }
-//
-// 2. Use the hook in components:
-// import { useAnalytics } from './analytics';
-//
-// function MyComponent() {
-//   const { track, trackClick } = useAnalytics();
-//   
-//   const handleButtonClick = () => {
-//     trackClick('hero-cta-button', { page: 'home' });
-//   };
-//   
-//   return <button onClick={handleButtonClick}>Get Started</button>;
-// }
-//
-// 3. Use TrackClick component for automatic tracking:
-// import { TrackClick } from './analytics';
-//
-// function MyComponent() {
-//   return (
-//     <TrackClick eventName="newsletter-signup" properties={{ source: 'header' }}>
-//       <button>Subscribe</button>
-//     </TrackClick>
-//   );
-// }
 {{else}}
 import React, { useEffect } from 'react';
 import { inject } from '@vercel/analytics';

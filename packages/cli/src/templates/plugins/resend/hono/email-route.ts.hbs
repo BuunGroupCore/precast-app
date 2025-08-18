@@ -1,3 +1,9 @@
+/**
+ * Email Service Routes for Hono
+ * @module emailRoutes
+ * @description Hono routes for email functionality using Resend
+ */
+
 import { Hono } from 'hono';
 import { validator } from 'hono/validator';
 import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendNotificationEmail } from '@/services/email';
@@ -106,37 +112,3 @@ emailApp.get('/email/health', (c) => {
 });
 
 export default emailApp;
-
-// Usage in your main app file:
-// import emailApp from './api/routes/email';
-// app.route('/api', emailApp);
-
-// Example API calls:
-// 
-// Welcome email:
-// POST /api/email
-// {
-//   "type": "welcome",
-//   "to": "user@example.com",
-//   "subject": "Welcome!",
-//   "name": "John Doe"
-// }
-//
-// Password reset email:
-// POST /api/email
-// {
-//   "type": "password-reset",
-//   "to": "user@example.com",
-//   "subject": "Reset Your Password", 
-//   "resetToken": "abc123",
-//   "resetUrl": "https://example.com/reset-password"
-// }
-//
-// Custom email:
-// POST /api/email
-// {
-//   "to": "user@example.com",
-//   "subject": "Custom Subject",
-//   "html": "<h1>Custom HTML Content</h1>",
-//   "text": "Custom text content"
-// }

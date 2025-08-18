@@ -1,9 +1,13 @@
+/**
+ * Email Service using Resend
+ * @module email-service
+ * @description Service for sending transactional emails via Resend API
+ */
+
 import { Resend } from 'resend';
 
-// Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Email configuration
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@yourdomain.com';
 
 export interface EmailOptions {
@@ -19,7 +23,9 @@ export interface EmailOptions {
 }
 
 /**
- * Send email using Resend
+ * Sends an email using the Resend service
+ * @param {EmailOptions} options - Email configuration options
+ * @returns {Promise<{success: boolean, id?: string}>} Email send result
  */
 export async function sendEmail({
   to,
@@ -54,7 +60,10 @@ export async function sendEmail({
 }
 
 /**
- * Send welcome email
+ * Sends a welcome email to new users
+ * @param {string} to - Recipient email address
+ * @param {string} name - User's name for personalization
+ * @returns {Promise<{success: boolean, id?: string}>} Email send result
  */
 export async function sendWelcomeEmail(to: string, name: string) {
   return sendEmail({
@@ -73,7 +82,11 @@ export async function sendWelcomeEmail(to: string, name: string) {
 }
 
 /**
- * Send password reset email
+ * Sends a password reset email with secure reset link
+ * @param {string} to - Recipient email address
+ * @param {string} resetToken - Secure reset token
+ * @param {string} resetUrl - Base URL for password reset
+ * @returns {Promise<{success: boolean, id?: string}>} Email send result
  */
 export async function sendPasswordResetEmail(to: string, resetToken: string, resetUrl: string) {
   return sendEmail({
@@ -99,7 +112,11 @@ export async function sendPasswordResetEmail(to: string, resetToken: string, res
 }
 
 /**
- * Send notification email
+ * Sends a general notification email
+ * @param {string} to - Recipient email address
+ * @param {string} title - Email subject/title
+ * @param {string} message - Email message content
+ * @returns {Promise<{success: boolean, id?: string}>} Email send result
  */
 export async function sendNotificationEmail(to: string, title: string, message: string) {
   return sendEmail({

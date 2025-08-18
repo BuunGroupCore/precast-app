@@ -1,0 +1,443 @@
+/**
+ * Authentication Hook for React Applications
+ * @module useAuth
+ * @description Provides authentication state management and methods for user auth operations
+ */
+
+{{#if (eq framework "next")}}'use client';
+
+{{/if}}import { useState, useEffect, useCallback } from 'react';
+
+/**
+ * User data structure
+ */
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  image?: string;
+}
+
+/**
+ * Authentication state structure
+ */
+export interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+  isAuthenticated: boolean;
+}
+
+/**
+ * Authentication actions interface
+ */
+export interface AuthActions {
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
+  checkAuth: () => Promise<void>;
+  clearError: () => void;
+}
+
+{{#if (eq authProvider "auth.js")}}
+/**
+ * Authentication hook for Auth.js provider
+ * @returns {AuthState & AuthActions} Combined auth state and action methods
+ */
+export function useAuth(): AuthState & AuthActions {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    error: null,
+    isAuthenticated: false,
+  });
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  /**
+   * Check current authentication status
+   */
+  const checkAuth = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const response = await fetch(`${apiUrl}/api/auth/get-session`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const session = await response.json();
+        if (session?.user) {
+          setState(prev => ({
+            ...prev,
+            user: session.user,
+            isAuthenticated: true,
+            isLoading: false,
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          }));
+        }
+      } else {
+        setState(prev => ({
+          ...prev,
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Authentication check failed',
+        isLoading: false,
+        user: null,
+        isAuthenticated: false,
+      }));
+    }
+  }, [apiUrl]);
+
+  /**
+   * Login with email and password
+   * @param {string} email - User email address
+   * @param {string} password - User password
+   */
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const response = await fetch(`${apiUrl}/api/auth/callback/credentials`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email,
+          password,
+          redirect: false,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && !result.error) {
+        await checkAuth();
+      } else {
+        setState(prev => ({
+          ...prev,
+          error: result.error || 'Login failed',
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Login failed',
+        isLoading: false,
+      }));
+    }
+  }, [apiUrl, checkAuth]);
+
+  /**
+   * Sign up new user
+   * @param {string} email - User email address
+   * @param {string} password - User password
+   * @param {string} name - User display name
+   */
+  const signup = useCallback(async (email: string, password: string, name: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const response = await fetch(`${apiUrl}/api/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // After successful signup, attempt to login
+        await login(email, password);
+      } else {
+        setState(prev => ({
+          ...prev,
+          error: result.error || 'Signup failed',
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Signup failed',
+        isLoading: false,
+      }));
+    }
+  }, [apiUrl, login]);
+
+  /**
+   * Logout current user
+   */
+  const logout = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      await fetch(`${apiUrl}/api/auth/signout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      setState({
+        user: null,
+        isLoading: false,
+        error: null,
+        isAuthenticated: false,
+      });
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Logout failed',
+        isLoading: false,
+      }));
+    }
+  }, [apiUrl]);
+
+  /**
+   * Clear current error state
+   */
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
+
+  // Check auth on mount
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  return {
+    ...state,
+    login,
+    signup,
+    logout,
+    checkAuth,
+    clearError,
+  };
+}
+
+{{else if (eq authProvider "better-auth")}}
+/**
+ * Authentication hook for Better Auth provider
+ * @returns {AuthState & AuthActions} Combined auth state and action methods
+ */
+export function useAuth(): AuthState & AuthActions {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    error: null,
+    isAuthenticated: false,
+  });
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  /**
+   * Check current authentication status
+   */
+  const checkAuth = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const response = await fetch(`${apiUrl}/api/auth/get-session`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.session?.user) {
+          setState(prev => ({
+            ...prev,
+            user: result.session.user,
+            isAuthenticated: true,
+            isLoading: false,
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          }));
+        }
+      } else {
+        setState(prev => ({
+          ...prev,
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Authentication check failed',
+        isLoading: false,
+        user: null,
+        isAuthenticated: false,
+      }));
+    }
+  }, [apiUrl]);
+
+  /**
+   * Login with email and password
+   * @param {string} email - User email address
+   * @param {string} password - User password
+   */
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const response = await fetch(`${apiUrl}/api/auth/sign-in/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.user) {
+        setState(prev => ({
+          ...prev,
+          user: result.user,
+          isAuthenticated: true,
+          isLoading: false,
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          error: result.error?.message || 'Login failed',
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Login failed',
+        isLoading: false,
+      }));
+    }
+  }, [apiUrl]);
+
+  /**
+   * Sign up new user
+   * @param {string} email - User email address
+   * @param {string} password - User password
+   * @param {string} name - User display name
+   */
+  const signup = useCallback(async (email: string, password: string, name: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const response = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.user) {
+        setState(prev => ({
+          ...prev,
+          user: result.user,
+          isAuthenticated: true,
+          isLoading: false,
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          error: result.error?.message || 'Signup failed',
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Signup failed',
+        isLoading: false,
+      }));
+    }
+  }, [apiUrl]);
+
+  /**
+   * Logout current user
+   */
+  const logout = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      await fetch(`${apiUrl}/api/auth/sign-out`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      setState({
+        user: null,
+        isLoading: false,
+        error: null,
+        isAuthenticated: false,
+      });
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Logout failed',
+        isLoading: false,
+      }));
+    }
+  }, [apiUrl]);
+
+  /**
+   * Clear current error state
+   */
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
+
+  // Check auth on mount
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  return {
+    ...state,
+    login,
+    signup,
+    logout,
+    checkAuth,
+    clearError,
+  };
+}
+{{/if}}

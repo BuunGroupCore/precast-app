@@ -1,8 +1,16 @@
+/**
+ * Axios API Client Configuration
+ * @module apiClient
+ * @description HTTP client for API operations using Axios with interceptors and error handling
+ */
+
 import axios from "axios";
 
 const API_URL = process.env.{{#if (eq framework "next")}}NEXT_PUBLIC_{{/if}}API_URL || "http://localhost:3001";
 
-// Create axios instance with default config
+/**
+ * Axios instance with default configuration
+ */
 export const apiClient = axios.create({
   baseURL: API_URL,
   timeout: 10000,
@@ -11,7 +19,9 @@ export const apiClient = axios.create({
   },
 });
 
-// Request interceptor
+/**
+ * Request interceptor to add authentication token
+ */
 apiClient.interceptors.request.use(
   (config) => {
     // Add auth token if available
@@ -26,7 +36,9 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
+/**
+ * Response interceptor for error handling and token management
+ */
 apiClient.interceptors.response.use(
   (response) => {
     return response;
@@ -41,9 +53,13 @@ apiClient.interceptors.response.use(
   }
 );
 
-// API methods
+/**
+ * API service methods for common operations
+ */
 export const api = {
-  // Users
+  /**
+   * User management endpoints
+   */
   getUsers: () => apiClient.get("/api/users"),
   getUser: (id: string) => apiClient.get(`/api/users/${id}`),
   createUser: (data: any) => apiClient.post("/api/users", data),

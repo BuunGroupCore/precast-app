@@ -286,8 +286,8 @@ export async function gatherProjectConfig(
   }
 
   let deploymentMethod: string | undefined;
-  if (options.deployment) {
-    deploymentMethod = options.deployment;
+  if (options.deploymentMethod) {
+    deploymentMethod = options.deploymentMethod;
   } else if (!options.yes) {
     const deploymentOptions = Object.values(DEPLOYMENT_CONFIGS)
       .filter((config) => !config.disabled)

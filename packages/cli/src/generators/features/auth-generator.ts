@@ -64,6 +64,10 @@ const authProviders: Record<string, AuthProvider> = {
       "express",
       "hono",
       "fastify",
+      "tanstack-router",
+      "tanstack-start",
+      "react-router",
+      "vite",
     ],
     sessionStrategy: "both",
   },
@@ -76,7 +80,7 @@ const authProviders: Record<string, AuthProvider> = {
     envVariables: [
       "BETTER_AUTH_SECRET",
       "BETTER_AUTH_URL",
-      "BETTER_AUTH_DATABASE_URL",
+      "DATABASE_URL",
       "GITHUB_CLIENT_ID",
       "GITHUB_CLIENT_SECRET",
       "GOOGLE_CLIENT_ID",
@@ -270,6 +274,35 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
     provider.devPackages?.[packageFramework] || provider.devPackages?.all || [];
   devPackages.push(...frameworkDevPackages);
 
+  // Add ORM-specific adapters for auth.js
+  if (provider.id === "auth.js" && config.orm === "drizzle") {
+    packages.push("@auth/drizzle-adapter");
+  }
+
+  // Add database drivers for Better Auth when no ORM is used
+  if (provider.id === "better-auth" && config.orm === "none" && config.database !== "none") {
+    if (config.database === "postgres") {
+      packages.push("pg");
+      if (config.typescript) {
+        devPackages.push("@types/pg");
+      }
+    } else if (config.database === "mysql") {
+      packages.push("mysql2");
+    } else if (config.database === "sqlite") {
+      packages.push("better-sqlite3");
+      if (config.typescript) {
+        devPackages.push("@types/better-sqlite3");
+      }
+    }
+  }
+
+  // Add ORM adapters for Better Auth
+  if (provider.id === "better-auth" && config.orm === "prisma") {
+    packages.push("@prisma/client");
+  } else if (provider.id === "better-auth" && config.orm === "drizzle") {
+    // Drizzle should already be installed with the ORM setup
+  }
+
   if (config.typescript) {
     if (provider.id === "auth.js" && config.framework === "next") {
       devPackages.push("@types/next-auth");
@@ -319,17 +352,29 @@ async function copyAuthTemplates(
   const templateRoot = getTemplateRoot();
   const templateEngine = createTemplateEngine(templateRoot);
 
-  const authTemplateDir = `auth/${provider.id}`;
+  // Map provider.id to actual template directory name
+  const templateDirName = provider.id === "auth.js" ? "authjs" : provider.id;
+  const authTemplateDir = `auth/${templateDirName}`;
 
-  const frameworkAuthDir = `${authTemplateDir}/${config.framework}`;
+  // For auth.js with Next.js + separate backend, we need special handling
+  const isMonorepoWithSeparateBackend =
+    config.backend && config.backend !== "none" && config.backend !== "next-api";
+  const isNextWithSeparateBackend = config.framework === "next" && isMonorepoWithSeparateBackend;
+
   const genericAuthDir = authTemplateDir;
+  // Don't use Next.js specific templates if we have a separate backend
+  const frameworkAuthDir =
+    provider.id === "auth.js" && isNextWithSeparateBackend
+      ? genericAuthDir
+      : `${authTemplateDir}/${config.framework}`;
 
   const templatesExist = await templateEngine
     .getAvailableTemplates(authTemplateDir)
     .then((dirs: string[]) => dirs.includes(config.framework))
     .catch(() => false);
 
-  const sourceDir = templatesExist ? frameworkAuthDir : genericAuthDir;
+  const sourceDir =
+    templatesExist && !isNextWithSeparateBackend ? frameworkAuthDir : genericAuthDir;
 
   const authDestination = getAuthDestination(config);
 
@@ -350,12 +395,37 @@ async function copyAuthTemplates(
       database: config.database || "none",
     };
 
-    if (templatesExist) {
+    // For Next.js with separate backend, skip framework-specific templates
+    // We'll handle the auth setup via the backend route instead
+    if (templatesExist && !isNextWithSeparateBackend) {
       await templateEngine.copyTemplateDirectory(
         sourceDir,
         path.join(config.projectPath, authDestination),
         authContext
       );
+    }
+
+    // Special handling for Next.js middleware in monorepo
+    if (provider.id === "auth.js" && config.framework === "next" && isMonorepoWithSeparateBackend) {
+      // Copy middleware.ts to the web app root
+      const middlewareTemplatePath = path.join(
+        templateRoot,
+        `${authTemplateDir}/next/middleware.ts.hbs`
+      );
+      if (await pathExists(middlewareTemplatePath)) {
+        const middlewareDestPath = path.join(config.projectPath, "apps/web/src/middleware.ts");
+        // Only process if file doesn't exist or overwrite option is set
+        if (!(await pathExists(middlewareDestPath))) {
+          await templateEngine.processTemplate(
+            `${authTemplateDir}/next/middleware.ts.hbs`,
+            middlewareDestPath,
+            authContext
+          );
+          logger.verbose("✓ Created Next.js middleware for auth");
+        } else {
+          logger.verbose("⚠️  Middleware.ts already exists, skipping");
+        }
+      }
     }
     const genericAuthPath = path.join(templateRoot, genericAuthDir);
     if (await pathExists(genericAuthPath)) {
@@ -364,6 +434,21 @@ async function copyAuthTemplates(
       for (const file of files) {
         if (file.isFile() && file.name.endsWith(".hbs")) {
           const fileName = file.name.replace(".hbs", "");
+
+          // Skip auth-client for backend destinations (it's for frontend)
+          const isMonorepo =
+            config.backend && config.backend !== "none" && config.backend !== "next-api";
+          if (fileName.includes("auth-client") && isMonorepo) {
+            // Copy auth-client to the web app instead
+            const webDestPath = path.join(config.projectPath, "apps/web/src/lib", fileName);
+            await templateEngine.processTemplate(
+              `${genericAuthDir}/${file.name}`,
+              webDestPath,
+              authContext
+            );
+            continue;
+          }
+
           const isTypeScriptFile = fileName.endsWith(".ts") || fileName.endsWith(".tsx");
 
           if (!config.typescript && isTypeScriptFile) {
@@ -390,13 +475,15 @@ async function copyAuthTemplates(
     ) {
       const backendRoutePath = path.join(
         templateRoot,
-        `${genericAuthDir}/${config.backend}/auth-route.ts.hbs`
+        `${genericAuthDir}/${config.backend}/routes.ts.hbs`
       );
       if (await pathExists(backendRoutePath)) {
-        const routeDestination = path.join(config.projectPath, "apps/api/src/api/routes");
+        // Routes go to features/auth/routes.ts for consistency
+        const routeDestination = path.join(config.projectPath, "apps/api/src/features/auth");
+        await ensureDir(routeDestination);
         await templateEngine.processTemplate(
-          `${genericAuthDir}/${config.backend}/auth-route.ts.hbs`,
-          path.join(routeDestination, "auth.ts"),
+          `${genericAuthDir}/${config.backend}/routes.ts.hbs`,
+          path.join(routeDestination, "routes.ts"),
           authContext
         );
         logger.verbose(`✓ Created ${provider.name} route handler for ${config.backend}`);
@@ -468,8 +555,10 @@ async function copyAuthTemplates(
 function getAuthDestination(config: ProjectConfig & { authProvider?: string }): string {
   const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
 
+  // For auth.js in a monorepo, auth config goes to the API under features/auth
+  // Routes will be handled separately
   if ((config.authProvider === "better-auth" || config.authProvider === "auth.js") && isMonorepo) {
-    return "apps/api/src/lib";
+    return "apps/api/src/features/auth";
   }
 
   switch (config.framework) {
@@ -480,14 +569,18 @@ function getAuthDestination(config: ProjectConfig & { authProvider?: string }): 
     case "solid":
     case "svelte":
     case "react-router":
+    case "tanstack-router":
+    case "tanstack-start":
+    case "vite":
       if (config.authProvider === "better-auth" && isMonorepo) {
-        return "apps/api/src/lib";
+        return "apps/api/src/features/auth";
       }
       return isMonorepo ? "apps/web/src/lib" : "src/lib";
     case "express":
     case "fastify":
     case "node":
-      return isMonorepo ? "apps/api/src/lib" : "src/lib";
+      // For backend-only projects, use features/auth
+      return isMonorepo ? "apps/api/src/features/auth" : "src/features/auth";
     default:
       return isMonorepo ? "apps/web/src/lib" : "src/lib";
   }

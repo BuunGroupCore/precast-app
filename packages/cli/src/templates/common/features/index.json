@@ -1,0 +1,123 @@
+{
+  "features": [
+    {
+      "id": "auth-components",
+      "name": "Authentication Components",
+      "description": "Beautiful, modern auth components with login/signup forms, modals, and complete auth flow",
+      "version": "1.0.0",
+      "category": "authentication",
+      "tags": ["auth", "login", "signup", "forms", "ui", "components"],
+      "dependencies": {
+        "required": ["react", "framer-motion", "lucide-react", "react-icons"],
+        "optional": ["tailwindcss"],
+        "peer": []
+      },
+      "supportedFrameworks": [
+        "react",
+        "next",
+        "remix",
+        "vite",
+        "tanstack-router",
+        "tanstack-start"
+      ],
+      "supportedBackends": ["express", "hono", "fastify", "nest", "none"],
+      "supportedAuthProviders": ["auth.js", "better-auth"],
+      "requirements": {
+        "framework": "react-based",
+        "styling": "tailwindcss",
+        "typescript": true
+      },
+      "files": {
+        "components": [
+          "features/auth/components/LoginForm.tsx",
+          "features/auth/components/SignupForm.tsx",
+          "features/auth/components/AuthButton.tsx",
+          "features/auth/components/SocialLogin.tsx",
+          "features/auth/components/AuthModal.tsx",
+          "features/auth/components/AuthExample.tsx"
+        ],
+        "hooks": ["features/auth/hooks/useAuth.ts"],
+        "providers": ["features/auth/AuthProvider.tsx"],
+        "exports": ["features/auth/index.ts"]
+      },
+      "installation": {
+        "postInstall": [
+          "npm install framer-motion lucide-react react-icons",
+          "Add AuthProvider to your app root",
+          "Import auth components where needed"
+        ],
+        "examples": [
+          "import { AuthExample } from '@/features/auth';",
+          "import { LoginForm, SignupForm } from '@/features/auth';"
+        ]
+      },
+      "documentation": {
+        "readme": "features/auth/README.md",
+        "examples": "features/auth/examples/",
+        "api": "features/auth/docs/api.md"
+      }
+    },
+    {
+      "id": "dashboard-components",
+      "name": "Dashboard Components",
+      "description": "Modern dashboard with charts, tables, and analytics components",
+      "version": "1.0.0",
+      "category": "dashboard",
+      "tags": ["dashboard", "charts", "analytics", "tables", "ui"],
+      "dependencies": {
+        "required": ["react", "recharts", "lucide-react"],
+        "optional": ["tailwindcss"]
+      },
+      "supportedFrameworks": ["react", "next", "remix", "vite"],
+      "status": "planned"
+    },
+    {
+      "id": "payment-components",
+      "name": "Payment Components",
+      "description": "Stripe integration with payment forms and subscription management",
+      "version": "1.0.0",
+      "category": "payments",
+      "tags": ["payments", "stripe", "checkout", "subscriptions"],
+      "dependencies": {
+        "required": ["react", "@stripe/stripe-js", "@stripe/react-stripe-js"]
+      },
+      "supportedFrameworks": ["react", "next", "remix"],
+      "status": "planned"
+    }
+  ],
+  "categories": [
+    {
+      "id": "authentication",
+      "name": "Authentication",
+      "description": "User authentication and authorization components"
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "description": "Data visualization and admin interface components"
+    },
+    {
+      "id": "payments",
+      "name": "Payments",
+      "description": "Payment processing and subscription management"
+    },
+    {
+      "id": "ui",
+      "name": "UI Components",
+      "description": "Reusable user interface components"
+    },
+    {
+      "id": "utils",
+      "name": "Utilities",
+      "description": "Helper functions and utility components"
+    }
+  ],
+  "compatibility": {
+    "frameworkAliases": {
+      "react-based": ["react", "next", "remix", "vite", "tanstack-router", "tanstack-start"],
+      "vue-based": ["vue", "nuxt"],
+      "svelte-based": ["svelte", "sveltekit"]
+    },
+    "packageManagerSupport": ["npm", "yarn", "pnpm", "bun"]
+  }
+}

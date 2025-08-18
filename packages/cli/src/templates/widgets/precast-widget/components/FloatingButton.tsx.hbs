@@ -1,6 +1,7 @@
 /**
  * FloatingButton Component
- * Extracted from PrecastWidget - exact copy of floating button UI
+ * @module FloatingButton
+ * @description Floating toggle button for the Precast validation panel
  */
 
 import React from 'react';
@@ -12,8 +13,9 @@ interface FloatingButtonProps {
 }
 
 /**
- * Floating Button Component
- * Exact copy from original PrecastWidget (lines 1075-1095)
+ * Floating action button to toggle the Precast validation panel
+ * @param {FloatingButtonProps} props - Component props
+ * @returns {JSX.Element|null} Button element or null when panel is open
  */
 export function FloatingButton({ isOpen, onToggle }: FloatingButtonProps) {
   if (isOpen) return null;
@@ -30,7 +32,6 @@ export function FloatingButton({ isOpen, onToggle }: FloatingButtonProps) {
           alt="Precast" 
           className="{{#if (eq styling 'tailwind')}}w-full h-full object-contain{{else}}logo-img{{/if}}"
           onError={(e) => {
-            // Fallback to geometric icon if logo fails to load
             e.currentTarget.style.display = 'none';
             e.currentTarget.nextElementSibling?.classList.remove('hidden');
           }}

@@ -11,3 +11,4 @@ export { Skeleton } from "./SkeletonLoader";
 export { SkeletonComponents } from "./SkeletonComponents";
 export { ProgressBar, IndeterminateProgressBar } from "./ProgressBar";
 export { GlobalLoadingIndicator, GlobalProgressBar } from "./GlobalLoadingIndicator";
+export { ComicLoadingAnimation, ComicLoadingScreen } from "./ComicLoadingAnimation";

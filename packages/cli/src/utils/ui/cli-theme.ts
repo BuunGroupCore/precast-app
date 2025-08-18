@@ -4,7 +4,7 @@ import figlet from "figlet";
 import gradient from "gradient-string";
 import terminalLink from "terminal-link";
 
-// Define our color theme (matching Precast brand) with explicit typing to avoid export issues
+// Comic Book Theme - Bold, vibrant colors matching website design
 export const theme: {
   primary: ChalkInstance;
   secondary: ChalkInstance;
@@ -16,6 +16,11 @@ export const theme: {
   muted: ChalkInstance;
   bold: ChalkInstance;
   dim: ChalkInstance;
+  // Comic book special colors
+  pow: ChalkInstance;
+  bam: ChalkInstance;
+  zap: ChalkInstance;
+  boom: ChalkInstance;
   gradient: {
     precast: (text: string) => string;
     rainbow: (text: string) => string;
@@ -26,69 +31,53 @@ export const theme: {
     retro: (text: string) => string;
   };
 } = {
-  // Brand colors
-  primary: chalk.hex("#FF6B6B"),
-  secondary: chalk.hex("#4ECDC4"),
-  accent: chalk.hex("#FFE66D"),
+  // Comic Book Brand Colors - Solid and Bold
+  primary: chalk.hex("#ff1744"), // Comic Red
+  secondary: chalk.hex("#2962ff"), // Comic Blue
+  accent: chalk.hex("#ffd600"), // Comic Yellow
 
-  // Status colors
-  success: chalk.green,
-  error: chalk.red,
-  warning: chalk.yellow,
-  info: chalk.cyan,
+  // Status colors - More vibrant
+  success: chalk.hex("#00e676"), // Comic Green
+  error: chalk.hex("#ff1744"), // Comic Red
+  warning: chalk.hex("#ffd600"), // Comic Yellow
+  info: chalk.hex("#2962ff"), // Comic Blue
 
   // Text colors
-  muted: chalk.gray,
+  muted: chalk.hex("#9e9e9e"),
   bold: chalk.bold,
   dim: chalk.dim,
 
-  // Gradients
+  // Comic book special effects
+  pow: chalk.hex("#ffd600").bold, // POW! Yellow
+  bam: chalk.hex("#ff1744").bold, // BAM! Red
+  zap: chalk.hex("#00e676").bold, // ZAP! Green
+  boom: chalk.hex("#aa00ff").bold, // BOOM! Purple
+
+  // Gradients - create functions that return gradient instances
   gradient: {
-    precast: gradient(["#FF6B6B", "#4ECDC4", "#FFE66D"]),
-    rainbow: gradient([
-      "#ff0000",
-      "#ff8000",
-      "#ffff00",
-      "#80ff00",
-      "#00ff00",
-      "#00ff80",
-      "#00ffff",
-      "#0080ff",
-      "#0000ff",
-      "#8000ff",
-      "#ff00ff",
-      "#ff0080",
-    ]),
-    cool: gradient(["#667eea", "#764ba2"]),
-    warm: gradient(["#f093fb", "#f5576c"]),
-    vice: gradient(["#4ECDC4", "#44A08D"]),
-    fire: gradient(["#ff512f", "#dd2476"]),
-    retro: gradient(["#3f5efb", "#fc466b"]),
+    precast: (text: string) => gradient(["#FF6B6B", "#4ECDC4", "#FFE66D"])(text),
+    rainbow: (text: string) =>
+      gradient([
+        "#ff0000",
+        "#ff8000",
+        "#ffff00",
+        "#80ff00",
+        "#00ff00",
+        "#00ff80",
+        "#00ffff",
+        "#0080ff",
+        "#0000ff",
+        "#8000ff",
+        "#ff00ff",
+        "#ff0080",
+      ])(text),
+    cool: (text: string) => gradient(["#667eea", "#764ba2"])(text),
+    warm: (text: string) => gradient(["#f093fb", "#f5576c"])(text),
+    vice: (text: string) => gradient(["#4ECDC4", "#44A08D"])(text),
+    fire: (text: string) => gradient(["#ff512f", "#dd2476"])(text),
+    retro: (text: string) => gradient(["#3f5efb", "#fc466b"])(text),
   },
 };
-
-/**
- * Create ASCII art title with figlet
- */
-export async function createAsciiTitle(text: string, font?: figlet.Fonts): Promise<string> {
-  return new Promise((resolve, reject) => {
-    figlet.text(
-      text,
-      {
-        font: font || "ANSI Shadow",
-        horizontalLayout: "default",
-        verticalLayout: "default",
-      },
-      (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data || "");
-        }
-      }
-    );
-  });
-}
 
 /**
  * Create a small ASCII art title
@@ -318,6 +307,49 @@ export const arrowSpinner = ["←", "↖", "↑", "↗", "→", "↘", "↓", "�
 export const modernSpinner = ["○", "◔", "◐", "◕"];
 export const progressSpinner = ["◯", "◔", "◐", "◕"];
 
+// New advanced spinners
+export const pulseSpinner = ["◯", "⬤", "◯", "○"];
+export const growSpinner = ["▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"];
+export const waveSpinner = [
+  "▉▊▋▌▍▎▏ ",
+  "▊▋▌▍▎▏ ▉",
+  "▋▌▍▎▏ ▉▊",
+  "▌▍▎▏ ▉▊▋",
+  "▍▎▏ ▉▊▋▌",
+  "▎▏ ▉▊▋▌▍",
+  "▏ ▉▊▋▌▍▎",
+  " ▉▊▋▌▍▎▏",
+];
+export const orbitSpinner = ["◐", "◓", "◑", "◒"];
+export const bouncingBarSpinner = [
+  "[    ]",
+  "[=   ]",
+  "[==  ]",
+  "[=== ]",
+  "[====]",
+  "[ ===]",
+  "[  ==]",
+  "[   =]",
+  "[    ]",
+];
+export const boxSpinner = ["◰", "◳", "◲", "◱"];
+export const arcSpinner = ["◜", "◠", "◝", "◞", "◡", "◟"];
+export const moonSpinner = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
+export const clockSpinner = [
+  "🕐",
+  "🕑",
+  "🕒",
+  "🕓",
+  "🕔",
+  "🕕",
+  "🕖",
+  "🕗",
+  "🕘",
+  "🕙",
+  "🕚",
+  "🕛",
+];
+
 /**
  * Clean status symbols and decorations
  */
@@ -376,20 +408,6 @@ export function speechBubble(text: string): string {
 }
 
 /**
- * Create a hero banner for commands
- */
-export async function createHeroBanner(title: string, subtitle?: string): Promise<string> {
-  const asciiTitle = await createAsciiTitle(title);
-  const gradientTitle = theme.gradient.precast(asciiTitle);
-
-  if (subtitle) {
-    return `${gradientTitle}\n${theme.dim(subtitle)}`;
-  }
-
-  return gradientTitle;
-}
-
-/**
  * Create status messages with clean symbols
  */
 export function status(type: keyof typeof statusSymbols, message: string): string {
@@ -423,4 +441,154 @@ export function progressIndicator(completed: number, total: number): string {
 
   const bar = "●".repeat(filled) + "○".repeat(empty);
   return `${theme.primary(bar)} ${theme.bold(`${percentage}%`)} (${completed}/${total})`;
+}
+
+/**
+ * Create an animated gradient text effect
+ */
+export function animatedGradientText(
+  text: string,
+  type: keyof typeof theme.gradient = "precast"
+): string {
+  return theme.gradient[type](text);
+}
+
+/**
+ * Create a beautiful loading bar with gradient
+ */
+export function gradientProgressBar(current: number, total: number, width: number = 30): string {
+  const percentage = Math.round((current / total) * 100);
+  const filled = Math.round((current / total) * width);
+  const empty = width - filled;
+
+  const filledChars = "█".repeat(filled);
+  const emptyChars = "░".repeat(empty);
+
+  const coolGradient = gradient(["#667eea", "#764ba2"]);
+  const gradientBar = coolGradient(filledChars) + theme.dim(emptyChars);
+  return `${gradientBar} ${theme.bold(`${percentage}%`)}`;
+}
+
+/**
+ * Create a multi-color status indicator
+ */
+export function multiColorStatus(
+  statuses: Array<{ label: string; value: string; color: "success" | "error" | "warning" | "info" }>
+): string {
+  return statuses
+    .map(({ label, value, color }) => {
+      const colorFn = theme[color];
+      return `${theme.muted(label + ":")} ${colorFn(value)}`;
+    })
+    .join(" │ ");
+}
+
+/**
+ * Create an animated wave effect for text
+ */
+export function waveText(text: string, frame: number = 0): string {
+  const chars = text.split("");
+  const waveHeight = 2;
+  const waveLength = 8;
+
+  return chars
+    .map((char, index) => {
+      const offset = Math.sin((index + frame) * ((2 * Math.PI) / waveLength)) * waveHeight;
+      const brightness = Math.round(128 + offset * 64);
+      return chalk.rgb(brightness, brightness, 255)(char);
+    })
+    .join("");
+}
+
+/**
+ * Create a pulsing text effect
+ */
+export function pulsingText(text: string, frame: number = 0): string {
+  const brightness = Math.round(128 + Math.sin(frame * 0.1) * 127);
+  return chalk.rgb(brightness, brightness, brightness)(text);
+}
+
+/**
+ * Create a beautiful border with gradient
+ */
+export function gradientBorder(
+  width: number = 60,
+  style: "single" | "double" | "thick" = "single"
+): string {
+  const borders = {
+    single: "─",
+    double: "═",
+    thick: "━",
+  };
+
+  const border = borders[style].repeat(width);
+  return theme.gradient.rainbow(border);
+}
+
+/**
+ * Create a stylized task status with animation
+ */
+export function animatedTaskStatus(
+  status: "pending" | "running" | "completed" | "failed",
+  frame: number = 0
+): string {
+  switch (status) {
+    case "pending":
+      return theme.dim("○ Waiting...");
+    case "running": {
+      const spinner = spinnerFrames[frame % spinnerFrames.length];
+      return theme.info(`${spinner} Processing...`);
+    }
+    case "completed":
+      return theme.success("✓ Complete");
+    case "failed":
+      return theme.error("✗ Failed");
+    default:
+      return "";
+  }
+}
+
+/**
+ * Create a beautiful section header with decorations
+ */
+export function decoratedHeader(title: string, width: number = 60): string {
+  const decorLeft = "◆◇◆";
+  const decorRight = "◆◇◆";
+  const titleWithSpaces = ` ${title} `;
+  const remainingWidth = width - decorLeft.length - decorRight.length - titleWithSpaces.length;
+  const leftPadding = "─".repeat(Math.floor(remainingWidth / 2));
+  const rightPadding = "─".repeat(Math.ceil(remainingWidth / 2));
+
+  const coolGradient = gradient(["#667eea", "#764ba2"]);
+  return coolGradient(
+    `${decorLeft}${leftPadding}${theme.bold(titleWithSpaces)}${rightPadding}${decorRight}`
+  );
+}
+
+/**
+ * Create a matrix-style falling text effect
+ */
+export function matrixText(text: string, frame: number = 0): string {
+  const chars = text.split("");
+  return chars
+    .map((char, index) => {
+      const brightness = Math.random() > 0.9 ? 255 : Math.round(64 + Math.random() * 128);
+      return chalk.rgb(0, brightness, 0)(char);
+    })
+    .join("");
+}
+
+/**
+ * Create a beautiful completion animation
+ */
+export function completionAnimation(message: string, frame: number = 0): string {
+  const checkFrames = [" ", ".", "o", "O", "✓"];
+  const currentFrame = Math.min(frame, checkFrames.length - 1);
+  const check = checkFrames[currentFrame];
+
+  if (currentFrame === checkFrames.length - 1) {
+    return theme.success(`${check} ${message}`);
+  }
+
+  return theme.info(`${check} ${message}`);
 }

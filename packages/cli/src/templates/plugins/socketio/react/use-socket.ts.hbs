@@ -1,14 +1,23 @@
+/**
+ * Socket.io React Hooks
+ * @module use-socket
+ * @description Collection of React hooks for Socket.io integration
+ */
+
 import { useEffect, useCallback, useRef } from 'react';
 import { useSocketContext } from '../providers/SocketProvider';
 
 /**
- * Hook for using Socket.io in React components
+ * Main hook for Socket.io operations in React components
+ * @returns {Object} Socket utilities and connection state
  */
 export const useSocket = () => {
   const { socket, isConnected } = useSocketContext();
 
   /**
-   * Emit an event to the server
+   * Emits an event to the server
+   * @param {string} event - Event name
+   * @param {any} data - Data to send
    */
   const emit = useCallback((event: string, data?: any) => {
     if (socket && isConnected) {
@@ -19,13 +28,15 @@ export const useSocket = () => {
   }, [socket, isConnected]);
 
   /**
-   * Listen to an event from the server
+   * Listens to an event from the server
+   * @param {string} event - Event name
+   * @param {Function} handler - Event handler function
+   * @returns {Function} Cleanup function to remove listener
    */
   const on = useCallback((event: string, handler: (...args: any[]) => void) => {
     if (socket) {
       socket.on(event, handler);
       
-      // Return cleanup function
       return () => {
         socket.off(event, handler);
       };
@@ -34,7 +45,9 @@ export const useSocket = () => {
   }, [socket]);
 
   /**
-   * Listen to an event once
+   * Listens to an event once
+   * @param {string} event - Event name
+   * @param {Function} handler - Event handler function
    */
   const once = useCallback((event: string, handler: (...args: any[]) => void) => {
     if (socket) {
@@ -43,7 +56,9 @@ export const useSocket = () => {
   }, [socket]);
 
   /**
-   * Remove event listener
+   * Removes event listener
+   * @param {string} event - Event name
+   * @param {Function} handler - Optional specific handler to remove
    */
   const off = useCallback((event: string, handler?: (...args: any[]) => void) => {
     if (socket) {
@@ -66,13 +81,15 @@ export const useSocket = () => {
 };
 
 /**
- * Hook for listening to socket events with cleanup
+ * Hook for listening to socket events with automatic cleanup
+ * @param {string} event - Event name to listen to
+ * @param {Function} handler - Event handler function
+ * @param {any[]} deps - Dependency array for effect
  */
 export const useSocketEvent = (event: string, handler: (...args: any[]) => void, deps: any[] = []) => {
   const { socket } = useSocketContext();
   const handlerRef = useRef(handler);
 
-  // Update handler ref when it changes
   useEffect(() => {
     handlerRef.current = handler;
   }, [handler]);
@@ -93,7 +110,9 @@ export const useSocketEvent = (event: string, handler: (...args: any[]) => void,
 };
 
 /**
- * Hook for joining and leaving rooms
+ * Hook for managing socket room membership
+ * @param {string} roomName - Name of the room to join/leave
+ * @returns {Object} Room management functions
  */
 export const useSocketRoom = (roomName: string) => {
   const { emit } = useSocket();
@@ -123,6 +142,8 @@ export const useSocketRoom = (roomName: string) => {
 
 /**
  * Hook for real-time chat functionality
+ * @param {string} roomId - Optional room ID for scoped chat
+ * @returns {Object} Chat utilities and event handlers
  */
 export const useChat = (roomId?: string) => {
   const { emit, on, off } = useSocket();
@@ -161,6 +182,7 @@ export const useChat = (roomId?: string) => {
 
 /**
  * Hook for real-time notifications
+ * @returns {Object} Notification event handlers
  */
 export const useNotifications = () => {
   const { on } = useSocket();

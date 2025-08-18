@@ -1,6 +1,7 @@
 /**
  * Payment Service Testing Module
- * Tests Stripe and other payment services
+ * @module paymentService
+ * @description Tests Stripe and other payment services
  */
 
 import { TestResult, ServiceTestContext } from '../types';
@@ -8,6 +9,9 @@ import { TestResult, ServiceTestContext } from '../types';
 {{#if (includes plugins 'stripe')}}
 /**
  * Test Stripe payment service
+ * @param {(updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void} setLoading - Loading state setter
+ * @param {(service: string, result: Omit<TestResult, "timestamp">) => void} addTestResult - Test result handler
+ * @param {string} apiUrl - API base URL
  */
 export const testPaymentService = async (
   setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
@@ -55,6 +59,8 @@ export const testPaymentService = async (
 
 /**
  * Simplified payment test for service registry
+ * @param {ServiceTestContext} context - Test context with API URL and headers
+ * @returns {Promise<TestResult>} Test result
  */
 export const testPaymentServiceSimple = async (context: ServiceTestContext): Promise<TestResult> => {
   try {
@@ -97,6 +103,7 @@ export const testPaymentServiceSimple = async (context: ServiceTestContext): Pro
 
 /**
  * Check if payment service is available
+ * @returns {boolean} True if payment service is configured
  */
 export const isPaymentServiceAvailable = (): boolean => {
   return true; // Payment service is available when Stripe plugin is configured

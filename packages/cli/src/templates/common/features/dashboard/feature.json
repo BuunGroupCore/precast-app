@@ -1,0 +1,80 @@
+{
+  "id": "dashboard",
+  "name": "Admin Dashboard",
+  "version": "1.0.0",
+  "description": "Beautiful admin dashboard with charts, tables, and analytics components",
+  "category": "dashboard",
+  "tags": ["admin", "analytics", "charts", "tables", "responsive"],
+  "status": "beta",
+  "author": "Precast Team",
+  "license": "MIT",
+  "compatibility": {
+    "frameworks": ["react", "next", "vue", "nuxt", "angular"],
+    "styling": ["tailwind", "css"],
+    "uiLibraries": ["shadcn", "daisyui", "mui", "chakra"],
+    "typescript": true
+  },
+  "dependencies": {
+    "required": {
+      "recharts": "^2.8.0",
+      "lucide-react": "^0.294.0",
+      "date-fns": "^2.30.0"
+    },
+    "optional": {
+      "framer-motion": "^10.16.4",
+      "@tanstack/react-table": "^8.10.7"
+    }
+  },
+  "detection": {
+    "requiredFiles": ["package.json"],
+    "frameworkDetection": {
+      "react": ["src/App.tsx", "src/App.jsx", "src/main.tsx", "src/main.jsx"],
+      "next": ["next.config.js", "app/layout.tsx", "pages/_app.tsx"],
+      "vue": ["src/App.vue", "src/main.ts", "src/main.js"],
+      "nuxt": ["nuxt.config.ts", "nuxt.config.js"],
+      "angular": ["angular.json", "src/app/app.component.ts"]
+    }
+  },
+  "installation": {
+    "preInstall": [
+      {
+        "command": "detectProject",
+        "description": "Detect project framework and structure"
+      },
+      {
+        "command": "validateCompatibility",
+        "description": "Validate framework compatibility"
+      }
+    ],
+    "postInstall": [
+      {
+        "command": "copyFiles",
+        "description": "Copy dashboard components"
+      },
+      {
+        "command": "updateImports",
+        "description": "Update app imports"
+      },
+      {
+        "command": "createExample",
+        "description": "Create example dashboard page",
+        "optional": true,
+        "file": "src/pages/dashboard.tsx"
+      }
+    ]
+  },
+  "usage": {
+    "quickStart": [
+      "Import DashboardLayout component",
+      "Add dashboard routes to your router",
+      "Customize charts and widgets",
+      "Configure data sources"
+    ],
+    "examples": [
+      {
+        "title": "Basic Dashboard Usage",
+        "code": "import { DashboardLayout, StatsCard, Chart } from '@/features/dashboard';\n\nexport default function Dashboard() {\n  return (\n    <DashboardLayout>\n      <StatsCard title=\"Users\" value=\"1,234\" />\n      <Chart data={chartData} />\n    </DashboardLayout>\n  );\n}"
+      }
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 /**
  * usePrecastConfig Hook
- * Handles loading and managing precast configuration
- * Extracted from PrecastWidget loadPrecastConfig function
+ * @module usePrecastConfig
+ * @description Hook for loading and managing Precast project configuration
  */
 
 import { useState, useEffect } from 'react';
@@ -9,46 +9,48 @@ import { PrecastConfig } from '../types';
 
 /**
  * Hook to load and manage Precast configuration
- * Exact copy of loadPrecastConfig logic from original PrecastWidget (lines 348-387)
+ * @returns {Object} Configuration state and utilities
+ * @returns {PrecastConfig|null} precastConfig - Current configuration object
+ * @returns {boolean} isLoading - Loading state indicator
+ * @returns {string|null} error - Error message if loading failed
+ * @returns {Function} reloadConfig - Function to reload configuration
  */
 export function usePrecastConfig() {
   const [precastConfig, setPrecastConfig] = useState<PrecastConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Loads Precast configuration from file or API
+   */
   const loadPrecastConfig = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Try to fetch precast config - use API route for Next.js, direct file for others
       {{#if (eq framework "next")}}
       const response = await fetch("/api/precast-config");
       if (response.ok) {
-        // For Next.js, API route already handles JSONC parsing
         const config = await response.json();
         setPrecastConfig(config);
       {{else}}
       const response = await fetch("/precast.jsonc");
       if (response.ok) {
-        // Try to parse as JSON first (most precast.jsonc files are valid JSON)
         try {
           const config = await response.json();
           setPrecastConfig(config);
         } catch (jsonError) {
-          // If JSON parsing fails, try JSONC parsing
           const text = await response.text();
           const cleanJson = text
-            .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
-            .replace(/^\s*\/\/.*$/gm, "") // Remove single-line comments (only at start of line)
-            .replace(/,\s*([}\]])/g, "$1"); // Remove trailing commas
+            .replace(/\/\*[\s\S]*?\*\//g, "")
+            .replace(/^\s*\/\/.*$/gm, "")
+            .replace(/,\s*([}\]])/g, "$1");
           
           const config = JSON.parse(cleanJson);
           setPrecastConfig(config);
         }
       {{/if}}
       } else {
-        // Fallback to default config if file not found
         setPrecastConfig({
           docker: {{#if docker}}true{{else}}false{{/if}},
           database: "{{database}}",
@@ -59,7 +61,6 @@ export function usePrecastConfig() {
     } catch (error) {
       console.error("Failed to load precast config:", error);
       setError(error instanceof Error ? error.message : "Unknown error");
-      // Set a default configuration
       setPrecastConfig({
         docker: {{#if docker}}true{{else}}false{{/if}},
         database: "{{database}}",

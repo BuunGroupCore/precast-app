@@ -20,8 +20,8 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
   try {
     const isPrecastProject = await pathExists("precast.jsonc");
     if (!isPrecastProject) {
-      consola.error("❌ This command must be run in a Precast project directory");
-      consola.info("💡 Look for a 'precast.jsonc' file in the project root");
+      consola.error("[ERR] This command must be run in a Precast project directory");
+      consola.info("[INFO] Look for a 'precast.jsonc' file in the project root");
       process.exit(1);
     }
 
@@ -29,12 +29,14 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
     const detectedOrm = config.orm || options.orm;
 
     if (!detectedOrm || detectedOrm === "none") {
-      consola.error("❌ No ORM detected in this project");
-      consola.info("💡 This command is only useful for projects with Prisma, Drizzle, or TypeORM");
+      consola.error("[ERR] No ORM detected in this project");
+      consola.info(
+        "[INFO] This command is only useful for projects with Prisma, Drizzle, or TypeORM"
+      );
       process.exit(1);
     }
 
-    consola.start(`🔄 Generating ${detectedOrm} client...`);
+    consola.start(`[GEN] Generating ${detectedOrm} client...`);
 
     const isMonorepo = await pathExists("apps/api");
     const workingDir = isMonorepo ? "apps/api" : ".";
@@ -50,24 +52,24 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
         await generateTypeORM(workingDir);
         break;
       default:
-        consola.error(`❌ Unsupported ORM: ${detectedOrm}`);
+        consola.error(`[ERR] Unsupported ORM: ${detectedOrm}`);
         process.exit(1);
     }
 
     if (await pathExists("packages/shared")) {
-      consola.start("🔄 Rebuilding shared package...");
+      consola.start("[BUILD] Rebuilding shared package...");
       try {
         execSync("cd packages/shared && npm run build", { stdio: "inherit" });
-        consola.success("✅ Shared package rebuilt successfully");
+        consola.success("[OK] Shared package rebuilt successfully");
       } catch {
-        consola.warn("⚠️  Failed to rebuild shared package, but ORM generation was successful");
+        consola.warn("[WARN] Failed to rebuild shared package, but ORM generation was successful");
       }
     }
 
-    consola.success(`✅ ${detectedOrm} client generated successfully!`);
-    consola.info("💡 You can now use the generated types in your application");
+    consola.success(`[OK] ${detectedOrm} client generated successfully!`);
+    consola.info("[INFO] You can now use the generated types in your application");
   } catch (error) {
-    consola.error("❌ Failed to generate ORM client:", error);
+    consola.error("[ERR] Failed to generate ORM client:", error);
     process.exit(1);
   }
 }
@@ -84,13 +86,13 @@ async function generatePrisma(workingDir: string): Promise<void> {
   }
 
   execSync(`cd ${workingDir} && npx prisma generate`, { stdio: "inherit" });
-  consola.success("✅ Prisma client generated");
+  consola.success("[OK] Prisma client generated");
 
   try {
     execSync(`cd ${workingDir} && npx prisma db push --skip-generate`, { stdio: "pipe" });
-    consola.success("✅ Database schema synced");
+    consola.success("[OK] Database schema synced");
   } catch {
-    consola.info("💡 Database not available or not needed - only client generated");
+    consola.info("[INFO] Database not available or not needed - only client generated");
   }
 }
 
@@ -109,7 +111,7 @@ async function generateDrizzle(workingDir: string): Promise<void> {
   }
 
   execSync(`cd ${workingDir} && npx drizzle-kit generate`, { stdio: "inherit" });
-  consola.success("✅ Drizzle migrations generated");
+  consola.success("[OK] Drizzle migrations generated");
 }
 
 /**
@@ -126,6 +128,6 @@ async function generateTypeORM(workingDir: string): Promise<void> {
     throw new Error("TypeORM data source not found. Expected: src/data-source.ts");
   }
 
-  consola.info("💡 TypeORM doesn't require generation - entities are used directly");
-  consola.success("✅ TypeORM is ready to use");
+  consola.info("[INFO] TypeORM doesn't require generation - entities are used directly");
+  consola.success("[OK] TypeORM is ready to use");
 }

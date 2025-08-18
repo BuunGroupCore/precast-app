@@ -1,24 +1,128 @@
 import { homedir } from "os";
 import { join } from "path";
 
+import chalk from "chalk";
+import cliWidth from "cli-width";
 import fsExtra from "fs-extra";
+import { createSpinner } from "nanospinner";
+import { select, confirm } from "@clack/prompts";
+
 const { readFile, writeFile, pathExists } = fsExtra;
 
 import { isTelemetryEnabled } from "@/utils/analytics/analytics.js";
-import {
-  theme,
-  createHeroBanner,
-  createFancyBox,
-  divider,
-  createLink,
-  comicDecorations,
-} from "@/utils/ui/cli-theme.js";
+import { PrecastBanner } from "@/utils/ui/precast-banner.js";
+import { createFancyBox, theme } from "@/utils/ui/cli-theme.js";
 
 const TELEMETRY_CONFIG_FILE = join(homedir(), ".precast-telemetry");
 
 interface TelemetryConfig {
   disabled: boolean;
   timestamp: string;
+}
+
+/**
+ * Sleep helper
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Create a beautiful full-width table with comic book styling
+ */
+function createTable(title: string, rows: [string, string][], color: string = "#ffd600"): string {
+  const termWidth = cliWidth({ defaultWidth: 80 });
+  const tableWidth = Math.min(termWidth - 4, 70);
+  const maxKeyLength = Math.max(...rows.map((r) => r[0].length), 15);
+  const maxValueLength = tableWidth - maxKeyLength - 7;
+
+  let output = "";
+
+  // Top border
+  output += chalk.hex(color).bold("╔" + "═".repeat(tableWidth - 2) + "╗") + "\n";
+
+  // Title row - handle emoji display width manually
+  const titleClean = title.replace(/\x1b\[[0-9;]*m/g, "");
+  // Count visual characters and add extra width for emojis (they display wider)
+  const chars = [...titleClean];
+  const emojiCount = chars.filter((char) =>
+    char.match(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u)
+  ).length;
+  const visualLength = chars.length + emojiCount; // Each emoji takes roughly 2 character widths
+  const totalPadding = tableWidth - visualLength - 2;
+  let leftPadding = Math.floor(totalPadding / 2);
+  let rightPadding = totalPadding - leftPadding;
+
+  // Manual adjustment for specific titles that need tweaking
+  if (titleClean.includes("TELEMETRY STATUS")) {
+    leftPadding += 2;
+    rightPadding -= 2;
+  }
+
+  output +=
+    chalk.hex(color).bold("║") +
+    " ".repeat(leftPadding) +
+    chalk.hex("#ff1744").bold(title) +
+    " ".repeat(rightPadding) +
+    chalk.hex(color).bold("║") +
+    "\n";
+
+  // Separator
+  output += chalk.hex(color).bold("╠" + "═".repeat(tableWidth - 2) + "╣") + "\n";
+
+  // Data rows
+  rows.forEach((row) => {
+    const [key, value] = row;
+    const formattedKey = chalk.hex("#2962ff").bold(key.padEnd(maxKeyLength));
+    const formattedValue = chalk.white(value.substring(0, maxValueLength).padEnd(maxValueLength));
+
+    output +=
+      chalk.hex(color)("║ ") +
+      formattedKey +
+      chalk.hex("#9e9e9e")(" │ ") +
+      formattedValue +
+      " " +
+      chalk.hex(color)("║") +
+      "\n";
+  });
+
+  // Bottom border
+  output += chalk.hex(color).bold("╚" + "═".repeat(tableWidth - 2) + "╝");
+
+  return output;
+}
+
+/**
+ * Animated text reveal
+ */
+async function animatedReveal(text: string, delay: number = 20): Promise<void> {
+  const lines = text.split("\n");
+  for (const line of lines) {
+    console.log(line);
+    await sleep(delay);
+  }
+}
+
+/**
+ * Create loading animation
+ */
+async function showLoadingAnimation(message: string, duration: number = 1000): Promise<void> {
+  const spinner = createSpinner(message).start({
+    color: "yellow",
+  });
+
+  const colors = ["yellow", "cyan", "green", "magenta", "blue", "red"] as const;
+  let colorIndex = 0;
+
+  const colorInterval = setInterval(() => {
+    spinner.update({ color: colors[colorIndex] });
+    colorIndex = (colorIndex + 1) % colors.length;
+  }, 200);
+
+  await sleep(duration);
+
+  clearInterval(colorInterval);
+  spinner.success({ text: chalk.hex("#00e676").bold("✓") + " " + chalk.white(message), mark: " " });
 }
 
 /**
@@ -50,7 +154,7 @@ async function writeTelemetryConfig(config: TelemetryConfig): Promise<void> {
       `${theme.error("✗ Configuration Error")}\n\n` +
         `Failed to save telemetry configuration\n\n` +
         `${theme.info("ⓘ This won't affect CLI functionality")}`,
-      "⚠ Config Save Failed"
+      "[WARN] Config Save Failed"
     );
     console.log(errorBox);
     console.log();
@@ -82,176 +186,160 @@ function getShellConfigFile(): string {
 }
 
 /**
- * Telemetry command handler with beautiful UI
- * @param action - Action to perform: status, enable, or disable
+ * Enhanced telemetry command with table-based UI and interactive toggle
+ * @param action - Action to perform: status, enable, disable, or undefined for interactive mode
  */
 export async function telemetryCommand(action?: string): Promise<void> {
-  const validActions = ["status", "enable", "disable"];
+  try {
+    // Show banner
+    await PrecastBanner.show({
+      subtitle: "TELEMETRY SETTINGS",
+      gradient: false,
+    });
 
-  if (!action) {
-    action = "status";
-  }
+    // Load current configuration
+    await showLoadingAnimation("Loading telemetry configuration", 500);
+    const isEnabled = isTelemetryEnabled();
+    const config = await readTelemetryConfig();
 
-  if (!validActions.includes(action)) {
     console.log();
-    const errorBox = createFancyBox(
-      `${theme.error("✗ Invalid Action")}\n\n` +
-        `Action "${action}" is not recognized\n\n` +
-        `${theme.info("ⓘ Valid actions:")}\n` +
-        `  • ${theme.accent("status")} - Check current telemetry status\n` +
-        `  • ${theme.accent("enable")} - Enable telemetry data collection\n` +
-        `  • ${theme.accent("disable")} - Disable telemetry data collection`,
-      "⚠ Command Error"
+
+    // Status table
+    const statusIcon = isEnabled ? "✓" : "✗";
+    const statusText = isEnabled ? "Enabled" : "Disabled";
+    const statusColor = isEnabled ? "#00e676" : "#ff1744";
+    const lastUpdated = config ? new Date(config.timestamp).toLocaleDateString() : "Never";
+    const envOverride = process.env.PRECAST_TELEMETRY_DISABLED ? "Yes" : "No";
+
+    const statusRows: [string, string][] = [
+      ["Status", statusText],
+      ["Last Updated", lastUpdated],
+      ["Environment Override", envOverride],
+      ["Privacy Level", "Anonymous Only"],
+    ];
+
+    const statusTable = createTable(
+      `[DATA] TELEMETRY STATUS ${statusIcon}`,
+      statusRows,
+      statusColor
     );
-    console.log(errorBox);
+    await animatedReveal(statusTable, 15);
+    console.log();
+
+    // Data collection info table
+    const dataRows: [string, string][] = [
+      ["Framework Choices", "React, Vue, Angular, etc."],
+      ["Feature Usage", "Auth providers, databases, etc."],
+      ["Error Patterns", "Anonymous error frequencies"],
+      ["Performance Metrics", "Build times, installation speed"],
+      ["Personal Data", "NEVER collected"],
+    ];
+
+    const dataTable = createTable("[INFO] WHAT WE COLLECT", dataRows, "#aa00ff");
+    await animatedReveal(dataTable, 15);
+    console.log();
+
+    // Handle specific actions
+    if (action === "enable" || action === "disable") {
+      const newState = action === "enable";
+      await showLoadingAnimation(`${newState ? "Enabling" : "Disabling"} telemetry`, 800);
+
+      await writeTelemetryConfig({
+        disabled: !newState,
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log();
+      const message = newState
+        ? chalk.hex("#00e676").bold("✓ Telemetry enabled! Thank you for helping improve Precast.")
+        : chalk.hex("#ff1744").bold("✓ Telemetry disabled. Your privacy choice has been saved.");
+
+      console.log(`  ${message}`);
+      console.log();
+      return;
+    }
+
+    // Interactive mode if no action specified
+    if (!action) {
+      console.log(chalk.hex("#ffd600").bold("  [CFG] TELEMETRY SETTINGS"));
+      console.log();
+
+      const choices = [
+        {
+          value: isEnabled ? "disable" : "enable",
+          label: isEnabled
+            ? `${chalk.hex("#ff1744")("✗")} Disable telemetry`
+            : `${chalk.hex("#00e676")("✓")} Enable telemetry`,
+          hint: isEnabled ? "Turn off data collection" : "Help improve Precast",
+        },
+        {
+          value: "exit",
+          label: `${chalk.hex("#9e9e9e")("↵")} Exit (Press Enter)`,
+          hint: "Keep current settings",
+        },
+      ];
+
+      const choice = await select({
+        message: "What would you like to do?",
+        options: choices,
+      });
+
+      if (choice === "exit" || typeof choice === "symbol") {
+        console.log();
+        console.log(chalk.hex("#9e9e9e")("  Settings unchanged. Have a great day!"));
+        console.log();
+        return;
+      }
+
+      // Confirm the action
+      const confirmMessage =
+        choice === "enable"
+          ? "Enable anonymous telemetry to help improve Precast?"
+          : "Disable telemetry data collection?";
+
+      const shouldProceed = await confirm({
+        message: confirmMessage,
+        initialValue: choice === "enable",
+      });
+
+      if (!shouldProceed || typeof shouldProceed === "symbol") {
+        console.log();
+        console.log(chalk.hex("#9e9e9e")("  Operation cancelled. Settings unchanged."));
+        console.log();
+        return;
+      }
+
+      // Apply the change
+      const newState = choice === "enable";
+      await showLoadingAnimation(`${newState ? "Enabling" : "Disabling"} telemetry`, 800);
+
+      await writeTelemetryConfig({
+        disabled: !newState,
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log();
+      const message = newState
+        ? chalk.hex("#00e676").bold("✓ Telemetry enabled! Thank you for helping improve Precast.")
+        : chalk.hex("#ff1744").bold("✓ Telemetry disabled. Your privacy choice has been saved.");
+
+      console.log(`  ${message}`);
+
+      if (newState) {
+        console.log(
+          chalk.hex("#9e9e9e")("  [DOCS] Learn more: https://precast.dev/docs/telemetry")
+        );
+      }
+      console.log();
+    }
+  } catch (error) {
+    console.log();
+    console.log(chalk.hex("#ff1744").bold("[ERR] Error managing telemetry settings"));
+    console.log(
+      chalk.hex("#ff1744")(`  ✗ ${error instanceof Error ? error.message : "Unknown error"}`)
+    );
     console.log();
     process.exit(1);
-  }
-
-  const heroBanner = await createHeroBanner("TELEMETRY", `📊 Privacy & data collection settings`);
-  console.log();
-  console.log(heroBanner);
-  console.log();
-
-  switch (action) {
-    case "status": {
-      const isEnabled = isTelemetryEnabled();
-      const config = await readTelemetryConfig();
-
-      const statusContent = isEnabled
-        ? `${theme.success("✓ TELEMETRY ENABLED")} ${comicDecorations.rocket}\n\n` +
-          `The CLI collects ${theme.bold("anonymous usage data")} to improve the tool.\n` +
-          `${theme.info("◆ No personal information")} is ever collected.\n\n` +
-          `${theme.accent("● What we collect:")}\n` +
-          `  • Framework choices (React, Vue, etc.)\n` +
-          `  • Feature usage patterns\n` +
-          `  • Error frequencies (anonymous)\n` +
-          `  • Performance metrics\n\n` +
-          `${theme.muted("ⓘ To opt-out:")}\n` +
-          `${theme.bold("create-precast-app telemetry disable")}`
-        : `${theme.error("✗ TELEMETRY DISABLED")} ${comicDecorations.pow}\n\n` +
-          `No usage data is being collected.\n` +
-          `You've opted out of anonymous analytics.\n\n` +
-          `${theme.muted("ⓘ To help us improve:")}\n` +
-          `${theme.bold("create-precast-app telemetry enable")}`;
-
-      const statusBox = createFancyBox(statusContent, "◆ Current Status");
-      console.log(statusBox);
-      console.log();
-
-      if (config) {
-        const configInfo = `Configuration saved: ${theme.dim(
-          new Date(config.timestamp).toLocaleDateString()
-        )}`;
-        console.log(theme.muted(`  ${configInfo}`));
-        console.log();
-      }
-
-      if (process.env.PRECAST_TELEMETRY_DISABLED) {
-        const envInfo = createFancyBox(
-          `${theme.warning("⚠ Environment Override")}\n\n` +
-            `The ${theme.bold("PRECAST_TELEMETRY_DISABLED")} environment variable is set.\n` +
-            `This overrides any local configuration.`,
-          "◯ Environment Variable"
-        );
-        console.log(envInfo);
-        console.log();
-      }
-
-      console.log(theme.muted(divider()));
-      console.log(
-        theme.muted(
-          `  Learn more: ${createLink("telemetry docs", "https://precast.dev/docs/telemetry")}`
-        )
-      );
-      console.log();
-      break;
-    }
-
-    case "disable": {
-      await writeTelemetryConfig({
-        disabled: true,
-        timestamp: new Date().toISOString(),
-      });
-
-      const shellConfigFile = getShellConfigFile();
-      const exportLine = "export PRECAST_TELEMETRY_DISABLED=1";
-
-      const successContent =
-        `${theme.success("✓ TELEMETRY DISABLED")} ${comicDecorations.pow}\n\n` +
-        `Analytics collection has been turned off.\n` +
-        `Your privacy preferences have been saved locally.\n\n` +
-        `${theme.info("◆ Privacy guaranteed:")} No data will be collected.`;
-
-      const successBox = createFancyBox(successContent, "● Mission Accomplished");
-      console.log(successBox);
-      console.log();
-
-      const shellContent =
-        `${theme.bold("Make it permanent across terminal sessions:")}\n\n` +
-        `${theme.muted("Add to")} ${theme.accent(shellConfigFile)}\n` +
-        `${theme.bold(exportLine)}\n\n` +
-        `${theme.muted("Quick command:")}\n` +
-        `${theme.info(`echo '${exportLine}' >> ${shellConfigFile}`)}\n\n` +
-        `${theme.muted("ⓘ The local setting is already active for this session!")}`;
-
-      const shellBox = createFancyBox(shellContent, "◆ Shell Configuration");
-      console.log(shellBox);
-      console.log();
-
-      console.log(theme.muted(divider()));
-      console.log(theme.muted(`  ${theme.bold("Thank you")} for using Precast! 🎉`));
-      console.log();
-      break;
-    }
-
-    case "enable": {
-      await writeTelemetryConfig({
-        disabled: false,
-        timestamp: new Date().toISOString(),
-      });
-
-      const shellConfigFile = getShellConfigFile();
-
-      const enableContent =
-        `${theme.success("✓ TELEMETRY ENABLED")} ${comicDecorations.super}\n\n` +
-        `Thank you for helping us improve Precast!\n\n` +
-        `${theme.info("● What this enables:")}\n` +
-        `  • Anonymous usage analytics\n` +
-        `  • Error frequency tracking (no personal data)\n` +
-        `  • Feature usage patterns\n` +
-        `  • Performance improvements based on real usage\n\n` +
-        `${theme.muted("◆ Privacy guaranteed:")} No personal information is collected.`;
-
-      const enableBox = createFancyBox(enableContent, "▶ Analytics Activated");
-      console.log(enableBox);
-      console.log();
-
-      if (process.env.PRECAST_TELEMETRY_DISABLED) {
-        const warningContent =
-          `${theme.warning("⚠ ENVIRONMENT VARIABLE OVERRIDE")}\n\n` +
-          `The ${theme.bold("PRECAST_TELEMETRY_DISABLED")} environment variable is still set.\n` +
-          `This will override your local configuration.\n\n` +
-          `${theme.bold("To fully enable telemetry:")}\n\n` +
-          `${theme.muted("Remove from")} ${theme.accent(shellConfigFile)}\n` +
-          `${theme.dim("export PRECAST_TELEMETRY_DISABLED=1")}\n\n` +
-          `${theme.muted("Or unset for this session:")}\n` +
-          `${theme.info("unset PRECAST_TELEMETRY_DISABLED")}`;
-
-        const warningBox = createFancyBox(warningContent, "◯ Environment Override");
-        console.log(warningBox);
-        console.log();
-      }
-
-      console.log(theme.muted(divider()));
-      console.log(
-        theme.muted(
-          `  Learn more: ${createLink("what we collect", "https://precast.dev/docs/telemetry")}`
-        )
-      );
-      console.log();
-      break;
-    }
   }
 }
 

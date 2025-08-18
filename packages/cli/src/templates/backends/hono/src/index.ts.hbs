@@ -11,8 +11,10 @@ import healthApp from "@/api/routes/health";
 {{#if (includes plugins 'resend')}}
 import emailApp from "@/api/routes/email{{#if typescript}}.js{{/if}}";
 {{/if}}
-{{#if authProvider}}
-import authApp from "@/api/routes/auth{{#if typescript}}.js{{/if}}";
+{{#if (eq authProvider "better-auth")}}
+import { auth } from "@/features/auth/auth{{#if typescript}}.js{{/if}}";
+{{else if authProvider}}
+import authApp from "@/features/auth/routes";
 {{/if}}
 {{#if (eq apiClient "hono-rpc")}}import rpcApp from "./routes/rpc";{{/if}}
 {{#if (and (eq database "mongodb") (eq orm "mongoose"))}}import { connectDB } from "@/lib/mongoose";{{/if}}
@@ -63,7 +65,12 @@ app.route("/api", healthApp);
 {{#if (includes plugins 'resend')}}
 app.route("/api", emailApp);
 {{/if}}
-{{#if authProvider}}
+{{#if (eq authProvider "better-auth")}}
+// Mount Better Auth for Hono
+app.on(["GET", "POST"], "/api/auth/*", (c) => {
+  return auth.handler(c.req.raw);
+});
+{{else if authProvider}}
 app.route("/api", authApp);
 {{/if}}
 {{#unless (or (and plugins plugins.length) (and database (ne database 'none')))}}
@@ -143,8 +150,8 @@ app.onError((err, c) => {
 export type AppType = typeof app;
 
 // Start server
-{{#if (eq packageManager "bun")}}console.log(`🚀 Server running on http://localhost:${PORT}`);
-console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
+{{#if (eq packageManager "bun")}}console.log(`[SERVER] Server running on http://localhost:${PORT}`);
+console.log(`[API] Health check: http://localhost:${PORT}/api/health`);
 
 export default {
   port: PORT,
@@ -153,8 +160,8 @@ export default {
   fetch: app.fetch,
   port: PORT,
 }, (_info) => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`[SERVER] Server running on http://localhost:${PORT}`);
+  console.log(`[API] Health check: http://localhost:${PORT}/api/health`);
 });
 
 // Export the app type for RPC clients

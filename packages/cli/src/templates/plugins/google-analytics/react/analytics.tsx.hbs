@@ -1,3 +1,9 @@
+/**
+ * Google Analytics Integration
+ * @module analytics  
+ * @description Complete Google Analytics 4 integration with React Router tracking
+ */
+
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -120,12 +126,3 @@ export const trackLogin = (method: string) => {
     label: method,
   });
 };
-
-// Example usage in your App component:
-// import { useGoogleAnalytics } from './lib/analytics';
-// 
-// function App() {
-//   useGoogleAnalytics(); // Automatically tracks page views
-//   
-//   return <YourAppContent />;
-// }

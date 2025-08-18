@@ -1,4 +1,10 @@
-{{#if typescript}}import { Context } from 'hono';
+{{#if typescript}}/**
+ * Response Utilities for Cloudflare Workers
+ * @module response
+ * @description Standardized response helpers for Hono-based Cloudflare Workers
+ */
+
+import { Context } from 'hono';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -14,7 +20,12 @@ export interface ApiResponse<T = any> {
 }
 
 /**
- * Standard success response
+ * Generate standardized success response
+ * @param {Context} c - Hono context
+ * @param {T} data - Response data
+ * @param {number} status - HTTP status code
+ * @param {object} metadata - Optional metadata
+ * @returns {Response} JSON response
  */
 export function successResponse<T>(
   c: Context,
@@ -35,7 +46,11 @@ export function successResponse<T>(
 }
 
 /**
- * Standard error response
+ * Generate standardized error response
+ * @param {Context} c - Hono context
+ * @param {string|Error} error - Error message or object
+ * @param {number} status - HTTP status code
+ * @returns {Response} JSON error response
  */
 export function errorResponse(
   c: Context,
@@ -47,7 +62,6 @@ export function errorResponse(
     error: error instanceof Error ? error.message : error,
   };
   
-  // Add stack trace in development
   if (c.env?.NODE_ENV === 'development' && error instanceof Error) {
     response.message = error.stack;
   }

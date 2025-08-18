@@ -1,6 +1,7 @@
 /**
  * Base Service Interface and Template
- * Provides a standardized pattern for all service testing implementations
+ * @module baseService
+ * @description Provides a standardized pattern for all service testing implementations
  */
 
 import { TestResult, ServiceTestContext } from '../types';
@@ -11,26 +12,35 @@ import { TestResult, ServiceTestContext } from '../types';
 export interface BaseServiceTester {
   /**
    * Test the service health/connectivity
+   * @param {ServiceTestContext} context - Test context
+   * @returns {Promise<TestResult>} Test result
    */
   test(context: ServiceTestContext): Promise<TestResult>;
   
   /**
    * Optional: Test service-specific functionality
+   * @param {ServiceTestContext} context - Test context
+   * @param {Record<string, unknown>} options - Test options
+   * @returns {Promise<TestResult>} Test result
    */
   testAdvanced?(context: ServiceTestContext, options?: Record<string, unknown>): Promise<TestResult>;
   
   /**
    * Get service display name
+   * @returns {string} Display name
    */
   getDisplayName(): string;
   
   /**
    * Get service type/category
+   * @returns {string} Service type
    */
   getServiceType(): string;
   
   /**
    * Check if service is available/configured
+   * @param {ServiceTestContext} context - Test context
+   * @returns {boolean} True if available
    */
   isAvailable(context: ServiceTestContext): boolean;
 }

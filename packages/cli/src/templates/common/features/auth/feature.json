@@ -1,0 +1,224 @@
+{
+  "id": "auth-components",
+  "name": "Authentication Components",
+  "description": "Beautiful, modern authentication components with forms, modals, social login, and complete auth flow management",
+  "version": "1.0.0",
+  "author": "Precast Team",
+  "license": "MIT",
+  "category": "authentication",
+  "tags": ["auth", "login", "signup", "forms", "ui", "components", "framer-motion", "modern"],
+
+  "dependencies": {
+    "required": {
+      "react": "^18.0.0",
+      "framer-motion": "^10.0.0 || ^11.0.0",
+      "lucide-react": "^0.263.0",
+      "react-icons": "^4.0.0"
+    },
+    "optional": {
+      "tailwindcss": "^3.0.0"
+    },
+    "peer": {
+      "typescript": "^4.9.0 || ^5.0.0"
+    }
+  },
+
+  "compatibility": {
+    "frameworks": {
+      "supported": ["react", "next", "remix", "vite", "tanstack-router", "tanstack-start"],
+      "requirements": {
+        "react": ">=18.0.0",
+        "client-side": true
+      }
+    },
+    "backends": {
+      "supported": ["express", "hono", "fastify", "nest", "none"],
+      "requirements": {
+        "auth-endpoints": true
+      }
+    },
+    "authProviders": {
+      "supported": ["auth.js", "better-auth"],
+      "requirements": {
+        "session-management": true,
+        "credential-auth": true
+      }
+    },
+    "styling": {
+      "required": ["tailwindcss"],
+      "supported": ["tailwindcss", "css-modules", "styled-components"]
+    }
+  },
+
+  "detection": {
+    "requiredFiles": ["package.json"],
+    "packageJsonChecks": {
+      "dependencies": ["react"],
+      "devDependencies": ["typescript", "tailwindcss"]
+    },
+    "fileSystemChecks": [
+      {
+        "path": "src",
+        "type": "directory",
+        "required": true
+      },
+      {
+        "path": "tsconfig.json",
+        "type": "file",
+        "required": true
+      }
+    ],
+    "frameworkDetection": {
+      "next": ["next.config.js", "next.config.ts", "app/layout.tsx", "pages/_app.tsx"],
+      "react": ["src/App.tsx", "src/main.tsx", "src/index.tsx"],
+      "remix": ["remix.config.js", "app/root.tsx"],
+      "vite": ["vite.config.ts", "vite.config.js"]
+    }
+  },
+
+  "installation": {
+    "preInstall": [
+      {
+        "command": "detectProject",
+        "description": "Detect project structure and framework"
+      },
+      {
+        "command": "validateCompatibility",
+        "description": "Check if auth components are compatible"
+      }
+    ],
+    "install": [
+      {
+        "command": "installDependencies",
+        "packages": ["framer-motion", "lucide-react", "react-icons"],
+        "dev": false
+      }
+    ],
+    "postInstall": [
+      {
+        "command": "copyFiles",
+        "source": "features/auth",
+        "destination": "src/features/auth"
+      },
+      {
+        "command": "integrateLayout",
+        "description": "Integrate AuthProvider into existing layout files"
+      },
+      {
+        "command": "updateImports",
+        "description": "Add auth imports to main app"
+      },
+      {
+        "command": "createExample",
+        "file": "src/examples/AuthExample.tsx",
+        "optional": true
+      }
+    ]
+  },
+
+  "files": {
+    "structure": {
+      "src/features/auth/": {
+        "components/": [
+          "LoginForm.tsx",
+          "SignupForm.tsx",
+          "AuthButton.tsx",
+          "SocialLogin.tsx",
+          "AuthModal.tsx",
+          "AuthExample.tsx"
+        ],
+        "hooks/": ["useAuth.ts"],
+        "providers/": ["AuthProvider.tsx"],
+        "index.ts": "barrel exports"
+      }
+    },
+    "templates": {
+      "conditional": {
+        "framework": {
+          "next": {
+            "modifications": {
+              "addClientDirective": true,
+              "files": ["**/*.tsx"]
+            }
+          }
+        },
+        "authProvider": {
+          "auth.js": {
+            "enableSocialLogin": true,
+            "authEndpoints": "/api/auth/*"
+          },
+          "better-auth": {
+            "enableSocialLogin": false,
+            "authEndpoints": "/api/auth/*"
+          }
+        }
+      }
+    }
+  },
+
+  "configuration": {
+    "options": [
+      {
+        "key": "enableSocialLogin",
+        "type": "boolean",
+        "default": true,
+        "description": "Enable Google and GitHub social login buttons"
+      },
+      {
+        "key": "enableExample",
+        "type": "boolean",
+        "default": true,
+        "description": "Include AuthExample component for demonstration"
+      },
+      {
+        "key": "theme",
+        "type": "string",
+        "options": ["blue", "green", "purple", "custom"],
+        "default": "blue",
+        "description": "Color theme for auth components"
+      }
+    ]
+  },
+
+  "usage": {
+    "quickStart": [
+      "1. Wrap your app with AuthProvider",
+      "2. Import and use auth components",
+      "3. Configure your auth backend"
+    ],
+    "examples": [
+      {
+        "title": "Basic Login Form",
+        "code": "import { LoginForm } from '@/features/auth';\n\n<LoginForm onSubmit={handleLogin} />"
+      },
+      {
+        "title": "Auth Modal",
+        "code": "import { AuthModal } from '@/features/auth';\n\n<AuthModal isOpen={open} onClose={close} />"
+      },
+      {
+        "title": "Complete Auth Flow",
+        "code": "import { AuthExample } from '@/features/auth';\n\n<AuthExample />"
+      }
+    ]
+  },
+
+  "documentation": {
+    "readme": "README.md",
+    "api": {
+      "components": "docs/components.md",
+      "hooks": "docs/hooks.md",
+      "providers": "docs/providers.md"
+    },
+    "examples": "examples/",
+    "changelog": "CHANGELOG.md"
+  },
+
+  "cli": {
+    "commands": {
+      "add": "precast add auth-components",
+      "remove": "precast remove auth-components",
+      "update": "precast update auth-components"
+    },
+    "flags": ["--no-social", "--no-example", "--theme=purple"]
+  }
+}

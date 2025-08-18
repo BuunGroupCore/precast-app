@@ -1,0 +1,84 @@
+{
+  "id": "ui-kit",
+  "name": "UI Component Kit",
+  "version": "2.0.0",
+  "description": "Beautiful, accessible UI components with dark mode and customization",
+  "category": "ui",
+  "tags": ["components", "ui", "design-system", "accessible", "dark-mode"],
+  "status": "stable",
+  "author": "Precast Team",
+  "license": "MIT",
+  "compatibility": {
+    "frameworks": ["react", "next", "vue", "nuxt"],
+    "styling": ["tailwind", "css"],
+    "uiLibraries": ["shadcn", "none"],
+    "typescript": true
+  },
+  "dependencies": {
+    "required": {
+      "@radix-ui/react-dialog": "^1.0.5",
+      "@radix-ui/react-dropdown-menu": "^2.0.6",
+      "@radix-ui/react-toast": "^1.1.5",
+      "lucide-react": "^0.294.0"
+    },
+    "optional": {
+      "framer-motion": "^10.16.4",
+      "react-hook-form": "^7.47.0"
+    }
+  },
+  "detection": {
+    "requiredFiles": ["package.json"],
+    "frameworkDetection": {
+      "react": ["src/App.tsx", "src/App.jsx"],
+      "next": ["next.config.js", "app/layout.tsx"],
+      "vue": ["src/App.vue", "src/main.ts"],
+      "nuxt": ["nuxt.config.ts", "nuxt.config.js"]
+    }
+  },
+  "installation": {
+    "preInstall": [
+      {
+        "command": "detectProject",
+        "description": "Detect project framework"
+      },
+      {
+        "command": "validateCompatibility",
+        "description": "Validate UI kit compatibility"
+      }
+    ],
+    "postInstall": [
+      {
+        "command": "copyFiles",
+        "description": "Copy UI components and utilities"
+      },
+      {
+        "command": "updateImports",
+        "description": "Update app imports"
+      },
+      {
+        "command": "createExample",
+        "description": "Create UI showcase page",
+        "optional": true,
+        "file": "src/pages/ui-showcase.tsx"
+      }
+    ]
+  },
+  "usage": {
+    "quickStart": [
+      "Import components from @/features/ui-kit",
+      "Use ThemeProvider for dark mode support",
+      "Customize theme colors in tailwind.config.js",
+      "Check accessibility with screen readers"
+    ],
+    "examples": [
+      {
+        "title": "Button Components",
+        "code": "import { Button, IconButton } from '@/features/ui-kit';\nimport { Heart } from 'lucide-react';\n\nfunction MyComponent() {\n  return (\n    <div>\n      <Button variant=\"primary\" size=\"lg\">Get Started</Button>\n      <IconButton icon={Heart} aria-label=\"Like\" />\n    </div>\n  );\n}"
+      },
+      {
+        "title": "Form Components",
+        "code": "import { Input, Select, Form } from '@/features/ui-kit';\n\nfunction ContactForm() {\n  return (\n    <Form onSubmit={handleSubmit}>\n      <Input label=\"Name\" placeholder=\"Enter your name\" />\n      <Select label=\"Country\" options={countries} />\n      <Button type=\"submit\">Submit</Button>\n    </Form>\n  );\n}"
+      }
+    ]
+  }
+}

@@ -1,3 +1,9 @@
+/**
+ * Socket.io Server Implementation
+ * @module socketServer
+ * @description Complete Socket.io server with room management, chat, and real-time features
+ */
+
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { Express } from 'express';
@@ -285,22 +291,8 @@ export class SocketService {
 export function initializeSocket(httpServer: HTTPServer, app?: Express): SocketService {
   const socketService = new SocketService(httpServer, app);
   
-  console.log('✅ Socket.io server initialized');
-  console.log(`📡 CORS origin: ${process.env.SOCKET_IO_CORS_ORIGIN || "http://localhost:3000"}`);
+  console.log('[SOCKET] Socket.io server initialized');
+  console.log(`[SOCKET] CORS origin: ${process.env.SOCKET_IO_CORS_ORIGIN || "http://localhost:3000"}`);
   
   return socketService;
 }
-
-// Usage example in your main server file:
-// 
-// import express from 'express';
-// import { createServer } from 'http';
-// import { initializeSocket } from './socket';
-//
-// const app = express();
-// const httpServer = createServer(app);
-// const socketService = initializeSocket(httpServer, app);
-//
-// httpServer.listen(3001, () => {
-//   console.log('Server running on port 3001');
-// });

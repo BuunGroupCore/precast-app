@@ -1,5 +1,15 @@
+/**
+ * Better Auth Client Configuration
+ * @module authClient
+ * @description Client-side authentication utilities using Better Auth
+ */
+
 import { createAuthClient } from "better-auth/client";
 
+/**
+ * Better Auth client instance for frontend authentication
+ * @description Configured with appropriate base URL and API path for authentication operations
+ */
 export const authClient = createAuthClient({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}",
   basePath: "/api/auth",

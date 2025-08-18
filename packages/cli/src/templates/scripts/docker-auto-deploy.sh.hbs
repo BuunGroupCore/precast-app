@@ -22,14 +22,14 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Icons
-DOCKER_ICON="🐳"
-DATABASE_ICON="🗄️"
-NETWORK_ICON="🌐"
-SUCCESS_ICON="✅"
-WARNING_ICON="⚠️"
-ERROR_ICON="❌"
-INFO_ICON="ℹ️"
+# Tags
+DOCKER_TAG="[DOCKER]"
+DATABASE_TAG="[DB]"
+NETWORK_TAG="[NETWORK]"
+SUCCESS_TAG="[SUCCESS]"
+WARNING_TAG="[WARN]"
+ERROR_TAG="[ERROR]"
+INFO_TAG="[INFO]"
 
 # Project configuration
 PROJECT_NAME="{{projectName}}"
@@ -43,31 +43,31 @@ POWERUPS=()
 
 # Log functions
 log_info() {
-    echo -e "${BLUE}${INFO_ICON} $1${NC}"
+    echo -e "${BLUE}${INFO_TAG} $1${NC}"
 }
 
 log_success() {
-    echo -e "${GREEN}${SUCCESS_ICON} $1${NC}"
+    echo -e "${GREEN}${SUCCESS_TAG} $1${NC}"
 }
 
 log_warning() {
-    echo -e "${YELLOW}${WARNING_ICON} $1${NC}"
+    echo -e "${YELLOW}${WARNING_TAG} $1${NC}"
 }
 
 log_error() {
-    echo -e "${RED}${ERROR_ICON} $1${NC}"
+    echo -e "${RED}${ERROR_TAG} $1${NC}"
 }
 
 log_docker() {
-    echo -e "${CYAN}${DOCKER_ICON} $1${NC}"
+    echo -e "${CYAN}${DOCKER_TAG} $1${NC}"
 }
 
 log_database() {
-    echo -e "${PURPLE}${DATABASE_ICON} $1${NC}"
+    echo -e "${PURPLE}${DATABASE_TAG} $1${NC}"
 }
 
 log_network() {
-    echo -e "${YELLOW}${NETWORK_ICON} $1${NC}"
+    echo -e "${YELLOW}${NETWORK_TAG} $1${NC}"
 }
 
 # Check if Docker is running
@@ -304,7 +304,7 @@ show_services() {
     
     # Show database services
     if [[ "$DATABASE" != "none" && -f "docker/$DATABASE/docker-compose.yml" ]]; then
-        echo -e "${PURPLE}${DATABASE_ICON} Database Services:${NC}"
+        echo -e "${PURPLE}${DATABASE_TAG} Database Services:${NC}"
         $DOCKER_COMPOSE -f "docker/$DATABASE/docker-compose.yml" ps --format "table \{{.Name}}\t\{{.Status}}\t\{{.Ports}}" 2>/dev/null || echo "  No database services running"
         echo
     fi
@@ -316,7 +316,7 @@ show_services() {
             "traefik")
                 if [[ -f "docker/traefik/docker-compose.traefik.yml" ]]; then
                     if [[ "$has_powerup_services" == "false" ]]; then
-                        echo -e "${YELLOW}${NETWORK_ICON} Network Services:${NC}"
+                        echo -e "${YELLOW}${NETWORK_TAG} Network Services:${NC}"
                         has_powerup_services=true
                     fi
                     $DOCKER_COMPOSE -f docker/traefik/docker-compose.traefik.yml ps --format "table \{{.Name}}\t\{{.Status}}\t\{{.Ports}}" 2>/dev/null || true
@@ -325,7 +325,7 @@ show_services() {
             "ngrok")
                 if [[ -f "docker/ngrok/docker-compose.ngrok.yml" ]]; then
                     if [[ "$has_powerup_services" == "false" ]]; then
-                        echo -e "${YELLOW}${NETWORK_ICON} Network Services:${NC}"
+                        echo -e "${YELLOW}${NETWORK_TAG} Network Services:${NC}"
                         has_powerup_services=true
                     fi
                     $DOCKER_COMPOSE -f docker/ngrok/docker-compose.ngrok.yml ps --format "table \{{.Name}}\t\{{.Status}}\t\{{.Ports}}" 2>/dev/null || true
@@ -348,14 +348,14 @@ show_next_steps() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     # Development commands
-    echo -e "${GREEN}🚀 Development:${NC}"
+    echo -e "${GREEN}[DEV] Development:${NC}"
     echo "  {{packageManager}} run dev          - Start development servers"
     echo "  {{packageManager}} run dev:docker   - Start Docker + development servers"
     echo
     
     # Database management
     if [[ "$DATABASE" != "none" ]]; then
-        echo -e "${PURPLE}${DATABASE_ICON} Database Management:${NC}"
+        echo -e "${PURPLE}${DATABASE_TAG} Database Management:${NC}"
         echo "  {{packageManager}} run docker:logs  - View database logs"
         echo "  {{packageManager}} run docker:reset - Reset database (removes all data)"
         echo "  {{packageManager}} run docker:down  - Stop database"
@@ -366,14 +366,14 @@ show_next_steps() {
     for powerup in "${POWERUPS[@]}"; do
         case "$powerup" in
             "traefik")
-                echo -e "${YELLOW}${NETWORK_ICON} Traefik Reverse Proxy:${NC}"
+                echo -e "${YELLOW}${NETWORK_TAG} Traefik Reverse Proxy:${NC}"
                 echo "  Dashboard: http://traefik.localhost:8080"
                 echo "  {{packageManager}} run traefik:dashboard - Open dashboard"
                 echo "  {{packageManager}} run traefik:logs      - View logs"
                 echo
                 ;;
             "ngrok")
-                echo -e "${YELLOW}${NETWORK_ICON} ngrok Tunnel:${NC}"
+                echo -e "${YELLOW}${NETWORK_TAG} ngrok Tunnel:${NC}"
                 echo "  Dashboard: http://localhost:4040"
                 # Try to get the actual tunnel URL
                 tunnel_url=$($DOCKER_COMPOSE -f docker/ngrok/docker-compose.ngrok.yml logs ngrok 2>/dev/null | grep -o 'https://[a-z0-9-]*\.ngrok[a-z.-]*' | tail -1 || echo "")
@@ -391,7 +391,7 @@ show_next_steps() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     log_success "All services are ready! You can now run '{{packageManager}} run dev' to start development."
     echo
-    echo -e "${GREEN}🚀 Quick Start:${NC}"
+    echo -e "${GREEN}[START] Quick Start:${NC}"
     echo -e "  ${BOLD}{{packageManager}} run dev${NC}"
 }
 

@@ -1,3 +1,9 @@
+/**
+ * Email Service Routes
+ * @module emailRoutes
+ * @description Express routes for email functionality using Resend
+ */
+
 import { Router, Request, Response } from 'express';
 
 import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendNotificationEmail } from '@/services/email';
@@ -105,37 +111,3 @@ router.get('/email/health', (req: Request, res: Response) => {
 });
 
 export default router;
-
-// Usage in your main app file:
-// import emailRouter from './api/routes/email';
-// app.use('/api', emailRouter);
-
-// Example API calls:
-// 
-// Welcome email:
-// POST /api/email
-// {
-//   "type": "welcome",
-//   "to": "user@example.com",
-//   "subject": "Welcome!",
-//   "name": "John Doe"
-// }
-//
-// Password reset email:
-// POST /api/email
-// {
-//   "type": "password-reset",
-//   "to": "user@example.com",
-//   "subject": "Reset Your Password", 
-//   "resetToken": "abc123",
-//   "resetUrl": "https://example.com/reset-password"
-// }
-//
-// Custom email:
-// POST /api/email
-// {
-//   "to": "user@example.com",
-//   "subject": "Custom Subject",
-//   "html": "<h1>Custom HTML Content</h1>",
-//   "text": "Custom text content"
-// }

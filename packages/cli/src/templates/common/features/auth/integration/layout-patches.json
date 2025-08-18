@@ -1,0 +1,74 @@
+{
+  "description": "Layout integration patches for existing framework layouts",
+  "patches": {
+    "next-app-layout": {
+      "file": "src/app/layout.tsx",
+      "insertions": [
+        {
+          "after": "import { PrecastWidget } from '@/components/precast/PrecastWidget'",
+          "content": "import { AuthProvider } from '@/features/auth'"
+        },
+        {
+          "wrap": {
+            "target": "<Layout>\n          {children}\n        </Layout>",
+            "with": "<AuthProvider>\n          <Layout>\n            {children}\n          </Layout>\n        </AuthProvider>"
+          }
+        }
+      ]
+    },
+    "react-router-app": {
+      "file": "src/App.tsx",
+      "insertions": [
+        {
+          "after": "import { NotFoundPage } from \"@/pages/not-found\";",
+          "content": "import { AuthProvider } from \"@/features/auth\";"
+        },
+        {
+          "wrap": {
+            "target": "<Router>\n      <Layout>\n        <Routes>\n          <Route path=\"/\" element={<HomePage />} />\n          <Route path=\"*\" element={<NotFoundPage />} />\n        </Routes>\n      </Layout>",
+            "with": "<AuthProvider>\n      <Router>\n        <Layout>\n          <Routes>\n            <Route path=\"/\" element={<HomePage />} />\n            <Route path=\"*\" element={<NotFoundPage />} />\n          </Routes>\n        </Layout>\n      </Router>\n    </AuthProvider>"
+          }
+        }
+      ]
+    },
+    "vue-app": {
+      "file": "src/App.vue",
+      "insertions": [
+        {
+          "after": "import Counter from '@/components/Counter.vue'",
+          "content": "import { AuthProvider } from '@/features/auth'"
+        },
+        {
+          "wrap": {
+            "target": "<template>\n  <div",
+            "with": "<template>\n  <AuthProvider>\n    <div"
+          }
+        },
+        {
+          "before": "</template>",
+          "content": "  </AuthProvider>"
+        }
+      ]
+    },
+    "nuxt-layout": {
+      "file": "layouts/default.vue",
+      "create_if_missing": true,
+      "content": "<template>\n  <div>\n    <AuthProvider>\n      <slot />\n    </AuthProvider>\n  </div>\n</template>\n\n<script setup>\nimport { AuthProvider } from '@/features/auth'\n</script>"
+    },
+    "svelte-layout": {
+      "file": "src/routes/+layout.svelte",
+      "insertions": [
+        {
+          "after": "<script>",
+          "content": "  import { AuthProvider } from '$lib/features/auth';"
+        },
+        {
+          "wrap": {
+            "target": "<main>\n  <slot />\n</main>",
+            "with": "<AuthProvider>\n  <main>\n    <slot />\n  </main>\n</AuthProvider>"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{{#if (eq orm "none")}}
+{{#if (eq database "postgres")}}
+import { Pool } from "pg";
+
+// Create a PostgreSQL connection pool for Better Auth
+export const dbPool = new Pool({
+  connectionString: process.env.DATABASE_URL || "postgresql://localhost:5432/mydb",
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+// Test the connection
+dbPool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
+
+export default dbPool;
+{{else if (eq database "mysql")}}
+import { createPool } from "mysql2/promise";
+
+// Create a MySQL connection pool for Better Auth
+export const dbPool = createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "mydb",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
+
+export default dbPool;
+{{else if (eq database "sqlite")}}
+import Database from "better-sqlite3";
+
+// Create a SQLite database connection for Better Auth
+export const db = new Database(process.env.DATABASE_URL || "./sqlite.db");
+
+// Enable foreign keys
+db.pragma('foreign_keys = ON');
+
+// Optimize for performance
+db.pragma('journal_mode = WAL');
+
+export default db;
+{{/if}}
+{{/if}}

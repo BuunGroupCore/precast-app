@@ -1,14 +1,36 @@
 /**
  * Authentication Service Testing Module
- * Extracted from PrecastWidget - exact copy of auth testing functions
+ * @module authService
+ * @description Provides authentication testing utilities for the PrecastWidget
  */
 
 import { TestResult, ServiceTestContext, AuthMode } from '../types';
 
 {{#if authProvider}}
+let currentSession: any = null;
+
 /**
- * Test authentication status endpoint
- * Exact copy from original PrecastWidget (lines 716-805)
+ * Gets the current authentication session
+ * @returns {any} The current session object or null
+ */
+export const getCurrentSession = () => currentSession;
+
+/**
+ * Sets the current authentication session
+ * @param {any} session - The session object to store
+ */
+export const setCurrentSession = (session: any) => {
+  currentSession = session;
+};
+{{/if}}
+
+{{#if authProvider}}
+/**
+ * Tests the authentication service health status
+ * @param {Function} setLoading - Loading state setter
+ * @param {Function} addTestResult - Function to add test results
+ * @param {string} apiUrl - The API base URL
+ * @returns {Promise<void>}
  */
 export const testAuthStatus = async (
   setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
@@ -104,8 +126,15 @@ export const testAuthStatus = async (
 };
 
 /**
- * Test authentication endpoints with user input
- * Exact copy from original PrecastWidget (lines 811-965)
+ * Tests authentication endpoints (sign-up/sign-in)
+ * @param {Function} setLoading - Loading state setter
+ * @param {Function} addTestResult - Function to add test results
+ * @param {string} apiUrl - The API base URL
+ * @param {AuthMode} authMode - Authentication mode ('signup' or 'signin')
+ * @param {string} authEmail - User email
+ * @param {string} authPassword - User password
+ * @param {string} authName - User name (for signup)
+ * @returns {Promise<void>}
  */
 export const testAuthService = async (
   setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
@@ -123,7 +152,6 @@ export const testAuthService = async (
     let responseData;
     
     if (authMode === 'signup') {
-      // Test registration endpoint
       response = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -135,7 +163,6 @@ export const testAuthService = async (
         }),
       });
     } else {
-      // Test signin endpoint
       response = await fetch(`${apiUrl}/api/auth/sign-in/email`, {
         method: "POST", 
         headers: { "Content-Type": "application/json" },
@@ -151,7 +178,6 @@ export const testAuthService = async (
     let responseData;
     
     if (authMode === 'signup') {
-      // Auth.js doesn't have built-in signup, use custom endpoint
       response = await fetch(`${apiUrl}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -163,24 +189,25 @@ export const testAuthService = async (
         }),
       });
     } else {
-      // Get CSRF token first
       const csrfResponse = await fetch(`${apiUrl}/api/auth/csrf`, {
         credentials: "include",
       });
       const { csrfToken } = await csrfResponse.json();
       
       // Test signin endpoint with credentials provider
+      // Auth.js expects form-encoded data, not JSON
+      const formData = new URLSearchParams();
+      formData.append('email', authEmail);
+      formData.append('password', authPassword);
+      formData.append('csrfToken', csrfToken);
+      formData.append('redirect', 'false');
+      formData.append('json', 'true');
+      
       response = await fetch(`${apiUrl}/api/auth/callback/credentials`, {
         method: "POST", 
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         credentials: "include",
-        body: JSON.stringify({
-          email: authEmail,
-          password: authPassword,
-          csrfToken,
-          redirect: false,
-          json: true
-        }),
+        body: formData.toString(),
       });
     }
     {{else}}
@@ -219,6 +246,11 @@ export const testAuthService = async (
     }
 
     if (response.ok) {
+      {{#if (eq authProvider 'better-auth')}}
+      // Store the auth response which contains user data
+      setCurrentSession(responseData);
+      {{/if}}
+      
       addTestResult("auth", {
         success: true,
         message: authMode === 'signup' ? "SIGN-UP SUCCESSFUL" : "SIGN-IN SUCCESSFUL",
@@ -229,7 +261,6 @@ export const testAuthService = async (
         },
       });
       
-      // Test session after successful auth
       const sessionResponse = await fetch(`${apiUrl}/api/auth/get-session`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -238,6 +269,12 @@ export const testAuthService = async (
       
       if (sessionResponse.ok) {
         const sessionData = await sessionResponse.json();
+        {{#if (eq authProvider 'better-auth')}}
+        // Update session with the full session data if available
+        if (sessionData) {
+          setCurrentSession(sessionData);
+        }
+        {{/if}}
         addTestResult("authSession", {
           success: true,
           message: "SESSION ACTIVE",
@@ -269,8 +306,127 @@ export const testAuthService = async (
   }
 };
 
+{{#if (eq authProvider 'better-auth')}}
 /**
- * Simplified auth status test for service registry
+ * Signs out the current user by clearing authentication cookies
+ * @param {Function} setLoading - Loading state setter
+ * @param {Function} addTestResult - Function to add test results
+ * @param {string} apiUrl - The API base URL
+ * @returns {Promise<void>}
+ * @description Better Auth handles sign-out client-side by clearing cookies
+ */
+export const testSignOut = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, auth: true }));
+  try {
+    document.cookie.split(";").forEach((c) => {
+      const cookie = c.trim();
+      if (cookie.startsWith("better-auth") || cookie.startsWith("__Secure-better-auth")) {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+      }
+    });
+    
+    setCurrentSession(null);
+    const checkResponse = await fetch(`${apiUrl}/api/auth/get-session`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    
+    const sessionData = await checkResponse.json();
+    
+    if (!sessionData?.session) {
+      addTestResult("auth", {
+        success: true,
+        message: "SIGN-OUT SUCCESSFUL",
+        details: "Session cleared successfully",
+      });
+    } else {
+      addTestResult("auth", {
+        success: false,
+        message: "SIGN-OUT PARTIAL",
+        details: "Session may still be active on server. Try refreshing the page.",
+      });
+    }
+  } catch (error) {
+    addTestResult("auth", {
+      success: false,
+      message: "SIGN-OUT ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, auth: false }));
+  }
+};
+
+/**
+ * Checks the current authentication session status
+ * @param {Function} setLoading - Loading state setter
+ * @param {Function} addTestResult - Function to add test results
+ * @param {string} apiUrl - The API base URL
+ * @returns {Promise<void>}
+ */
+export const checkSession = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, authStatus: true }));
+  try {
+    const response = await fetch(`${apiUrl}/api/auth/get-session`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const sessionData = await response.json();
+      if (sessionData?.session) {
+        setCurrentSession(sessionData);
+        addTestResult("authStatus", {
+          success: true,
+          message: "SESSION ACTIVE",
+          details: sessionData,
+        });
+      } else {
+        setCurrentSession(null);
+        addTestResult("authStatus", {
+          success: true,
+          message: "NO ACTIVE SESSION",
+          details: "User is not logged in",
+        });
+      }
+    } else {
+      setCurrentSession(null);
+      addTestResult("authStatus", {
+        success: false,
+        message: "SESSION CHECK FAILED",
+        details: `Session check returned ${response.status}`,
+      });
+    }
+  } catch (error) {
+    setCurrentSession(null);
+    addTestResult("authStatus", {
+      success: false,
+      message: "SESSION CHECK ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, authStatus: false }));
+  }
+};
+{{/if}}
+
+/**
+ * Simplified authentication status test for service registry
+ * @param {ServiceTestContext} context - Test context with API URL and headers
+ * @returns {Promise<TestResult>} Test result object
  */
 export const testAuthStatusSimple = async (context: ServiceTestContext): Promise<TestResult> => {
   try {

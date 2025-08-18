@@ -1,0 +1,118 @@
+/**
+ * Custom signup endpoint for Auth.js
+ * Auth.js doesn't provide built-in signup, so we need to handle user creation
+ */
+import bcrypt from "bcryptjs";
+{{#if (eq orm "prisma")}}
+import { prisma } from "@/lib/prisma";
+{{else if (eq orm "drizzle")}}
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
+{{else if (and database (ne database "none"))}}
+{{#if (eq database "postgres")}}
+import { Pool } from "pg";
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+{{/if}}
+{{/if}}
+
+export async function handleSignup(email: string, password: string, name?: string) {
+  try {
+    // Check if user already exists
+    {{#if (eq orm "prisma")}}
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+    {{else if (eq orm "drizzle")}}
+    const existingUsers = await db.select().from(users).where(eq(users.email, email));
+    const existingUser = existingUsers[0];
+    {{else}}
+    {{#if (and database (ne database "none"))}}
+    {{#if (eq database "postgres")}}
+    const checkResult = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    const existingUser = checkResult.rows[0];
+    {{else}}
+    // Implement your database check here
+    const existingUser = null;
+    {{/if}}
+    {{else}}
+    // No database configured
+    const existingUser = null;
+    {{/if}}
+    {{/if}}
+
+    if (existingUser) {
+      return {
+        success: false,
+        error: "User already exists",
+        status: 409,
+      };
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    {{#if (eq orm "prisma")}}
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+      },
+    });
+    {{else if (eq orm "drizzle")}}
+    const [user] = await db.insert(users).values({
+      email,
+      password: hashedPassword,
+      name,
+    }).returning();
+    {{else}}
+    {{#if (and database (ne database "none"))}}
+    {{#if (eq database "postgres")}}
+    // Direct PostgreSQL insertion
+    const insertResult = await pool.query(
+      'INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id, email, name',
+      [email, hashedPassword, name]
+    );
+    const user = insertResult.rows[0];
+    {{else}}
+    // Implement your user creation here
+    const user = {
+      id: "new-user-id",
+      email,
+      name,
+      password: hashedPassword, // Store hashed password
+    };
+    {{/if}}
+    {{else}}
+    // No database configured
+    const user = {
+      id: "new-user-id",
+      email,
+      name,
+    };
+    {{/if}}
+    {{/if}}
+
+    // Return success (without password)
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    };
+  } catch (error) {
+    console.error("Signup error:", error);
+    return {
+      success: false,
+      error: "Failed to create user",
+      status: 500,
+    };
+  }
+}

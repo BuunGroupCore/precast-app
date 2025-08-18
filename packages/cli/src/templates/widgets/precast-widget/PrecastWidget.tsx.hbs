@@ -1,72 +1,74 @@
 {{#if (eq framework "next")}}'use client';
 
 {{/if}}/**
- * PrecastWidget - Main Orchestrator Component
- * Refactored version using modular components and hooks
- * Maintains exact same functionality as original monolithic version
+ * PrecastWidget Component
+ * @module PrecastWidget
+ * @description Service validation and testing widget for development environments
  */
 
 /* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 
-// Types
 import { AuthMode } from '@/components/precast/types';
 
-// Hooks
 import { usePrecastConfig } from '@/components/precast/hooks/usePrecastConfig';
 import { useSystemInfo } from '@/components/precast/hooks/useSystemInfo';
 import { useServiceRegistry } from '@/components/precast/hooks/useServiceRegistry';
 import { useGenericTesting } from '@/components/precast/hooks/useGenericTesting';
 
-// Components
 import { FloatingButton } from '@/components/precast/components/FloatingButton';
 import { ServicePanel } from '@/components/precast/components/ServicePanel';
-
-// Services
 import { testApiHealth } from '@/components/precast/services/apiService';
 import { testDatabaseConnection } from '@/components/precast/services/databaseService';
 import { testDockerHealth } from '@/components/precast/services/dockerService';
 import { testEmailService } from '@/components/precast/services/emailService';
-import { testAuthService, testAuthStatus } from '@/components/precast/services/authService';
+{{#if authProvider}}
+import { 
+  testAuthService, 
+  testAuthStatus,
+  {{#if (eq authProvider 'better-auth')}}
+  testSignOut,
+  checkSession,
+  getCurrentSession
+  {{/if}}
+} from '@/components/precast/services/authService';
+{{/if}}
 
-// Utils
 import { isDevelopment } from '@/components/precast/utils/environmentUtils';
 
 /**
  * PrecastWidget - Modular service validation and testing widget
- * Validates that Docker containers, databases, and other services are working correctly
+ * @description Validates that Docker containers, databases, and other services are working correctly
+ * @returns {JSX.Element|null} The widget component or null in production
  */
 export function PrecastWidget() {
-  // UI State
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("{{#if database}}database{{else}}api{{/if}}");
 
   {{#if authProvider}}
-  // Auth testing state (must be at top level)
   const [authMode, setAuthMode] = useState<AuthMode>('signup');
   const [authEmail, setAuthEmail] = useState('test@example.com');
   const [authPassword, setAuthPassword] = useState('TestPassword123!');
   const [authName, setAuthName] = useState('Test User');
+  {{#if (eq authProvider 'better-auth')}}
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  {{/if}}
   {{/if}}
 
-  // Custom hooks
   const { precastConfig } = usePrecastConfig();
   const { systemInfo, setSystemInfo, refetch: fetchSystemInfo } = useSystemInfo();
   const { services, defaultActiveTab } = useServiceRegistry(precastConfig);
   const { testResults, loading, addTestResult, setLoading } = useGenericTesting();
 
-  // Only show in development
   const isDev = isDevelopment();
 
-  // Set default active tab when services change
   useEffect(() => {
     if (defaultActiveTab && !activeTab) {
       setActiveTab(defaultActiveTab);
     }
   }, [defaultActiveTab]);
 
-  // Effect to check Docker status when config is loaded
   useEffect(() => {
     if (precastConfig?.docker && services.docker) {
       handleTestDocker();
@@ -74,15 +76,24 @@ export function PrecastWidget() {
   }, [precastConfig]);
   
   {{#if authProvider}}
-  // Effect to check auth status when config is loaded
   useEffect(() => {
     if (precastConfig && services.auth) {
+      {{#if (eq authProvider 'better-auth')}}
+      handleCheckSession();
+      {{else}}
       handleTestAuthStatus();
+      {{/if}}
     }
   }, [precastConfig]);
+  
+  {{#if (eq authProvider 'better-auth')}}
+  useEffect(() => {
+    const session = getCurrentSession();
+    setIsLoggedIn(!!(session?.session || session?.user || session?.token));
+  }, [testResults.authStatus, testResults.auth, testResults.authSession]);
+  {{/if}}
   {{/if}}
 
-  // Initialize panel state from localStorage
   useEffect(() => {
     const savedState = localStorage.getItem("adminPanelOpen");
     if (savedState === "true") {
@@ -94,7 +105,9 @@ export function PrecastWidget() {
     return null;
   }
 
-  // Panel toggle handler
+  /**
+   * Toggles the panel open/closed state and saves to localStorage
+   */
   const togglePanel = () => {
     const newState = !isOpen;
     setIsOpen(newState);
@@ -105,43 +118,80 @@ export function PrecastWidget() {
     }
   };
 
+  /**
+   * Toggles the panel minimized state
+   */
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
   };
 
-  // Service test handlers - exact copies from original
   {{#if database}}
+  /**
+   * Tests database connection
+   */
   const handleTestDatabase = () => {
     testDatabaseConnection(setLoading, addTestResult, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001');
   };
   {{/if}}
 
   {{#if backend}}
+  /**
+   * Tests API health endpoints
+   */
   const handleTestApi = () => {
     testApiHealth(setLoading, addTestResult, setSystemInfo, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001');
   };
   {{/if}}
 
   {{#if docker}}
+  /**
+   * Tests Docker container health
+   */
   const handleTestDocker = () => {
     testDockerHealth(setLoading, addTestResult, services, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001');
   };
   {{/if}}
 
   {{#if (includes plugins 'resend')}}
+  /**
+   * Tests email service functionality
+   */
   const handleTestEmail = () => {
     testEmailService(setLoading, addTestResult, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001');
   };
   {{/if}}
 
   {{#if authProvider}}
+  /**
+   * Tests authentication (sign-in/sign-up/sign-out based on current state)
+   */
   const handleTestAuth = () => {
+    {{#if (eq authProvider 'better-auth')}}
+    if (isLoggedIn) {
+      testSignOut(setLoading, addTestResult, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001');
+    } else {
+      testAuthService(setLoading, addTestResult, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001', authMode, authEmail, authPassword, authName);
+    }
+    {{else}}
     testAuthService(setLoading, addTestResult, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001', authMode, authEmail, authPassword, authName);
+    {{/if}}
   };
 
+  /**
+   * Tests authentication service status
+   */
   const handleTestAuthStatus = () => {
     testAuthStatus(setLoading, addTestResult, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001');
   };
+  
+  {{#if (eq authProvider 'better-auth')}}
+  /**
+   * Checks current authentication session
+   */
+  const handleCheckSession = () => {
+    checkSession(setLoading, addTestResult, systemInfo?.apiPort ? `http://localhost:${systemInfo.apiPort}` : 'http://localhost:3001');
+  };
+  {{/if}}
   {{/if}}
 
   return (
@@ -185,6 +235,9 @@ export function PrecastWidget() {
         onAuthEmailChange={setAuthEmail}
         onAuthPasswordChange={setAuthPassword}
         onAuthNameChange={setAuthName}
+        {{#if (eq authProvider 'better-auth')}}
+        isLoggedIn={isLoggedIn}
+        {{/if}}
         {{/if}}
       />
     </>

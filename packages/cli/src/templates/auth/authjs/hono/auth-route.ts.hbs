@@ -1,0 +1,64 @@
+import { Hono } from "hono";
+import { handlers, auth } from "@/features/auth/config";
+{{#if (or (and orm (ne orm "none")) (and database (ne database "none")))}}
+import { handleSignup } from "@/features/auth/handlers";
+{{/if}}
+
+const authRoutes = new Hono();
+
+{{#if (or (and orm (ne orm "none")) (and database (ne database "none")))}}
+// Custom signup endpoint (not part of Auth.js) - MUST be before wildcard routes
+authRoutes.post("/auth/signup", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email, password, name } = body;
+
+    if (!email || !password) {
+      return c.json({ error: "Email and password are required" }, 400);
+    }
+
+    const result = await handleSignup(email, password, name);
+    
+    if (!result.success) {
+      return c.json({ error: result.error }, (result.status || 400) as any);
+    }
+
+    return c.json({ 
+      success: true, 
+      user: result.user,
+      message: "User created successfully. Please sign in."
+    });
+  } catch (error) {
+    console.error("Signup error:", error);
+    return c.json({ error: "Failed to create user" }, 500 as any);
+  }
+});
+{{/if}}
+
+// Helper endpoints for testing
+authRoutes.get("/auth/session", async (c) => {
+  const request = c.req.raw;
+  const session = await auth(request);
+  return c.json(session);
+});
+
+authRoutes.get("/auth/providers", async (c) => {
+  return c.json({
+    providers: ["credentials", "github", "google"],
+  });
+});
+
+// Handle all Auth.js requests - MUST be after specific routes
+authRoutes.get("/auth/*", async (c) => {
+  const request = c.req.raw;
+  const response = await handlers.GET(request);
+  return response;
+});
+
+authRoutes.post("/auth/*", async (c) => {
+  const request = c.req.raw;
+  const response = await handlers.POST(request);
+  return response;
+});
+
+export default authRoutes;

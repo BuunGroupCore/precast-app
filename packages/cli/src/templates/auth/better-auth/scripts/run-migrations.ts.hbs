@@ -1,0 +1,71 @@
+{{#if (eq orm "none")}}
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+{{#if (eq database "postgres")}}
+import { Pool } from "pg";
+{{else if (eq database "mysql")}}
+import { createPool } from "mysql2/promise";
+{{else if (eq database "sqlite")}}
+import Database from "better-sqlite3";
+{{/if}}
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+async function runMigrations() {
+  console.log("[DB] Running Better Auth database migrations...");
+  
+  try {
+    {{#if (eq database "postgres")}}
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL || "postgresql://localhost:5432/mydb",
+    });
+    
+    const migrationPath = join(__dirname, "../migrations/001_better_auth_init.sql");
+    const migration = readFileSync(migrationPath, "utf-8");
+    
+    await pool.query(migration);
+    console.log("[DB] PostgreSQL migrations completed successfully");
+    
+    await pool.end();
+    {{else if (eq database "mysql")}}
+    const connection = await createPool({
+      host: process.env.DB_HOST || "localhost",
+      user: process.env.DB_USER || "root",
+      password: process.env.DB_PASSWORD || "",
+      database: process.env.DB_NAME || "mydb",
+      multipleStatements: true,
+    });
+    
+    const migrationPath = join(__dirname, "../migrations/001_better_auth_init.sql");
+    const migration = readFileSync(migrationPath, "utf-8");
+    
+    await connection.query(migration);
+    console.log("[DB] MySQL migrations completed successfully");
+    
+    await connection.end();
+    {{else if (eq database "sqlite")}}
+    const db = new Database(process.env.DATABASE_URL || "./sqlite.db");
+    
+    const migrationPath = join(__dirname, "../migrations/001_better_auth_init.sql");
+    const migration = readFileSync(migrationPath, "utf-8");
+    
+    db.exec(migration);
+    console.log("[DB] SQLite migrations completed successfully");
+    
+    db.close();
+    {{/if}}
+  } catch (error) {
+    console.error("[ERROR] Migration failed:", error);
+    process.exit(1);
+  }
+}
+
+// Run migrations if this file is executed directly
+if (require.main === module) {
+  runMigrations();
+}
+
+export default runMigrations;
+{{/if}}

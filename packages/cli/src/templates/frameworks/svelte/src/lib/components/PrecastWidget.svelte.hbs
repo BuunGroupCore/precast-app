@@ -606,6 +606,7 @@
         });
         
         // Test session after successful auth
+        // Better Auth uses /get-session endpoint, not /session
         const sessionResponse = await fetch(`${apiUrl}/api/auth/get-session`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },

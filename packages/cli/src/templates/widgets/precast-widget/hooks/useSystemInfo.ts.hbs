@@ -43,7 +43,7 @@ export function useSystemInfo() {
           uptime: data.uptime || 0,
           environment: data.environment || 'development',
           apiPort: {{#if backend}}3001{{else}}undefined{{/if}},
-          dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+          dbPort: {{#if database}}{{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}}{{else}}undefined{{/if}}
         });
       }
     } catch (error) {
@@ -54,7 +54,7 @@ export function useSystemInfo() {
         uptime: 0,
         environment: 'development',
         apiPort: {{#if backend}}3001{{else}}0{{/if}},
-        dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+        dbPort: {{#if database}}{{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}}{{else}}undefined{{/if}}
       });
     } finally {
       setIsLoading(false);

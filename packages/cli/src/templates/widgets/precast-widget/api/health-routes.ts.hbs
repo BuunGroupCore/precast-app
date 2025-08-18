@@ -1,5 +1,9 @@
 {{#if (eq backend 'express')}}
 import { Router, Request, Response } from 'express';
+{{#if (eq orm 'none')}}
+import { config } from 'dotenv';
+config(); // Load environment variables
+{{/if}}
 
 {{#if database}}
 {{#if (eq orm 'prisma')}}
@@ -14,6 +18,13 @@ import { sql } from 'drizzle-orm';
 {{/if}}
 {{#if (and (eq database 'mongodb') (eq orm 'mongoose'))}}
 import mongoose from 'mongoose';
+{{/if}}
+{{#if (and (eq orm 'none') (ne database 'mongodb'))}}
+import pg from 'pg';
+const { Pool } = pg;
+{{/if}}
+{{#if (and (eq orm 'none') (eq database 'mongodb'))}}
+import { MongoClient } from 'mongodb';
 {{/if}}
 {{/if}}
 
@@ -91,13 +102,60 @@ router.get('/health/database', async (req: Request, res: Response) => {
     {{/if}}
     
     {{#if (eq orm 'none')}}
-    // Add your custom database connection test here
+    {{#if (eq database 'postgres')}}
+    // Test PostgreSQL connection without ORM
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      connectionTimeoutMillis: 5000,
+    });
+    
+    const result = await pool.query('SELECT NOW()');
+    await pool.end();
+    
+    res.json({
+      status: 'connected',
+      message: 'Database connection successful',
+      database: 'postgres',
+      serverTime: result.rows[0].now,
+      timestamp: new Date().toISOString()
+    });
+    {{else if (eq database 'mysql')}}
+    // Test MySQL connection without ORM
+    const mysql = await import('mysql2/promise');
+    const connection = await mysql.createConnection(process.env.DATABASE_URL || '');
+    
+    const [rows] = await connection.execute('SELECT NOW() as now');
+    await connection.end();
+    
+    res.json({
+      status: 'connected',
+      message: 'Database connection successful',
+      database: 'mysql',
+      serverTime: rows[0].now,
+      timestamp: new Date().toISOString()
+    });
+    {{else if (eq database 'mongodb')}}
+    // Test MongoDB connection without ORM
+    const client = new MongoClient(process.env.DATABASE_URL || '');
+    await client.connect();
+    await client.db().admin().ping();
+    await client.close();
+    
+    res.json({
+      status: 'connected',
+      message: 'Database connection successful',
+      database: 'mongodb',
+      timestamp: new Date().toISOString()
+    });
+    {{else}}
+    // No ORM configured - add your custom database connection test here
     res.json({
       status: 'not-implemented',
-      message: 'Database health check not implemented',
+      message: 'Database health check not implemented for {{database}} without ORM',
       database: '{{database}}',
       timestamp: new Date().toISOString()
     });
+    {{/if}}
     {{/if}}
   } catch (error) {
     console.error('Database health check failed:', error);

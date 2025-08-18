@@ -572,8 +572,8 @@ export async function gatherProjectConfigWithNavigation(
 
         case Step.DEPLOYMENT: {
           // Handle deployment from CLI option
-          if (options.deployment) {
-            state.deploymentMethod = options.deployment;
+          if (options.deploymentMethod) {
+            state.deploymentMethod = options.deploymentMethod;
             currentStep++;
           } else if (options.yes) {
             currentStep++;

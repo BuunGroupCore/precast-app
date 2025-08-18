@@ -257,32 +257,11 @@ export default function CheckoutForm({
   );
 }
 
-// Example usage:
-// 
-// import CheckoutForm from '@/components/stripe/CheckoutForm';
-// 
-// export default function PaymentPage() {
-//   const handlePaymentSuccess = () => {
-//     console.log('Payment succeeded!');
-//     // Redirect to success page or show success message
-//   };
-// 
-//   const handlePaymentError = (error: string) => {
-//     console.error('Payment failed:', error);
-//     // Show error message to user
-//   };
-// 
-//   return (
-//     <div className="container mx-auto py-8">
-//       <CheckoutForm
-//         amount={2000} // $20.00 in cents
-//         currency="usd"
-//         onSuccess={handlePaymentSuccess}
-//         onError={handlePaymentError}
-//       />
-//     </div>
-//   );
-// }
+/**
+ * Stripe Checkout Form
+ * @module CheckoutForm
+ * @description Complete Stripe payment component with Elements integration
+ */
 {{else}}
 import React, { useState, useEffect } from "react";
 import {

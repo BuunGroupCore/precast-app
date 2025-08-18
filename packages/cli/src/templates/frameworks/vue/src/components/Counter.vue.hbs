@@ -34,18 +34,32 @@
 </template>
 
 <script{{#if typescript}} lang="ts"{{/if}} setup>
+/**
+ * Counter Component
+ * @description Vue 3 composition API counter with increment, decrement, and reset functionality
+ */
+
 import { ref } from 'vue'
 
 const count = ref(0)
 
+/**
+ * Increments the counter by 1
+ */
 const increment = () => {
   count.value++
 }
 
+/**
+ * Decrements the counter by 1
+ */
 const decrement = () => {
   count.value--
 }
 
+/**
+ * Resets the counter to 0
+ */
 const reset = () => {
   count.value = 0
 }

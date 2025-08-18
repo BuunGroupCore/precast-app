@@ -1,3 +1,9 @@
+/**
+ * Socket.io React Provider
+ * @module socket-provider
+ * @description React context provider for Socket.io connection management
+ */
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
@@ -16,6 +22,11 @@ interface SocketProviderProps {
   serverUrl?: string;
 }
 
+/**
+ * Socket.io context provider component
+ * @param {SocketProviderProps} props - Provider props
+ * @returns {JSX.Element} Provider wrapper with socket context
+ */
 export const SocketProvider: React.FC<SocketProviderProps> = ({
   children,
   serverUrl = process.env.REACT_APP_SOCKET_SERVER_URL || 'http://localhost:3001',
@@ -24,13 +35,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Initialize socket connection
     const socketInstance = io(serverUrl, {
       transports: ['websocket', 'polling'],
       withCredentials: true,
     });
 
-    // Connection event handlers
     socketInstance.on('connect', () => {
       console.log('Socket connected:', socketInstance.id);
       setIsConnected(true);
@@ -53,7 +62,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
 
     setSocket(socketInstance);
 
-    // Cleanup function
     return () => {
       socketInstance.close();
       setSocket(null);
@@ -73,6 +81,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
   );
 };
 
+/**
+ * Hook to access socket context
+ * @returns {SocketContextType} Socket context value
+ * @throws {Error} When used outside SocketProvider
+ */
 export const useSocketContext = () => {
   const context = useContext(SocketContext);
   if (!context) {
@@ -81,7 +94,10 @@ export const useSocketContext = () => {
   return context;
 };
 
-// Connection status indicator component
+/**
+ * Connection status indicator component
+ * @returns {JSX.Element} Visual connection status indicator
+ */
 export const ConnectionStatus: React.FC = () => {
   const { isConnected } = useSocketContext();
 

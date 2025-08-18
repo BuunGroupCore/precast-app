@@ -1,3 +1,9 @@
+/**
+ * Algolia Search Integration
+ * @module algoliaSearch
+ * @description Complete Algolia search integration with InstantSearch components
+ */
+
 import algoliasearch from 'algoliasearch/lite';
 import {
   InstantSearch,
@@ -127,21 +133,3 @@ export async function searchAlgolia(query: string, options: any = {}) {
   }
 }
 
-// Note: Admin operations should be moved to your backend
-// Example backend endpoint for indexing (DO NOT use admin key in frontend):
-//
-// // Backend endpoint (e.g., /api/algolia/index)
-// import algoliasearch from 'algoliasearch';
-// 
-// const adminClient = algoliasearch(
-//   process.env.ALGOLIA_APP_ID,
-//   process.env.ALGOLIA_ADMIN_API_KEY
-// );
-// 
-// export async function indexDocuments(documents: any[]) {
-//   const index = adminClient.initIndex(process.env.ALGOLIA_INDEX_NAME);
-//   const result = await index.saveObjects(documents, {
-//     autoGenerateObjectIDIfNotExist: true,
-//   });
-//   return result;
-// }

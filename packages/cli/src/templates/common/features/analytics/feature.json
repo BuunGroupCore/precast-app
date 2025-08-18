@@ -1,0 +1,79 @@
+{
+  "id": "analytics",
+  "name": "Analytics & Tracking",
+  "version": "1.1.0",
+  "description": "Google Analytics, PostHog, and custom event tracking with privacy controls",
+  "category": "analytics",
+  "tags": ["analytics", "tracking", "google", "posthog", "privacy", "gdpr"],
+  "status": "stable",
+  "author": "Precast Team",
+  "license": "MIT",
+  "compatibility": {
+    "frameworks": ["react", "next", "vue", "nuxt", "angular", "svelte"],
+    "styling": ["tailwind", "css", "scss"],
+    "typescript": true
+  },
+  "dependencies": {
+    "required": {
+      "gtag": "^1.0.1"
+    },
+    "optional": {
+      "posthog-js": "^1.88.4",
+      "mixpanel-browser": "^2.47.0",
+      "js-cookie": "^3.0.5"
+    }
+  },
+  "detection": {
+    "requiredFiles": ["package.json"],
+    "frameworkDetection": {
+      "react": ["src/App.tsx", "src/App.jsx", "src/main.tsx"],
+      "next": ["next.config.js", "app/layout.tsx", "pages/_app.tsx"],
+      "vue": ["src/App.vue", "src/main.ts", "src/main.js"],
+      "nuxt": ["nuxt.config.ts", "nuxt.config.js"],
+      "angular": ["angular.json", "src/app/app.component.ts"],
+      "svelte": ["src/App.svelte", "src/main.ts"]
+    }
+  },
+  "installation": {
+    "preInstall": [
+      {
+        "command": "detectProject",
+        "description": "Detect project framework"
+      },
+      {
+        "command": "validateCompatibility",
+        "description": "Validate analytics compatibility"
+      }
+    ],
+    "postInstall": [
+      {
+        "command": "copyFiles",
+        "description": "Copy analytics hooks and components"
+      },
+      {
+        "command": "updateImports",
+        "description": "Update app imports for analytics provider"
+      },
+      {
+        "command": "createExample",
+        "description": "Create analytics dashboard example",
+        "optional": true,
+        "file": "src/pages/analytics-demo.tsx"
+      }
+    ]
+  },
+  "usage": {
+    "quickStart": [
+      "Set NEXT_PUBLIC_GA_MEASUREMENT_ID in .env",
+      "Wrap your app with AnalyticsProvider",
+      "Use useAnalytics hook to track events",
+      "Add CookieConsent component for GDPR compliance"
+    ],
+    "examples": [
+      {
+        "title": "Track Custom Events",
+        "code": "import { useAnalytics } from '@/features/analytics';\n\nfunction ProductPage() {\n  const { track } = useAnalytics();\n  \n  const handlePurchase = () => {\n    track('purchase', {\n      product_id: '123',\n      value: 29.99\n    });\n  };\n  \n  return <button onClick={handlePurchase}>Buy Now</button>;\n}"
+      }
+    ]
+  }
+}

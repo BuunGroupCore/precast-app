@@ -1,6 +1,7 @@
 /**
  * API Service Testing Module
- * Extracted from PrecastWidget - exact copy of testApiHealth function
+ * @module apiService
+ * @description Extracted from PrecastWidget - exact copy of testApiHealth function
  */
 
 import { TestResult, ServiceTestContext } from '../types';
@@ -9,8 +10,10 @@ import { getApiHeaders } from '../utils/environmentUtils';
 {{#if backend}}
 /**
  * API Health Check
- * Tests the backend API health endpoint
- * Exact copy from original PrecastWidget (lines 529-577)
+ * @param {(updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void} setLoading - Loading state setter
+ * @param {(service: string, result: Omit<TestResult, "timestamp">) => void} addTestResult - Test result handler
+ * @param {(info: any) => void} setSystemInfo - System info setter
+ * @param {string} apiUrl - API base URL
  */
 export const testApiHealth = async (
   setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
@@ -46,7 +49,7 @@ export const testApiHealth = async (
         uptime: data.uptime || 0,
         environment: data.environment || 'development',
         apiPort: 3001,
-        dbPort: {{#if database}}{{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{else}}5432{{/eq}}{{else}}undefined{{/if}}
+        dbPort: {{#if database}}{{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}}{{else}}undefined{{/if}}
       });
     } else {
       addTestResult("api", {
@@ -68,6 +71,8 @@ export const testApiHealth = async (
 
 /**
  * Simplified API health test for use with service registry
+ * @param {ServiceTestContext} context - Test context with API URL and headers
+ * @returns {Promise<TestResult>} Test result
  */
 export const testApiHealthSimple = async (context: ServiceTestContext): Promise<TestResult> => {
   try {
@@ -103,6 +108,7 @@ export const testApiHealthSimple = async (context: ServiceTestContext): Promise<
 
 /**
  * Check if API service is available
+ * @returns {boolean} True if API service is configured
  */
 export const isApiServiceAvailable = (): boolean => {
   return true; // API service is always available when backend is configured

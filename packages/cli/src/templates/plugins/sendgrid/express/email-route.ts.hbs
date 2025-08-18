@@ -1,3 +1,9 @@
+/**
+ * SendGrid Email Routes
+ * @module sendgridEmailRoutes
+ * @description Express routes for SendGrid email functionality
+ */
+
 import { Router, Request, Response } from 'express';
 import { 
   sendEmail, 
@@ -153,52 +159,3 @@ router.get('/email/health', (req: Request, res: Response) => {
 });
 
 export default router;
-
-// Usage in your main app file:
-// import emailRouter from './api/routes/email';
-// app.use('/api', emailRouter);
-
-// Example API calls:
-// 
-// Welcome email:
-// POST /api/email
-// {
-//   "type": "welcome",
-//   "to": "user@example.com",
-//   "subject": "Welcome!",
-//   "name": "John Doe",
-//   "templateId": "d-1234567890abcdef" // Optional SendGrid template ID
-// }
-//
-// Bulk emails:
-// POST /api/email/bulk
-// {
-//   "emails": [
-//     {
-//       "to": "user1@example.com",
-//       "subject": "Newsletter",
-//       "html": "<h1>Newsletter Content</h1>",
-//       "personalizations": { "name": "John", "company": "Acme Corp" }
-//     },
-//     {
-//       "to": "user2@example.com", 
-//       "subject": "Newsletter",
-//       "html": "<h1>Newsletter Content</h1>",
-//       "personalizations": { "name": "Jane", "company": "Tech Inc" }
-//     }
-//   ]
-// }
-//
-// Transactional email with tracking:
-// POST /api/email
-// {
-//   "type": "transactional",
-//   "to": "user@example.com",
-//   "subject": "Order Confirmation",
-//   "content": "<h1>Your order has been confirmed</h1>",
-//   "trackingSettings": {
-//     "clickTracking": true,
-//     "openTracking": true
-//   },
-//   "category": ["orders", "confirmations"]
-// }

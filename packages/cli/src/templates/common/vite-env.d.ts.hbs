@@ -1,6 +1,14 @@
 {{#unless (eq framework "next")}}
+/**
+ * Vite Environment Type Definitions
+ * @description TypeScript definitions for Vite environment variables and imports
+ */
+
 /// <reference types="vite/client" />
 
+/**
+ * Custom environment variables interface
+ */
 interface ImportMetaEnv {
   readonly VITE_API_URL: string
   readonly VITE_ENABLE_ANALYTICS: string
@@ -12,6 +20,9 @@ interface ImportMetaEnv {
   // Add more env variables as needed
 }
 
+/**
+ * Extended ImportMeta interface with custom env
+ */
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }

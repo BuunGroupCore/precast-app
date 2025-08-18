@@ -1,19 +1,11 @@
-// Sentry integration wrapper
-// Import this at the top of your index.js/index.tsx file
+/**
+ * Sentry Integration Wrapper
+ * @module sentry
+ * @description Sentry error tracking integration for React applications
+ */
 
 import "./instrument";
 import * as Sentry from "@sentry/react";
 
 export const withSentry = Sentry.withSentryRouting;
 export const ErrorBoundary = Sentry.ErrorBoundary;
-
-// Example usage in your App component:
-// import { ErrorBoundary } from './sentry';
-// 
-// function App() {
-//   return (
-//     <ErrorBoundary fallback={<ErrorFallback />} showDialog>
-//       {/* Your app content */}
-//     </ErrorBoundary>
-//   );
-// }

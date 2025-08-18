@@ -1,0 +1,28 @@
+/**
+ * NextAuth Configuration
+ * @module auth
+ * @description Main authentication configuration using NextAuth.js
+ */
+
+import NextAuth from "next-auth";
+{{#if (eq orm "prisma")}}
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "./lib/prisma";
+{{/if}}
+{{#if (eq orm "drizzle")}}
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { db } from "./lib/db";
+{{/if}}
+import authConfig from "./auth.config";
+
+/**
+ * NextAuth handlers and methods
+ * @description Configured with database adapter and JWT session strategy
+ */
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  {{#if (or (eq orm "prisma") (eq orm "drizzle"))}}
+  adapter: {{#if (eq orm "prisma")}}PrismaAdapter(prisma){{else}}DrizzleAdapter(db){{/if}},
+  {{/if}}
+  session: { strategy: "jwt" },
+  ...authConfig,
+});

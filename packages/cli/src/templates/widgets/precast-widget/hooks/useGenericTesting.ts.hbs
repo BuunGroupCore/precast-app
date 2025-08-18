@@ -1,6 +1,7 @@
 /**
  * useGenericTesting Hook
- * Provides reusable testing functionality and state management
+ * @module useGenericTesting
+ * @description Hook for managing test results and loading states across service tests
  */
 
 import { useState, useCallback } from 'react';
@@ -8,15 +9,16 @@ import { TestResult, LoadingState, TestResultsState } from '../types';
 
 /**
  * Hook for managing test results and loading states
- * Provides utilities for running tests and managing their state
+ * @returns {Object} Test management utilities and state
  */
 export function useGenericTesting() {
   const [testResults, setTestResults] = useState<TestResultsState>({});
   const [loading, setLoading] = useState<LoadingState>({});
 
   /**
-   * Add a test result for a specific service
-   * Exact copy from original PrecastWidget addTestResult function (lines 461-469)
+   * Adds a test result for a specific service
+   * @param {string} service - Service name
+   * @param {Omit<TestResult, "timestamp">} result - Test result without timestamp
    */
   const addTestResult = useCallback((service: string, result: Omit<TestResult, "timestamp">) => {
     setTestResults((prev) => ({
@@ -30,6 +32,8 @@ export function useGenericTesting() {
 
   /**
    * Set loading state for a specific service
+   * @param {string} service - Service name
+   * @param {boolean} isLoading - Loading state
    */
   const setServiceLoading = useCallback((service: string, isLoading: boolean) => {
     setLoading((prev) => ({ ...prev, [service]: isLoading }));
@@ -37,6 +41,8 @@ export function useGenericTesting() {
 
   /**
    * Get test result for a specific service
+   * @param {string} service - Service name
+   * @returns {TestResult | null} Test result or null if not found
    */
   const getTestResult = useCallback((service: string): TestResult | null => {
     return testResults[service] || null;
@@ -44,6 +50,8 @@ export function useGenericTesting() {
 
   /**
    * Check if a service is currently loading
+   * @param {string} service - Service name
+   * @returns {boolean} True if service is loading
    */
   const isServiceLoading = useCallback((service: string): boolean => {
     return loading[service] || false;
@@ -51,6 +59,7 @@ export function useGenericTesting() {
 
   /**
    * Clear test result for a specific service
+   * @param {string} service - Service name
    */
   const clearTestResult = useCallback((service: string) => {
     setTestResults((prev) => {
@@ -69,6 +78,7 @@ export function useGenericTesting() {
 
   /**
    * Get all test results as array
+   * @returns {Array<{service: string} & TestResult>} Array of test results with service names
    */
   const getAllTestResults = useCallback(() => {
     return Object.entries(testResults).map(([service, result]) => ({
@@ -79,6 +89,7 @@ export function useGenericTesting() {
 
   /**
    * Get count of successful tests
+   * @returns {number} Number of successful tests
    */
   const getSuccessfulTestCount = useCallback(() => {
     return Object.values(testResults).filter(result => result.success).length;
@@ -86,6 +97,7 @@ export function useGenericTesting() {
 
   /**
    * Get count of failed tests
+   * @returns {number} Number of failed tests
    */
   const getFailedTestCount = useCallback(() => {
     return Object.values(testResults).filter(result => !result.success).length;
@@ -93,6 +105,7 @@ export function useGenericTesting() {
 
   /**
    * Get overall test status
+   * @returns {'no-tests' | 'has-failures' | 'all-passing'} Overall test status
    */
   const getOverallStatus = useCallback(() => {
     const results = Object.values(testResults);
@@ -104,6 +117,7 @@ export function useGenericTesting() {
 
   /**
    * Check if any tests are currently running
+   * @returns {boolean} True if any tests are running
    */
   const hasActiveTests = useCallback(() => {
     return Object.values(loading).some(isLoading => isLoading);
@@ -111,6 +125,8 @@ export function useGenericTesting() {
 
   /**
    * Generic test runner function
+   * @param {string} serviceName - Name of the service being tested
+   * @param {() => Promise<void>} testFunction - Test function to execute
    */
   const runTest = useCallback(async (
     serviceName: string,

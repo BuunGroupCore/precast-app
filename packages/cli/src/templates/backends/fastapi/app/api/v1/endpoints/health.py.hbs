@@ -1,3 +1,9 @@
+"""
+Health Check Endpoints
+@module health
+@description Health monitoring endpoints for the FastAPI application
+"""
+
 from fastapi import APIRouter
 {{#if config.database}}
 {{#unless (eq config.database "none")}}
@@ -17,7 +23,10 @@ router = APIRouter()
 
 @router.get("/")
 async def health_check():
-    """Basic health check endpoint"""
+    """
+    Basic health check endpoint
+    @returns Health status information
+    """
     return {
         "status": "healthy",
         "service": settings.app_name,
@@ -36,7 +45,10 @@ async def detailed_health_check(
     db: AsyncSession = Depends(get_db)
     {{/if}}
 ):
-    """Detailed health check including database connectivity"""
+    """
+    Detailed health check including database connectivity
+    @returns Comprehensive health status with database checks
+    """
     health_status = {
         "status": "healthy",
         "service": settings.app_name,
@@ -48,12 +60,9 @@ async def detailed_health_check(
     }
     
     try:
-        # Test database connection
         {{#if (eq config.database "mongodb")}}
-        # MongoDB health check
         await db.motor_client.admin.command('ping')
         {{else}}
-        # SQL database health check
         await db.execute("SELECT 1")
         {{/if}}
         health_status["checks"]["database"] = "healthy"

@@ -1,15 +1,18 @@
 /**
  * Database Service Testing Module
- * Extracted from PrecastWidget - exact copy of testDatabaseConnection function
+ * @module databaseService
+ * @description Functions for testing database connectivity and health
  */
 
 import { TestResult, ServiceTestContext } from '../types';
 
 {{#if database}}
 /**
- * Database Connection Test
- * Tests the database connection through the API
- * Exact copy from original PrecastWidget (lines 474-523)
+ * Tests database connection through the health API endpoint
+ * @param {Function} setLoading - Loading state setter function
+ * @param {Function} addTestResult - Function to add test results
+ * @param {string} apiUrl - Base API URL for testing
+ * @returns {Promise<void>}
  */
 export const testDatabaseConnection = async (
   setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
@@ -21,7 +24,6 @@ export const testDatabaseConnection = async (
     {{#if (includes powerups "ngrok")}}
     const headers: HeadersInit = { "Content-Type": "application/json" };
     
-    // Add ngrok header if using ngrok
     if (apiUrl.includes('ngrok')) {
       headers["ngrok-skip-browser-warning"] = "true";
     }
@@ -66,7 +68,9 @@ export const testDatabaseConnection = async (
 };
 
 /**
- * Simplified database test for use with service registry
+ * Simplified database connection test for service registry
+ * @param {ServiceTestContext} context - Test context with URL and headers
+ * @returns {Promise<TestResult>} Test result object
  */
 export const testDatabaseConnectionSimple = async (context: ServiceTestContext): Promise<TestResult> => {
   try {
@@ -104,13 +108,13 @@ export const testDatabaseConnectionSimple = async (context: ServiceTestContext):
 };
 
 /**
- * Check if database service is available
+ * Checks if database service is available
+ * @returns {boolean} True if database is configured
  */
 export const isDatabaseServiceAvailable = (): boolean => {
-  return true; // Database service is available when database is configured
+  return true;
 };
 {{else}}
-// No database configured - database service not available
 export const testDatabaseConnection = async (): Promise<void> => {
   console.warn('Database service not configured');
 };

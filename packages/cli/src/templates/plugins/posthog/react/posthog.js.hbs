@@ -1,15 +1,18 @@
+/**
+ * PostHog Analytics Integration
+ * @module posthog
+ * @description PostHog analytics configuration for React applications
+ */
+
 import posthog from 'posthog-js';
 
-// Initialize PostHog
 if (typeof window !== 'undefined') {
   posthog.init(import.meta.env.VITE_POSTHOG_KEY || '', {
     api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
     person_profiles: 'identified_only',
-    capture_pageview: false, // Disable automatic pageview capture, we'll do it manually
+    capture_pageview: false,
     capture_pageleave: true,
-    // Privacy settings
-    property_denylist: ['$ip'], // Don't capture IP address for privacy
-    // Debug mode in development
+    property_denylist: ['$ip'],
     loaded: (posthog) => {
       if (import.meta.env.DEV) posthog.debug();
     },
@@ -17,18 +20,3 @@ if (typeof window !== 'undefined') {
 }
 
 export { posthog };
-
-// Example usage with React Router:
-// import { useEffect } from 'react';
-// import { useLocation } from 'react-router-dom';
-// import { posthog } from './posthog';
-//
-// function App() {
-//   const location = useLocation();
-//
-//   useEffect(() => {
-//     posthog.capture('$pageview');
-//   }, [location]);
-//
-//   return <div>Your app</div>;
-// }

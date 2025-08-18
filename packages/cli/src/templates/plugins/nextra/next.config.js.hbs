@@ -1,204 +1,66 @@
+/**
+ * Nextra Documentation Site Configuration
+ * @module next.config
+ * @description Next.js configuration with Nextra for documentation sites
+ */
+
 const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.tsx',
-  // Optional: Add MDX options
   mdxOptions: {
-    remarkPlugins: [
-      // Add remark plugins here if needed
-      // require('remark-math'),
-    ],
-    rehypePlugins: [
-      // Add rehype plugins here if needed  
-      // require('rehype-katex'),
-    ],
+    remarkPlugins: [],
+    rehypePlugins: [],
   },
-  // Enable static exports if building for static hosting
-  // output: 'export',
-  // trailingSlash: true,
-  // images: { unoptimized: true }
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Your existing Next.js configuration
   reactStrictMode: true,
   swcMinify: true,
   
-  // Enable experimental features if needed
-  experimental: {
-    // esmExternals: 'loose', // For better compatibility with some packages
-  },
+  experimental: {},
 
-  // Configure redirects if needed
   async redirects() {
-    return [
-      // Add redirects here
-      // {
-      //   source: '/old-path',
-      //   destination: '/new-path',
-      //   permanent: true,
-      // },
-    ];
+    return [];
   },
 
-  // Configure rewrites if needed
   async rewrites() {
-    return [
-      // Add rewrites here
-      // {
-      //   source: '/api/:path*',
-      //   destination: 'https://api.example.com/:path*',
-      // },
-    ];
+    return [];
   },
 
-  // Configure headers if needed
   async headers() {
-    return [
-      // Add headers here
-      // {
-      //   source: '/(.*)',
-      //   headers: [
-      //     {
-      //       key: 'X-Content-Type-Options',
-      //       value: 'nosniff',
-      //     },
-      //   ],
-      // },
-    ];
+    return [];
   },
 
-  // Webpack configuration for additional customization
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Custom webpack configuration
-    // Example: Add support for importing .svg files as React components
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],
     });
 
-    // Important: return the modified config
     return config;
   },
 
-  // Environment variables configuration
-  env: {
-    // Add environment variables that should be available in the browser
-    // NEXT_PUBLIC_* variables are automatically available
-  },
+  env: {},
 
-  // Image optimization configuration
   images: {
-    // Configure image domains if using next/image with external sources
-    domains: [
-      // 'example.com',
-      // 'images.unsplash.com',
-    ],
-    // Configure image formats
+    domains: [],
     formats: ['image/webp'],
   },
 
-  // Internationalization configuration
-  // i18n: {
-  //   locales: ['en', 'es', 'fr'],
-  //   defaultLocale: 'en',
-  // },
-
-  // Performance and optimization
   optimizeFonts: true,
   
-  // Compiler options
   compiler: {
-    // Enable SWC minification
     swcMinify: true,
-    // Remove console logs in production
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // Configure output file tracing for serverless deployment
   outputFileTracing: true,
-
-  // Configure standalone output for Docker deployments
-  // output: 'standalone',
-
-  // Custom page extensions if needed
-  // pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-
-  // ESLint configuration
-  eslint: {
-    // Ignore ESLint during builds (not recommended for production)
-    // ignoreDuringBuilds: true,
-  },
-
-  // TypeScript configuration
-  typescript: {
-    // Ignore TypeScript errors during builds (not recommended for production)
-    // ignoreBuildErrors: true,
-  },
-
-  // PoweredByHeader configuration
   poweredByHeader: false,
-
-  // Configure compression
   compress: true,
 
-  // Development-specific configuration
-  ...(process.env.NODE_ENV === 'development' && {
-    // Development-only options
-    // fastRefresh: true,
-  }),
-
-  // Production-specific configuration  
-  ...(process.env.NODE_ENV === 'production' && {
-    // Production-only options
-    // generateEtags: false,
-  }),
+  ...(process.env.NODE_ENV === 'development' && {}),
+  ...(process.env.NODE_ENV === 'production' && {}),
 };
 
-// Apply Nextra configuration
 module.exports = withNextra(nextConfig);
-
-// Tips for Nextra configuration:
-// 
-// 1. Theme Configuration:
-//    - Customize theme.config.tsx for branding, navigation, footer
-//    - Use nextra-theme-docs for documentation sites
-//    - Use nextra-theme-blog for blog sites
-//
-// 2. Content Organization:
-//    - Create pages/ directory for your documentation pages
-//    - Use _meta.json files to configure navigation order and titles
-//    - Organize content in folders for sections
-//
-// 3. Custom Components:
-//    - Create components/ directory for custom MDX components
-//    - Import and use them in your .mdx files
-//
-// 4. Static Assets:
-//    - Place images and other assets in public/ directory
-//    - Reference them with relative paths in your content
-//
-// 5. Search Configuration:
-//    - Nextra includes built-in search functionality
-//    - Configure search behavior in theme.config.tsx
-//
-// 6. Deployment:
-//    - For static hosting: set output: 'export' and configure accordingly
-//    - For Vercel: works out of the box
-//    - For other platforms: ensure proper build configuration
-//
-// Example file structure:
-// ├── pages/
-// │   ├── _meta.json
-// │   ├── index.mdx
-// │   ├── getting-started/
-// │   │   ├── _meta.json
-// │   │   ├── installation.mdx
-// │   │   └── configuration.mdx
-// │   └── api/
-// │       ├── _meta.json
-// │       └── reference.mdx
-// ├── theme.config.tsx
-// ├── next.config.js
-// └── public/
-//     └── images/

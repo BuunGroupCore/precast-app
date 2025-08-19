@@ -1,49 +1,22 @@
-name: Publish CLI Package
+name: Publish Packages
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [created]
   workflow_dispatch:
     inputs:
       tag:
         description: 'Release tag (beta, latest)'
         required: true
-        default: 'beta'
+        default: 'latest'
         type: choice
         options:
           - beta
           - latest
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-          
-      - name: Install dependencies
-        run: bun install
-        working-directory: packages/cli
-        
-      - name: Run type checking
-        run: bun run typecheck
-        working-directory: packages/cli
-        
-      - name: Run linting
-        run: bun run lint
-        working-directory: packages/cli
-        
-      - name: Run tests
-        run: bun run test
-        working-directory: packages/cli
-
-  publish:
-    needs: test
+  publish-npm:
+    name: Publish to NPM
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,32 +24,34 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
           
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          bun-version: latest
+          version: 8.15.1
           
       - name: Install dependencies
-        run: bun install
-        working-directory: packages/cli
+        run: pnpm install --frozen-lockfile
         
-      - name: Build package
-        run: bun run build
-        working-directory: packages/cli
-        
-      - name: Publish to npm (beta)
-        if: github.event.inputs.tag == 'beta' || contains(github.ref, 'beta')
-        run: npm publish --tag beta
-        working-directory: packages/cli
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build all packages
+        run: |
+          pnpm --filter @precast/ui run build
+          pnpm --filter create-precast-app run build
           
-      - name: Publish to npm (latest)
-        if: github.event.inputs.tag == 'latest' || (github.ref_type == 'tag' && !contains(github.ref, 'beta'))
-        run: npm publish
-        working-directory: packages/cli
+      - name: Determine NPM tag
+        id: npm-tag
+        run: |
+          if [[ "${{ github.event.inputs.tag }}" == "beta" ]] || [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+            echo "tag=beta" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Publish create-precast-app to npm
+        run: |
+          cd packages/cli
+          npm publish --tag ${{ steps.npm-tag.outputs.tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

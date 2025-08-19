@@ -1,0 +1,22 @@
+{
+  "id": "react-helmet",
+  "name": "React Helmet",
+  "description": "Document head management for React (use native solutions for Next.js/Remix)",
+  "dependencies": {
+    "react": ["react-helmet-async"],
+    "remix": ["react-helmet-async"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "*": [
+      { "template": "helmet-provider.tsx.hbs", "output": "src/components/HelmetProvider.tsx" },
+      { "template": "seo-helmet.tsx.hbs", "output": "src/components/SEOHelmet.tsx" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": ["next-seo"],
+  "requires": ["react"],
+  "incompatible": ["next"]
+}

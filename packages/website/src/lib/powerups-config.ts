@@ -427,6 +427,24 @@ export const powerUps: PowerUp[] = [
       reason: "Official SolidJS routing solution",
     },
   },
+
+  /** Image Optimization - Missing from CLI */
+  {
+    id: "sharp",
+    name: "Sharp",
+    description: "High performance image processing",
+    icon: FaImages,
+    category: "optimization",
+    frameworks: ["*"],
+  },
+  {
+    id: "imagemin",
+    name: "Imagemin",
+    description: "Minify images seamlessly",
+    icon: FaImages,
+    category: "optimization",
+    frameworks: ["*"],
+  },
 ];
 
 export const powerUpCategories = [

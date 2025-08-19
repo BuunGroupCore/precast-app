@@ -1,0 +1,10 @@
+import million from 'million/compiler';
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['@/components', '@/lib', '@/utils'],
+  },
+};
+
+export default million.next(nextConfig, { auto: true });

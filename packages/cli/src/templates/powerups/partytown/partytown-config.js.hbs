@@ -1,0 +1,28 @@
+{{#if typescript}}// import { partytownSnippet } from '@builder.io/partytown/integration';
+
+declare global {
+  interface Window {
+    partytown?: any;
+  }
+}
+
+// Configure Partytown
+if (typeof window !== 'undefined') {
+  window.partytown = {
+    forward: ['gtag', 'dataLayer.push'],
+    debug: process.env.NODE_ENV === 'development'
+  };
+}
+
+// Note: Import partytownSnippet if you need to use it directly in your application
+// Example: console.log(partytownSnippet());{{else}}// import { partytownSnippet } from '@builder.io/partytown/integration';
+
+// Configure Partytown
+if (typeof window !== 'undefined') {
+  window.partytown = {
+    forward: ['gtag', 'dataLayer.push'],
+    debug: process.env.NODE_ENV === 'development'
+  };
+}
+
+// Note: Import partytownSnippet if you need to use it directly in your application{{/if}}

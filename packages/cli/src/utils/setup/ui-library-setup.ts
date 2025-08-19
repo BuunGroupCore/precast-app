@@ -25,6 +25,7 @@ export async function setupUILibrary(config: ProjectConfig, projectPath: string)
     chakra: "⚡",
     antd: "🐜",
     mantine: "🎯",
+    brutalist: "⚡",
   };
   const uiIcon = uiIcons[config.uiLibrary] || "🎨";
 
@@ -57,6 +58,9 @@ export async function setupUILibrary(config: ProjectConfig, projectPath: string)
       case "daisyui":
         await setupDaisyUI(config, projectPath);
         break;
+      case "brutalist":
+        await setupBrutalistUI(config, projectPath);
+        break;
     }
     if (rule.postInstallSteps && rule.postInstallSteps.length > 0) {
       consola.box({
@@ -79,7 +83,10 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
   consola.info("🎯 Initializing shadcn/ui...");
 
   try {
-    const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
+    const tailwindConfigPath = path.join(
+      projectPath,
+      config.typescript ? "tailwind.config.ts" : "tailwind.config.js"
+    );
     if (!(await fs.pathExists(tailwindConfigPath))) {
       consola.error("tailwind.config.js not found!");
       throw new Error("Tailwind CSS must be configured before initializing shadcn/ui");
@@ -123,7 +130,10 @@ async function setupDaisyUI(config: ProjectConfig, projectPath: string): Promise
   consola.info("🌼 Configuring DaisyUI...");
 
   try {
-    const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
+    const tailwindConfigPath = path.join(
+      projectPath,
+      config.typescript ? "tailwind.config.ts" : "tailwind.config.js"
+    );
 
     if (await fs.pathExists(tailwindConfigPath)) {
       let tailwindConfig = await fs.readFile(tailwindConfigPath, "utf-8");
@@ -182,5 +192,80 @@ async function setupDaisyUI(config: ProjectConfig, projectPath: string): Promise
     consola.info(
       "Please add 'require(\"daisyui\")' to your tailwind.config.js plugins array manually."
     );
+  }
+}
+
+/**
+ * Setup Brutalist UI
+ * @param config - Project configuration
+ * @param projectPath - Path to the project directory
+ */
+async function setupBrutalistUI(config: ProjectConfig, projectPath: string): Promise<void> {
+  consola.info("⚡ Setting up Brutalist UI...");
+
+  try {
+    // Create main entry file path based on framework
+    let mainFilePath = path.join(projectPath, "src", "main.tsx");
+    if (config.framework === "next") {
+      mainFilePath = path.join(projectPath, "src", "app", "layout.tsx");
+    } else if (config.framework === "vite") {
+      mainFilePath = path.join(projectPath, "src", "main.tsx");
+    }
+
+    // Add import for Brutalist UI styles
+    if (await fs.pathExists(mainFilePath)) {
+      let mainContent = await fs.readFile(mainFilePath, "utf-8");
+
+      // Add style import if not present
+      if (!mainContent.includes("@buun_group/brutalist-ui/styles")) {
+        const importStatement = "import '@buun_group/brutalist-ui/styles';\n";
+
+        // Add after other imports
+        const lastImportIndex = mainContent.lastIndexOf("import ");
+        if (lastImportIndex !== -1) {
+          const endOfLineIndex = mainContent.indexOf("\n", lastImportIndex);
+          mainContent =
+            mainContent.slice(0, endOfLineIndex + 1) +
+            importStatement +
+            mainContent.slice(endOfLineIndex + 1);
+        } else {
+          mainContent = importStatement + mainContent;
+        }
+
+        await fs.writeFile(mainFilePath, mainContent);
+        consola.success("✅ Added Brutalist UI styles import");
+      }
+    }
+
+    // Add MCP server configuration if claude is enabled
+    if (config.aiAssistant === "claude" || config.mcpServers?.includes("brutalist-ui")) {
+      const claudeSettingsPath = path.join(projectPath, ".claude", "settings.json");
+
+      if (await fs.pathExists(claudeSettingsPath)) {
+        const settings = await fs.readJSON(claudeSettingsPath);
+
+        if (!settings.mcpServers) {
+          settings.mcpServers = {};
+        }
+
+        if (!settings.mcpServers["brutalist-ui"]) {
+          settings.mcpServers["brutalist-ui"] = {
+            command: "npx",
+            args: ["@buun_group/brutalist-ui-mcp-server"],
+          };
+
+          await fs.writeJSON(claudeSettingsPath, settings, { spaces: 2 });
+          consola.success("✅ Added Brutalist UI MCP server to Claude settings");
+        }
+      }
+    }
+
+    consola.success("⚡ Brutalist UI setup completed!");
+    consola.info(
+      "You can now import components: import { Button, Card, Input } from '@buun_group/brutalist-ui'"
+    );
+  } catch (error) {
+    consola.warn("Failed to setup Brutalist UI:", error);
+    errorCollector.addError("Brutalist UI setup", error);
   }
 }

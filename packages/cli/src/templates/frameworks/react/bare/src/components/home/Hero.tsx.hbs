@@ -55,7 +55,7 @@ export function Hero() {
     }, 50);
     
     return () => clearInterval(timer);
-  }, []);
+  }, [fullText]);
 
   const techStack = [
     { name: "REACT", icon: <SiReact size={20} />, color: "text-black" },

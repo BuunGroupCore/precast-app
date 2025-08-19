@@ -6,7 +6,12 @@ import '@/styles/globals.scss'
 {{else}}
 import '@/styles/globals.css'
 {{/if}}
+{{#if (or plugins.length (and database (ne database "none")) (and authProvider (ne authProvider "none")))}}
 import { PrecastWidget } from '@/components/precast/PrecastWidget'
+{{/if}}
+{{#if authProvider}}
+import { AuthProvider } from '@/components/auth/AuthProvider'
+{{/if}}
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,10 +36,23 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="{{#if (eq styling "tailwind")}}font-sans{{else}}font-family: var(--font-sans){{/if}}">
+{{#if authProvider}}
+        <AuthProvider>
+          <Layout>
+            {children}
+          </Layout>
+          {{#if (or plugins.length (and database (ne database "none")) (and authProvider (ne authProvider "none")))}}
+          <PrecastWidget />
+          {{/if}}
+        </AuthProvider>
+{{else}}
         <Layout>
           {children}
         </Layout>
+        {{#if (or plugins.length (and database (ne database "none")) (and authProvider (ne authProvider "none")))}}
         <PrecastWidget />
+        {{/if}}
+{{/if}}
       </body>
     </html>
   )

@@ -36,6 +36,7 @@
     "@google-analytics/data": "^4.7.0",
     "@types/node": "^20.11.5",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "eslint-formatter-compact": "^8.40.0",
     "husky": "^9.1.7",
     "prettier": "^3.2.4",
     "typescript": "^5.3.3"

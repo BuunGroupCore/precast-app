@@ -1,6 +1,7 @@
 import * as path from "path";
-import * as fs from "fs-extra";
+
 import type { ProjectConfig } from "@shared/stack-config.js";
+import * as fs from "fs-extra";
 
 export interface FeatureDependency {
   required: Record<string, string>;

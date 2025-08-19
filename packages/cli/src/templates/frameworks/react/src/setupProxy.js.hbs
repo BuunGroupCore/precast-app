@@ -1,0 +1,39 @@
+{{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
+/**
+ * Create React App Proxy Configuration
+ * This proxies /api/auth/* requests to the backend API
+ * Solves CORS and cookie domain issues when using tunneling services
+ */
+
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+module.exports = function(app) {
+  app.use(
+    '/api/auth',
+    createProxyMiddleware({
+      target: process.env.REACT_APP_API_URL || 'http://localhost:{{backendPort}}',
+      changeOrigin: true,
+      {{#if (includes powerups "ngrok")}}
+      headers: {
+        'ngrok-skip-browser-warning': '1',
+        'User-Agent': '{{name}}/1.0'
+      },
+      {{/if}}
+      onProxyReq: (proxyReq, req, res) => {
+        // Forward cookies
+        const cookie = req.headers.cookie;
+        if (cookie) {
+          proxyReq.setHeader('Cookie', cookie);
+        }
+      },
+      onProxyRes: (proxyRes, req, res) => {
+        // Forward set-cookie headers
+        const setCookie = proxyRes.headers['set-cookie'];
+        if (setCookie) {
+          res.headers['set-cookie'] = setCookie;
+        }
+      }
+    })
+  );
+};
+{{/if}}

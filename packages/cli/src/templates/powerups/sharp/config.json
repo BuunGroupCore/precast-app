@@ -1,0 +1,22 @@
+{
+  "id": "sharp",
+  "name": "Sharp",
+  "description": "High performance image processing",
+  "dependencies": {
+    "*": ["sharp"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {
+    "optimize-images": "node scripts/optimize-images.js"
+  },
+  "setupFiles": {
+    "*": [
+      { "template": "optimize-images.ts.hbs", "output": "scripts/optimize-images.ts" },
+      { "template": "image-utils.ts.hbs", "output": "src/utils/image-utils.ts" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": ["imagemin"],
+  "requires": []
+}

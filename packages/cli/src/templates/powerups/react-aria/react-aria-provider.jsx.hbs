@@ -1,0 +1,23 @@
+{{#if typescript}}import React from 'react';
+import { RouterProvider } from 'react-aria-components';
+
+interface AriaProviderProps {
+  children: React.ReactNode;
+}
+
+export function AriaProvider({ children }: AriaProviderProps) {
+  return (
+    <RouterProvider>
+      {children}
+    </RouterProvider>
+  );
+}{{else}}import React from 'react';
+import { RouterProvider } from 'react-aria-components';
+
+export function AriaProvider({ children }) {
+  return (
+    <RouterProvider>
+      {children}
+    </RouterProvider>
+  );
+}{{/if}}

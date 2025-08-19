@@ -18,7 +18,7 @@
     {{#if (eq runtime "bun")}}"start": "bun dist/index.js",
     {{else if (eq runtime "deno")}}"start": "deno run --allow-net --allow-read --allow-env dist/index.js",
     {{else}}"start": "node dist/index.js",{{/if}}
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint src",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

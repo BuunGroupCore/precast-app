@@ -30,11 +30,26 @@ export const updateEnvironmentVariables = async (
 ): Promise<EnvUpdate[]> => {
   const updates: EnvUpdate[] = [];
 
+  // Update frontend env files
   const frontendEnvFiles = structure.envFiles.filter(
     (f) => f.type === "frontend" || (!structure.isMonorepo && f.type === "root")
   );
 
   for (const envFile of frontendEnvFiles) {
+    const fileUpdates = await updateSingleEnvFile(
+      envFile.fullPath,
+      envFile.path,
+      structure.framework,
+      ngrokUrls,
+      options
+    );
+    updates.push(...fileUpdates);
+  }
+
+  // Update backend env files
+  const backendEnvFiles = structure.envFiles.filter((f) => f.type === "backend");
+
+  for (const envFile of backendEnvFiles) {
     const fileUpdates = await updateSingleEnvFile(
       envFile.fullPath,
       envFile.path,
@@ -91,6 +106,16 @@ export const updateSingleEnvFile = async (
       updatedContent = addEnvVariable(updatedContent, "CLIENT_URL", ngrokUrls.frontend);
     }
     updates.push({ file: relativePath, var: "CLIENT_URL", value: ngrokUrls.frontend });
+
+    // Update BETTER_AUTH_URL for API server
+    const betterAuthUrlRegex = /^BETTER_AUTH_URL=.*$/m;
+    if (betterAuthUrlRegex.test(updatedContent)) {
+      updatedContent = updatedContent.replace(
+        betterAuthUrlRegex,
+        `BETTER_AUTH_URL=${ngrokUrls.api}`
+      );
+      updates.push({ file: relativePath, var: "BETTER_AUTH_URL", value: ngrokUrls.api });
+    }
 
     if (framework.framework === "tanstack-start") {
       const serverApiRegex = /^API_URL=.*$/m;

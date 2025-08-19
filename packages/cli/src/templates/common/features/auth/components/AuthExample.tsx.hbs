@@ -7,9 +7,8 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { LogOut, User, Settings, Shield } from 'lucide-react';
-import { useAuthContext } from '../AuthProvider';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { AuthModal } from './AuthModal';
 import { AuthButton } from './AuthButton';
 
@@ -18,43 +17,35 @@ import { AuthButton } from './AuthButton';
  * @returns {JSX.Element} Authentication example component
  */
 export function AuthExample() {
-  const { user, isLoading, error, isAuthenticated, login, signup, logout, clearError } = useAuthContext();
+  const { user, isLoading, error, isAuthenticated, signIn, signUp, signOut } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'login' | 'signup'>('login');
 
   const handleOpenLogin = () => {
     setModalMode('login');
     setIsModalOpen(true);
-    clearError();
   };
 
   const handleOpenSignup = () => {
     setModalMode('signup');
     setIsModalOpen(true);
-    clearError();
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    clearError();
   };
 
   const handleModeChange = (mode: 'login' | 'signup') => {
     setModalMode(mode);
-    clearError();
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
-        >
+        <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -63,11 +54,7 @@ export function AuthExample() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
         <div className="container mx-auto px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-md mx-auto"
-          >
+          <div className="max-w-md mx-auto">
             {/* User Profile Card */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
               <div className="text-center mb-6">
@@ -115,7 +102,7 @@ export function AuthExample() {
               </div>
 
               <AuthButton
-                onClick={logout}
+                onClick={signOut}
                 variant="secondary"
                 className="w-full"
               >
@@ -123,7 +110,7 @@ export function AuthExample() {
                 Sign out
               </AuthButton>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     );
@@ -132,21 +119,12 @@ export function AuthExample() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md mx-auto"
-        >
+        <div className="max-w-md mx-auto">
           {/* Welcome Card */}
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-6"
-            >
+            <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-6">
               <Shield className="h-10 w-10 text-white" />
-            </motion.div>
+            </div>
 
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               Welcome to {{projectName}}
@@ -156,13 +134,9 @@ export function AuthExample() {
             </p>
 
             {error && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
-              >
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-              </motion.div>
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">{error instanceof Error ? error.message : String(error)}</p>
+              </div>
             )}
 
             <div className="space-y-4">
@@ -188,7 +162,7 @@ export function AuthExample() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Auth Modal */}
@@ -197,11 +171,11 @@ export function AuthExample() {
         onClose={handleCloseModal}
         mode={modalMode}
         onModeChange={handleModeChange}
-        onLogin={login}
-        onSignup={signup}
+        onLogin={signIn}
+        onSignup={signUp}
         isLoading={isLoading}
-        error={error}
-        showSocialLogin={{#if (eq authProvider "auth.js")}}true{{else}}false{{/if}}
+        error={error instanceof Error ? error.message : error}
+        showSocialLogin={ {{#if (eq authProvider "auth.js")}}true{{else}}false{{/if}} }
       />
     </div>
   );

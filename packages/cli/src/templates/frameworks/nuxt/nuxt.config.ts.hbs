@@ -1,0 +1,35 @@
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: '2024-04-03',
+  devtools: { enabled: true },
+  {{#if (includes styling "tailwind")}}
+  css: ['~/assets/css/main.css'],
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  },
+  {{/if}}
+  {{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
+  nitro: {
+    devProxy: {
+      '/api/auth': {
+        target: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:{{backendPort}}',
+        changeOrigin: true,
+        {{#if (includes powerups "ngrok")}}
+        headers: {
+          'ngrok-skip-browser-warning': '1',
+          'User-Agent': '{{name}}/1.0'
+        },
+        {{/if}}
+      }
+    }
+  },
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:{{backendPort}}'
+    }
+  }
+  {{/if}}
+})

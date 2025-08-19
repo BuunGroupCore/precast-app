@@ -157,6 +157,13 @@ export class TemplateEngine {
       const templateContent = await readFile(resolvedTemplatePath, "utf-8");
       const template = handlebars.compile(templateContent);
       const processedContent = template(context);
+
+      // Skip writing empty files
+      if (processedContent.trim().length === 0) {
+        consola.debug(`Skipping empty file: ${outputPath}`);
+        return;
+      }
+
       await ensureDir(path.dirname(outputPath));
       await writeFile(outputPath, processedContent);
       consola.debug(`Generated: ${outputPath}`);
@@ -258,7 +265,9 @@ export class TemplateEngine {
   private shouldSkipFile(file: string, context: TemplateContext, sourceDir?: string): boolean {
     const fileName = path.basename(file);
 
-    const isConfigFile = fileName.match(/\.(config|rc)\.(js|mjs|cjs)\.hbs$/);
+    const isConfigFile = fileName.match(
+      /(\.(config|rc)\.(js|mjs|cjs|ts)\.hbs$|^(tailwind|postcss)\.config\.(js|mjs|cjs|ts)\.hbs$)/
+    );
 
     if (context.gitignore === false && fileName === "_gitignore") {
       return true;

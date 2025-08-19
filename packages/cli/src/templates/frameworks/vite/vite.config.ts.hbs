@@ -1,0 +1,54 @@
+import { defineConfig } from 'vite'
+{{#if (eq uiFramework "react")}}
+import react from '@vitejs/plugin-react'
+{{else if (eq uiFramework "vue")}}
+import vue from '@vitejs/plugin-vue'
+{{else if (eq uiFramework "svelte")}}
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+{{else if (eq uiFramework "solid")}}
+import solid from 'vite-plugin-solid'
+{{/if}}
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    {{#if (eq uiFramework "react")}}react(){{/if}}
+    {{#if (eq uiFramework "vue")}}vue(){{/if}}
+    {{#if (eq uiFramework "svelte")}}svelte(){{/if}}
+    {{#if (eq uiFramework "solid")}}solid(){{/if}}
+  ],
+  {{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
+  server: {
+    proxy: {
+      // Proxy auth endpoints to backend when using tunneling services
+      '/api/auth': {
+        target: process.env.VITE_API_URL || 'http://localhost:{{backendPort}}',
+        changeOrigin: true,
+        secure: false,
+        {{#if (includes powerups "ngrok")}}
+        headers: {
+          'ngrok-skip-browser-warning': '1',
+          'User-Agent': '{{name}}/1.0'
+        },
+        {{/if}}
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            // Forward cookies
+            const cookie = req.headers.cookie;
+            if (cookie) {
+              proxyReq.setHeader('Cookie', cookie);
+            }
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            // Forward set-cookie headers
+            const setCookie = proxyRes.headers['set-cookie'];
+            if (setCookie) {
+              res.setHeader('set-cookie', setCookie);
+            }
+          });
+        }
+      }
+    }
+  }
+  {{/if}}
+})

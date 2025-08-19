@@ -1,10 +1,13 @@
 import * as path from "path";
+
 import * as fs from "fs-extra";
+
+import type { FeatureManifest, DetectedProject } from "./feature-registry.js";
+import { LayoutIntegrator } from "./layout-integrator.js";
+
 import { createTemplateEngine } from "@/core/template-engine.js";
 import { installDependencies } from "@/utils/system/package-manager.js";
 import { logger } from "@/utils/ui/logger.js";
-import { LayoutIntegrator } from "./layout-integrator.js";
-import type { FeatureManifest, DetectedProject } from "./feature-registry.js";
 
 export interface InstallOptions {
   force?: boolean;

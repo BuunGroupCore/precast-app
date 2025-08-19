@@ -5,11 +5,128 @@
  */
 
 {{#if (eq database "postgres")}}
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp{{#if (ne authProvider "better-auth")}}, uuid{{/if}}{{#if (eq authProvider "better-auth")}}, boolean{{/if}} } from 'drizzle-orm/pg-core'
 {{else if (eq database "mysql")}}
-import { mysqlTable, text, timestamp, varchar } from 'drizzle-orm/mysql-core'
+import { mysqlTable, text, timestamp, varchar{{#if (eq authProvider "better-auth")}}, boolean{{/if}} } from 'drizzle-orm/mysql-core'
 {{/if}}
 
+{{#if (eq authProvider "better-auth")}}
+/**
+ * Better Auth User table schema
+ * @description Defines the structure for the user table expected by Better Auth
+ */
+{{#if (eq database "postgres")}}
+export const user = pgTable('user', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  emailVerified: boolean('emailVerified').notNull().default(false),
+  image: text('image'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+/**
+ * Better Auth Session table schema
+ */
+export const session = pgTable('session', {
+  id: text('id').primaryKey(),
+  expiresAt: timestamp('expiresAt').notNull(),
+  token: text('token').notNull().unique(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  ipAddress: text('ipAddress'),
+  userAgent: text('userAgent'),
+  userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
+})
+
+/**
+ * Better Auth Account table schema
+ */
+export const account = pgTable('account', {
+  id: text('id').primaryKey(),
+  accountId: text('accountId').notNull(),
+  providerId: text('providerId').notNull(),
+  userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  accessToken: text('accessToken'),
+  refreshToken: text('refreshToken'),
+  idToken: text('idToken'),
+  accessTokenExpiresAt: timestamp('accessTokenExpiresAt'),
+  refreshTokenExpiresAt: timestamp('refreshTokenExpiresAt'),
+  scope: text('scope'),
+  password: text('password'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+/**
+ * Better Auth Verification table schema
+ */
+export const verification = pgTable('verification', {
+  id: text('id').primaryKey(),
+  identifier: text('identifier').notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+{{else if (eq database "mysql")}}
+export const user = mysqlTable('user', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  name: text('name').notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  emailVerified: boolean('emailVerified').notNull().default(false),
+  image: text('image'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+/**
+ * Better Auth Session table schema
+ */
+export const session = mysqlTable('session', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  expiresAt: timestamp('expiresAt').notNull(),
+  token: varchar('token', { length: 255 }).notNull().unique(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  ipAddress: varchar('ipAddress', { length: 255 }),
+  userAgent: text('userAgent'),
+  userId: varchar('userId', { length: 255 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
+})
+
+/**
+ * Better Auth Account table schema
+ */
+export const account = mysqlTable('account', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  accountId: varchar('accountId', { length: 255 }).notNull(),
+  providerId: varchar('providerId', { length: 255 }).notNull(),
+  userId: varchar('userId', { length: 255 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
+  accessToken: text('accessToken'),
+  refreshToken: text('refreshToken'),
+  idToken: text('idToken'),
+  accessTokenExpiresAt: timestamp('accessTokenExpiresAt'),
+  refreshTokenExpiresAt: timestamp('refreshTokenExpiresAt'),
+  scope: text('scope'),
+  password: text('password'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+/**
+ * Better Auth Verification table schema
+ */
+export const verification = mysqlTable('verification', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  identifier: varchar('identifier', { length: 255 }).notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+{{/if}}
+{{else}}
 /**
  * User table schema
  * @description Defines the structure for the users table
@@ -33,11 +150,23 @@ export const users = mysqlTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 })
 {{/if}}
+{{/if}}
 
 {{#if typescript}}
 /**
  * TypeScript types inferred from schema
  */
+{{#if (eq authProvider "better-auth")}}
+export type User = typeof user.$inferSelect
+export type NewUser = typeof user.$inferInsert
+export type Session = typeof session.$inferSelect
+export type NewSession = typeof session.$inferInsert
+export type Account = typeof account.$inferSelect
+export type NewAccount = typeof account.$inferInsert
+export type Verification = typeof verification.$inferSelect
+export type NewVerification = typeof verification.$inferInsert
+{{else}}
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
+{{/if}}
 {{/if}}

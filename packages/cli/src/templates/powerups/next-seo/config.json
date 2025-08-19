@@ -1,0 +1,20 @@
+{
+  "id": "next-seo",
+  "name": "Next SEO",
+  "description": "SEO made easy for Next.js projects",
+  "dependencies": {
+    "next": ["next-seo"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "next": [
+      { "template": "next-seo.config.js.hbs", "output": "next-seo.config.js" },
+      { "template": "seo-component.jsx.hbs", "output": "src/components/SEO.jsx" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": ["react-helmet"],
+  "requires": ["next"]
+}

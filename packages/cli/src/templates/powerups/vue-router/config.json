@@ -1,0 +1,21 @@
+{
+  "id": "vue-router",
+  "name": "Vue Router",
+  "description": "Official router for Vue.js applications",
+  "dependencies": {
+    "vue": ["vue-router"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "vue": [
+      { "template": "router.js.hbs", "output": "src/router/index.js" },
+      { "template": "home-view.vue.hbs", "output": "src/views/HomeView.vue" },
+      { "template": "about-view.vue.hbs", "output": "src/views/AboutView.vue" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": [],
+  "requires": ["vue"]
+}

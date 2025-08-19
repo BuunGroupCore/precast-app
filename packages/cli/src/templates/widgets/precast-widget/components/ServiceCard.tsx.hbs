@@ -33,6 +33,9 @@ interface ServiceCardProps {
   onAuthEmailChange?: (email: string) => void;
   onAuthPasswordChange?: (password: string) => void;
   onAuthNameChange?: (name: string) => void;
+  {{#if (eq authProvider 'better-auth')}}
+  isLoggedIn?: boolean;
+  {{/if}}
 }
 
 /**
@@ -57,6 +60,9 @@ export function ServiceCard({
   onAuthEmailChange,
   onAuthPasswordChange,
   onAuthNameChange,
+  {{#if (eq authProvider 'better-auth')}}
+  isLoggedIn,
+  {{/if}}
 }: ServiceCardProps) {
   const serviceKey = service.key;
   const statusResult = serviceKey === 'auth' ? testResults.authStatus : testResults[serviceKey];
@@ -136,6 +142,9 @@ export function ServiceCard({
           onTest={onTestAuth}
           onStatusTest={onTestAuthStatus}
           isStatusLoading={loading.authStatus || false}
+          {{#if (eq authProvider 'better-auth')}}
+          isLoggedIn={isLoggedIn}
+          {{/if}}
         />
       )}
       {{/if}}

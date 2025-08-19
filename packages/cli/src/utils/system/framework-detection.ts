@@ -229,10 +229,19 @@ export const detectEnvironmentStructure = async (
   };
 
   const possibleEnvPaths = [
+    // Frontend env files
     "apps/web/.env",
     "apps/frontend/.env",
     "packages/web/.env",
     "packages/frontend/.env",
+    // Backend env files
+    "apps/api/.env",
+    "apps/backend/.env",
+    "apps/server/.env",
+    "packages/api/.env",
+    "packages/backend/.env",
+    "packages/server/.env",
+    // Root env files
     ".env",
     ".env.local",
     ".env.development",
@@ -241,7 +250,21 @@ export const detectEnvironmentStructure = async (
   for (const envPath of possibleEnvPaths) {
     const fullPath = path.join(projectPath, envPath);
     if (await fs.pathExists(fullPath)) {
-      const type = envPath.includes("apps/") || envPath.includes("packages/") ? "frontend" : "root";
+      let type: "frontend" | "backend" | "root" = "root";
+
+      // Determine the type based on path
+      if (envPath.includes("apps/") || envPath.includes("packages/")) {
+        if (
+          envPath.includes("/api/") ||
+          envPath.includes("/backend/") ||
+          envPath.includes("/server/")
+        ) {
+          type = "backend";
+        } else if (envPath.includes("/web/") || envPath.includes("/frontend/")) {
+          type = "frontend";
+        }
+      }
+
       structure.envFiles.push({
         path: envPath,
         fullPath,

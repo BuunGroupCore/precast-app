@@ -1,7 +1,10 @@
 import * as path from "path";
+
 import * as fs from "fs-extra";
-import { logger } from "@/utils/ui/logger.js";
+
 import type { DetectedProject } from "./feature-registry.js";
+
+import { logger } from "@/utils/ui/logger.js";
 
 interface LayoutPatch {
   file: string;
@@ -32,13 +35,22 @@ export class LayoutIntegrator {
    * Integrate AuthProvider into existing layout files
    */
   async integrateAuthProvider(project: DetectedProject, dryRun = false): Promise<void> {
-    const patchesPath = path.join(
+    // Try both src and dist paths for the patches file
+    let patchesPath = path.join(
       this.cliPath,
-      "src/templates/common/features/auth/integration/layout-patches.json"
+      "templates/common/features/auth/integration/layout-patches.json"
     );
 
+    // If not found in dist, try src
     if (!(await fs.pathExists(patchesPath))) {
-      throw new Error("Layout patches configuration not found");
+      patchesPath = path.join(
+        this.cliPath,
+        "src/templates/common/features/auth/integration/layout-patches.json"
+      );
+    }
+
+    if (!(await fs.pathExists(patchesPath))) {
+      throw new Error(`Layout patches configuration not found at ${patchesPath}`);
     }
 
     const patchesConfig = await fs.readJson(patchesPath);
@@ -150,11 +162,11 @@ export class LayoutIntegrator {
       }
 
       const insertIndex = targetIndex + insertion.after.length;
-      const lineEnd = content.indexOf("\\n", insertIndex);
+      const lineEnd = content.indexOf("\n", insertIndex);
       const insertPosition = lineEnd !== -1 ? lineEnd + 1 : insertIndex;
 
       return (
-        content.slice(0, insertPosition) + insertion.content + "\\n" + content.slice(insertPosition)
+        content.slice(0, insertPosition) + insertion.content + "\n" + content.slice(insertPosition)
       );
     }
 
@@ -166,7 +178,7 @@ export class LayoutIntegrator {
         return content;
       }
 
-      return content.slice(0, targetIndex) + insertion.content + "\\n" + content.slice(targetIndex);
+      return content.slice(0, targetIndex) + insertion.content + "\n" + content.slice(targetIndex);
     }
 
     // Handle 'wrap' insertion

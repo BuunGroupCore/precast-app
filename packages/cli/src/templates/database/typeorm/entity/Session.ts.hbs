@@ -1,0 +1,66 @@
+{{#if (eq authProvider "better-auth")}}
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm'
+import { User } from './User'
+
+/**
+ * Session entity for Better Auth
+ * @description Represents user authentication sessions
+ */
+@Entity('session')
+export class Session {
+  /**
+   * Primary key - auto-generated UUID
+   */
+  @PrimaryGeneratedColumn('uuid')
+  id{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * Session expiration date
+   */
+  @Column({ type: 'timestamp' })
+  expiresAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * Session token - must be unique
+   */
+  @Column({ type: 'varchar', length: 500, unique: true })
+  token{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * Client IP address - optional
+   */
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  ipAddress{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Client user agent - optional
+   */
+  @Column({ type: 'text', nullable: true })
+  userAgent{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Record creation timestamp
+   */
+  @CreateDateColumn()
+  createdAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * Record last update timestamp
+   */
+  @UpdateDateColumn()
+  updatedAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * User ID foreign key
+   */
+  @Column({ type: 'uuid' })
+  userId{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * User relationship
+   */
+  @ManyToOne(() => User, user => user.sessions, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user{{#unless typescript}}!{{/unless}}: User
+}
+{{/if}}

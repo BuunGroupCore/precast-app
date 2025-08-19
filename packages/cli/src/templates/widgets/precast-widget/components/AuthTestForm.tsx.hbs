@@ -6,6 +6,12 @@
 import React from 'react';
 import { AuthMode } from '../types';
 import { TestButton } from './TestButton';
+{{#if authProvider}}
+import { getCurrentSession } from '../services/authService';
+{{#if (or (eq authProvider 'better-auth') (eq authProvider 'auth.js'))}}
+import { useAuth, triggerSessionRefresh } from '@/components/auth/AuthProvider';
+{{/if}}
+{{/if}}
 
 interface AuthTestFormProps {
   authMode: AuthMode;
@@ -20,6 +26,9 @@ interface AuthTestFormProps {
   onTest: () => void;
   onStatusTest: () => void;
   isStatusLoading: boolean;
+  {{#if authProvider}}
+  isLoggedIn?: boolean;
+  {{/if}}
 }
 
 {{#if authProvider}}
@@ -40,7 +49,79 @@ export function AuthTestForm({
   onTest,
   onStatusTest,
   isStatusLoading,
+  {{#if authProvider}}
+  isLoggedIn,
+  {{/if}}
 }: AuthTestFormProps) {
+  {{#if authProvider}}
+  {{#if (or (eq authProvider 'better-auth') (eq authProvider 'auth.js'))}}
+  const { user, session, isAuthenticated } = useAuth();
+  {{/if}}
+  const currentSession = getCurrentSession();
+  
+  // Use AuthProvider state as primary, fallback to widget state
+  {{#if (or (eq authProvider 'better-auth') (eq authProvider 'auth.js'))}}
+  const userLoggedIn = isAuthenticated || (isLoggedIn ?? !!(currentSession?.session || currentSession?.user || currentSession?.token));
+  const displayUser = user || currentSession?.user || currentSession?.session?.user;
+  {{else}}
+  const userLoggedIn = isLoggedIn ?? !!(currentSession?.session || currentSession?.user || currentSession?.token);
+  const displayUser = currentSession?.user || currentSession?.session?.user;
+  {{/if}}
+  
+  // If user is logged in, show user info and logout button
+  if (userLoggedIn) {
+    return (
+      <div className="{{#if (eq styling 'tailwind')}}space-y-3{{else}}auth-test-container{{/if}}">
+        {/* User Info Display */}
+        <div className="{{#if (eq styling 'tailwind')}}p-3 border-2 border-black bg-green-100{{else}}user-info-display{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-2{{else}}user-info-header{{/if}}">
+            <span className="{{#if (eq styling 'tailwind')}}font-bold text-xs uppercase tracking-wider{{else}}status-label{{/if}}">LOGGED IN</span>
+            <span className="{{#if (eq styling 'tailwind')}}px-2 py-1 bg-green-500 text-white text-xs font-bold border border-black{{else}}status-badge{{/if}}">
+              AUTHENTICATED
+            </span>
+          </div>
+          {displayUser && (
+            <div className="{{#if (eq styling 'tailwind')}}space-y-1 text-sm font-mono{{else}}user-details{{/if}}">
+              {displayUser.email && <div><strong>Email:</strong> {displayUser.email}</div>}
+              {displayUser.name && <div><strong>Name:</strong> {displayUser.name}</div>}
+              {displayUser.id && <div><strong>ID:</strong> {displayUser.id}</div>}
+            </div>
+          )}
+        </div>
+
+        {/* Dashboard Button */}
+        <TestButton
+          onClick={() => window.open('/dashboard', '_blank')}
+          isLoading={false}
+          variant="primary"
+        >
+          VIEW DASHBOARD
+        </TestButton>
+
+        {/* Logout Button */}
+        <TestButton
+          onClick={onTest}
+          isLoading={isLoading}
+          variant="secondary"
+        >
+          LOGOUT
+        </TestButton>
+
+        {/* Auth status test button */}
+        <TestButton
+          onClick={onStatusTest}
+          isLoading={isStatusLoading}
+          variant="secondary"
+          className="{{#if (eq styling 'tailwind')}}mt-2{{else}}status-btn{{/if}}"
+        >
+          CHECK STATUS ENDPOINT
+        </TestButton>
+      </div>
+    );
+  }
+
+  // If user is not logged in, show login/signup form
+  {{/if}}
   return (
     <div className="{{#if (eq styling 'tailwind')}}space-y-3{{else}}auth-test-container{{/if}}">
       {/* Mode selector */}

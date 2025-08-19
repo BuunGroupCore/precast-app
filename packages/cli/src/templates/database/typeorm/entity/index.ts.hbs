@@ -1,0 +1,6 @@
+export { User } from './User{{#if typescript}}.js{{/if}}'
+{{#if (eq authProvider "better-auth")}}
+export { Session } from './Session{{#if typescript}}.js{{/if}}'
+export { Account } from './Account{{#if typescript}}.js{{/if}}'
+export { Verification } from './Verification{{#if typescript}}.js{{/if}}'
+{{/if}}

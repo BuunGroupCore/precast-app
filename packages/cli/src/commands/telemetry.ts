@@ -1,17 +1,17 @@
 import { homedir } from "os";
 import { join } from "path";
 
+import { select, confirm } from "@clack/prompts";
 import chalk from "chalk";
 import cliWidth from "cli-width";
 import fsExtra from "fs-extra";
 import { createSpinner } from "nanospinner";
-import { select, confirm } from "@clack/prompts";
 
 const { readFile, writeFile, pathExists } = fsExtra;
 
 import { isTelemetryEnabled } from "@/utils/analytics/analytics.js";
-import { PrecastBanner } from "@/utils/ui/precast-banner.js";
 import { createFancyBox, theme } from "@/utils/ui/cli-theme.js";
+import { PrecastBanner } from "@/utils/ui/precast-banner.js";
 
 const TELEMETRY_CONFIG_FILE = join(homedir(), ".precast-telemetry");
 

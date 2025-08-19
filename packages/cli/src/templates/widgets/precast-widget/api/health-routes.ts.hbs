@@ -37,7 +37,7 @@ const prisma = new PrismaClient();
 const router = Router();
 
 // GET /api/health - General health check
-router.get('/health', (req: Request, res: Response) => {
+router.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -48,7 +48,7 @@ router.get('/health', (req: Request, res: Response) => {
 
 {{#if database}}
 // GET /api/health/database - Database connection check
-router.get('/health/database', async (req: Request, res: Response) => {
+router.get('/health/database', async (_req: Request, res: Response) => {
   try {
     {{#if (eq orm 'prisma')}}
     // Test database connection with Prisma

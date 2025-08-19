@@ -29,7 +29,8 @@ import {
   {{#if (eq authProvider 'better-auth')}}
   testSignOut,
   checkSession,
-  getCurrentSession
+  getCurrentSession,
+  subscribeToAuthState
   {{/if}}
 } from '@/components/precast/services/authService';
 {{/if}}
@@ -89,8 +90,26 @@ export function PrecastWidget() {
   {{#if (eq authProvider 'better-auth')}}
   useEffect(() => {
     const session = getCurrentSession();
-    setIsLoggedIn(!!(session?.session || session?.user || session?.token));
+    const newLoggedInState = !!(session?.session || session?.user || session?.token);
+    setIsLoggedIn(newLoggedInState);
   }, [testResults.authStatus, testResults.auth, testResults.authSession]);
+
+  // Subscribe to auth state changes
+  useEffect(() => {
+    const updateAuthState = () => {
+      const session = getCurrentSession();
+      const newLoggedInState = !!(session?.session || session?.user || session?.token);
+      setIsLoggedIn(newLoggedInState);
+    };
+    
+    // Set initial state
+    updateAuthState();
+    
+    // Subscribe to changes
+    const unsubscribe = subscribeToAuthState(updateAuthState);
+    
+    return unsubscribe;
+  }, []);
   {{/if}}
   {{/if}}
 

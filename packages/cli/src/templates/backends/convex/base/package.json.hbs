@@ -10,8 +10,8 @@
     "typecheck": "convex typecheck",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint convex/ --ext .ts",
-    "lint:fix": "eslint convex/ --ext .ts --fix"
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint convex/ --ext .ts",
+    "lint:fix": "ESLINT_USE_FLAT_CONFIG=false eslint convex/ --ext .ts --fix"
   },
   "dependencies": {
     "convex": "^1.14.0"{{#if config.auth}},

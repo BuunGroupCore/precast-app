@@ -5,9 +5,11 @@
  */
 
 import { TestResult, ServiceTestContext, AuthMode } from '../types';
+import { getAuthApiUrl } from '../utils/environmentUtils';
 
 {{#if authProvider}}
 let currentSession: any = null;
+let authStateListeners: (() => void)[] = [];
 
 /**
  * Gets the current authentication session
@@ -21,6 +23,23 @@ export const getCurrentSession = () => currentSession;
  */
 export const setCurrentSession = (session: any) => {
   currentSession = session;
+  // Notify all listeners of auth state change
+  authStateListeners.forEach(listener => listener());
+  
+  // Don't trigger session refresh here - it creates a feedback loop
+  // The AuthProvider already manages its own refresh cycle
+};
+
+/**
+ * Subscribe to auth state changes
+ * @param {Function} listener - Function to call when auth state changes
+ * @returns {Function} Unsubscribe function
+ */
+export const subscribeToAuthState = (listener: () => void) => {
+  authStateListeners.push(listener);
+  return () => {
+    authStateListeners = authStateListeners.filter(l => l !== listener);
+  };
 };
 {{/if}}
 
@@ -249,6 +268,24 @@ export const testAuthService = async (
       {{#if (eq authProvider 'better-auth')}}
       // Store the auth response which contains user data
       setCurrentSession(responseData);
+      
+      // Also store in localStorage for cross-domain sharing
+      if (typeof window !== 'undefined') {
+        // Make sure we're storing valid JSON
+        const sessionToStore = typeof responseData === 'string' ? 
+          { user: responseData, session: null } : responseData;
+        localStorage.setItem('precast-auth-session', JSON.stringify(sessionToStore));
+        localStorage.setItem('auth-session-change', Date.now().toString());
+      }
+      
+      // Trigger AuthProvider refresh immediately
+      try {
+        const { triggerSessionRefresh } = require('@/components/auth/AuthProvider');
+        setTimeout(() => triggerSessionRefresh(), 100);
+      } catch (error) {
+        // Silently handle if AuthProvider is not available
+        console.log('AuthProvider not available for session refresh');
+      }
       {{/if}}
       
       addTestResult("auth", {
@@ -333,6 +370,13 @@ export const testSignOut = async (
     });
     
     setCurrentSession(null);
+    {{#if (or (eq authProvider 'better-auth') (eq authProvider 'auth.js'))}}
+    // Clear localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('precast-auth-session');
+      localStorage.setItem('auth-session-change', Date.now().toString());
+    }
+    {{/if}}
     const checkResponse = await fetch(`${apiUrl}/api/auth/get-session`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },

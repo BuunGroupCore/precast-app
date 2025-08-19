@@ -42,8 +42,8 @@ export function useSystemInfo() {
         setSystemInfo({
           uptime: data.uptime || 0,
           environment: data.environment || 'development',
-          apiPort: {{#if backend}}3001{{else}}undefined{{/if}},
-          dbPort: {{#if database}}{{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}}{{else}}undefined{{/if}}
+          apiPort: {{#if backend}}3001{{else}}0{{/if}},
+          dbPort: {{#if database}}{{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}}{{else}}0{{/if}}
         });
       }
     } catch (error) {

@@ -8,6 +8,8 @@ import cors from "cors";
 import { config } from "dotenv";
 import express, { {{#if typescript}}type {{/if}}Request, {{#if typescript}}type {{/if}}Response, json, urlencoded } from "express";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
 
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
 import healthRoutes from "@/api/routes/health{{#if typescript}}.js{{/if}}";
@@ -33,10 +35,62 @@ config();
 
 const app = express();
 
-app.use(helmet());
-app.use(cors(CORS_CONFIG));
-app.use(json());
-app.use(urlencoded({ extended: true }));
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
+
+// CORS with credentials
+app.use(cors({
+  ...CORS_CONFIG,
+  credentials: true,
+}));
+
+// Body parsing with limits to prevent DoS
+app.use(json({ limit: '10mb' }));
+app.use(urlencoded({ extended: true, limit: '10mb' }));
+
+// Trust proxy for secure cookies behind reverse proxy
+app.set('trust proxy', 1);
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Auth rate limiting (stricter but reasonable for session checks)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Allow enough for session checks and auth operations
+  message: 'Too many authentication attempts, please try again later.',
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+// Apply rate limiting
+app.use('/api/', limiter);
+app.use('/api/auth/', authLimiter);
+
+// Input sanitization
+app.use(mongoSanitize({
+  replaceWith: '_',
+  allowDots: false,
+}));
 
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
 app.use("/api", healthRoutes);
@@ -74,8 +128,15 @@ app.all("/api/auth*", async (req, res) => {
     
     const response = await auth.handler(webRequest);
     
+    // Forward all response headers including Set-Cookie
     response.headers.forEach((value, key) => {
-      res.setHeader(key, value);
+      if (key.toLowerCase() === 'set-cookie') {
+        // Handle Set-Cookie header properly for multiple cookies
+        const cookies = response.headers.getSetCookie ? response.headers.getSetCookie() : [value];
+        cookies.forEach(cookie => res.append('Set-Cookie', cookie));
+      } else {
+        res.setHeader(key, value);
+      }
     });
     
     res.status(response.status);
@@ -97,7 +158,7 @@ app.use("/api/auth", authRoutes);
 /**
  * Health check endpoint
  */
-app.get(HEALTH_CHECK_CONFIG.path, (req: Request, res: Response) => {
+app.get(HEALTH_CHECK_CONFIG.path, (_req: Request, res: Response) => {
   res.json({ 
     status: "ok", 
     message: HEALTH_CHECK_CONFIG.message,
@@ -110,7 +171,7 @@ app.get(HEALTH_CHECK_CONFIG.path, (req: Request, res: Response) => {
 /**
  * Hello world endpoint
  */
-app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (req: Request, res: Response) => {
+app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (_req: Request, res: Response) => {
   res.json({ 
     message: `Hello from ${APP_CONFIG.name}!`,
     version: APP_CONFIG.version
@@ -130,7 +191,7 @@ app.use("*", (req: Request, res: Response) => {
 /**
  * Global error handler
  */
-app.use((err: Error, req: Request, res: Response) => {
+app.use((err: Error, _req: Request, res: Response) => {
   if (process.env.NODE_ENV === "development") {
     console.error(err.stack);
   }

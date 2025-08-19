@@ -5,6 +5,7 @@
  */
 
 import { betterAuth } from "better-auth";
+import * as crypto from "crypto";
 {{#if (eq orm "prisma")}}
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/db";
@@ -12,6 +13,11 @@ import { prisma } from "@/db";
 {{#if (eq orm "drizzle")}}
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
+import * as schema from "@/db/schema";
+{{/if}}
+{{#if (eq orm "typeorm")}}
+import { typeormAdapter } from "@hedystia/better-auth-typeorm";
+import { dataSource } from "@/db";
 {{/if}}
 {{#if (eq orm "none")}}
 {{#if (ne database "none")}}
@@ -66,7 +72,8 @@ export const auth = betterAuth({
     provider: "{{#if (eq database "postgres")}}postgresql{{else if (eq database "mysql")}}mysql{{else}}sqlite{{/if}}",
   }){{else if (eq orm "drizzle")}}drizzleAdapter(db, {
     provider: "{{#if (eq database "postgres")}}pg{{else if (eq database "mysql")}}mysql2{{else}}better-sqlite3{{/if}}",
-  }){{/if}},
+    schema: schema,
+  }){{else if (eq orm "typeorm")}}typeormAdapter(dataSource){{/if}},
   {{else}}
   {{#if (ne database "none")}}
   database: dbConnection,
@@ -75,7 +82,17 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
-    requireEmailVerification: false,
+    requireEmailVerification: process.env.NODE_ENV === "production",
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
+    // Password strength requirements
+    passwordStrength: {
+      minLength: 8,
+      requireUppercase: true,
+      requireLowercase: true,
+      requireNumbers: true,
+      requireSpecialChars: false, // Optional but recommended
+    },
   },
   socialProviders: {
     github: {
@@ -95,12 +112,25 @@ export const auth = betterAuth({
       maxAge: 5 * 60, // 5 minutes
     },
   },
+  rateLimit: {
+    enabled: true,
+    window: 15 * 60, // 15 minutes
+    max: 5, // Max 5 attempts per window
+    storage: "memory", // Use Redis in production
+  },
   advanced: {
-    useSecureCookies: process.env.NODE_ENV === "production" || process.env.USE_SECURE_COOKIES === "true",
+    useSecureCookies: process.env.NODE_ENV === "production"{{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}} || true{{/if}},
     defaultCookieAttributes: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production" || process.env.USE_SECURE_COOKIES === "true",
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "production"{{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}} || true{{/if}},
+      sameSite: {{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}"none"{{else}}(process.env.NODE_ENV === "production" ? "strict" : "lax"){{/if}},
+      domain: undefined,
+      path: "/",
+    },
+    // Additional security settings
+    disableCSRFCheck: false, // Always enable CSRF protection
+    database: {
+      generateId: () => crypto.randomUUID(), // Use cryptographically secure IDs
     },
   },
 });

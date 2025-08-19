@@ -11,6 +11,17 @@ import { createAuthClient } from "better-auth/client";
  * @description Configured with appropriate base URL and API path for authentication operations
  */
 export const authClient = createAuthClient({
+  {{#if (and (or (eq framework "next") (eq framework "nuxt") (eq framework "vite") (eq framework "react")) (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel")))}}
+  // Use relative URL when proxying through the frontend server
+  baseURL: "",
+  {{else if (eq framework "next")}}
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}",
+  {{else if (eq framework "nuxt")}}
+  baseURL: process.env.NUXT_PUBLIC_API_URL || "http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}",
+  {{else if (eq framework "react")}}
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}",
+  {{else}}
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:{{#if (and backend (ne backend "none"))}}3001{{else}}3000{{/if}}",
+  {{/if}}
   basePath: "/api/auth",
 });

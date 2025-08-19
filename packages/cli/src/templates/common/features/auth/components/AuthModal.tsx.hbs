@@ -7,7 +7,6 @@
  */
 
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
@@ -73,29 +72,13 @@ export function AuthModal({
     }
   };
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+  return isOpen ? (
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={handleBackdropClick}
         >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-md"
-          >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative w-full max-w-md">
             <button
               onClick={onClose}
               disabled={isLoading}
@@ -108,15 +91,8 @@ export function AuthModal({
             </button>
 
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
-              <AnimatePresence mode="wait">
                 {mode === 'login' ? (
-                  <motion.div
-                    key="login"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3 }}
-                  >
+                  <div>
                     <LoginForm
                       onSubmit={onLogin || (async () => {})}
                       onSignupClick={() => handleModeSwitch('signup')}
@@ -125,15 +101,9 @@ export function AuthModal({
                       showSocialLogin={showSocialLogin}
                       className="border-0 shadow-none"
                     />
-                  </motion.div>
+                  </div>
                 ) : (
-                  <motion.div
-                    key="signup"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
+                  <div>
                     <SignupForm
                       onSubmit={onSignup || (async () => {})}
                       onLoginClick={() => handleModeSwitch('login')}
@@ -142,13 +112,10 @@ export function AuthModal({
                       showSocialLogin={showSocialLogin}
                       className="border-0 shadow-none"
                     />
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+          </div>
+        </div>
+  ) : null;
 }

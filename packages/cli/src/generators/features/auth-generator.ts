@@ -5,12 +5,15 @@ import type { ProjectConfig } from "@shared/stack-config.js";
 import fsExtra from "fs-extra";
 
 import { createTemplateEngine } from "@/core/template-engine.js";
+import type { DetectedProject } from "@/utils/features/feature-registry.js";
+import { LayoutIntegrator } from "@/utils/features/layout-integrator.js";
 import { errorCollector } from "@/utils/system/error-collector.js";
 import { installDependencies } from "@/utils/system/package-manager.js";
 import { getTemplateRoot } from "@/utils/system/template-path.js";
 import { logger } from "@/utils/ui/logger.js";
 
-const { writeFile, pathExists, readFile, readdir, ensureDir, readJson, writeJson } = fsExtra;
+const { writeFile, pathExists, readFile, readdir, ensureDir, readJson, writeJson, rename } =
+  fsExtra;
 
 interface AuthProvider {
   id: string;
@@ -214,6 +217,59 @@ const authProviders: Record<string, AuthProvider> = {
 };
 
 /**
+ * Integrate AuthProvider into existing layout files
+ */
+async function integrateAuthProvider(config: ProjectConfig): Promise<void> {
+  try {
+    const templateRoot = await getTemplateRoot();
+    const layoutIntegrator = new LayoutIntegrator(templateRoot);
+
+    const isMonorepo = !!(
+      config.backend &&
+      config.backend !== "none" &&
+      config.backend !== "next-api"
+    );
+
+    // Create a DetectedProject object from ProjectConfig
+    // For monorepo, we need to point to the web app directory
+    const detectedProject: DetectedProject = {
+      projectPath: isMonorepo ? path.join(config.projectPath, "apps/web") : config.projectPath,
+      framework: config.framework,
+      backend: config.backend,
+      authProvider: config.authProvider,
+      styling: [config.styling || "css"],
+      packageManager: config.packageManager || "npm",
+      typescript: config.typescript || false,
+      monorepo: isMonorepo,
+    };
+
+    // Check if AuthProvider is already integrated
+    const isIntegrated = await layoutIntegrator.isAuthProviderIntegrated(detectedProject);
+
+    if (isIntegrated) {
+      logger.verbose("✓ AuthProvider already integrated in layout");
+      return;
+    }
+
+    // Validate layout integration requirements
+    const validation = await layoutIntegrator.validateLayoutIntegration(detectedProject);
+
+    if (!validation.valid) {
+      logger.warn(`⚠️  Layout integration validation failed: ${validation.errors.join(", ")}`);
+      logger.info("You may need to manually add AuthProvider to your layout");
+      return;
+    }
+
+    // Apply the layout integration
+    await layoutIntegrator.integrateAuthProvider(detectedProject);
+    logger.success("✓ AuthProvider integrated into layout");
+  } catch (error) {
+    logger.warn(`⚠️  Failed to integrate AuthProvider into layout: ${error}`);
+    logger.info("You may need to manually wrap your app with AuthProvider");
+  }
+}
+
+/**
  * Generate authentication setup for the project using templates
  */
 export async function generateAuthTemplate(
@@ -255,6 +311,12 @@ export async function generateAuthTemplate(
     await updatePrismaSchema(config, provider);
   }
 
+  // Copy common auth feature templates (AuthProvider, components, etc.)
+  await copyCommonAuthFeatures(config, provider);
+
+  // Integrate AuthProvider into existing layouts
+  await integrateAuthProvider(config);
+
   logger.verbose(`✅ ${provider.name} authentication setup complete!`);
   showNextSteps(config, provider);
 }
@@ -263,7 +325,11 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
   const packages: string[] = [];
   const devPackages: string[] = [];
 
-  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  const isMonorepo = !!(
+    config.backend &&
+    config.backend !== "none" &&
+    config.backend !== "next-api"
+  );
   const packageFramework =
     provider.id === "auth.js" && isMonorepo ? config.backend : config.framework;
 
@@ -301,6 +367,8 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
     packages.push("@prisma/client");
   } else if (provider.id === "better-auth" && config.orm === "drizzle") {
     // Drizzle should already be installed with the ORM setup
+  } else if (provider.id === "better-auth" && config.orm === "typeorm") {
+    packages.push("@hedystia/better-auth-typeorm");
   }
 
   if (config.typescript) {
@@ -312,7 +380,11 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
   if (packages.length > 0 || devPackages.length > 0) {
     logger.verbose(`📦 Installing ${provider.name} packages...`);
 
-    const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+    const isMonorepo = !!(
+      config.backend &&
+      config.backend !== "none" &&
+      config.backend !== "next-api"
+    );
     const isBackendFramework = ["express", "hono", "fastify", "node"].includes(config.framework);
 
     let installPath: string;
@@ -342,6 +414,99 @@ async function installAuthPackages(config: ProjectConfig, provider: AuthProvider
         context: "auth_dev",
       });
     }
+  }
+}
+
+async function copyCommonAuthFeatures(
+  config: ProjectConfig,
+  provider: AuthProvider
+): Promise<void> {
+  const templateRoot = await getTemplateRoot();
+  const templateEngine = createTemplateEngine(templateRoot);
+  const commonAuthPath = path.join(templateRoot, "common/features/auth");
+
+  if (!(await pathExists(commonAuthPath))) {
+    return;
+  }
+
+  const isMonorepo = !!(
+    config.backend &&
+    config.backend !== "none" &&
+    config.backend !== "next-api"
+  );
+  const targetPath = isMonorepo
+    ? path.join(config.projectPath, "apps/web/src/components/auth")
+    : path.join(config.projectPath, "src/components/auth");
+
+  const authContext = {
+    ...config,
+    authProvider: provider.id,
+    backendPort: 3001,
+  };
+
+  try {
+    // Copy providers (AuthProvider)
+    const providersPath = path.join(commonAuthPath, "providers");
+    if (await pathExists(providersPath)) {
+      await templateEngine.copyTemplateDirectory(
+        "common/features/auth/providers",
+        targetPath,
+        authContext,
+        { overwrite: true }
+      );
+    }
+
+    // Copy components (LoginForm, SignupForm, etc.)
+    const componentsPath = path.join(commonAuthPath, "components");
+    if (await pathExists(componentsPath)) {
+      await templateEngine.copyTemplateDirectory(
+        "common/features/auth/components",
+        path.join(targetPath, "components"),
+        authContext,
+        { overwrite: true }
+      );
+    }
+
+    // Copy hooks (useAuth, etc.)
+    const hooksPath = path.join(commonAuthPath, "hooks");
+    if (await pathExists(hooksPath)) {
+      await templateEngine.copyTemplateDirectory(
+        "common/features/auth/hooks",
+        path.join(targetPath, "hooks"),
+        authContext,
+        { overwrite: true }
+      );
+    }
+
+    // Copy pages (Dashboard, etc.) if they exist
+    const pagesPath = path.join(commonAuthPath, "pages");
+    if (await pathExists(pagesPath)) {
+      // For monorepo, dashboard goes to apps/web/src/app/dashboard
+      const dashboardTarget = isMonorepo
+        ? path.join(config.projectPath, "apps/web/src/app/dashboard")
+        : path.join(config.projectPath, "src/app/dashboard");
+
+      await templateEngine.copyTemplateDirectory(
+        "common/features/auth/pages",
+        dashboardTarget,
+        authContext,
+        { overwrite: true }
+      );
+
+      // For Next.js, rename Dashboard.tsx to page.tsx for App Router
+      if (config.framework === "next") {
+        const dashboardFile = path.join(dashboardTarget, "Dashboard.tsx");
+        const pageFile = path.join(dashboardTarget, "page.tsx");
+        if (await pathExists(dashboardFile)) {
+          await rename(dashboardFile, pageFile);
+          logger.verbose("✓ Renamed Dashboard.tsx to page.tsx for Next.js App Router");
+        }
+      }
+    }
+
+    logger.verbose("✓ Copied common auth feature templates");
+  } catch (error) {
+    logger.warn(`Failed to copy common auth features: ${error}`);
   }
 }
 
@@ -436,8 +601,11 @@ async function copyAuthTemplates(
           const fileName = file.name.replace(".hbs", "");
 
           // Skip auth-client for backend destinations (it's for frontend)
-          const isMonorepo =
-            config.backend && config.backend !== "none" && config.backend !== "next-api";
+          const isMonorepo = !!(
+            config.backend &&
+            config.backend !== "none" &&
+            config.backend !== "next-api"
+          );
           if (fileName.includes("auth-client") && isMonorepo) {
             // Copy auth-client to the web app instead
             const webDestPath = path.join(config.projectPath, "apps/web/src/lib", fileName);
@@ -446,6 +614,11 @@ async function copyAuthTemplates(
               webDestPath,
               authContext
             );
+            continue;
+          }
+
+          // Skip db-connection.ts if using an ORM (only needed when orm is "none")
+          if (fileName.includes("db-connection") && config.orm !== "none") {
             continue;
           }
 
@@ -498,8 +671,11 @@ async function copyAuthTemplates(
       config.database !== "none" &&
       (!config.orm || config.orm === "none")
     ) {
-      const isMonorepo =
-        config.backend && config.backend !== "none" && config.backend !== "next-api";
+      const isMonorepo = !!(
+        config.backend &&
+        config.backend !== "none" &&
+        config.backend !== "next-api"
+      );
       const targetPath = isMonorepo
         ? path.join(config.projectPath, "apps/api")
         : config.projectPath;
@@ -553,7 +729,11 @@ async function copyAuthTemplates(
 }
 
 function getAuthDestination(config: ProjectConfig & { authProvider?: string }): string {
-  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  const isMonorepo = !!(
+    config.backend &&
+    config.backend !== "none" &&
+    config.backend !== "next-api"
+  );
 
   // For auth.js in a monorepo, auth config goes to the API under features/auth
   // Routes will be handled separately
@@ -641,7 +821,11 @@ async function updateEnvFile(
   config: ProjectConfig & { authProvider?: string },
   provider: AuthProvider
 ): Promise<void> {
-  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  const isMonorepo = !!(
+    config.backend &&
+    config.backend !== "none" &&
+    config.backend !== "next-api"
+  );
   let envBasePath: string;
 
   if (provider.id === "better-auth" && isMonorepo) {
@@ -713,7 +897,11 @@ async function updatePrismaSchema(
   if (provider.id !== "auth.js" && provider.id !== "better-auth") {
     return;
   }
-  const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "next-api";
+  const isMonorepo = !!(
+    config.backend &&
+    config.backend !== "none" &&
+    config.backend !== "next-api"
+  );
   const schemaPath = isMonorepo
     ? path.join(config.projectPath, "apps", "api", "prisma", "schema.prisma")
     : path.join(config.projectPath, "prisma", "schema.prisma");

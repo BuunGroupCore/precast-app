@@ -1,0 +1,22 @@
+{
+  "id": "imagemin",
+  "name": "Imagemin",
+  "description": "Minify images seamlessly",
+  "dependencies": {},
+  "devDependencies": {
+    "*": ["imagemin", "imagemin-webp", "imagemin-mozjpeg", "imagemin-pngquant", "imagemin-svgo"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "minify-images": "node scripts/minify-images.js"
+  },
+  "setupFiles": {
+    "*": [
+      { "template": "minify-images.js.hbs", "output": "scripts/minify-images.js" },
+      { "template": "imagemin-config.js.hbs", "output": "imagemin.config.js" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": ["sharp"],
+  "requires": []
+}

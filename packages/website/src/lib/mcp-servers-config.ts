@@ -1,5 +1,5 @@
 import { IconType } from "react-icons";
-import { FaGithub, FaFileCode } from "react-icons/fa";
+import { FaGithub, FaFileCode, FaBolt } from "react-icons/fa";
 import { SiPostgresql, SiMongodb, SiSupabase } from "react-icons/si";
 
 import { BraveIcon } from "@/components/icons/BraveIcon";
@@ -254,6 +254,23 @@ export const mcpServers: MCPServer[] = [
     recommended: true,
     recommendedReason:
       "Essential for analyzing large codebases that exceed Claude's context window",
+  },
+  {
+    id: "brutalist-ui",
+    name: "Brutalist UI",
+    description:
+      "MCP server for Brutalist UI components - provides component documentation and usage examples",
+    icon: FaBolt,
+    category: "productivity",
+    triggers: {
+      any: false,
+    },
+    config: {
+      server_name: "brutalist-ui",
+      command: "npx",
+      args: ["@buun_group/brutalist-ui-mcp-server"],
+    },
+    repository: "https://github.com/buun-group/brutalist-ui",
   },
 ];
 

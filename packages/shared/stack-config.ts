@@ -46,6 +46,16 @@ export interface ProjectConfig {
   colorPalette?: string; // Color palette theme
 }
 
+export interface PowerUpOption {
+  id: string;
+  name: string;
+  description: string;
+  frameworks?: string[];
+  requires?: string[];
+  conflicts?: string[];
+  incompatible?: string[];
+}
+
 // Stack definitions without React Icons (for CLI usage)
 export const frameworkDefs: StackOption[] = [
   // SPA Frameworks
@@ -509,9 +519,201 @@ export function validateConfiguration(config: ProjectConfig): {
 
   // Auto-fix logic - no longer needed as backends are now direct options
 
+  // Check powerup conflicts and requirements
+  if (config.powerups && config.powerups.length > 0) {
+    const powerupErrors = validatePowerups(config.powerups, config.framework);
+    errors.push(...powerupErrors);
+  }
+
   return {
     valid: errors.length === 0,
     errors,
     warnings,
   };
+}
+
+// PowerUp definitions with conflict checking
+export const powerUpDefs: PowerUpOption[] = [
+  {
+    id: "million",
+    name: "Million.js",
+    description: "Make React 70% faster with a compiler",
+    frameworks: ["react", "next", "remix", "react-router", "tanstack-router", "tanstack-start"],
+    requires: ["react"],
+    conflicts: [],
+    incompatible: [],
+  },
+  {
+    id: "next-seo",
+    name: "Next SEO",
+    description: "SEO made easy for Next.js projects",
+    frameworks: ["next"],
+    requires: ["next"],
+    conflicts: ["react-helmet"],
+    incompatible: [],
+  },
+  {
+    id: "react-helmet",
+    name: "React Helmet",
+    description: "Document head management for React",
+    frameworks: ["react", "remix"],
+    requires: ["react"],
+    conflicts: ["next-seo"],
+    incompatible: ["next"],
+  },
+  {
+    id: "react-aria",
+    name: "React Aria",
+    description: "Library of React Hooks for accessible UI primitives",
+    frameworks: ["react", "next", "remix", "react-router", "tanstack-router", "tanstack-start"],
+    requires: ["react"],
+    conflicts: ["axe-core"],
+    incompatible: [],
+  },
+  {
+    id: "axe-core",
+    name: "Axe DevTools",
+    description: "Accessibility testing tools",
+    frameworks: ["*"],
+    requires: [],
+    conflicts: ["react-aria"],
+    incompatible: [],
+  },
+  {
+    id: "vue-router",
+    name: "Vue Router",
+    description: "Official router for Vue.js applications",
+    frameworks: ["vue"],
+    requires: ["vue"],
+    conflicts: [],
+    incompatible: [],
+  },
+  {
+    id: "svelte-routing",
+    name: "Svelte Routing",
+    description: "Declarative routing for Svelte applications",
+    frameworks: ["svelte"],
+    requires: ["svelte"],
+    conflicts: [],
+    incompatible: [],
+  },
+  {
+    id: "solid-router",
+    name: "Solid Router",
+    description: "Official routing library for SolidJS",
+    frameworks: ["solid"],
+    requires: ["solid"],
+    conflicts: [],
+    incompatible: [],
+  },
+  {
+    id: "partytown",
+    name: "Partytown",
+    description: "Run third-party scripts in a web worker",
+    frameworks: ["*"],
+    requires: [],
+    conflicts: [],
+    incompatible: [],
+  },
+  {
+    id: "next-intl",
+    name: "Next-intl",
+    description: "Internationalization for Next.js that gets out of your way",
+    frameworks: ["next"],
+    requires: ["next"],
+    conflicts: ["react-i18next", "vue-i18n", "angular-localize", "solid-i18n"],
+    incompatible: [],
+  },
+  {
+    id: "angular-localize",
+    name: "@angular/localize",
+    description: "Built-in internationalization support for Angular",
+    frameworks: ["angular"],
+    requires: ["angular"],
+    conflicts: ["react-i18next", "vue-i18n", "next-intl", "solid-i18n"],
+    incompatible: [],
+  },
+  {
+    id: "solid-i18n",
+    name: "@solid-primitives/i18n",
+    description: "Internationalization primitives for SolidJS",
+    frameworks: ["solid"],
+    requires: ["solid"],
+    conflicts: ["react-i18next", "vue-i18n", "angular-localize", "next-intl"],
+    incompatible: [],
+  },
+  {
+    id: "sharp",
+    name: "Sharp",
+    description: "High performance image processing",
+    frameworks: ["*"],
+    requires: [],
+    conflicts: ["imagemin"],
+    incompatible: [],
+  },
+  {
+    id: "imagemin",
+    name: "Imagemin",
+    description: "Minify images seamlessly",
+    frameworks: ["*"],
+    requires: [],
+    conflicts: ["sharp"],
+    incompatible: [],
+  },
+];
+
+function validatePowerups(powerups: string[], framework: string): string[] {
+  const errors: string[] = [];
+
+  for (const powerupId of powerups) {
+    const powerup = powerUpDefs.find((p) => p.id === powerupId);
+    if (!powerup) {
+      errors.push(`Unknown powerup: ${powerupId}`);
+      continue;
+    }
+
+    // Check framework compatibility
+    if (
+      powerup.frameworks &&
+      !powerup.frameworks.includes("*") &&
+      !powerup.frameworks.includes(framework)
+    ) {
+      errors.push(`${powerup.name} is not compatible with ${framework}`);
+    }
+
+    // Check requirements
+    if (powerup.requires) {
+      for (const requirement of powerup.requires) {
+        if (requirement === framework) continue; // Framework requirement satisfied
+        if (
+          requirement === "react" &&
+          ["react", "next", "remix", "react-router", "tanstack-router", "tanstack-start"].includes(
+            framework
+          )
+        )
+          continue;
+        if (requirement === "vue" && ["vue", "nuxt"].includes(framework)) continue;
+        if (requirement === "solid" && framework === "solid") continue;
+        if (requirement === "svelte" && framework === "svelte") continue;
+        if (requirement === "next" && framework === "next") continue;
+
+        errors.push(`${powerup.name} requires ${requirement}`);
+      }
+    }
+
+    // Check incompatibilities
+    if (powerup.incompatible?.includes(framework)) {
+      errors.push(`${powerup.name} is incompatible with ${framework}`);
+    }
+
+    // Check conflicts with other selected powerups
+    for (const otherPowerupId of powerups) {
+      if (otherPowerupId !== powerupId && powerup.conflicts?.includes(otherPowerupId)) {
+        const otherPowerup = powerUpDefs.find((p) => p.id === otherPowerupId);
+        errors.push(`${powerup.name} conflicts with ${otherPowerup?.name || otherPowerupId}`);
+      }
+    }
+  }
+
+  return errors;
 }

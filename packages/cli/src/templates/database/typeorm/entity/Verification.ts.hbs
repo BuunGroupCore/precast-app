@@ -1,0 +1,46 @@
+{{#if (eq authProvider "better-auth")}}
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+
+/**
+ * Verification entity for Better Auth
+ * @description Represents email verification and password reset tokens
+ */
+@Entity('verification')
+export class Verification {
+  /**
+   * Primary key - auto-generated UUID
+   */
+  @PrimaryGeneratedColumn('uuid')
+  id{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * Identifier (usually email address)
+   */
+  @Column({ type: 'varchar', length: 255 })
+  identifier{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * Verification token value
+   */
+  @Column({ type: 'varchar', length: 500 })
+  value{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * Token expiration date
+   */
+  @Column({ type: 'timestamp' })
+  expiresAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * Record creation timestamp
+   */
+  @CreateDateColumn()
+  createdAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * Record last update timestamp
+   */
+  @UpdateDateColumn()
+  updatedAt{{#unless typescript}}!{{/unless}}: Date
+}
+{{/if}}

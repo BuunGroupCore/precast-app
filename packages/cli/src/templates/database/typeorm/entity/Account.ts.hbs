@@ -1,0 +1,96 @@
+{{#if (eq authProvider "better-auth")}}
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm'
+import { User } from './User'
+
+/**
+ * Account entity for Better Auth
+ * @description Represents OAuth provider accounts linked to users
+ */
+@Entity('account')
+export class Account {
+  /**
+   * Primary key - auto-generated UUID
+   */
+  @PrimaryGeneratedColumn('uuid')
+  id{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * Account ID from the OAuth provider
+   */
+  @Column({ type: 'varchar', length: 255 })
+  accountId{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * OAuth provider ID (e.g., 'github', 'google')
+   */
+  @Column({ type: 'varchar', length: 255 })
+  providerId{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * OAuth access token - optional
+   */
+  @Column({ type: 'text', nullable: true })
+  accessToken{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * OAuth refresh token - optional
+   */
+  @Column({ type: 'text', nullable: true })
+  refreshToken{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * OAuth ID token - optional
+   */
+  @Column({ type: 'text', nullable: true })
+  idToken{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Access token expiration date - optional
+   */
+  @Column({ type: 'timestamp', nullable: true })
+  accessTokenExpiresAt{{#unless typescript}}?{{/unless}}: Date{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Refresh token expiration date - optional
+   */
+  @Column({ type: 'timestamp', nullable: true })
+  refreshTokenExpiresAt{{#unless typescript}}?{{/unless}}: Date{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * OAuth scope - optional
+   */
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  scope{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Hashed password for email/password auth - optional
+   */
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Record creation timestamp
+   */
+  @CreateDateColumn()
+  createdAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * Record last update timestamp
+   */
+  @UpdateDateColumn()
+  updatedAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * User ID foreign key
+   */
+  @Column({ type: 'uuid' })
+  userId{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * User relationship
+   */
+  @ManyToOne(() => User, user => user.accounts, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user{{#unless typescript}}!{{/unless}}: User
+}
+{{/if}}

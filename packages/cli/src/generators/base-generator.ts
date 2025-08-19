@@ -27,7 +27,7 @@ function getFrameworkPath(framework: string): string {
     "tanstack-start": "react/tanstack-start",
     "vite-react": "react/vite",
 
-    vue: "vue/bare",
+    vue: "vue",
     nuxt: "vue/nuxt",
     "vite-vue": "vue/vite",
 

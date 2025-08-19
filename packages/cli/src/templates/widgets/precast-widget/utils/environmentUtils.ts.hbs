@@ -71,6 +71,21 @@ export const getSimpleApiHeaders = (apiUrl?: string): HeadersInit => {
 };
 
 /**
+ * Get the auth-specific API URL
+ * Uses local proxy for auth endpoints to handle cookies properly
+ */
+export const getAuthApiUrl = (): string => {
+  {{#if (and (or (eq framework "next") (eq framework "nuxt") (eq framework "vite") (eq framework "react") (eq framework "react-router")) (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel")))}}
+  // Use local proxy for auth endpoints when using tunneling services
+  // This avoids CORS and cookie domain issues
+  return '';
+  {{else}}
+  // Use direct API URL when not using tunneling services
+  return getApiUrl() || '';
+  {{/if}}
+};
+
+/**
  * Get environment-specific configuration
  */
 export const getEnvironmentConfig = () => {

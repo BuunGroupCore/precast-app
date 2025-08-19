@@ -181,6 +181,100 @@ export class ConfigValidator {
         "Consider adding Traefik PowerUp for better routing when using tunnels with a backend",
       severity: "warning",
     });
+
+    // PowerUp conflict validation rules
+    this.addRule({
+      name: "powerup-conflicts",
+      check: (config) => {
+        if (!config.powerups || config.powerups.length === 0) return true;
+
+        const conflicts = [
+          {
+            powerups: ["next-seo", "react-helmet"],
+            message: "Next SEO conflicts with React Helmet",
+          },
+          {
+            powerups: ["react-aria", "axe-core"],
+            message: "React Aria conflicts with Axe-core (choose one accessibility approach)",
+          },
+          {
+            powerups: ["sharp", "imagemin"],
+            message: "Sharp conflicts with Imagemin (choose one image optimization approach)",
+          },
+          {
+            powerups: ["next-intl", "react-i18next"],
+            message: "Next-intl conflicts with React-i18next",
+          },
+          { powerups: ["next-intl", "vue-i18n"], message: "Next-intl conflicts with Vue-i18n" },
+          {
+            powerups: ["react-i18next", "vue-i18n"],
+            message: "React-i18next conflicts with Vue-i18n",
+          },
+        ];
+
+        for (const conflict of conflicts) {
+          const hasConflict = conflict.powerups.every((p) => config.powerups!.includes(p));
+          if (hasConflict) {
+            return false;
+          }
+        }
+        return true;
+      },
+      message:
+        "Conflicting powerups detected - check your selections for incompatible combinations",
+      severity: "error",
+    });
+
+    this.addRule({
+      name: "powerup-framework-compatibility",
+      check: (config) => {
+        if (!config.powerups || config.powerups.length === 0) return true;
+
+        const frameworkRequirements = {
+          million: ["react", "next", "remix", "react-router", "tanstack-router", "tanstack-start"],
+          "next-seo": ["next"],
+          "react-helmet": ["react", "remix", "react-router", "tanstack-router", "tanstack-start"],
+          "react-aria": [
+            "react",
+            "next",
+            "remix",
+            "react-router",
+            "tanstack-router",
+            "tanstack-start",
+          ],
+          "vue-router": ["vue"],
+          "svelte-routing": ["svelte"],
+          "next-intl": ["next"],
+        };
+
+        for (const powerup of config.powerups) {
+          const requiredFrameworks =
+            frameworkRequirements[powerup as keyof typeof frameworkRequirements];
+          if (requiredFrameworks && !requiredFrameworks.includes(config.framework)) {
+            return false;
+          }
+        }
+        return true;
+      },
+      message: "Some powerups are not compatible with the selected framework",
+      severity: "error",
+    });
+
+    this.addRule({
+      name: "powerup-incompatibilities",
+      check: (config) => {
+        if (!config.powerups || config.powerups.length === 0) return true;
+
+        // React Helmet is incompatible with Next.js (should use Next SEO instead)
+        if (config.powerups.includes("react-helmet") && config.framework === "next") {
+          return false;
+        }
+
+        return true;
+      },
+      message: "React Helmet is incompatible with Next.js - use Next SEO instead",
+      severity: "error",
+    });
   }
 
   /**

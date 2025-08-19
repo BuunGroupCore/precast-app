@@ -455,11 +455,11 @@ async function setupPowerUpFiles(
 
     let outputPath = path.join(basePath, file.output);
 
-    // Adjust file extension for TypeScript/JavaScript (but not for docker/config files)
+    // Adjust file extension for TypeScript/JavaScript (but not for docker files)
     if (!file.output.startsWith("docker/")) {
       if (!typescript && outputPath.endsWith(".ts")) {
         outputPath = outputPath.replace(/\.ts$/, ".js");
-      } else if (typescript && outputPath.endsWith(".js") && !outputPath.includes("config")) {
+      } else if (typescript && outputPath.endsWith(".js")) {
         outputPath = outputPath.replace(/\.js$/, ".ts");
       }
     }
@@ -467,9 +467,56 @@ async function setupPowerUpFiles(
     // Ensure directory exists
     await ensureDir(path.dirname(outputPath));
 
-    // Write file
-    await writeFile(outputPath, content);
-    consola.success(`Created ${path.relative(targetPath, outputPath)}`);
+    // Special handling for config files that should be modified, not overwritten
+    if (powerUpConfig.id === "million" && file.output.includes("next.config")) {
+      await handleMillionNextConfigIntegration(outputPath, content);
+      consola.success(`Integrated Million.js into ${path.relative(targetPath, outputPath)}`);
+    } else {
+      // Write file normally
+      await writeFile(outputPath, content);
+      consola.success(`Created ${path.relative(targetPath, outputPath)}`);
+    }
+  }
+}
+
+/**
+ * Handle Million.js integration into existing Next.js config
+ */
+async function handleMillionNextConfigIntegration(
+  outputPath: string,
+  millionConfig: string
+): Promise<void> {
+  if (await pathExists(outputPath)) {
+    // Read existing config
+    const existingConfig = await readFile(outputPath, "utf-8");
+
+    // Check if Million.js is already integrated
+    if (existingConfig.includes("million")) {
+      consola.info("Million.js already integrated in next.config.ts");
+      return;
+    }
+
+    // Extract the existing nextConfig object
+    const configMatch = existingConfig.match(/const nextConfig[^=]*=\s*(\{[\s\S]*?\});/);
+    if (configMatch) {
+      const existingConfigObj = configMatch[1];
+
+      // Create new config with Million.js integration
+      const newConfig = `import million from 'million/compiler';
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = ${existingConfigObj};
+
+export default million.next(nextConfig, { auto: true });`;
+
+      await writeFile(outputPath, newConfig);
+    } else {
+      // Fallback: write the Million.js config
+      await writeFile(outputPath, millionConfig);
+    }
+  } else {
+    // File doesn't exist, create it
+    await writeFile(outputPath, millionConfig);
   }
 }
 

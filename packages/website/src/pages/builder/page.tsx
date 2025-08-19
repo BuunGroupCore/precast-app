@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { FaHistory, FaMagic, FaDocker } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
 import {
   AIAssistanceSection,
@@ -36,27 +37,33 @@ import { trackBuilderAction, trackConversion } from "@/utils/analytics";
  * Provides a visual interface for selecting frameworks, databases, styling, and more.
  */
 export function BuilderPage() {
+  const location = useLocation();
   const defaultPalette = colorPalettes.find((p) => p.id === "shadcn");
+
+  // Get recommended stack from survey if available
+  const recommendedStack = location.state?.recommendedStack;
+
   const [config, setConfig] = useState<ExtendedProjectConfig>({
     name: "my-awesome-project",
-    framework: "react",
-    backend: "node",
-    database: "postgres",
+    framework: recommendedStack?.framework || "react",
+    backend: recommendedStack?.backend || "node",
+    database: recommendedStack?.database || "postgres",
     databaseDeployment: "local",
-    orm: "drizzle",
-    styling: "tailwind",
-    typescript: true,
-    git: true,
-    docker: false,
-    aiAssistant: "none",
-    uiLibrary: "none",
-    autoInstall: true,
-    packageManager: "bun",
-    deploymentMethod: "none",
-    runtime: "bun",
-    auth: "none",
-    mcpServers: [],
+    orm: recommendedStack?.orm || "drizzle",
+    styling: recommendedStack?.styling || "tailwind",
+    typescript: recommendedStack?.typescript ?? true,
+    git: recommendedStack?.git ?? true,
+    docker: recommendedStack?.docker ?? false,
+    aiAssistant: recommendedStack?.aiAssistant || "none",
+    uiLibrary: recommendedStack?.uiLibrary || "none",
+    autoInstall: recommendedStack?.autoInstall ?? true,
+    packageManager: recommendedStack?.packageManager || "bun",
+    deploymentMethod: recommendedStack?.deploymentMethod || "none",
+    runtime: recommendedStack?.runtime || "bun",
+    auth: recommendedStack?.auth || "none",
+    mcpServers: recommendedStack?.mcpServers || [],
     colorPalette: defaultPalette,
+    plugins: recommendedStack?.plugins || [],
   });
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
   const [showSaved, setShowSaved] = useState(false);

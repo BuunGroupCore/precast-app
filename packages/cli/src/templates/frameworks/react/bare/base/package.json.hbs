@@ -8,7 +8,7 @@
     "build": "{{#if typescript}}tsc -b && {{/if}}vite build",
     "preview": "vite preview"{{#if typescript}},
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"{{/if}}{{#if (eq orm "prisma")}},
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"{{/if}}{{#if (eq orm "prisma")}},
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",

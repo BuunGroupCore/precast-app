@@ -7,7 +7,6 @@
  */
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
 import { AuthButton } from './AuthButton';
 
@@ -50,11 +49,7 @@ export function SocialLogin({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div>
         <AuthButton
           type="button"
           variant="outline"
@@ -65,13 +60,9 @@ export function SocialLogin({
           <FaGoogle className="h-5 w-5 mr-3 text-red-500 group-hover:text-red-600 transition-colors" />
           Continue with Google
         </AuthButton>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div>
         <AuthButton
           type="button"
           variant="outline"
@@ -82,7 +73,7 @@ export function SocialLogin({
           <FaGithub className="h-5 w-5 mr-3 text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
           Continue with GitHub
         </AuthButton>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -58,6 +58,20 @@ export const mainNavigation: NavItem[] = [
     icon: FaTerminal,
     color: "var(--comic-blue)",
     effect: "ZAP!",
+    dropdown: {
+      items: [
+        {
+          label: "VISUAL BUILDER",
+          icon: FaTerminal,
+          href: "/builder",
+        },
+        {
+          label: "STACK SURVEY",
+          icon: FaQuestionCircle,
+          href: "/survey",
+        },
+      ],
+    },
   },
   {
     href: "/resources",

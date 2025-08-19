@@ -39,7 +39,7 @@ export function getAvailableServices(precastConfig: PrecastConfig | null): Recor
       category: 'infrastructure',
       testFunction: 'testDatabaseConnection',
       healthEndpoint: '/api/health/database',
-      port: {{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}},
+      port: {{#if database}}{{#eq database 'mysql'}}3306{{else}}{{#eq database 'mongodb'}}27017{{else}}5432{{/eq}}{{/eq}}{{else}}0{{/if}},
     };
   }
   {{else}}

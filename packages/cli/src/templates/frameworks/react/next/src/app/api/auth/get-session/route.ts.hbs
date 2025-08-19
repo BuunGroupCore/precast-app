@@ -1,0 +1,55 @@
+{{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
+/**
+ * Next.js API Route Proxy for Better Auth - Get Session
+ * This proxies /api/auth/get-session requests to the backend API
+ * Solves CORS and cookie domain issues when using tunneling services
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:{{backendPort}}';
+
+export async function GET(request: NextRequest) {
+  const url = `${BACKEND_URL}/api/auth/get-session`;
+  
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        {{#if (includes powerups "ngrok")}}
+        // Skip ngrok browser warning page
+        'ngrok-skip-browser-warning': '1',
+        'User-Agent': '{{name}}/1.0',
+        {{/if}}
+        // Forward cookies from the incoming request
+        ...(request.headers.get('cookie') ? { 'Cookie': request.headers.get('cookie')! } : {}),
+      },
+    });
+
+    const text = await response.text();
+    
+    // Create response with proper headers
+    const res = new NextResponse(text, {
+      status: response.status,
+      headers: {
+        'Content-Type': response.headers.get('content-type') || 'application/json',
+      },
+    });
+
+    // Forward Set-Cookie headers from backend
+    const setCookie = response.headers.get('set-cookie');
+    if (setCookie) {
+      res.headers.set('set-cookie', setCookie);
+    }
+
+    return res;
+  } catch (error) {
+    console.error('[Auth Proxy] Get session error:', error);
+    return NextResponse.json(
+      { error: 'Failed to proxy auth request' },
+      { status: 500 }
+    );
+  }
+}
+{{/if}}

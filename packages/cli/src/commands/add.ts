@@ -5,8 +5,8 @@ import chalk from "chalk";
 import cliWidth from "cli-width";
 import gradient from "gradient-string";
 
-import { FeatureRegistry, type DetectedProject } from "@/utils/features/feature-registry.js";
 import { FeatureInstaller } from "@/utils/features/feature-installer.js";
+import { FeatureRegistry, type DetectedProject } from "@/utils/features/feature-registry.js";
 import { theme } from "@/utils/ui/cli-theme.js";
 import { EnhancedUI } from "@/utils/ui/enhanced-ui.js";
 

@@ -70,6 +70,9 @@ const TestimonialsPage = lazy(() =>
 const SupportPage = lazy(() =>
   import("@/pages/support").then((module) => ({ default: module.SupportPage }))
 );
+const SurveyPage = lazy(() =>
+  import("@/pages/survey").then((module) => ({ default: module.SurveyPage }))
+);
 const NotFoundPage = lazy(() =>
   import("@/pages/not-found").then((module) => ({ default: module.NotFoundPage }))
 );
@@ -223,6 +226,14 @@ function App() {
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <SupportPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/survey"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <SurveyPage />
                     </Suspense>
                   }
                 />

@@ -1,0 +1,27 @@
+{
+  "id": "million",
+  "name": "Million.js",
+  "description": "Make React 70% faster with a compiler",
+  "dependencies": {},
+  "devDependencies": {
+    "react": ["million"],
+    "next": ["million"],
+    "remix": ["million"],
+    "react-router": ["million"],
+    "tanstack-router": ["million"],
+    "tanstack-start": ["million"]
+  },
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "react": [{ "template": "vite.config.ts.hbs", "output": "vite.config.ts" }],
+    "next": [{ "template": "next.config.ts.hbs", "output": "next.config.ts" }],
+    "remix": [{ "template": "vite.config.ts.hbs", "output": "vite.config.ts" }],
+    "react-router": [{ "template": "vite.config.ts.hbs", "output": "vite.config.ts" }],
+    "tanstack-router": [{ "template": "vite.config.ts.hbs", "output": "vite.config.ts" }],
+    "tanstack-start": [{ "template": "vite.config.ts.hbs", "output": "vite.config.ts" }]
+  },
+  "packageJsonConfig": {},
+  "conflicts": [],
+  "requires": ["react"]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "axe-core",
+  "name": "Axe DevTools",
+  "description": "Accessibility testing tools",
+  "dependencies": {},
+  "devDependencies": {
+    "react": ["axe-core", "@axe-core/react"],
+    "next": ["axe-core", "@axe-core/react"],
+    "vue": ["axe-core", "@axe-core/vue"],
+    "nuxt": ["axe-core", "@axe-core/vue"],
+    "angular": ["axe-core", "@axe-devtools/angular"],
+    "*": ["axe-core"]
+  },
+  "envVariables": {},
+  "scripts": {
+    "a11y:check": "axe-core --dir ./dist",
+    "a11y:test": "npm test -- --testNamePattern='accessibility'"
+  },
+  "setupFiles": {
+    "react": [{ "template": "axe-react.js.hbs", "output": "src/utils/axe.js" }],
+    "next": [{ "template": "axe-react.js.hbs", "output": "src/utils/axe.js" }],
+    "vue": [{ "template": "axe-vue.js.hbs", "output": "src/utils/axe.js" }],
+    "angular": [{ "template": "axe-angular.ts.hbs", "output": "src/app/utils/axe.ts" }],
+    "*": [{ "template": "axe-config.js.hbs", "output": "axe.config.js" }]
+  },
+  "packageJsonConfig": {},
+  "conflicts": [],
+  "requires": []
+}

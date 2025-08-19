@@ -1,9 +1,73 @@
+{{#if (eq authProvider "better-auth")}}
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import { Session } from './Session'
+import { Account } from './Account'
+{{else}}
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+{{/if}}
 
 /**
  * User entity
  * @description Represents a user in the database
  */
+{{#if (eq authProvider "better-auth")}}
+@Entity('user')
+export class User {
+  /**
+   * Primary key - auto-generated UUID
+   */
+  @PrimaryGeneratedColumn('uuid')
+  id{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * User display name - required for Better Auth
+   */
+  @Column({ type: 'varchar', length: 255 })
+  name{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * User email address - must be unique
+   */
+  @Column({ type: 'varchar', length: 255, unique: true })
+  email{{#unless typescript}}!{{/unless}}: string
+
+  /**
+   * Email verification status
+   */
+  @Column({ type: 'boolean', default: false })
+  emailVerified{{#unless typescript}}!{{/unless}}: boolean
+
+  /**
+   * User profile image URL - optional
+   */
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  image{{#unless typescript}}?{{/unless}}: string{{#unless typescript}} | null{{/unless}}
+
+  /**
+   * Record creation timestamp
+   */
+  @CreateDateColumn()
+  createdAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * Record last update timestamp
+   */
+  @UpdateDateColumn()
+  updatedAt{{#unless typescript}}!{{/unless}}: Date
+
+  /**
+   * User sessions
+   */
+  @OneToMany(() => Session, session => session.user)
+  sessions{{#unless typescript}}!{{/unless}}: Session[]
+
+  /**
+   * User accounts (OAuth providers)
+   */
+  @OneToMany(() => Account, account => account.user)
+  accounts{{#unless typescript}}!{{/unless}}: Account[]
+}
+{{else}}
 @Entity('users')
 export class User {
   /**
@@ -36,3 +100,4 @@ export class User {
   @UpdateDateColumn()
   updatedAt{{#unless typescript}}!{{/unless}}: Date
 }
+{{/if}}

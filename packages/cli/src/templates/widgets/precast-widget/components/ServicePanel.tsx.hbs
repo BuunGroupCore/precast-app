@@ -39,6 +39,9 @@ interface ServicePanelProps {
   onAuthEmailChange?: (email: string) => void;
   onAuthPasswordChange?: (password: string) => void;
   onAuthNameChange?: (name: string) => void;
+  {{#if (eq authProvider 'better-auth')}}
+  isLoggedIn?: boolean;
+  {{/if}}
 }
 
 /**
@@ -70,6 +73,9 @@ export function ServicePanel({
   onAuthEmailChange,
   onAuthPasswordChange,
   onAuthNameChange,
+  {{#if (eq authProvider 'better-auth')}}
+  isLoggedIn,
+  {{/if}}
 }: ServicePanelProps) {
   if (!isOpen) return null;
 
@@ -159,6 +165,9 @@ export function ServicePanel({
                     onAuthEmailChange={onAuthEmailChange}
                     onAuthPasswordChange={onAuthPasswordChange}
                     onAuthNameChange={onAuthNameChange}
+                    {{#if (eq authProvider 'better-auth')}}
+                    isLoggedIn={isLoggedIn}
+                    {{/if}}
                   />
                 </div>
               )

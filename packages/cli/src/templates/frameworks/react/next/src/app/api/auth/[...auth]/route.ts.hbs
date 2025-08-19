@@ -1,0 +1,121 @@
+{{#if (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel"))}}
+/**
+ * Next.js API Route Proxy for Better Auth - Catch All
+ * This proxies all /api/auth/* requests to the backend API
+ * Solves CORS and cookie domain issues when using tunneling services
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:{{backendPort}}';
+
+// Helper to create headers that bypass ngrok warning
+function createHeaders(incomingHeaders: Headers): HeadersInit {
+  return {
+    'Content-Type': 'application/json',
+    {{#if (includes powerups "ngrok")}}
+    'ngrok-skip-browser-warning': '1',
+    'User-Agent': '{{name}}/1.0',
+    {{/if}}
+    // Forward cookies if present
+    ...(incomingHeaders.get('cookie') ? { 'Cookie': incomingHeaders.get('cookie')! } : {}),
+  };
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { auth: string[] } }
+) {
+  const path = params.auth?.join('/') || '';
+  const url = `${BACKEND_URL}/api/auth/${path}`;
+  
+  try {
+    const headers = createHeaders(request.headers);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers,
+    });
+
+    const data = await response.text();
+    
+    // Create response with proper headers
+    const res = new NextResponse(data, {
+      status: response.status,
+      headers: {
+        'Content-Type': response.headers.get('content-type') || 'application/json',
+      },
+    });
+
+    // Forward Set-Cookie headers from backend
+    const setCookie = response.headers.get('set-cookie');
+    if (setCookie) {
+      res.headers.set('set-cookie', setCookie);
+    }
+
+    return res;
+  } catch (error) {
+    console.error('[Auth Proxy] Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to proxy auth request' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { auth: string[] } }
+) {
+  const path = params.auth?.join('/') || '';
+  const url = `${BACKEND_URL}/api/auth/${path}`;
+  
+  try {
+    const body = await request.text();
+    const headers = createHeaders(request.headers);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body,
+    });
+
+    const data = await response.text();
+    
+    // Create response with proper headers
+    const res = new NextResponse(data, {
+      status: response.status,
+      headers: {
+        'Content-Type': response.headers.get('content-type') || 'application/json',
+      },
+    });
+
+    // Forward Set-Cookie headers from backend
+    const setCookie = response.headers.get('set-cookie');
+    if (setCookie) {
+      res.headers.set('set-cookie', setCookie);
+    }
+
+    return res;
+  } catch (error) {
+    console.error('[Auth Proxy] Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to proxy auth request' },
+      { status: 500 }
+    );
+  }
+}
+
+// Support all HTTP methods
+export async function PUT(request: NextRequest, context: any) {
+  return POST(request, context);
+}
+
+export async function DELETE(request: NextRequest, context: any) {
+  return POST(request, context);
+}
+
+export async function PATCH(request: NextRequest, context: any) {
+  return POST(request, context);
+}
+{{/if}}

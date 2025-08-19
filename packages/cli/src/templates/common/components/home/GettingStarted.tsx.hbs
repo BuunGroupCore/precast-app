@@ -1,7 +1,7 @@
 {{#if (eq framework "next")}}'use client';
 
 {{/if}}import { useState } from "react";
-import { Terminal, Play, Database{{#if docker}}, Server{{/if}}{{#if (eq orm 'prisma')}}, Globe{{/if}}, Package } from "lucide-react";
+import { Terminal, Play{{#if (and database orm (ne database "none") (ne orm "none"))}}, Database{{/if}}{{#if docker}}, Server{{/if}}{{#if (eq orm 'prisma')}}, Globe{{/if}}, Package } from "lucide-react";
 
 /**
  * Getting Started component - Console-style command reference
@@ -15,7 +15,7 @@ export function GettingStarted() {
       {{#if docker}}
       { cmd: "{{packageManager}} run docker:up", desc: "Start Docker containers", icon: <Server size={14} /> },
       {{/if}}
-      {{#if (and database orm)}}
+      {{#if (and database orm (ne database "none") (ne orm "none"))}}
       { cmd: "{{packageManager}} run db:migrate", desc: "Run database migrations", icon: <Database size={14} /> },
       {{#if (eq orm 'prisma')}}
       { cmd: "{{packageManager}} run db:studio", desc: "Open Prisma Studio", icon: <Globe size={14} /> },

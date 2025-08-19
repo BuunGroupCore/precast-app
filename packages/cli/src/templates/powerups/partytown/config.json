@@ -1,0 +1,20 @@
+{
+  "id": "partytown",
+  "name": "Partytown",
+  "description": "Run third-party scripts in a web worker",
+  "dependencies": {
+    "*": ["@builder.io/partytown"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {
+    "partytown": "partytown copylib public/~partytown"
+  },
+  "setupFiles": {
+    "next": [{ "template": "partytown-next.jsx.hbs", "output": "src/components/Partytown.jsx" }],
+    "*": [{ "template": "partytown-config.js.hbs", "output": "src/partytown.js" }]
+  },
+  "packageJsonConfig": {},
+  "conflicts": [],
+  "requires": []
+}

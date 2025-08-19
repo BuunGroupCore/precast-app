@@ -7,7 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "start": "vite preview",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"{{#if prettier}},
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .js,.jsx,.ts,.tsx"{{#if prettier}},
     "format": "prettier --write \"app/**/*.{js,jsx,ts,tsx,json,md}\""{{/if}}
   },
   "dependencies": {

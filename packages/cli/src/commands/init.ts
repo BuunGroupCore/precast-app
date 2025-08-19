@@ -656,13 +656,13 @@ export async function initCommand(projectName: string | undefined, options: Init
 
           try {
             // Import and use the installation function with proper error handling
-            const { installDependencies } = await import("../utils/system/package-manager.js");
+            const { installAllDependencies } = await import("../utils/system/package-manager.js");
 
-            // Install dependencies with timeout to prevent hanging
-            const installPromise = installDependencies([], {
+            // Install all dependencies from package.json with timeout to prevent hanging
+            const installPromise = installAllDependencies({
               packageManager: config.packageManager,
               projectPath,
-              dev: false,
+              generate: config.generate,
             });
 
             // Add a timeout of 5 minutes for installation

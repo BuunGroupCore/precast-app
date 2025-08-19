@@ -1,0 +1,28 @@
+import type { DefaultSeoProps } from 'next-seo';
+
+const config: DefaultSeoProps = {
+  titleTemplate: '%s | {{name}}',
+  defaultTitle: '{{name}}',
+  description: 'Your app description here',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://yourapp.com',
+    siteName: '{{name}}',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: '{{name}} - Your app description',
+      },
+    ],
+  },
+  twitter: {
+    handle: '@yourtwitterhandle',
+    site: '@yourtwitterhandle',
+    cardType: 'summary_large_image',
+  },
+};
+
+export default config;

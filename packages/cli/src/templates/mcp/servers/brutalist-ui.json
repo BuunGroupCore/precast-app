@@ -1,0 +1,16 @@
+{
+  "id": "brutalist-ui",
+  "name": "Brutalist UI MCP Server",
+  "description": "MCP server for Brutalist UI components - provides component documentation and usage examples",
+  "category": "productivity",
+  "triggers": {
+    "any": false,
+    "frameworks": ["react", "next", "react-router", "tanstack-router", "tanstack-start", "vite"]
+  },
+  "config": {
+    "server_name": "brutalist-ui",
+    "command": "npx",
+    "args": ["@buun_group/brutalist-ui-mcp-server"]
+  },
+  "repository": "https://github.com/buun-group/brutalist-ui"
+}

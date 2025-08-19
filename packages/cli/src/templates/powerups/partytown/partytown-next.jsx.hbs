@@ -1,0 +1,19 @@
+{{#if typescript}}import { Partytown } from '@builder.io/partytown/react';
+
+export default function PartytownComponent() {
+  return (
+    <Partytown
+      debug={process.env.NODE_ENV === 'development'}
+      forward={['gtag', 'dataLayer.push']}
+    />
+  );
+}{{else}}import { Partytown } from '@builder.io/partytown/react';
+
+export default function PartytownComponent() {
+  return (
+    <Partytown
+      debug={process.env.NODE_ENV === 'development'}
+      forward={['gtag', 'dataLayer.push']}
+    />
+  );
+}{{/if}}

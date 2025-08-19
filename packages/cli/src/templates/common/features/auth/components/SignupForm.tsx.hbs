@@ -7,7 +7,6 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, User, Loader2, Check, X } from 'lucide-react';
 import { AuthButton } from './AuthButton';
 import { SocialLogin } from './SocialLogin';
@@ -102,42 +101,22 @@ export function SignupForm({
   const isFormValid = email && password && confirmPassword && name && passwordsMatch && passwordStrength.score >= 3;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className={`w-full max-w-md mx-auto ${className}`}
-    >
+    <div>
       <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
         {/* Header */}
         <div className="text-center mb-8">
-          <motion.h1 
-            className="text-3xl font-bold text-gray-900 dark:text-white mb-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
+          <h1>
             Create account
-          </motion.h1>
-          <motion.p 
-            className="text-gray-600 dark:text-gray-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
+          </h1>
+          <p>
             Join us and start your journey today
-          </motion.p>
+          </p>
         </div>
 
         {/* Social Login */}
         {{#if (eq authProvider "auth.js")}}
         {showSocialLogin && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mb-6"
-          >
+          <div>
             <SocialLogin />
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
@@ -149,29 +128,21 @@ export function SignupForm({
                 </span>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
         {{/if}}
 
         {/* Error Message */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
-          >
+          <div>
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-          </motion.div>
+          </div>
         )}
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+          <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Full name
             </label>
@@ -195,14 +166,10 @@ export function SignupForm({
                 placeholder="Enter your full name"
               />
             </div>
-          </motion.div>
+          </div>
 
           {/* Email Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
+          <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Email address
             </label>
@@ -226,14 +193,10 @@ export function SignupForm({
                 placeholder="Enter your email"
               />
             </div>
-          </motion.div>
+          </div>
 
           {/* Password Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-          >
+          <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Password
             </label>
@@ -275,11 +238,7 @@ export function SignupForm({
             
             {/* Password Strength Indicator */}
             {password && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-2 space-y-2"
-              >
+              <div>
                 <div className="flex space-x-1">
                   {[...Array(5)].map((_, i) => (
                     <div
@@ -309,16 +268,12 @@ export function SignupForm({
                     </ul>
                   </div>
                 )}
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Confirm Password Field */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 }}
-          >
+          <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Confirm password
             </label>
@@ -368,14 +323,10 @@ export function SignupForm({
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
 
           {/* Submit Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-          >
+          <div>
             <AuthButton
               type="submit"
               disabled={loading || !isFormValid}
@@ -390,17 +341,12 @@ export function SignupForm({
                 'Create account'
               )}
             </AuthButton>
-          </motion.div>
+          </div>
         </form>
 
         {/* Login Link */}
         {onLoginClick && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="mt-6 text-center"
-          >
+          <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
               <button
@@ -414,9 +360,9 @@ export function SignupForm({
                 Sign in
               </button>
             </p>
-          </motion.div>
+          </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

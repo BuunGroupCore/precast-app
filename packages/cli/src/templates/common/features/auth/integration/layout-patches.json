@@ -6,12 +6,12 @@
       "insertions": [
         {
           "after": "import { PrecastWidget } from '@/components/precast/PrecastWidget'",
-          "content": "import { AuthProvider } from '@/features/auth'"
+          "content": "import { AuthProvider } from '@/components/auth/AuthProvider'"
         },
         {
           "wrap": {
-            "target": "<Layout>\n          {children}\n        </Layout>",
-            "with": "<AuthProvider>\n          <Layout>\n            {children}\n          </Layout>\n        </AuthProvider>"
+            "target": "        <Layout>\n          {children}\n        </Layout>\n        <PrecastWidget />",
+            "with": "        <AuthProvider>\n          <Layout>\n            {children}\n          </Layout>\n          <PrecastWidget />\n        </AuthProvider>"
           }
         }
       ]

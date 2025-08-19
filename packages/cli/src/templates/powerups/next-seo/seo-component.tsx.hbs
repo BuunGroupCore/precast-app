@@ -1,0 +1,16 @@
+import { NextSeo, type NextSeoProps } from 'next-seo';
+
+interface SEOProps extends NextSeoProps {
+  title?: string;
+  description?: string;
+}
+
+export function SEO({ title, description, ...props }: SEOProps) {
+  return (
+    <NextSeo
+      title={title}
+      description={description}
+      {...props}
+    />
+  );
+}

@@ -1,7 +1,6 @@
 {{#if (eq framework "next")}}'use client';
 
 {{/if}}import React from 'react';
-import { motion } from 'framer-motion';
 
 interface AuthButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
@@ -63,14 +62,12 @@ export function AuthButton({
   `;
 
   return (
-    <motion.button
-      whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
-      whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
+    <button
       className={classes}
       disabled={disabled || isLoading}
       {...props}
     >
       {children}
-    </motion.button>
+    </button>
   );
 }

@@ -1,0 +1,25 @@
+{
+  "id": "react-aria",
+  "name": "React Aria",
+  "description": "Library of React Hooks for accessible UI primitives",
+  "dependencies": {
+    "react": ["react-aria", "react-aria-components"],
+    "next": ["react-aria", "react-aria-components"],
+    "remix": ["react-aria", "react-aria-components"],
+    "react-router": ["react-aria", "react-aria-components"],
+    "tanstack-router": ["react-aria", "react-aria-components"],
+    "tanstack-start": ["react-aria", "react-aria-components"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "*": [
+      { "template": "react-aria-provider.jsx.hbs", "output": "src/components/AriaProvider.jsx" },
+      { "template": "react-aria-button.jsx.hbs", "output": "src/components/AriaButton.jsx" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": ["axe-core"],
+  "requires": ["react"]
+}

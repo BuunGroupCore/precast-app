@@ -80,7 +80,10 @@ export async function setupColorPalette(config: ProjectConfig, projectPath: stri
     if (config.styling === "tailwind") {
       // Use the generateTailwindConfig function from shared
       const { generateTailwindConfig } = await import("@shared/src/color-palettes.ts");
-      const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
+      const tailwindConfigPath = path.join(
+        projectPath,
+        config.typescript ? "tailwind.config.ts" : "tailwind.config.js"
+      );
 
       // Check if tailwind config exists
       const configExists = await fs

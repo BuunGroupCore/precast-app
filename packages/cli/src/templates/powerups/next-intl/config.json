@@ -1,0 +1,22 @@
+{
+  "id": "next-intl",
+  "name": "Next-intl",
+  "description": "Internationalization for Next.js that gets out of your way",
+  "dependencies": {
+    "next": ["next-intl"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "next": [
+      { "template": "i18n.ts.hbs", "output": "i18n.ts" },
+      { "template": "middleware.ts.hbs", "output": "middleware.ts" },
+      { "template": "messages-en.json.hbs", "output": "messages/en.json" },
+      { "template": "messages-es.json.hbs", "output": "messages/es.json" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": ["react-i18next", "vue-i18n"],
+  "requires": ["next"]
+}

@@ -78,10 +78,10 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
   brutalist: {
     name: "Brutalist UI",
     frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start", "vite"],
-    requiredDeps: ["clsx"],
+    requiredDeps: ["@buun_group/brutalist-ui"],
     postInstallSteps: [
-      "Install Brutalist UI components manually",
-      "Configure with Tailwind CSS for best results",
+      "Import styles: import '@buun_group/brutalist-ui/styles'",
+      "Wrap app with ThemeProvider for theming support",
     ],
   },
 };

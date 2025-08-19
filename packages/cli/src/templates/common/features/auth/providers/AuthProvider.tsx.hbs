@@ -1,0 +1,356 @@
+
+'use client';
+
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
+{{#if (eq framework "next")}}
+import { useRouter, usePathname } from 'next/navigation';
+{{else if (eq framework "react")}}
+import { useNavigate, useLocation } from 'react-router-dom';
+{{/if}}
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  emailVerified: boolean;
+  image?: string;
+  roles?: string[];
+  metadata?: Record<string, any>;
+}
+
+interface Session {
+  id: string;
+  userId: string;
+  expiresAt: string;
+  createdAt: string;
+  updatedAt: string;
+  ipAddress?: string;
+  userAgent?: string;
+  fresh?: boolean;
+}
+
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error: Error | null;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
+  checkRole: (role: string) => boolean;
+  checkRoles: (roles: string[]) => boolean;
+  updateUser: (updates: Partial<User>) => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Global session refresh callback for cross-component communication
+let globalRefreshSession: (() => Promise<void>) | null = null;
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  
+  {{#if (eq framework "next")}}
+  const router = useRouter();
+  const pathname = usePathname();
+  {{else if (eq framework "react")}}
+  const navigate = useNavigate();
+  const location = useLocation();
+  {{/if}}
+
+  const getApiUrl = useCallback(() => {
+    {{#if (and (eq framework "next") (or (includes powerups "ngrok") (includes powerups "traefik") (includes powerups "cloudflare-tunnel")))}}
+    // Use local proxy for auth endpoints when using tunneling services
+    // This avoids CORS and cookie domain issues
+    return '';
+    {{else if (eq framework "next")}}
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:{{backendPort}}';
+    {{else if (eq framework "vite")}}
+    return import.meta.env.VITE_API_URL || 'http://localhost:{{backendPort}}';
+    {{else}}
+    return process.env.REACT_APP_API_URL || 'http://localhost:{{backendPort}}';
+    {{/if}}
+  }, []);
+
+  const refreshSession = useCallback(async () => {
+    try {
+      // ALWAYS check the backend API - this is the source of truth
+      // Cookies are sent automatically with credentials: 'include'
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/auth/get-session`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          {{#if (includes powerups "ngrok")}}
+          // Skip ngrok browser warning when not using proxy
+          ...(apiUrl && typeof apiUrl === 'string' && apiUrl.includes('ngrok') ? { 'ngrok-skip-browser-warning': 'true' } : {}),
+          {{/if}}
+        },
+      });
+
+      if (response.ok) {
+        const sessionData = await response.json();
+        if (sessionData?.session) {
+          setSession(sessionData.session);
+          setUser(sessionData.user || sessionData.session.user);
+          setError(null);
+        } else {
+          setSession(null);
+          setUser(null);
+        }
+      } else if (response.status === 401) {
+        setSession(null);
+        setUser(null);
+      } else {
+        throw new Error(`Session check failed: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('[AuthProvider] Failed to refresh session:', error);
+      setError(error instanceof Error ? error : new Error('Session refresh failed'));
+      setSession(null);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getApiUrl]);
+
+  const signIn = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/auth/sign-in/email`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(apiUrl && typeof apiUrl === 'string' && apiUrl.includes('ngrok') ? { 'ngrok-skip-browser-warning': 'true' } : {}),
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Sign in failed' }));
+        throw new Error(errorData.message || `Sign in failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      setSession(data.session);
+    } catch (error) {
+      console.error('[AuthProvider] Sign in error:', error);
+      setError(error instanceof Error ? error : new Error('Sign in failed'));
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getApiUrl]);
+
+  const signUp = useCallback(async (email: string, password: string, name: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/auth/sign-up/email`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(apiUrl && typeof apiUrl === 'string' && apiUrl.includes('ngrok') ? { 'ngrok-skip-browser-warning': 'true' } : {}),
+        },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Sign up failed' }));
+        throw new Error(errorData.message || `Sign up failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      setSession(data.session);
+    } catch (error) {
+      console.error('[AuthProvider] Sign up error:', error);
+      setError(error instanceof Error ? error : new Error('Sign up failed'));
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getApiUrl]);
+
+  const signOut = useCallback(async () => {
+    try {
+      // Clear cookies
+      {{#if (eq authProvider "better-auth")}}
+      document.cookie.split(";").forEach((c) => {
+        const cookie = c.trim();
+        if (cookie.startsWith("better-auth") || cookie.startsWith("__Secure-better-auth")) {
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+        }
+      });
+      {{/if}}
+      
+      // Clear state
+      setSession(null);
+      setUser(null);
+      setError(null);
+      
+      // Redirect to home
+      {{#if (eq framework "next")}}
+      router.push('/');
+      {{else if (eq framework "react")}}
+      navigate('/');
+      {{/if}}
+    } catch (error) {
+      console.error('[AuthProvider] Sign out error:', error);
+      setError(error instanceof Error ? error : new Error('Sign out failed'));
+    }
+  }, [{{#if (eq framework "next")}}router{{else if (eq framework "react")}}navigate{{/if}}]);
+
+  const checkRole = useCallback((role: string): boolean => {
+    return user?.roles?.includes(role) || false;
+  }, [user]);
+
+  const checkRoles = useCallback((roles: string[]): boolean => {
+    return roles.some(role => checkRole(role));
+  }, [checkRole]);
+
+  const updateUser = useCallback(async (updates: Partial<User>) => {
+    // TODO: Implement user profile update
+    console.warn('[AuthProvider] updateUser not yet implemented');
+  }, []);
+
+  // Initialize session on mount and handle periodic refresh
+  useEffect(() => {
+    globalRefreshSession = refreshSession;
+    
+    // Initial session check
+    refreshSession();
+
+    // Set up periodic refresh - 5 minutes when active, check on visibility change
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    const startRefreshInterval = () => {
+      // Clear any existing interval
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      // Refresh every 5 minutes (not 30 seconds to avoid rate limiting)
+      intervalId = setInterval(refreshSession, 5 * 60 * 1000);
+    };
+    
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Tab became visible - refresh session once
+        refreshSession();
+        startRefreshInterval();
+      } else if (intervalId) {
+        // Tab became hidden - stop refreshing
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    // Start interval if tab is active
+    if (!document.hidden) {
+      startRefreshInterval();
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (intervalId) clearInterval(intervalId);
+      globalRefreshSession = null;
+    };
+  }, [refreshSession]);
+
+  // Memoized context value
+  const value = useMemo<AuthContextType>(() => ({
+    user,
+    session,
+    isLoading,
+    isAuthenticated: !!(user && session),
+    error,
+    signIn,
+    signUp,
+    signOut,
+    refreshSession,
+    checkRole,
+    checkRoles,
+    updateUser,
+  }), [user, session, isLoading, error, signIn, signUp, signOut, refreshSession, checkRole, checkRoles, updateUser]);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+export function useRequireAuth(redirectTo = '/login') {
+  const auth = useAuth();
+  {{#if (eq framework "next")}}
+  const router = useRouter();
+  {{else if (eq framework "react")}}
+  const navigate = useNavigate();
+  {{/if}}
+
+  useEffect(() => {
+    if (!auth.isLoading && !auth.isAuthenticated) {
+      {{#if (eq framework "next")}}
+      router.push(redirectTo);
+      {{else if (eq framework "react")}}
+      navigate(redirectTo);
+      {{/if}}
+    }
+  }, [auth.isLoading, auth.isAuthenticated, redirectTo, {{#if (eq framework "next")}}router{{else if (eq framework "react")}}navigate{{/if}}]);
+
+  return auth;
+}
+
+export function useRequireRole(roles: string | string[], redirectTo = '/unauthorized') {
+  const auth = useRequireAuth();
+  {{#if (eq framework "next")}}
+  const router = useRouter();
+  {{else if (eq framework "react")}}
+  const navigate = useNavigate();
+  {{/if}}
+
+  useEffect(() => {
+    if (!auth.isLoading && auth.isAuthenticated) {
+      const requiredRoles = Array.isArray(roles) ? roles : [roles];
+      if (!auth.checkRoles(requiredRoles)) {
+        {{#if (eq framework "next")}}
+        router.push(redirectTo);
+        {{else if (eq framework "react")}}
+        navigate(redirectTo);
+        {{/if}}
+      }
+    }
+  }, [auth, roles, redirectTo, {{#if (eq framework "next")}}router{{else if (eq framework "react")}}navigate{{/if}}]);
+
+  return auth;
+}
+
+export function triggerSessionRefresh() {
+  if (globalRefreshSession) {
+    globalRefreshSession();
+  }
+}

@@ -237,13 +237,22 @@ export async function gatherProjectConfig(
       })
       .map(([lib]) => ({
         value: lib,
-        label: lib === "shadcn" ? "shadcn/ui" : lib === "daisyui" ? "DaisyUI" : lib,
+        label:
+          lib === "shadcn"
+            ? "shadcn/ui"
+            : lib === "daisyui"
+              ? "DaisyUI"
+              : lib === "brutalist"
+                ? "Brutalist UI"
+                : lib,
         hint:
           lib === "shadcn"
             ? "Copy-paste components with full control"
             : lib === "daisyui"
               ? "Semantic component classes"
-              : undefined,
+              : lib === "brutalist"
+                ? "Bold, raw aesthetic UI components"
+                : undefined,
       }));
     if (compatibleLibraries.length > 0) {
       const selected = (await select({

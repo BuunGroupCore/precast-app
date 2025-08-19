@@ -66,19 +66,19 @@ export function getEnvironmentVariables(
 
   // Base URLs
   if (config.backend !== "none") {
-    variables.push({
-      key: "VITE_API_URL",
-      description: "Backend API URL",
-      value: "", // Will be overridden by development/production values
-      development: "http://localhost:3001",
-      production: "https://api.yourdomain.com",
-      required: true,
-    });
-
     if (config.framework === "next") {
       variables.push({
         key: "NEXT_PUBLIC_API_URL",
         description: "Backend API URL for Next.js",
+        value: "", // Will be overridden by development/production values
+        development: "http://localhost:3001",
+        production: "https://api.yourdomain.com",
+        required: true,
+      });
+    } else {
+      variables.push({
+        key: "VITE_API_URL",
+        description: "Backend API URL",
         value: "", // Will be overridden by development/production values
         development: "http://localhost:3001",
         production: "https://api.yourdomain.com",

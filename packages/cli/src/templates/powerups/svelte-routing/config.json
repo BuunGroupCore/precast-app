@@ -1,0 +1,21 @@
+{
+  "id": "svelte-routing",
+  "name": "Svelte Routing",
+  "description": "Declarative routing for Svelte applications",
+  "dependencies": {
+    "svelte": ["svelte-spa-router"]
+  },
+  "devDependencies": {},
+  "envVariables": {},
+  "scripts": {},
+  "setupFiles": {
+    "svelte": [
+      { "template": "App.svelte.hbs", "output": "src/App.svelte" },
+      { "template": "Home.svelte.hbs", "output": "src/routes/Home.svelte" },
+      { "template": "About.svelte.hbs", "output": "src/routes/About.svelte" }
+    ]
+  },
+  "packageJsonConfig": {},
+  "conflicts": [],
+  "requires": ["svelte"]
+}

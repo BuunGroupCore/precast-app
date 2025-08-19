@@ -3,13 +3,14 @@
  * Handles subcommands: build, dev
  */
 
-import { Command } from "commander";
 import chalk from "chalk";
+import { Command } from "commander";
+
+import { turboBuildCommand } from "./build.js";
+import { devCommand } from "./dev.js";
 
 import { theme, createFancyBox, statusSymbols, actionSymbols } from "@/utils/ui/cli-theme.js";
 import { PrecastBanner } from "@/utils/ui/precast-banner.js";
-import { turboBuildCommand } from "./build.js";
-import { devCommand } from "./dev.js";
 
 interface TurboOptions {
   help?: boolean;

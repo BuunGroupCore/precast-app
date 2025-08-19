@@ -3,7 +3,7 @@
   "changelog": [
     "@changesets/changelog-github",
     {
-      "repo": "BunnGroupCore/precast-app"
+      "repo": "BuunGroupCore/precast-app"
     }
   ],
   "commit": false,

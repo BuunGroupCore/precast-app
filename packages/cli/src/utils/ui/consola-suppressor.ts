@@ -74,7 +74,7 @@ export async function suppressConsolaGlobally(debug: boolean = false): Promise<v
     (global as any).__originalConsoleInfo = originalConsoleInfo;
 
     isSuppressionActive = true;
-  } catch (error) {
+  } catch (_error) {
     // Fail silently if consola isn't available
   }
 }
@@ -106,7 +106,7 @@ export async function restoreConsolaGlobally(): Promise<void> {
 
     originalLevels.clear();
     isSuppressionActive = false;
-  } catch (error) {
+  } catch (_error) {
     // Fail silently
   }
 }

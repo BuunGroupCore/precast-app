@@ -57,8 +57,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         
-      - name: Build UI package first
-        run: pnpm --filter @precast/ui run build
+      - name: Build dependencies in order
+        run: |
+          pnpm --filter @precast/utils run build
+          pnpm --filter @precast/ui run build
         
       - name: Run website type checking
         run: pnpm --filter website typecheck

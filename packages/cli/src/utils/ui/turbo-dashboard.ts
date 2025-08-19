@@ -182,7 +182,7 @@ export class TurboDashboard {
     lines.push(chalk.hex("#64748b")("─".repeat(width)));
 
     // Task list
-    tasks.slice(0, maxHeight - 3).forEach((task, index) => {
+    tasks.slice(0, maxHeight - 3).forEach((task, _index) => {
       const icon = this.getTaskIcon(task.status);
       const name =
         task.name.length > contentWidth - 8
@@ -237,7 +237,7 @@ export class TurboDashboard {
     console.log(chalk.hex("#3b82f6").bold("TASKS:"));
     console.log(chalk.hex("#64748b")("─".repeat(width)));
 
-    tasks.forEach((task, index) => {
+    tasks.forEach((task, _index) => {
       const icon = this.getTaskIcon(task.status);
       const progress = task.progress ? ` (${Math.round(task.progress)}%)` : "";
       const duration = this.getTaskDuration(task);

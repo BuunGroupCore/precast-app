@@ -67,11 +67,11 @@ export class FeatureInstaller {
       if (!dryRun) {
         this.showUsageInstructions(feature);
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error(
-        `Failed to install feature ${feature.name}: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to install feature ${feature.name}: ${_error instanceof Error ? _error.message : String(_error)}`
       );
-      throw error;
+      throw _error;
     }
   }
 
@@ -408,7 +408,7 @@ export default function ExamplePage() {
         const packageJson = fs.readJsonSync(packageJsonPath);
         return packageJson.name || path.basename(projectPath);
       }
-    } catch (error) {
+    } catch (_error) {
       // Fallback to directory name
     }
     return path.basename(projectPath);

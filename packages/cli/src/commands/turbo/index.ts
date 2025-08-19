@@ -9,7 +9,7 @@ import { Command } from "commander";
 import { turboBuildCommand } from "./build.js";
 import { devCommand } from "./dev.js";
 
-import { theme, createFancyBox, statusSymbols, actionSymbols } from "@/utils/ui/cli-theme.js";
+import { theme, createFancyBox, statusSymbols } from "@/utils/ui/cli-theme.js";
 import { PrecastBanner } from "@/utils/ui/precast-banner.js";
 
 interface TurboOptions {
@@ -36,7 +36,7 @@ export async function turboCommand(subcommand?: string, options?: TurboOptions):
       case "dev":
         await devCommand();
         break;
-      default:
+      default: {
         console.log();
         const errorBox = createFancyBox(
           `${theme.error(`${statusSymbols.error} Unknown Turbo Command`)}\n\n` +
@@ -51,6 +51,7 @@ export async function turboCommand(subcommand?: string, options?: TurboOptions):
         console.log(errorBox);
         console.log();
         process.exit(1);
+      }
     }
   } catch (error) {
     console.log();

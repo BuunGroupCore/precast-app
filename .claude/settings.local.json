@@ -17,7 +17,12 @@
       "Bash(./test-fixes.sh:*)",
       "Bash(./test-framework-matrix.sh:*)",
       "Bash(./test-all-frameworks.sh:*)",
-      "Bash(bun install:*)"
+      "Bash(bun install:*)",
+      "Bash(sed:*)",
+      "Bash(pnpm --filter @precast/utils run build)",
+      "Bash(pnpm --filter @precast/ui run build)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   },
   "outputStyle": "Ultra Concise"

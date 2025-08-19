@@ -181,7 +181,7 @@ export function bulletList(items: string[], bullet: string = "•"): string {
  * Create a numbered list
  */
 export function numberedList(items: string[]): string {
-  return items.map((item, index) => `  ${theme.accent(`${index + 1}.`)} ${item}`).join("\n");
+  return items.map((item, _index) => `  ${theme.accent(`${_index + 1}.`)} ${item}`).join("\n");
 }
 
 /**
@@ -199,14 +199,14 @@ export function keyValue(key: string, value: string | undefined, indent: number 
  * Create a table
  */
 export function createTable(headers: string[], rows: string[][]): string {
-  const columnWidths = headers.map((header, index) => {
-    const maxRowWidth = Math.max(...rows.map((row) => (row[index] || "").length));
+  const columnWidths = headers.map((header, _index) => {
+    const maxRowWidth = Math.max(...rows.map((row) => (row[_index] || "").length));
     return Math.max(header.length, maxRowWidth) + 2;
   });
 
   // Header
   const headerRow = headers
-    .map((header, index) => theme.bold(header.padEnd(columnWidths[index])))
+    .map((header, _index) => theme.bold(header.padEnd(columnWidths[_index])))
     .join(theme.muted("│"));
 
   // Separator
@@ -215,7 +215,7 @@ export function createTable(headers: string[], rows: string[][]): string {
   // Data rows
   const dataRows = rows
     .map((row) =>
-      row.map((cell, index) => (cell || "").padEnd(columnWidths[index])).join(theme.muted("│"))
+      row.map((cell, _index) => (cell || "").padEnd(columnWidths[_index])).join(theme.muted("│"))
     )
     .join("\n");
 
@@ -492,8 +492,8 @@ export function waveText(text: string, frame: number = 0): string {
   const waveLength = 8;
 
   return chars
-    .map((char, index) => {
-      const offset = Math.sin((index + frame) * ((2 * Math.PI) / waveLength)) * waveHeight;
+    .map((char, _index) => {
+      const offset = Math.sin((_index + frame) * ((2 * Math.PI) / waveLength)) * waveHeight;
       const brightness = Math.round(128 + offset * 64);
       return chalk.rgb(brightness, brightness, 255)(char);
     })
@@ -568,10 +568,10 @@ export function decoratedHeader(title: string, width: number = 60): string {
 /**
  * Create a matrix-style falling text effect
  */
-export function matrixText(text: string, frame: number = 0): string {
+export function matrixText(text: string, _frame: number = 0): string {
   const chars = text.split("");
   return chars
-    .map((char, index) => {
+    .map((char, _index) => {
       const brightness = Math.random() > 0.9 ? 255 : Math.round(64 + Math.random() * 128);
       return chalk.rgb(0, brightness, 0)(char);
     })

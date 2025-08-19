@@ -42,7 +42,7 @@ function createTable(title: string, rows: [string, string][], color: string = "#
   output += chalk.hex(color).bold("╔" + "═".repeat(tableWidth - 2) + "╗") + "\n";
 
   // Title row - handle emoji display width manually
-  const titleClean = title.replace(/\x1b\[[0-9;]*m/g, "");
+  const titleClean = title.replace(/\x1b\[[0-9;]*m/g, ""); // eslint-disable-line no-control-regex
   // Count visual characters and add extra width for emojis (they display wider)
   const chars = [...titleClean];
   const emojiCount = chars.filter((char) =>
@@ -165,7 +165,7 @@ async function writeTelemetryConfig(config: TelemetryConfig): Promise<void> {
  * Get shell configuration file path based on current shell environment
  * @returns string - Path to the appropriate shell config file
  */
-function getShellConfigFile(): string {
+function _getShellConfigFile(): string {
   const shell = process.env.SHELL || "";
 
   if (shell.includes("zsh")) {

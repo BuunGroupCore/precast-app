@@ -1,9 +1,7 @@
 import path from "path";
 
 import { select, confirm, cancel, intro, outro, spinner } from "@clack/prompts";
-import chalk from "chalk";
 import cliWidth from "cli-width";
-import gradient from "gradient-string";
 
 import { FeatureInstaller } from "@/utils/features/feature-installer.js";
 import { FeatureRegistry, type DetectedProject } from "@/utils/features/feature-registry.js";
@@ -180,7 +178,7 @@ function getFeatureIcon(category: string): string {
  * Add a feature to an existing project
  */
 export async function addCommand(featureId: string | undefined, options: AddOptions) {
-  const ui = new EnhancedUI({ debug: options.verbose });
+  const _ui = new EnhancedUI({ debug: options.verbose });
 
   // Show beautiful intro
   intro(theme.gradient.precast("🚀 Add Feature to Project"));
@@ -221,7 +219,7 @@ export async function addCommand(featureId: string | undefined, options: AddOpti
     try {
       project = await registry.detectProject(projectPath);
       s.stop("✅ Project analysis complete");
-    } catch (error) {
+    } catch (_error) {
       s.stop(theme.error("❌ Failed to analyze project"));
       cancel(theme.error("This doesn't appear to be a valid project directory"));
       return;

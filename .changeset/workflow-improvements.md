@@ -3,6 +3,7 @@
 "@precast/website": patch
 "@precast/ui": patch
 "@precast/utils": patch
+"@precast/hooks": patch
 ---
 
 chore: Update CI/CD workflows for new testing framework and GitHub-only releases

@@ -4,7 +4,6 @@
 "@precast/ui": patch
 "@precast/utils": patch
 "@precast/hooks": patch
-"@precast/shared": patch
 ---
 
 fix: Split release workflow for proper GitHub releases

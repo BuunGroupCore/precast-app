@@ -43,29 +43,26 @@ jobs:
           pnpm --version
           
       - name: Install dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
         
       - name: Build shared packages
         run: |
-          echo "Building UI package (only package with build script)..."
-          cd packages/ui && bun run build
-          cd ../..
+          echo "Building UI package..."
+          pnpm --filter @precast/ui run build
+          echo "Verifying UI build..."
+          ls -la packages/ui/dist/
         
       - name: Build CLI
-        run: bun run build
-        working-directory: packages/cli
+        run: pnpm --filter @precast/cli run build
         
       - name: Run type checking
-        run: bun run typecheck
-        working-directory: packages/cli
+        run: pnpm --filter @precast/cli run typecheck
         
       - name: Run linting
-        run: bun run lint
-        working-directory: packages/cli
+        run: pnpm --filter @precast/cli run lint
         
       - name: Run unit tests
-        run: bun test tests/unit
-        working-directory: packages/cli
+        run: pnpm --filter @precast/cli test tests/unit
         timeout-minutes: 5
         
       - name: Run integration tests (critical)
@@ -143,15 +140,16 @@ jobs:
           echo "Building UI package..."
           pnpm --filter @precast/ui run build
           echo "Verifying UI build output..."
+          ls -la packages/ui/ || echo "UI package not found"
           ls -la packages/ui/dist/ || echo "UI dist not found"
-          # Check for the actual index.d.ts file location
+          # Check for TypeScript declarations
           if [ -f "packages/ui/dist/index.d.ts" ]; then
-            echo "✅ TypeScript declarations at dist/index.d.ts"
-          elif [ -f "packages/ui/dist/index.js" ]; then
-            echo "⚠️ JavaScript built but TypeScript declarations may be separate"
-            # Don't fail, UI package exports from src/index.ts directly
+            echo "✅ TypeScript declarations found at dist/index.d.ts"
+            cat packages/ui/dist/index.d.ts | head -20
           else
-            echo "❌ Build output missing"
+            echo "❌ TypeScript declarations missing"
+            echo "Checking tsconfig..."
+            cat packages/ui/tsconfig.json
             exit 1
           fi
         

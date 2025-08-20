@@ -4,7 +4,9 @@ node_modules
 
 /example_repo
 /crush
-**/**/**/test-*
+# Ignore test directories in tmp but not test helpers
+/tmp/**/test-*
+**/tmp/test-*
 
 # Build outputs
 dist

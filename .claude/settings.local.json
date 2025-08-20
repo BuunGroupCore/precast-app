@@ -35,7 +35,9 @@
       "Bash(done)",
       "Bash(for pkg in cli website ui utils hooks)",
       "Bash(do echo \"=== $pkg scripts ===\")",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(pnpm --filter @precast/cli typecheck)",
+      "Bash(pnpm --filter @precast/website typecheck)"
     ]
   },
   "outputStyle": "Ultra Concise"

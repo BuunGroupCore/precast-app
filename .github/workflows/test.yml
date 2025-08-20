@@ -97,7 +97,7 @@ jobs:
         
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cli-test-report-node${{ matrix.node-version }}
           path: packages/cli/TEST_REPORT.md

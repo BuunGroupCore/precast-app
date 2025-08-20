@@ -29,7 +29,13 @@
       "Bash(curl:*)",
       "Bash(pnpm vitest run:*)",
       "Bash(RUN_QUALITY_TESTS=true pnpm vitest run tests/integration/project-quality.test.ts --config tests/config/vitest.config.ts -- --testNamePattern=\"should automatically cleanup\")",
-      "Bash(pnpm test:*)"
+      "Bash(pnpm test:*)",
+      "Bash(for pkg in website ui utils hooks)",
+      "Bash(do echo \"=== $pkg ===\")",
+      "Bash(done)",
+      "Bash(for pkg in cli website ui utils hooks)",
+      "Bash(do echo \"=== $pkg scripts ===\")",
+      "Bash(jq:*)"
     ]
   },
   "outputStyle": "Ultra Concise"

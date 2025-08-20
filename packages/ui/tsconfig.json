@@ -7,8 +7,10 @@
     "noEmit": false,
     "declaration": true,
     "declarationMap": true,
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
+    "emitDeclarationOnly": false
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../utils" }]
+  "exclude": ["node_modules", "dist"],
+  "references": []
 }

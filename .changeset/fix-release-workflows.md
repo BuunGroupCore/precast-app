@@ -1,9 +1,5 @@
 ---
 "create-precast-app": patch
-"@precast/website": patch
-"@precast/ui": patch
-"@precast/utils": patch
-"@precast/hooks": patch
 ---
 
 fix: Split release workflow for proper GitHub releases

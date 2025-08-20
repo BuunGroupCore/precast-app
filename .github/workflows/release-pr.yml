@@ -66,7 +66,7 @@ jobs:
           echo "Building CLI..."
           pnpm --filter create-precast-app run build
           echo "Building website..."
-          pnpm --filter website build
+          pnpm --filter @precast/website run build
         env:
           VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_API_KEY }}
           VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}

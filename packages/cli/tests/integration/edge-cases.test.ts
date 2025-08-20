@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { TestSandbox } from "../helpers/sandbox";
-import { CLITestRunner } from "../helpers/test-cli";
+import { TestSandbox } from "../helpers/sandbox.js";
+import { CLITestRunner } from "../helpers/test-cli.js";
 
 describe("Edge Cases and Error Handling", () => {
   let testRunner: CLITestRunner;

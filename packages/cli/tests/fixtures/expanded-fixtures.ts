@@ -1,4 +1,4 @@
-import type { ProjectFixture } from "./index";
+import type { ProjectFixture } from "./index.js";
 
 /**
  * Comprehensive test fixtures covering all framework, backend, and feature combinations

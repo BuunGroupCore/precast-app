@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { FIXTURES } from "../fixtures";
-import { ProjectQualityValidator } from "../helpers/project-quality-validator";
-import { ProjectValidator } from "../helpers/project-validator";
-import { TestSandbox } from "../helpers/sandbox";
-import { CLITestRunner } from "../helpers/test-cli";
+import { FIXTURES } from "../fixtures/index.js";
+import { ProjectQualityValidator } from "../helpers/project-quality-validator.js";
+import { ProjectValidator } from "../helpers/project-validator.js";
+import { TestSandbox } from "../helpers/sandbox.js";
+import { CLITestRunner } from "../helpers/test-cli.js";
 
 describe("CLI Project Quality Tests - With Install & Validation", () => {
   let testRunner: CLITestRunner;

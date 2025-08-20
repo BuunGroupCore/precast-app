@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { POWERUP_FIXTURES } from "../fixtures/expanded-fixtures";
-import { TestSandbox } from "../helpers/sandbox";
-import { CLITestRunner } from "../helpers/test-cli";
+import { POWERUP_FIXTURES } from "../fixtures/expanded-fixtures.js";
+import { TestSandbox } from "../helpers/sandbox.js";
+import { CLITestRunner } from "../helpers/test-cli.js";
 
 describe("PowerUps Tests", () => {
   let testRunner: CLITestRunner;

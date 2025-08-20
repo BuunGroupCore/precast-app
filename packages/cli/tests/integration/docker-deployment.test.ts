@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { DOCKER_FIXTURES } from "../fixtures/expanded-fixtures";
-import { ProjectValidator } from "../helpers/project-validator";
-import { TestSandbox } from "../helpers/sandbox";
-import { CLITestRunner } from "../helpers/test-cli";
+import { DOCKER_FIXTURES } from "../fixtures/expanded-fixtures.js";
+import { ProjectValidator } from "../helpers/project-validator.js";
+import { TestSandbox } from "../helpers/sandbox.js";
+import { CLITestRunner } from "../helpers/test-cli.js";
 
 describe("Docker Deployment Tests", () => {
   let testRunner: CLITestRunner;

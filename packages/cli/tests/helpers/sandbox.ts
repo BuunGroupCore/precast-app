@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "fs/promises";
 import os from "os";
 import path from "path";
 
-import { globalReporter } from "./test-reporter";
+import { globalReporter } from "./test-reporter.js";
 
 /**
  * TestSandbox provides isolated temporary directories for tests with automatic cleanup.

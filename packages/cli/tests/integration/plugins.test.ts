@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { PLUGIN_FIXTURES } from "../fixtures/expanded-fixtures";
-import { TestSandbox } from "../helpers/sandbox";
-import { CLITestRunner } from "../helpers/test-cli";
+import { PLUGIN_FIXTURES } from "../fixtures/expanded-fixtures.js";
+import { TestSandbox } from "../helpers/sandbox.js";
+import { CLITestRunner } from "../helpers/test-cli.js";
 
 describe("Plugin System Tests", () => {
   let testRunner: CLITestRunner;

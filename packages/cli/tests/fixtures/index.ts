@@ -1,4 +1,4 @@
-import type { TestCombination } from "../config/test-matrix";
+import type { TestCombination } from "../config/test-matrix.js";
 
 export interface ValidationRule {
   type: "file-exists" | "dependency-present" | "script-exists" | "config-valid";

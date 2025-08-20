@@ -23,7 +23,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@test/*": ["tests/*"]
     }
   },
   "include": ["src/**/*", "../shared/**/*", "tests/**/*"],

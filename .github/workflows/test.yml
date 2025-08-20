@@ -53,17 +53,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: 'pnpm'
           
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         
-      - name: Build dependencies in order
-        run: |
-          pnpm --filter @precast/utils run build
-          pnpm --filter @precast/ui run build
+      - name: Build UI package
+        run: pnpm --filter @precast/ui run build
         
       - name: Run website type checking
-        run: pnpm --filter website typecheck
+        run: pnpm --filter @precast/website typecheck
+        
+      - name: Run website linting
+        run: pnpm --filter @precast/website lint
+        
+      - name: Build website
+        run: pnpm --filter @precast/website build
         
       - name: Run website tests
-        run: pnpm --filter website test --if-present
+        run: pnpm --filter @precast/website test --if-present

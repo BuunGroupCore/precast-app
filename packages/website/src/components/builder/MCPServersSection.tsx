@@ -283,7 +283,7 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="mt-2 p-4 bg-white rounded-lg border border-comic-gray/30 shadow-sm"
+                        className="mt-2 p-4 bg-white rounded-lg border border-comic-gray/30 shadow-sm text-comic-black"
                       >
                         <div className="flex items-center gap-2 mb-3">
                           <FaExclamationTriangle className="text-comic-orange text-sm" />
@@ -298,14 +298,14 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
                               className="bg-comic-gray/10 p-3 rounded-lg border border-comic-gray/30"
                             >
                               <div className="flex flex-col gap-1">
-                                <div className="font-mono text-xs">
+                                <div className="font-mono text-xs break-all text-comic-black">
                                   <span className="text-comic-purple font-bold">{key}</span>
-                                  <span className="text-comic-gray mx-1">=</span>
+                                  <span className="text-comic-black/70 mx-1">=</span>
                                   <span className="text-comic-blue italic">
                                     {value.replace(/\$\{([^}]+)\}/g, "$1")}
                                   </span>
                                 </div>
-                                <div className="text-[10px] text-comic-gray font-comic">
+                                <div className="text-[10px] text-comic-black/70 font-comic">
                                   {description}
                                 </div>
                               </div>

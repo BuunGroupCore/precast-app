@@ -138,6 +138,8 @@ jobs:
       - name: Build dependencies in order
         run: |
           echo "Building UI package..."
+          # Clean any stale build info
+          rm -f packages/ui/tsconfig.tsbuildinfo
           pnpm --filter @precast/ui run build
           echo "Verifying UI build output..."
           ls -la packages/ui/ || echo "UI package not found"

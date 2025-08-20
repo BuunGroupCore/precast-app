@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { FRAMEWORK_BACKEND_FIXTURES } from "../fixtures/expanded-fixtures.js";
-import { ProjectValidator } from "../helpers/project-validator.js";
-import { TestSandbox } from "../helpers/sandbox.js";
-import { CLITestRunner } from "../helpers/test-cli.js";
+import { FRAMEWORK_BACKEND_FIXTURES } from "../fixtures/expanded-fixtures";
+import { ProjectValidator } from "../helpers/project-validator";
+import { TestSandbox } from "../helpers/sandbox";
+import { CLITestRunner } from "../helpers/test-cli";
 
 describe("Framework-Backend Matrix Tests", () => {
   let testRunner: CLITestRunner;

@@ -1,4 +1,4 @@
-import type { ProjectFixture } from "./index.js";
+import type { ProjectFixture } from "./index";
 
 /**
  * Comprehensive test fixtures covering all framework, backend, and feature combinations
@@ -111,13 +111,13 @@ export const FRAMEWORK_BACKEND_FIXTURES: ProjectFixture[] = [
       "package.json",
       "apps/web/package.json",
       "apps/api/package.json",
-      "apps/web/src/App.js",
-      "apps/api/src/index.js",
+      "apps/web/src/App",
+      "apps/api/src/index",
     ],
     expectedDependencies: ["react", "koa", "duckdb", "styled-components"],
     expectedDevDependencies: [],
     validationRules: [
-      { type: "file-exists", path: "apps/api/src/index.js", description: "Koa server entry" },
+      { type: "file-exists", path: "apps/api/src/index", description: "Koa server entry" },
       { type: "dependency-present", package: "koa", description: "Koa dependency" },
     ],
   },
@@ -501,12 +501,12 @@ export const POWERUP_FIXTURES: ProjectFixture[] = [
       category: "common",
       expectedDuration: 7000,
     },
-    expectedFiles: [".prettierrc", ".eslintrc.js", ".husky/pre-commit", ".czrc"],
+    expectedFiles: [".prettierrc", ".eslintrc", ".husky/pre-commit", ".czrc"],
     expectedDependencies: ["next"],
     expectedDevDependencies: ["prettier", "eslint", "husky", "commitizen"],
     validationRules: [
       { type: "file-exists", path: ".prettierrc", description: "Prettier config" },
-      { type: "file-exists", path: ".eslintrc.js", description: "ESLint config" },
+      { type: "file-exists", path: ".eslintrc", description: "ESLint config" },
       { type: "script-exists", script: "lint", description: "Lint script" },
     ],
   },
@@ -525,7 +525,7 @@ export const POWERUP_FIXTURES: ProjectFixture[] = [
       category: "edge",
       expectedDuration: 7000,
     },
-    expectedFiles: ["vite.config.ts", "public/manifest.json", "public/sw.js"],
+    expectedFiles: ["vite.config.ts", "public/manifest.json", "public/sw"],
     expectedDependencies: ["react"],
     expectedDevDependencies: ["webpack-bundle-analyzer", "million", "vite-plugin-pwa"],
     validationRules: [
@@ -853,12 +853,12 @@ export const UI_LIBRARY_FIXTURES: ProjectFixture[] = [
       category: "common",
       expectedDuration: 6000,
     },
-    expectedFiles: ["tailwind.config.js", "src/components/DaisyButton.vue"],
+    expectedFiles: ["tailwind.config", "src/components/DaisyButton.vue"],
     expectedDependencies: ["vue", "daisyui"],
     expectedDevDependencies: ["typescript", "tailwindcss"],
     validationRules: [
       { type: "dependency-present", package: "daisyui", description: "DaisyUI" },
-      { type: "file-exists", path: "tailwind.config.js", description: "Tailwind config" },
+      { type: "file-exists", path: "tailwind.config", description: "Tailwind config" },
     ],
   },
   {
@@ -977,7 +977,7 @@ export const DEPLOYMENT_FIXTURES: ProjectFixture[] = [
       category: "edge",
       expectedDuration: 8000,
     },
-    expectedFiles: ["wrangler.toml", "_worker.js"],
+    expectedFiles: ["wrangler.toml", "_worker"],
     expectedDependencies: ["react", "drizzle-orm"],
     expectedDevDependencies: ["typescript", "wrangler"],
     validationRules: [

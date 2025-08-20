@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { TEST_MATRIX } from "../config/test-matrix.js";
-import { FIXTURES } from "../fixtures/index.js";
-import { ProjectValidator } from "../helpers/project-validator.js";
-import { TestSandbox } from "../helpers/sandbox.js";
-import { CLITestRunner } from "../helpers/test-cli.js";
+import { TEST_MATRIX } from "../config/test-matrix";
+import { FIXTURES } from "../fixtures/index";
+import { ProjectValidator } from "../helpers/project-validator";
+import { TestSandbox } from "../helpers/sandbox";
+import { CLITestRunner } from "../helpers/test-cli";
 
 describe("CLI Matrix Testing - E2E", () => {
   let testRunner: CLITestRunner;

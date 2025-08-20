@@ -205,9 +205,9 @@ export class ProjectQualityValidator {
     try {
       // Check for ESLint config
       const hasEslint =
-        existsSync(path.join(projectPath, ".eslintrc.js")) ||
+        existsSync(path.join(projectPath, ".eslintrc")) ||
         existsSync(path.join(projectPath, ".eslintrc.json")) ||
-        existsSync(path.join(projectPath, "eslint.config.js"));
+        existsSync(path.join(projectPath, "eslint.config"));
 
       if (!hasEslint) {
         return {
@@ -307,7 +307,7 @@ export class ProjectQualityValidator {
       // Check for Prettier config
       const hasPrettier =
         existsSync(path.join(projectPath, ".prettierrc")) ||
-        existsSync(path.join(projectPath, ".prettierrc.js")) ||
+        existsSync(path.join(projectPath, ".prettierrc")) ||
         existsSync(path.join(projectPath, ".prettierrc.json"));
 
       if (!hasPrettier) {

@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import path from "path";
 
-import type { ProjectFixture, ValidationRule } from "../fixtures/index.js";
+import type { ProjectFixture, ValidationRule } from "../fixtures/index";
 
 /**
  * Detailed validation result with passed and failed rules

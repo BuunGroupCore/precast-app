@@ -1,6 +1,6 @@
 import type { File, Reporter, Task } from "vitest";
 
-import { globalReporter } from "./test-reporter.js";
+import { globalReporter } from "./test-reporter";
 
 /**
  * Custom Vitest reporter that tracks test results in our global reporter.

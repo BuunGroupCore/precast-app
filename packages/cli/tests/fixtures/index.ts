@@ -1,4 +1,4 @@
-import type { TestCombination } from "../config/test-matrix.js";
+import type { TestCombination } from "../config/test-matrix";
 
 export interface ValidationRule {
   type: "file-exists" | "dependency-present" | "script-exists" | "config-valid";
@@ -88,12 +88,12 @@ export const FIXTURES: ProjectFixture[] = [
       category: "edge",
       expectedDuration: 3000,
     },
-    expectedFiles: ["package.json", "index.html", "src/main.js", "style.css"],
+    expectedFiles: ["package.json", "index.html", "src/main", "style.css"],
     expectedDependencies: [],
     expectedDevDependencies: ["vite"],
     validationRules: [
       { type: "file-exists", path: "index.html", description: "HTML entry point" },
-      { type: "file-exists", path: "src/main.js", description: "JavaScript entry" },
+      { type: "file-exists", path: "src/main", description: "JavaScript entry" },
       { type: "script-exists", script: "dev", description: "Development script" },
       { type: "script-exists", script: "build", description: "Build script" },
     ],

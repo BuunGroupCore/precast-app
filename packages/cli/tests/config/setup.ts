@@ -1,6 +1,6 @@
 import { beforeAll, afterEach } from "vitest";
 
-import { TestSandbox } from "../helpers/sandbox.js";
+import { TestSandbox } from "../helpers/sandbox";
 
 // Global test setup
 beforeAll(async () => {

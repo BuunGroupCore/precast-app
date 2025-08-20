@@ -14,16 +14,38 @@ jobs:
   test-cli:
     name: Test CLI Package
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
       
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.1
           
       - name: Install dependencies
         run: bun install
+        
+      - name: Build shared packages
+        run: |
+          bun run --filter @precast/shared build
+          bun run --filter @precast/utils build
+          bun run --filter @precast/ui build
+        
+      - name: Build CLI
+        run: bun run build
         working-directory: packages/cli
         
       - name: Run type checking
@@ -34,9 +56,64 @@ jobs:
         run: bun run lint
         working-directory: packages/cli
         
-      - name: Run tests
-        run: bun run test
+      - name: Run unit tests
+        run: bun test tests/unit
         working-directory: packages/cli
+        timeout-minutes: 5
+        
+      - name: Run integration tests (critical)
+        run: pnpm test tests/integration/project-quality.test.ts
+        working-directory: packages/cli
+        timeout-minutes: 10
+        
+      - name: Run Docker tests
+        run: pnpm test tests/integration/docker-deployment.test.ts
+        working-directory: packages/cli
+        timeout-minutes: 5
+        
+      - name: Run plugin tests
+        run: pnpm test tests/integration/plugins.test.ts
+        working-directory: packages/cli
+        timeout-minutes: 5
+        
+      - name: Run PowerUps tests
+        run: pnpm test tests/integration/powerups.test.ts
+        working-directory: packages/cli
+        timeout-minutes: 5
+        
+      - name: Run edge case tests
+        run: pnpm test tests/integration/edge-cases.test.ts
+        working-directory: packages/cli
+        timeout-minutes: 5
+        
+      - name: Generate test report
+        if: always()
+        run: |
+          if [ -f "TEST_REPORT.md" ]; then
+            echo "## Test Report Summary" >> $GITHUB_STEP_SUMMARY
+            cat TEST_REPORT.md >> $GITHUB_STEP_SUMMARY
+          fi
+        working-directory: packages/cli
+        
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cli-test-report-node${{ matrix.node-version }}
+          path: packages/cli/TEST_REPORT.md
+          retention-days: 7
+          
+      - name: Check for leftover test directories
+        if: always()
+        run: |
+          leftover=$(ls -la /tmp/ | grep precast-test- | wc -l)
+          if [ "$leftover" -gt 0 ]; then
+            echo "⚠️ Found $leftover leftover test directories"
+            ls -la /tmp/ | grep precast-test-
+            exit 1
+          else
+            echo "✅ No leftover test directories found"
+          fi
 
   test-website:
     name: Test Website

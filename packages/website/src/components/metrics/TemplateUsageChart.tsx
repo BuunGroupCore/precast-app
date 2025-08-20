@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FaFileCode, FaClock, FaCheckCircle } from "react-icons/fa";
+import { TanStackIcon } from "../icons/TanStackIcon";
 import {
   BarChart,
   Bar,
@@ -262,21 +263,26 @@ export function TemplateUsageChart(_props: TemplateUsageChartProps) {
                   <span className="action-text" style={{ color }}>
                     #{index + 1}
                   </span>
-                  <div>
-                    <div className="font-comic font-bold text-comic-red">
-                      {template.displayName}
-                    </div>
-                    <div className="text-sm text-comic-red">
-                      {(() => {
-                        const time = template.avgTime;
-                        let timeStr;
-                        if (typeof time !== "number" || time === 0 || time > 300000)
-                          timeStr = "N/A";
-                        else if (time < 1000) timeStr = `${time}ms`;
-                        else if (time < 60000) timeStr = `${Math.round(time / 1000)}s`;
-                        else timeStr = `${Math.round(time / 60000)}min`;
-                        return `${timeStr} avg • ${template.successRate}% success`;
-                      })()}
+                  <div className="flex items-center gap-2">
+                    {template.name.includes("tanstack") && (
+                      <TanStackIcon className="text-lg text-comic-red" />
+                    )}
+                    <div>
+                      <div className="font-comic font-bold text-comic-red">
+                        {template.displayName}
+                      </div>
+                      <div className="text-sm text-comic-red">
+                        {(() => {
+                          const time = template.avgTime;
+                          let timeStr;
+                          if (typeof time !== "number" || time === 0 || time > 300000)
+                            timeStr = "N/A";
+                          else if (time < 1000) timeStr = `${time}ms`;
+                          else if (time < 60000) timeStr = `${Math.round(time / 1000)}s`;
+                          else timeStr = `${Math.round(time / 60000)}min`;
+                          return `${timeStr} avg • ${template.successRate}% success`;
+                        })()}
+                      </div>
                     </div>
                   </div>
                 </div>

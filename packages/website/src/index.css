@@ -4,6 +4,116 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import improved documentation styles */
+@import "./styles/docs.css";
+
+/* Improved Comic Panel for Documentation */
+.comic-panel-docs {
+  @apply relative p-6 rounded-lg border-3 bg-white;
+  border-color: var(--comic-black);
+  box-shadow:
+    3px 3px 0 var(--comic-black),
+    6px 6px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Better Typography for Documentation */
+.docs-heading-1 {
+  @apply text-3xl md:text-4xl font-bold mb-6;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.docs-heading-2 {
+  @apply text-2xl md:text-3xl font-semibold mb-4 mt-8;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.docs-heading-3 {
+  @apply text-xl md:text-2xl font-semibold mb-3 mt-6;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  line-height: 1.4;
+}
+
+.docs-paragraph {
+  @apply mb-4 leading-relaxed;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #374151;
+}
+
+/* Improved Code Blocks */
+.terminal-docs {
+  @apply relative p-4 rounded-lg border-2 font-mono bg-gray-900;
+  border-color: #374151;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.terminal-docs pre {
+  @apply text-gray-100 overflow-x-auto;
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  padding-bottom: 0.75rem;
+}
+
+/* Improved Tables */
+.docs-table-improved {
+  @apply w-full border-collapse my-6;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.docs-table-improved thead {
+  @apply bg-gray-50 border-b-2 border-gray-300;
+}
+
+.docs-table-improved th {
+  @apply text-left px-4 py-3 font-semibold text-gray-700;
+  font-size: 14px;
+  letter-spacing: 0.025em;
+}
+
+.docs-table-improved td {
+  @apply px-4 py-3 border-b border-gray-200 text-gray-700;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Improved Info Panels */
+.docs-info-panel {
+  @apply bg-blue-50 border-l-4 border-blue-500 p-4 my-4 rounded-r;
+}
+
+.docs-warning-panel {
+  @apply bg-amber-50 border-l-4 border-amber-500 p-4 my-4 rounded-r;
+}
+
+.docs-success-panel {
+  @apply bg-emerald-50 border-l-4 border-emerald-500 p-4 my-4 rounded-r;
+}
+
+.docs-error-panel {
+  @apply bg-red-50 border-l-4 border-red-500 p-4 my-4 rounded-r;
+}
+
 /* Prevent horizontal overflow on mobile */
 @media (max-width: 768px) {
   body {
@@ -397,6 +507,31 @@
       rgba(0, 255, 0, 0.05) 20px,
       rgba(0, 255, 0, 0.05) 21px
     );
+  }
+
+  /* Fix scrollbar overlap in code blocks */
+  .terminal-comic pre {
+    padding-bottom: 0.75rem;
+    scrollbar-gutter: stable;
+  }
+
+  .terminal-comic pre::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .terminal-comic pre::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+  }
+
+  .terminal-comic pre::-webkit-scrollbar-thumb {
+    background: var(--comic-green);
+    border-radius: 4px;
+    opacity: 0.7;
+  }
+
+  .terminal-comic pre::-webkit-scrollbar-thumb:hover {
+    opacity: 1;
   }
 
   /* Comic Badge */

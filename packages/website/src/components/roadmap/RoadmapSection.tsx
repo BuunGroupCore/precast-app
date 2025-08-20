@@ -11,24 +11,10 @@ import {
   FaFlask,
   FaTools,
   FaMobile,
-  FaCube,
-  FaUser,
   FaBriefcase,
   FaExternalLinkAlt,
+  FaUser,
 } from "react-icons/fa";
-import {
-  SiAngular,
-  SiNuxtdotjs,
-  SiRemix,
-  SiFastify,
-  SiSupabase,
-  SiFirebase,
-  SiMui,
-  SiChakraui,
-  SiAntdesign,
-  SiMantine,
-  SiAuth0,
-} from "react-icons/si";
 
 import { ComicPageSeparator } from "@/components/home";
 import { ClerkIcon } from "@/components/icons/ClerkIcon";
@@ -37,299 +23,37 @@ import { NeonIcon } from "@/components/icons/NeonIcon";
 import { PassportIcon } from "@/components/icons/PassportIcon";
 import { PlanetScaleIcon } from "@/components/icons/PlanetScaleIcon";
 import { TursoIcon } from "@/components/icons/TursoIcon";
+import {
+  roadmapItems,
+  statusConfig,
+  type RoadmapCategory,
+  type RoadmapStatus,
+  type CustomIconName,
+} from "@/config/roadmap";
 
 /**
- * Category types for roadmap items
+ * Map custom icon names to their components
  */
-type RoadmapCategory = "all" | "frameworks" | "backend" | "database" | "ui" | "auth" | "mobile";
+const customIconMap: Record<CustomIconName, React.ComponentType<{ className?: string }>> = {
+  ClerkIcon,
+  ConvexIcon,
+  NeonIcon,
+  PassportIcon,
+  PlanetScaleIcon,
+  TursoIcon,
+};
 
 /**
- * Status of roadmap items
+ * Helper function to get the icon component
  */
-type RoadmapStatus = "testing" | "coming-soon" | "planned";
-
-/**
- * Roadmap item structure
- */
-interface RoadmapItem {
-  /** Unique identifier */
-  id: string;
-  /** Display name */
-  name: string;
-  /** Brief description */
-  description: string;
-  /** Category for filtering */
-  category: RoadmapCategory;
-  /** Icon component */
-  icon: React.ComponentType<{ className?: string }>;
-  /** Current development status */
-  status: RoadmapStatus;
-  /** Expected release quarter */
-  expectedRelease?: string;
-  /** Progress percentage (0-100) */
-  progress?: number;
-  /** Additional notes or updates */
-  notes?: string;
-  /** Color theme for the card */
-  colorClass: string;
+function getIconComponent(
+  icon: React.ComponentType<{ className?: string }> | CustomIconName
+): React.ComponentType<{ className?: string }> {
+  if (typeof icon === "string" && icon in customIconMap) {
+    return customIconMap[icon as CustomIconName];
+  }
+  return icon as React.ComponentType<{ className?: string }>;
 }
-
-/**
- * Collection of tools and frameworks currently being tested or planned
- */
-const roadmapItems: RoadmapItem[] = [
-  // Frameworks
-  {
-    id: "angular",
-    name: "Angular",
-    description: "Platform for building mobile and desktop web applications with TypeScript",
-    category: "frameworks",
-    icon: SiAngular,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 75,
-    notes: "Template generation complete, testing CLI integration",
-    colorClass: "bg-comic-red",
-  },
-  {
-    id: "nuxt",
-    name: "Nuxt",
-    description: "The Intuitive Vue Framework with SSR and static site generation",
-    category: "frameworks",
-    icon: SiNuxtdotjs,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 60,
-    notes: "Working on module system integration",
-    colorClass: "bg-comic-green",
-  },
-  {
-    id: "remix",
-    name: "Remix",
-    description: "Build better websites with Remix's nested routing and data loading",
-    category: "frameworks",
-    icon: SiRemix,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 80,
-    notes: "Finalizing loader patterns and deployment configs",
-    colorClass: "bg-comic-blue",
-  },
-  {
-    id: "solid",
-    name: "SolidJS",
-    description: "Simple and performant reactivity for building user interfaces",
-    category: "frameworks",
-    icon: FaCube, // SolidJS icon placeholder
-    status: "coming-soon",
-    expectedRelease: "Q1 2026",
-    progress: 40,
-    notes: "Implementing fine-grained reactivity patterns",
-    colorClass: "bg-comic-purple",
-  },
-
-  // Backend
-  {
-    id: "fastify",
-    name: "Fastify",
-    description: "Fast and low overhead web framework for Node.js",
-    category: "backend",
-    icon: SiFastify,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 70,
-    notes: "Optimizing plugin system and schema validation",
-    colorClass: "bg-comic-yellow",
-  },
-  {
-    id: "convex",
-    name: "Convex",
-    description: "Backend-as-a-Service with real-time sync and serverless functions",
-    category: "backend",
-    icon: ConvexIcon,
-    status: "planned",
-    expectedRelease: "Q1 2026",
-    progress: 20,
-    notes: "Researching real-time sync patterns",
-    colorClass: "bg-comic-orange",
-  },
-
-  // Databases
-  {
-    id: "supabase",
-    name: "Supabase",
-    description: "The open source Firebase alternative with PostgreSQL",
-    category: "database",
-    icon: SiSupabase,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 85,
-    notes: "Finalizing auth integration and real-time subscriptions",
-    colorClass: "bg-comic-green",
-  },
-  {
-    id: "firebase",
-    name: "Firebase",
-    description: "Google's mobile and web app development platform",
-    category: "database",
-    icon: SiFirebase,
-    status: "coming-soon",
-    expectedRelease: "Q1 2026",
-    progress: 30,
-    notes: "Working on Firestore rules generation",
-    colorClass: "bg-comic-yellow",
-  },
-  {
-    id: "neon",
-    name: "Neon",
-    description: "Serverless Postgres with branching and autoscaling",
-    category: "database",
-    icon: NeonIcon,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 65,
-    notes: "Implementing branching workflows",
-    colorClass: "bg-comic-blue",
-  },
-  {
-    id: "turso",
-    name: "Turso",
-    description: "Edge-hosted distributed SQLite database",
-    category: "database",
-    icon: TursoIcon,
-    status: "coming-soon",
-    expectedRelease: "Q1 2026",
-    progress: 25,
-    notes: "Exploring edge deployment patterns",
-    colorClass: "bg-comic-purple",
-  },
-  {
-    id: "planetscale",
-    name: "PlanetScale",
-    description: "Serverless MySQL platform with branching",
-    category: "database",
-    icon: PlanetScaleIcon,
-    status: "planned",
-    expectedRelease: "Q2 2026",
-    progress: 10,
-    notes: "Planning schema migration strategies",
-    colorClass: "bg-comic-red",
-  },
-
-  // UI Libraries
-  {
-    id: "mui",
-    name: "Material UI",
-    description: "React components that implement Google's Material Design",
-    category: "ui",
-    icon: SiMui,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 55,
-    notes: "Creating theme configuration templates",
-    colorClass: "bg-comic-blue",
-  },
-  {
-    id: "chakra",
-    name: "Chakra UI",
-    description: "Modular and accessible component library for React",
-    category: "ui",
-    icon: SiChakraui,
-    status: "coming-soon",
-    expectedRelease: "Q1 2026",
-    progress: 35,
-    notes: "Building custom theme providers",
-    colorClass: "bg-comic-green",
-  },
-  {
-    id: "antd",
-    name: "Ant Design",
-    description: "Enterprise-class UI design language and React components",
-    category: "ui",
-    icon: SiAntdesign,
-    status: "planned",
-    expectedRelease: "Q1 2026",
-    progress: 15,
-    notes: "Researching enterprise patterns",
-    colorClass: "bg-comic-red",
-  },
-  {
-    id: "mantine",
-    name: "Mantine",
-    description: "Full-featured React components and hooks library",
-    category: "ui",
-    icon: SiMantine,
-    status: "planned",
-    expectedRelease: "Q2 2026",
-    progress: 5,
-    notes: "Planning component architecture",
-    colorClass: "bg-comic-purple",
-  },
-
-  // Authentication
-  {
-    id: "clerk",
-    name: "Clerk",
-    description: "Complete user management and authentication solution",
-    category: "auth",
-    icon: ClerkIcon,
-    status: "testing",
-    expectedRelease: "Q3 2026",
-    progress: 90,
-    notes: "Polishing user management dashboard integration",
-    colorClass: "bg-comic-blue",
-  },
-  {
-    id: "auth0",
-    name: "Auth0",
-    description: "Identity platform for application builders",
-    category: "auth",
-    icon: SiAuth0,
-    status: "coming-soon",
-    expectedRelease: "Q1 2026",
-    progress: 45,
-    notes: "Implementing universal login flows",
-    colorClass: "bg-comic-orange",
-  },
-  {
-    id: "passport",
-    name: "Passport.js",
-    description: "Simple, unobtrusive authentication for Node.js",
-    category: "auth",
-    icon: PassportIcon,
-    status: "planned",
-    expectedRelease: "Q2 2026",
-    progress: 0,
-    notes: "Planning strategy pattern implementation",
-    colorClass: "bg-comic-green",
-  },
-
-  // Mobile
-  {
-    id: "react-native",
-    name: "React Native",
-    description: "Build native mobile apps using React",
-    category: "mobile",
-    icon: FaMobile,
-    status: "planned",
-    expectedRelease: "Q2 2026",
-    progress: 0,
-    notes: "Researching Expo integration",
-    colorClass: "bg-comic-blue",
-  },
-  {
-    id: "capacitor",
-    name: "Capacitor",
-    description: "Cross-platform native runtime for web apps",
-    category: "mobile",
-    icon: FaMobile,
-    status: "planned",
-    expectedRelease: "Q3 2026",
-    progress: 0,
-    notes: "Planning plugin system",
-    colorClass: "bg-comic-purple",
-  },
-];
 
 /**
  * Category filter options
@@ -348,27 +72,6 @@ const categoryFilters: {
   { id: "auth", label: "AUTHENTICATION", icon: FaShieldAlt, color: "bg-comic-orange" },
   { id: "mobile", label: "MOBILE", icon: FaMobile, color: "bg-comic-pink" },
 ];
-
-/**
- * Status badge configurations
- */
-const statusConfig = {
-  testing: {
-    label: "IN TESTING",
-    icon: FaFlask,
-    color: "bg-comic-yellow text-comic-black",
-  },
-  "coming-soon": {
-    label: "COMING SOON",
-    icon: FaClock,
-    color: "bg-comic-blue text-comic-white",
-  },
-  planned: {
-    label: "PLANNED",
-    icon: FaTools,
-    color: "bg-comic-gray text-comic-white",
-  },
-};
 
 /**
  * Roadmap section component displaying future support for disabled tools
@@ -518,7 +221,7 @@ export function RoadmapSection() {
             </motion.h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {groupedByStatus.testing.map((item, index) => {
-                const Icon = item.icon;
+                const Icon = getIconComponent(item.icon);
                 return (
                   <motion.div
                     key={item.id}
@@ -590,7 +293,7 @@ export function RoadmapSection() {
             </motion.h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {groupedByStatus["coming-soon"].map((item, index) => {
-                const Icon = item.icon;
+                const Icon = getIconComponent(item.icon);
                 return (
                   <motion.div
                     key={item.id}
@@ -651,7 +354,7 @@ export function RoadmapSection() {
             </motion.h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {groupedByStatus.planned.map((item, index) => {
-                const Icon = item.icon;
+                const Icon = getIconComponent(item.icon);
                 return (
                   <motion.div
                     key={item.id}

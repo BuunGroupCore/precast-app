@@ -154,7 +154,7 @@ export class PrecastBanner {
    * @param command - The command name to display
    * @param description - Optional command description
    */
-  static async showCompact(command: string, description?: string): Promise<void> {
+  static async showCompact(command: string, _description?: string): Promise<void> {
     /** Comic book color palette rotation */
     const colorRotation = ["#ff1744", "#ffd600", "#2962ff", "#00e676", "#aa00ff"];
     const colorIndex = Date.now() % colorRotation.length;

@@ -75,6 +75,62 @@ const CACHE_KEY = "precast_metrics_cache";
 const ANALYTICS_CACHE_KEY = "precast_analytics_cache";
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes - matches worker update schedule
 
+// Analytics data types
+interface AnalyticsData {
+  templates?: unknown;
+  userJourney?: unknown;
+  userPreferences?: unknown;
+  frameworks?: unknown;
+  features?: unknown;
+  stackCombinations?: unknown;
+  developerExperience?: unknown;
+  performance?: unknown;
+  aiAutomation?: unknown;
+  errors?: unknown;
+  plugins?: unknown;
+  quality?: unknown;
+}
+
+// Data deduplication to prevent multiple simultaneous API calls
+const ongoingDataRequests = new Map<string, Promise<unknown>>();
+
+async function dedupedFetchJson<T = unknown>(
+  url: string,
+  options?: Record<string, unknown>
+): Promise<T> {
+  const key = `${url}-${JSON.stringify(options)}`;
+
+  if (ongoingDataRequests.has(key)) {
+    return ongoingDataRequests.get(key)! as Promise<T>;
+  }
+
+  const request = fetch(url, options)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .finally(() => {
+      ongoingDataRequests.delete(key);
+    });
+
+  ongoingDataRequests.set(key, request);
+  return request;
+}
+
+// Legacy fetch function for compatibility
+function dedupedFetch(url: string, options?: Record<string, unknown>): Promise<Response> {
+  return fetch(
+    url,
+    options as Record<string, unknown> & {
+      method?: string;
+      headers?: Record<string, string>;
+      body?: string;
+    }
+  );
+}
+
 // PostHog Analytics types
 export interface RawEvent {
   id: string;
@@ -313,12 +369,12 @@ export function usePrecastAPI(): UsePrecastAPIResult {
       }
 
       // Fetch fresh data directly from R2 public URL (bypasses worker)
-      let response = await fetch("https://github.precast.dev/metrics-data.json");
+      let response = await dedupedFetch("https://github.precast.dev/metrics-data.json");
 
       // If R2 direct access fails, fallback to worker endpoint
       if (!response.ok) {
         console.warn("R2 direct access failed for GitHub metrics, falling back to worker endpoint");
-        response = await fetch(PRECAST_API_URL);
+        response = await dedupedFetch(PRECAST_API_URL);
 
         if (!response.ok) {
           throw new Error(`Precast API error: ${response.status} ${response.statusText}`);
@@ -455,19 +511,13 @@ export function usePrecastAnalytics(): UseAnalyticsResult {
       }
 
       // Fetch fresh data directly from R2 public URL (bypasses worker)
-      let response = await fetch("https://analytics.precast.dev/posthog-analytics.json");
-
-      // If R2 direct access fails, fallback to worker endpoint
-      if (!response.ok) {
+      let data: AnalyticsMetrics;
+      try {
+        data = await dedupedFetchJson("https://analytics.precast.dev/posthog-analytics.json");
+      } catch {
         console.warn("R2 direct access failed, falling back to worker endpoint");
-        response = await fetch(`${ANALYTICS_API_URL}/data`);
-
-        if (!response.ok) {
-          throw new Error(`Analytics API error: ${response.status} ${response.statusText}`);
-        }
+        data = await dedupedFetchJson(`${ANALYTICS_API_URL}/data`);
       }
-
-      const data: AnalyticsMetrics = await response.json();
 
       // Update state with fresh data
       setAnalytics(data);
@@ -666,7 +716,8 @@ export function usePrecastAnalytics(): UseAnalyticsResult {
 }
 
 /**
- * Custom hook to fetch specific endpoint data with caching
+ * Optimized hook to fetch specific analytics data with R2 fallback
+ * First tries R2 direct access, then falls back to worker endpoint
  */
 function useAnalyticsEndpoint<T>(endpoint: string, cacheKey: string) {
   const [data, setData] = useState<T | null>(null);
@@ -695,28 +746,135 @@ function useAnalyticsEndpoint<T>(endpoint: string, cacheKey: string) {
         }
       }
 
-      // Fetch fresh data
-      const response = await fetch(`${ANALYTICS_API_URL}${endpoint}`);
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      let response: Response;
+      let fetchSource = "worker";
+
+      // Try R2 main analytics file first (all data is in posthog-analytics.json)
+      try {
+        const fullData = await dedupedFetchJson<AnalyticsData>(
+          "https://analytics.precast.dev/posthog-analytics.json"
+        );
+        fetchSource = "r2";
+
+        // Extract specific data based on endpoint
+        let specificData;
+        switch (endpoint) {
+          case "/templates":
+            specificData = fullData.templates;
+            break;
+          case "/journey":
+            specificData = fullData.userJourney;
+            break;
+          case "/user-preferences":
+            specificData = fullData.userPreferences;
+            break;
+          case "/frameworks":
+            specificData = fullData.frameworks;
+            break;
+          case "/features":
+            specificData = fullData.features;
+            break;
+          case "/stacks":
+            specificData = fullData.stackCombinations;
+            break;
+          case "/developer-experience":
+            specificData = fullData.developerExperience;
+            break;
+          case "/performance":
+            specificData = fullData.performance;
+            break;
+          case "/ai-automation":
+            specificData = fullData.aiAutomation;
+            break;
+          case "/errors":
+            specificData = fullData.errors;
+            break;
+          case "/plugins":
+            specificData = fullData.plugins;
+            break;
+          case "/quality":
+            specificData = fullData.quality;
+            break;
+          default:
+            specificData = fullData;
+        }
+
+        setData(specificData as T);
+        setError(null);
+        setLoading(false);
+
+        // Cache the extracted data
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            data: specificData,
+            cachedAt: Date.now(),
+            source: "r2",
+          })
+        );
+        return;
+      } catch (r2Error) {
+        console.warn(`R2 direct access failed, falling back to worker:`, r2Error);
+        // Fallback to worker endpoint with timeout protection
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+        try {
+          response = await dedupedFetch(`${ANALYTICS_API_URL}${endpoint}`, {
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            throw new Error(`Worker API error: ${response.status} ${response.statusText}`);
+          }
+        } catch (workerError) {
+          clearTimeout(timeoutId);
+          console.error(
+            `Both R2 and worker endpoints failed. R2: ${r2Error}. Worker: ${workerError}`
+          );
+          setError(workerError instanceof Error ? workerError : new Error("Network error"));
+          setLoading(false);
+          return;
+        }
       }
 
       const responseData: T = await response.json();
       setData(responseData);
 
-      // Cache the data
-      localStorage.setItem(
-        cacheKey,
-        JSON.stringify({
-          data: responseData,
-          cachedAt: Date.now(),
-        })
-      );
+      // Cache the data with source info
+      try {
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            data: responseData,
+            cachedAt: Date.now(),
+            source: fetchSource,
+          })
+        );
+      } catch {
+        // If caching fails, still proceed
+        console.warn(`Failed to cache data for ${cacheKey}`);
+      }
 
       setLoading(false);
     } catch (err) {
       console.error(`Error fetching ${endpoint}:`, err);
       setError(err instanceof Error ? err : new Error(`Failed to fetch ${endpoint}`));
+
+      // Try to use expired cached data as fallback
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        try {
+          const parsed = JSON.parse(cachedData);
+          setData(parsed.data);
+          console.info(`Using expired cache as fallback for ${cacheKey}`);
+        } catch {
+          // If cache parsing fails, show placeholder data
+          setData(null);
+        }
+      }
+
       setLoading(false);
     }
   }, [endpoint, cacheKey]);

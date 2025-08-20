@@ -1,15 +1,32 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { FaBug, FaLightbulb, FaTag, FaQuestionCircle, FaStar, FaComments } from "react-icons/fa";
 
 import {
   MetricsHeader,
-  NpmDownloadsSection,
-  GitHubActivitySection,
-  GitHubStatsSection,
-  IssueBreakdownSection,
-  CliUsageSection,
-  PerformanceMetricsSection,
+  AnalyticsLoadingSpinner,
+  SectionSkeleton,
+  CompactSkeleton,
 } from "@/components/metrics";
+
+// Lazy load heavy components to improve initial page load
+const NpmDownloadsSection = lazy(() =>
+  import("@/components/metrics").then((m) => ({ default: m.NpmDownloadsSection }))
+);
+const GitHubActivitySection = lazy(() =>
+  import("@/components/metrics").then((m) => ({ default: m.GitHubActivitySection }))
+);
+const GitHubStatsSection = lazy(() =>
+  import("@/components/metrics").then((m) => ({ default: m.GitHubStatsSection }))
+);
+const IssueBreakdownSection = lazy(() =>
+  import("@/components/metrics").then((m) => ({ default: m.IssueBreakdownSection }))
+);
+const CliUsageSection = lazy(() =>
+  import("@/components/metrics").then((m) => ({ default: m.CliUsageSection }))
+);
+const PerformanceMetricsSection = lazy(() =>
+  import("@/components/metrics").then((m) => ({ default: m.PerformanceMetricsSection }))
+);
 import { useCliAnalytics } from "@/hooks";
 import { usePrecastAPI, usePrecastAnalytics } from "@/hooks/usePrecastAPI";
 
@@ -80,6 +97,83 @@ interface CacheData {
 const CACHE_KEY = "precast-metrics-cache";
 /** Cache duration in milliseconds (30 minutes - matches worker update schedule) */
 const CACHE_DURATION = 30 * 60 * 1000;
+
+// Progressive loading component for viewport-based lazy loading
+interface ProgressiveSectionProps {
+  children: React.ReactNode;
+  delay?: number;
+  fallback?: React.ReactNode;
+  threshold?: number;
+}
+
+const ProgressiveSection: React.FC<ProgressiveSectionProps> = ({
+  // eslint-disable-next-line react/prop-types
+  children,
+  // eslint-disable-next-line react/prop-types
+  delay = 0,
+  // eslint-disable-next-line react/prop-types
+  fallback,
+  // eslint-disable-next-line react/prop-types
+  threshold = 0.1,
+}) => {
+  const [isVisible, setIsVisible] = useState(delay === 0);
+  const [hasIntersected, setHasIntersected] = useState(false);
+
+  useEffect(() => {
+    if (delay === 0) {
+      setIsVisible(true);
+      return;
+    }
+
+    // Check if IntersectionObserver is supported
+    if (!window.IntersectionObserver) {
+      // Fallback for older browsers - just show after delay
+      setTimeout(() => setIsVisible(true), delay);
+      return;
+    }
+
+    // Use Intersection Observer for viewport-based loading
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasIntersected) {
+            setHasIntersected(true);
+            // Add small delay to stagger loading
+            setTimeout(() => setIsVisible(true), delay);
+          }
+        });
+      },
+      {
+        rootMargin: "100px", // Start loading 100px before entering viewport
+        threshold,
+      }
+    );
+
+    // Small delay to ensure element is in DOM
+    const timer = setTimeout(() => {
+      const element = document.getElementById(`section-${delay}`);
+      if (element) observer.observe(element);
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      const element = document.getElementById(`section-${delay}`);
+      if (element) observer.unobserve(element);
+    };
+  }, [delay, hasIntersected, threshold]);
+
+  return (
+    <div id={`section-${delay}`}>
+      {isVisible ? (
+        <div className="animate-in slide-in-from-bottom-4 duration-500">
+          <Suspense fallback={fallback || <AnalyticsLoadingSpinner />}>{children}</Suspense>
+        </div>
+      ) : (
+        fallback || <SectionSkeleton />
+      )}
+    </div>
+  );
+};
 
 const getCache = () => {
   try {
@@ -375,40 +469,58 @@ export function MetricsPage() {
           </p>
         </div>
 
-        <NpmDownloadsSection
-          npmStats={npmStats}
-          downloadHistory={downloadHistory}
-          loading={loading}
-          formatNumber={formatNumber}
-        />
+        {/* NPM Downloads - loads immediately as it's often above the fold */}
+        <ProgressiveSection delay={0}>
+          <NpmDownloadsSection
+            npmStats={npmStats}
+            downloadHistory={downloadHistory}
+            loading={loading}
+            formatNumber={formatNumber}
+          />
+        </ProgressiveSection>
 
-        <GitHubActivitySection commitHistory={commitHistory} loading={precastLoading} />
+        {/* GitHub Activity - loads with small delay for smooth animation */}
+        <ProgressiveSection delay={50} fallback={<CompactSkeleton />}>
+          <GitHubActivitySection commitHistory={commitHistory} loading={precastLoading} />
+        </ProgressiveSection>
 
-        <GitHubStatsSection
-          githubStats={githubStats}
-          formatDate={formatDate}
-          calculateProjectAge={calculateProjectAge}
-        />
+        {/* GitHub Stats - loads when approaching viewport */}
+        <ProgressiveSection delay={100} fallback={<CompactSkeleton />}>
+          <GitHubStatsSection
+            githubStats={githubStats}
+            formatDate={formatDate}
+            calculateProjectAge={calculateProjectAge}
+          />
+        </ProgressiveSection>
 
-        <IssueBreakdownSection
-          issueBreakdown={githubStats?.issueBreakdown}
-          loading={precastLoading}
-        />
+        {/* Issue Breakdown - loads when approaching viewport */}
+        <ProgressiveSection delay={150} fallback={<SectionSkeleton />}>
+          <IssueBreakdownSection
+            issueBreakdown={githubStats?.issueBreakdown}
+            loading={precastLoading}
+          />
+        </ProgressiveSection>
 
-        <CliUsageSection
-          cliAnalytics={cliAnalytics}
-          formatNumber={formatNumber}
-          postHogAnalytics={postHogAnalytics}
-          analyticsLoading={analyticsLoading}
-          analyticsError={analyticsError}
-          refetchAnalytics={refetchAnalytics}
-        />
+        {/* CLI Usage - loads when approaching viewport */}
+        <ProgressiveSection delay={200} fallback={<SectionSkeleton />}>
+          <CliUsageSection
+            cliAnalytics={cliAnalytics}
+            formatNumber={formatNumber}
+            postHogAnalytics={postHogAnalytics}
+            analyticsLoading={analyticsLoading}
+            analyticsError={analyticsError}
+            refetchAnalytics={refetchAnalytics}
+          />
+        </ProgressiveSection>
 
-        <PerformanceMetricsSection
-          githubStats={githubStats}
-          npmStats={npmStats}
-          formatNumber={formatNumber}
-        />
+        {/* Performance Metrics - loads last */}
+        <ProgressiveSection delay={250} fallback={<CompactSkeleton />}>
+          <PerformanceMetricsSection
+            githubStats={githubStats}
+            npmStats={npmStats}
+            formatNumber={formatNumber}
+          />
+        </ProgressiveSection>
       </div>
     </div>
   );

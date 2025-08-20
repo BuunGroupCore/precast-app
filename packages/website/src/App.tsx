@@ -1,12 +1,13 @@
 import { lazy, Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import { PageLoader } from "@/components/PageLoader";
 import { RouteTracker } from "@/components/RouteTracker";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator, GlobalProgressBar } from "@/components/ui";
+import { FEATURES } from "@/config/constants";
+import { LoadingProvider } from "@/contexts/LoadingContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Layout } from "@/features/layout";
 import { BuilderPage } from "@/pages/builder";
 import { HomePage } from "@/pages/home";
@@ -14,29 +15,44 @@ import { HomePage } from "@/pages/home";
 const ComponentsPage = lazy(() =>
   import("@/pages/components").then((module) => ({ default: module.ComponentsPage }))
 );
-const DesignSystemPage = lazy(() =>
-  import("@/pages/design-system").then((module) => ({ default: module.DesignSystemPage }))
-);
-const DesignSystemTokensPage = lazy(() =>
-  import("@/pages/design-system/tokens").then((module) => ({
-    default: module.DesignSystemTokensPage,
-  }))
-);
-const DesignSystemComponentsPage = lazy(() =>
-  import("@/pages/design-system/components").then((module) => ({
-    default: module.DesignSystemComponentsPage,
-  }))
-);
-const DesignSystemPlaygroundPage = lazy(() =>
-  import("@/pages/design-system/playground").then((module) => ({
-    default: module.DesignSystemPlaygroundPage,
-  }))
-);
-const DesignSystemGuidelinesPage = lazy(() =>
-  import("@/pages/design-system/guidelines").then((module) => ({
-    default: module.DesignSystemGuidelinesPage,
-  }))
-);
+
+const DesignSystemPage = FEATURES.DESIGN_SYSTEM_ENABLED
+  ? lazy(() =>
+      import("@/pages/design-system").then((module) => ({ default: module.DesignSystemPage }))
+    )
+  : () => null;
+
+const DesignSystemTokensPage = FEATURES.DESIGN_SYSTEM_ENABLED
+  ? lazy(() =>
+      import("@/pages/design-system/tokens").then((module) => ({
+        default: module.DesignSystemTokensPage,
+      }))
+    )
+  : () => null;
+
+const DesignSystemComponentsPage = FEATURES.DESIGN_SYSTEM_ENABLED
+  ? lazy(() =>
+      import("@/pages/design-system/components").then((module) => ({
+        default: module.DesignSystemComponentsPage,
+      }))
+    )
+  : () => null;
+
+const DesignSystemPlaygroundPage = FEATURES.DESIGN_SYSTEM_ENABLED
+  ? lazy(() =>
+      import("@/pages/design-system/playground").then((module) => ({
+        default: module.DesignSystemPlaygroundPage,
+      }))
+    )
+  : () => null;
+
+const DesignSystemGuidelinesPage = FEATURES.DESIGN_SYSTEM_ENABLED
+  ? lazy(() =>
+      import("@/pages/design-system/guidelines").then((module) => ({
+        default: module.DesignSystemGuidelinesPage,
+      }))
+    )
+  : () => null;
 const DocsPage = lazy(() =>
   import("@/pages/docs").then((module) => ({ default: module.DocsPage }))
 );
@@ -109,46 +125,57 @@ function App() {
                     </Suspense>
                   }
                 />
-                <Route
-                  path="/design-system"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <DesignSystemPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/design-system/tokens"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <DesignSystemTokensPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/design-system/components"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <DesignSystemComponentsPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/design-system/playground"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <DesignSystemPlaygroundPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/design-system/guidelines"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <DesignSystemGuidelinesPage />
-                    </Suspense>
-                  }
-                />
+                {/* Design System Routes - Only available when enabled */}
+                {FEATURES.DESIGN_SYSTEM_ENABLED ? (
+                  <>
+                    <Route
+                      path="/design-system"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DesignSystemPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/design-system/tokens"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DesignSystemTokensPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/design-system/components"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DesignSystemComponentsPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/design-system/playground"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DesignSystemPlaygroundPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/design-system/guidelines"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DesignSystemGuidelinesPage />
+                        </Suspense>
+                      }
+                    />
+                  </>
+                ) : (
+                  <>
+                    {/* Redirect design system routes to home when disabled */}
+                    <Route path="/design-system" element={<Navigate to="/" replace />} />
+                    <Route path="/design-system/*" element={<Navigate to="/" replace />} />
+                  </>
+                )}
                 <Route
                   path="/docs"
                   element={

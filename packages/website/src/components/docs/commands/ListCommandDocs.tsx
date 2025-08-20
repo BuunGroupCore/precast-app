@@ -52,11 +52,11 @@ export function ListCommandDocs() {
               <h4 className="font-comic font-bold text-comic-blue mb-0">Technologies</h4>
             </div>
             <div className="space-y-2 text-sm">
-              <CodeBlock code="precast list frameworks" />
-              <CodeBlock code="precast list backends" />
-              <CodeBlock code="precast list databases" />
-              <CodeBlock code="precast list ui-libraries" />
-              <CodeBlock code="precast list auth-providers" />
+              <CodeBlock code="npx create-precast-app@latest list frameworks" />
+              <CodeBlock code="npx create-precast-app@latest list backends" />
+              <CodeBlock code="npx create-precast-app@latest list databases" />
+              <CodeBlock code="npx create-precast-app@latest list ui-libraries" />
+              <CodeBlock code="npx create-precast-app@latest list auth-providers" />
             </div>
           </div>
           <div className="bg-comic-green/10 p-4 rounded-lg border border-comic-green">
@@ -65,10 +65,10 @@ export function ListCommandDocs() {
               <h4 className="font-comic font-bold text-comic-green mb-0">Project Info</h4>
             </div>
             <div className="space-y-2 text-sm">
-              <CodeBlock code="precast list dependencies" />
-              <CodeBlock code="precast list scripts" />
-              <CodeBlock code="precast list config" />
-              <CodeBlock code="precast list features" />
+              <CodeBlock code="npx create-precast-app@latest list dependencies" />
+              <CodeBlock code="npx create-precast-app@latest list scripts" />
+              <CodeBlock code="npx create-precast-app@latest list config" />
+              <CodeBlock code="npx create-precast-app@latest list features" />
             </div>
           </div>
         </div>
@@ -86,9 +86,9 @@ export function ListCommandDocs() {
               <h4 className="font-comic text-lg font-bold mb-0">Explore Available Options</h4>
             </div>
             <div className="space-y-2">
-              <CodeBlock code="precast list frameworks --status" />
-              <CodeBlock code="precast list databases --with-orms" />
-              <CodeBlock code="precast list --all --verbose" />
+              <CodeBlock code="npx create-precast-app@latest list frameworks --status" />
+              <CodeBlock code="npx create-precast-app@latest list databases --with-orms" />
+              <CodeBlock code="npx create-precast-app@latest list --all --verbose" />
             </div>
           </div>
 
@@ -98,9 +98,9 @@ export function ListCommandDocs() {
               <h4 className="font-comic text-lg font-bold mb-0">Project Analysis</h4>
             </div>
             <div className="space-y-2">
-              <CodeBlock code="precast list config --format json" />
-              <CodeBlock code="precast list dependencies --outdated" />
-              <CodeBlock code="precast list scripts --executable" />
+              <CodeBlock code="npx create-precast-app@latest list config --format json" />
+              <CodeBlock code="npx create-precast-app@latest list dependencies --outdated" />
+              <CodeBlock code="npx create-precast-app@latest list scripts --executable" />
             </div>
           </div>
         </div>

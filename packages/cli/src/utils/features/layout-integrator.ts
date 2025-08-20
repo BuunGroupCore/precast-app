@@ -152,7 +152,19 @@ export class LayoutIntegrator {
   /**
    * Apply a single insertion to content
    */
-  private applyInsertion(content: string, insertion: any, filePath: string): string {
+  private applyInsertion(
+    content: string,
+    insertion: {
+      after?: string;
+      before?: string;
+      content?: string;
+      wrap?: {
+        target: string;
+        with: string;
+      };
+    },
+    filePath: string
+  ): string {
     // Handle 'after' insertion
     if (insertion.after && insertion.content) {
       const targetIndex = content.indexOf(insertion.after);
@@ -222,7 +234,7 @@ export class LayoutIntegrator {
   /**
    * Get layout files to check for a given patch key
    */
-  private getLayoutFiles(project: DetectedProject, patchKey: string): string[] {
+  private getLayoutFiles(_project: DetectedProject, patchKey: string): string[] {
     switch (patchKey) {
       case "next-app-layout":
         return ["src/app/layout.tsx", "src/app/layout.jsx"];
@@ -330,7 +342,7 @@ export class LayoutIntegrator {
       if (await fs.pathExists(filePath)) {
         const content = await fs.readFile(filePath, "utf-8");
 
-        for (const importName of imports) {
+        for (const _importName of imports) {
           if (content.includes(`import`)) {
             return true;
           }

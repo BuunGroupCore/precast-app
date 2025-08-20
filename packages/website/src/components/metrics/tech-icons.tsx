@@ -33,6 +33,7 @@ import {
   SiSupabase,
   SiCloudflare,
 } from "react-icons/si";
+import { TanStackIcon } from "../icons/TanStackIcon";
 
 // Framework icons
 export const FRAMEWORK_ICONS: Record<
@@ -52,6 +53,8 @@ export const FRAMEWORK_ICONS: Record<
   astro: SiAstro,
   vite: SiVite,
   vanilla: SiJavascript,
+  "tanstack-start": TanStackIcon,
+  "tanstack-router": TanStackIcon,
 };
 
 // Backend icons

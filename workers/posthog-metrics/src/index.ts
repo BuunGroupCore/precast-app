@@ -15,7 +15,7 @@ import type { WorkerEnv, PostHogMetricsData, PostHogEventResponse, PostHogPerson
  * @interface RequestHandler
  */
 interface RequestHandler {
-  (env: WorkerEnv, headers: Record<string, string>): Promise<Response>;
+  (env: WorkerEnv, headers: Record<string, string>, ctx?: ExecutionContext): Promise<Response>;
 }
 
 /**
@@ -29,7 +29,7 @@ export default {
    * @param {ExecutionContext} ctx - Worker execution context
    * @returns {Promise<Response>} HTTP response
    */
-  async fetch(request: Request, env: WorkerEnv, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: WorkerEnv, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const headers = { ...CORS_HEADERS };
 
@@ -65,7 +65,7 @@ export default {
     }
 
     try {
-      return await handler(env, headers);
+      return await handler(env, headers, ctx);
     } catch (error) {
       // Log error in production environments
       if (typeof error === "object" && error !== null && "message" in error) {
@@ -161,13 +161,16 @@ async function handleAnalyticsDataRequest(
 
 /**
  * Handles GET /analytics/refresh requests with rate limiting
+ * IMPORTANT: This now returns immediately and processes in background to prevent timeouts
  * @param {WorkerEnv} env - Worker environment
  * @param {Record<string, string>} headers - Response headers
- * @returns {Promise<Response>} Updated analytics data
+ * @param {ExecutionContext} ctx - Worker execution context
+ * @returns {Promise<Response>} Refresh status (not the actual data)
  */
 async function handleAnalyticsRefreshRequest(
   env: WorkerEnv,
-  headers: Record<string, string>
+  headers: Record<string, string>,
+  ctx?: ExecutionContext
 ): Promise<Response> {
   const storage = new R2StorageService(env);
 
@@ -191,16 +194,30 @@ async function handleAnalyticsRefreshRequest(
     );
   }
 
-  // Update metrics
-  const metrics = await updateAnalytics(env);
+  // Return immediate response - don't wait for data processing
+  const response = new Response(
+    JSON.stringify({
+      status: "refresh_started",
+      message: "Analytics refresh has been initiated and will be processed in the background",
+      estimatedCompletion: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes
+      checkDataAt: "/analytics/data",
+      timestamp: new Date().toISOString(),
+    }),
+    {
+      status: 202, // 202 Accepted - processing will happen asynchronously
+      headers: {
+        ...headers,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
-  return new Response(JSON.stringify(metrics), {
-    status: 200,
-    headers: {
-      ...headers,
-      "Content-Type": "application/json",
-    },
-  });
+  // Process analytics in background using waitUntil
+  if (ctx) {
+    ctx.waitUntil(updateAnalytics(env));
+  }
+
+  return response;
 }
 
 /**

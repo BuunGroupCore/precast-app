@@ -96,6 +96,7 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
     return Object.entries(server.config.env).map(([key, value]) => ({
       key,
       value,
+      description: server.config.envDescriptions?.[key] || "Environment variable",
       isPlaceholder: value.includes("${"),
     }));
   };
@@ -282,8 +283,7 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="mt-2 p-3 bg-comic-white rounded-lg border-2 border-comic-black shadow-sm"
-                        style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
+                        className="mt-2 p-4 bg-white rounded-lg border border-comic-gray/30 shadow-sm"
                       >
                         <div className="flex items-center gap-2 mb-3">
                           <FaExclamationTriangle className="text-comic-orange text-sm" />
@@ -291,18 +291,23 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
                             Required Environment Variables
                           </span>
                         </div>
-                        <div className="space-y-2">
-                          {envVars.map(({ key, value }) => (
+                        <div className="space-y-3">
+                          {envVars.map(({ key, value, description }) => (
                             <div
                               key={key}
-                              className="bg-comic-gray/20 p-2 rounded-lg border border-comic-black/10"
+                              className="bg-comic-gray/10 p-3 rounded-lg border border-comic-gray/30"
                             >
-                              <div className="font-mono text-[10px]">
-                                <span className="text-comic-purple font-bold">{key}</span>
-                                <span className="text-comic-black mx-1">=</span>
-                                <span className="text-comic-blue">
-                                  {value.replace(/\$\{([^}]+)\}/g, "$1")}
-                                </span>
+                              <div className="flex flex-col gap-1">
+                                <div className="font-mono text-xs">
+                                  <span className="text-comic-purple font-bold">{key}</span>
+                                  <span className="text-comic-gray mx-1">=</span>
+                                  <span className="text-comic-blue italic">
+                                    {value.replace(/\$\{([^}]+)\}/g, "$1")}
+                                  </span>
+                                </div>
+                                <div className="text-[10px] text-comic-gray font-comic">
+                                  {description}
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -312,9 +317,8 @@ export const MCPServersSection: React.FC<MCPServersSectionProps> = ({ config, se
                             href={server.repository}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 mt-3 px-2 py-1 bg-comic-blue text-comic-white text-[10px] font-comic rounded-lg border-2 border-comic-black hover:bg-comic-darkBlue transition-colors"
+                            className="inline-flex items-center gap-1 mt-4 px-3 py-2 bg-comic-blue text-white text-xs font-comic rounded hover:bg-comic-blue/80 transition-colors"
                             onClick={(e) => e.stopPropagation()}
-                            style={{ boxShadow: "1px 1px 0 var(--comic-black)" }}
                           >
                             View Documentation →
                           </a>

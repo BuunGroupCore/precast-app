@@ -9,7 +9,6 @@ import {
   FaFolderOpen,
   FaFileAlt,
   FaClipboardList,
-  FaLightbulb,
 } from "react-icons/fa";
 
 import { BuilderIcon } from "./BuilderIcon";
@@ -1427,20 +1426,20 @@ _[Describe the overall vision and purpose of the application]_
       const isDoc = node.path.includes("docs/ai/");
 
       let fileColor = "text-comic-black";
-      let bgHover = "hover:bg-comic-green/20";
+      // let _bgHover = "hover:bg-comic-green/20";
 
       if (isHook) {
         fileColor = "text-comic-red";
-        bgHover = "hover:bg-comic-red/20";
+        // _bgHover = "hover:bg-comic-red/20";
       } else if (isAgent) {
         fileColor = "text-comic-blue";
-        bgHover = "hover:bg-comic-blue/20";
+        // _bgHover = "hover:bg-comic-blue/20";
       } else if (isCommand) {
         fileColor = "text-comic-orange";
-        bgHover = "hover:bg-comic-orange/20";
+        // _bgHover = "hover:bg-comic-orange/20";
       } else if (isDoc) {
         fileColor = "text-comic-purple";
-        bgHover = "hover:bg-comic-purple/20";
+        // _bgHover = "hover:bg-comic-purple/20";
       }
 
       return (
@@ -1449,27 +1448,20 @@ _[Describe the overall vision and purpose of the application]_
             <>
               <button
                 onClick={() => toggleFolder(node.path)}
-                className={`flex items-center gap-2 w-full text-left p-2 rounded-lg transition-all transform hover:scale-[1.02] ${bgHover}`}
-                style={{
-                  border: "2px solid",
-                  borderColor: "var(--comic-black)",
-                  boxShadow: expandedFolders.has(node.path)
-                    ? "2px 2px 0 var(--comic-black)"
-                    : "none",
-                }}
+                className={`flex items-center gap-2 w-full text-left p-2 rounded transition-colors ${
+                  expandedFolders.has(node.path) ? "bg-comic-gray/20" : "hover:bg-comic-gray/10"
+                }`}
               >
                 {expandedFolders.has(node.path) ? (
-                  <BuilderIcon icon={FaFolderOpen} className="text-comic-yellow text-lg" />
+                  <BuilderIcon icon={FaFolderOpen} className="text-comic-blue text-sm" />
                 ) : (
-                  <BuilderIcon icon={FaFolder} className="text-comic-yellow text-lg" />
+                  <BuilderIcon icon={FaFolder} className="text-comic-blue text-sm" />
                 )}
-                <span className="font-display text-sm font-bold uppercase text-comic-black">
-                  {node.name}/
-                </span>
+                <span className="font-comic text-sm text-comic-black">{node.name}/</span>
                 {expandedFolders.has(node.path) ? (
-                  <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto text-comic-black" />
+                  <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto text-comic-gray" />
                 ) : (
-                  <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto text-comic-black" />
+                  <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto text-comic-gray" />
                 )}
               </button>
               {expandedFolders.has(node.path) && node.children && (
@@ -1480,36 +1472,35 @@ _[Describe the overall vision and purpose of the application]_
             <>
               <button
                 onClick={() => toggleFile(node.path)}
-                className={`flex items-center gap-2 w-full text-left p-2 rounded-lg transition-all transform hover:scale-[1.02] ${bgHover}`}
-                style={{
-                  border: "2px solid",
-                  borderColor: "var(--comic-black)",
-                  boxShadow: expandedFiles[node.path] ? "2px 2px 0 var(--comic-black)" : "none",
-                }}
+                className={`flex items-center gap-2 w-full text-left p-2 rounded transition-colors ${
+                  expandedFiles[node.path] ? "bg-comic-gray/20" : "hover:bg-comic-gray/10"
+                }`}
               >
-                <BuilderIcon icon={FaFile} className={`${fileColor} text-lg`} />
-                <span className="font-comic text-xs font-bold text-comic-black">
+                <BuilderIcon icon={FaFile} className={`${fileColor} text-sm`} />
+                <span className="font-comic text-xs text-comic-black">
                   {node.name}
-                  {isHook && <span className="ml-2 text-[10px] text-comic-red">[HOOK]</span>}
-                  {isAgent && <span className="ml-2 text-[10px] text-comic-blue">[AGENT]</span>}
-                  {isCommand && <span className="ml-2 text-[10px] text-comic-orange">[CMD]</span>}
-                  {isDoc && <span className="ml-2 text-[10px] text-comic-purple">[DOC]</span>}
+                  {isHook && (
+                    <span className="ml-2 text-[9px] text-comic-red opacity-60">HOOK</span>
+                  )}
+                  {isAgent && (
+                    <span className="ml-2 text-[9px] text-comic-blue opacity-60">AGENT</span>
+                  )}
+                  {isCommand && (
+                    <span className="ml-2 text-[9px] text-comic-orange opacity-60">CMD</span>
+                  )}
+                  {isDoc && (
+                    <span className="ml-2 text-[9px] text-comic-purple opacity-60">DOC</span>
+                  )}
                 </span>
                 {expandedFiles[node.path] ? (
-                  <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto text-comic-black" />
+                  <BuilderIcon icon={FaChevronDown} className="text-xs ml-auto text-comic-gray" />
                 ) : (
-                  <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto text-comic-black" />
+                  <BuilderIcon icon={FaChevronRight} className="text-xs ml-auto text-comic-gray" />
                 )}
               </button>
               {expandedFiles[node.path] && (
-                <div
-                  className="mt-2 ml-4 p-3 rounded-lg border-2 border-comic-black"
-                  style={{
-                    backgroundColor: "var(--comic-white)",
-                    boxShadow: "3px 3px 0 var(--comic-black)",
-                  }}
-                >
-                  <pre className="text-xs font-mono text-comic-black whitespace-pre-wrap overflow-x-auto">
+                <div className="mt-2 ml-4 p-4 rounded bg-gray-50 border border-gray-200">
+                  <pre className="text-xs font-mono text-gray-700 whitespace-pre-wrap overflow-x-auto">
                     {getFileContent(node.path, config.aiAssistant!)}
                   </pre>
                 </div>
@@ -1646,53 +1637,36 @@ _[Describe the overall vision and purpose of the application]_
 
             {aiAssistants.find((ai) => ai.id === config.aiAssistant)?.files && (
               <div className="mt-4">
-                <div
-                  className="comic-panel p-4 border-2 border-comic-black rounded-lg"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, var(--comic-yellow) 0%, var(--comic-orange) 100%)",
-                    boxShadow: "4px 4px 0 var(--comic-black)",
-                  }}
-                >
+                <div className="bg-comic-gray/10 p-4 border-2 border-comic-gray rounded-lg">
                   <div
                     className="flex items-center justify-between cursor-pointer select-none"
                     onClick={() => setIsGeneratedFilesExpanded(!isGeneratedFilesExpanded)}
                   >
-                    <h4 className="font-display text-lg text-comic-black uppercase flex items-center gap-2">
-                      <BuilderIcon icon={FaFolder} className="text-comic-black" />
+                    <h4 className="font-display text-lg text-comic-black flex items-center gap-2">
+                      <BuilderIcon icon={FaFolder} className="text-comic-blue" />
                       Generated Files
                     </h4>
                     <div className="flex items-center gap-2">
                       {config.aiAssistant === "claude" && (
-                        <>
-                          <span className="px-2 py-1 bg-comic-red text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
-                            HOOKS
-                          </span>
-                          <span className="px-2 py-1 bg-comic-blue text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
-                            AGENTS
-                          </span>
-                          <span className="px-2 py-1 bg-comic-orange text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
-                            CMDS
-                          </span>
-                        </>
+                        <div className="flex items-center gap-1 text-xs text-comic-gray">
+                          <span>Hooks</span>
+                          <span>•</span>
+                          <span>Agents</span>
+                          <span>•</span>
+                          <span>Commands</span>
+                        </div>
                       )}
                       {config.aiAssistant === "copilot" && (
-                        <span className="px-2 py-1 bg-comic-purple text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
-                          INSTRUCTIONS
-                        </span>
+                        <span className="text-xs text-comic-gray">Instructions</span>
                       )}
                       {config.aiAssistant === "cursor" && (
-                        <span className="px-2 py-1 bg-comic-blue text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
-                          RULES
-                        </span>
+                        <span className="text-xs text-comic-gray">Rules</span>
                       )}
                       {config.aiAssistant === "gemini" && (
-                        <span className="px-2 py-1 bg-comic-green text-comic-white text-[10px] font-bold rounded border-2 border-comic-black">
-                          CONTEXT
-                        </span>
+                        <span className="text-xs text-comic-gray">Context</span>
                       )}
                       <button
-                        className="p-1 rounded hover:bg-comic-black/10 transition-colors"
+                        className="p-1 rounded hover:bg-comic-gray/20 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           setIsGeneratedFilesExpanded(!isGeneratedFilesExpanded);
@@ -1700,26 +1674,22 @@ _[Describe the overall vision and purpose of the application]_
                       >
                         <BuilderIcon
                           icon={isGeneratedFilesExpanded ? FaChevronDown : FaChevronRight}
-                          className="text-comic-black text-lg"
+                          className="text-comic-gray text-sm"
                         />
                       </button>
                     </div>
                   </div>
                   {isGeneratedFilesExpanded && (
-                    <>
-                      <div
-                        className="bg-comic-white rounded-lg p-3 border-2 border-comic-black overflow-auto max-h-96 mt-3"
-                        style={{ boxShadow: "inset 2px 2px 0 var(--comic-black)" }}
-                      >
+                    <div className="mt-4">
+                      <div className="bg-white rounded-lg p-4 border border-comic-gray/30 overflow-auto max-h-96">
                         {renderFileTree(buildFileTree(config.aiAssistant!))}
                       </div>
-                      <div className="mt-3 p-2 bg-comic-black/10 rounded border-2 border-comic-black">
-                        <p className="font-comic text-xs text-comic-black text-center font-bold flex items-center justify-center gap-2">
-                          <FaLightbulb className="text-comic-yellow" />
+                      <div className="mt-3 p-2 bg-comic-blue/10 rounded text-center">
+                        <p className="font-comic text-xs text-comic-gray">
                           Click files to preview their content
                         </p>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>

@@ -44,7 +44,7 @@ export function UserJourneyFlow(_props: UserJourneyFlowProps) {
         <FaRoad className="text-4xl mx-auto mb-4 text-comic-red" />
         <h3 className="font-display text-2xl text-comic-red mb-2">USER JOURNEY</h3>
         <div className="font-comic text-comic-black">
-          Error loading journey data: {error.message}
+          User journey data will be displayed here once data is collected.
         </div>
       </motion.div>
     );

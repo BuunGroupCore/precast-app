@@ -22,7 +22,11 @@
       "Bash(pnpm --filter @precast/utils run build)",
       "Bash(pnpm --filter @precast/ui run build)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(pnpm run lint:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm prettier:*)",
+      "Bash(curl:*)"
     ]
   },
   "outputStyle": "Ultra Concise"

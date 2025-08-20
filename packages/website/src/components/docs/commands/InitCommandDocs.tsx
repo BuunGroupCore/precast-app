@@ -6,253 +6,365 @@ import {
   FaRobot,
   FaMobile,
   FaShieldAlt,
+  FaCog,
+  FaLightbulb,
+  FaCheckCircle,
+  FaPaintBrush,
 } from "react-icons/fa";
 
 import { CodeBlock } from "@/features/common";
-import { generateInitOptions } from "@/utils/cliOptionsGenerator";
+import { generateCliOptions } from "@/utils/cliOptionsGenerator";
 
 /**
  * Documentation for the init command
  */
 export function InitCommandDocs() {
-  const options = generateInitOptions();
+  const options = generateCliOptions();
 
   return (
-    <section className="comic-panel p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <FaRocket className="text-3xl text-comic-blue" />
-        <h2 className="font-comic text-3xl text-comic-blue mb-0">init Command</h2>
-      </div>
+    <div className="space-y-8">
+      {/* Overview Section */}
+      <section
+        id="init-overview"
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <FaRocket className="text-2xl text-blue-600" />
+          <h2
+            className="text-3xl font-semibold text-gray-900 mb-0"
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            init Command
+          </h2>
+        </div>
 
-      <div className="mb-6">
-        <p className="font-comic mb-4">
-          Create a new PRECAST project with your chosen technology stack. This command scaffolds a
-          complete, production-ready application with modern tooling and best practices.
-        </p>
-        <div className="bg-comic-blue/10 p-4 rounded-lg border border-comic-blue mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <FaTerminal className="text-comic-blue" />
-            <p className="font-comic font-bold text-comic-blue mb-0">Basic Usage</p>
-          </div>
-          <CodeBlock code="npx create-precast-app@latest [project-name] [options]" />
-        </div>
-        <div className="bg-comic-green/10 p-4 rounded-lg border border-comic-green">
-          <div className="flex items-center gap-2 mb-2">
-            <FaRocket className="text-comic-green" />
-            <p className="font-comic font-bold text-comic-green mb-0">Quick Start (Recommended)</p>
-          </div>
-          <CodeBlock code="bun create precast-app@latest my-app --install" />
-        </div>
-      </div>
+        <div className="space-y-6">
+          <p
+            className="text-gray-700 leading-relaxed"
+            style={{ fontSize: "16px", lineHeight: "1.7" }}
+          >
+            Create a new PRECAST project with your chosen technology stack. This command scaffolds a
+            complete, production-ready application with modern tooling and best practices.
+          </p>
 
-      <div id="init-options" className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <FaCode className="text-2xl text-comic-purple" />
-          <h3 className="font-comic text-2xl text-comic-purple mb-0">Available Options</h3>
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r">
+            <div className="flex items-center gap-2 mb-3">
+              <FaTerminal className="text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-0">Basic Usage</h3>
+            </div>
+            <CodeBlock code="bunx create-precast-app@latest [project-name] [options]" />
+          </div>
+
+          <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-r">
+            <div className="flex items-center gap-2 mb-3">
+              <FaRocket className="text-green-600" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-0">
+                Quick Start (Recommended)
+              </h3>
+            </div>
+            <CodeBlock code="bunx create-precast-app@latest my-app --install" />
+          </div>
+
+          <div className="bg-purple-50 border-l-4 border-purple-500 p-5 rounded-r">
+            <div className="flex items-center gap-2 mb-3">
+              <FaPaintBrush className="text-purple-600" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-0">
+                Visual Builder Alternative
+              </h3>
+            </div>
+            <p className="text-gray-700 text-sm mb-3">
+              Prefer a visual interface? Use our web-based builder instead of the CLI for a guided
+              experience.
+            </p>
+            <CodeBlock code="Visit: https://precast.app/builder" />
+          </div>
         </div>
+      </section>
+
+      {/* Options Section */}
+      <section
+        id="init-options"
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <FaCog className="text-2xl text-purple-600" />
+          <h3 className="text-2xl font-semibold text-gray-900 mb-0">Configuration Options</h3>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-comic-yellow/20 border-2 border-comic-black">
-                <th className="font-comic text-left p-3 border-r-2 border-comic-black">Option</th>
-                <th className="font-comic text-left p-3 border-r-2 border-comic-black">Values</th>
-                <th className="font-comic text-left p-3">Description</th>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left p-4 font-semibold text-gray-900">Option</th>
+                <th className="text-left p-4 font-semibold text-gray-900">Available Values</th>
+                <th className="text-left p-4 font-semibold text-gray-900">Description</th>
               </tr>
             </thead>
-            <tbody className="font-comic">
+            <tbody>
               {options.map((option, index) => (
                 <tr
                   key={option.flag}
-                  className={`border-2 border-t-0 border-comic-black ${
-                    index % 2 === 1 ? "bg-comic-white/50" : ""
-                  }`}
+                  className={`border-b border-gray-100 ${index % 2 === 1 ? "bg-gray-50/50" : ""}`}
                 >
-                  <td className="p-3 border-r-2 border-comic-black">
-                    <code className="bg-comic-gray/20 px-2 py-1 rounded font-mono text-xs">
+                  <td className="p-4">
+                    <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">
                       {option.flag}
                     </code>
                   </td>
-                  <td className="p-3 border-r-2 border-comic-black text-sm">
-                    <code className="text-xs bg-comic-blue/10 px-1 py-0.5 rounded">
-                      {option.values}
-                    </code>
-                  </td>
-                  <td className="p-3 text-sm">{option.description}</td>
+                  <td className="p-4 text-gray-700 text-sm">{option.values}</td>
+                  <td className="p-4 text-gray-700 text-sm">{option.description}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
 
-      <div id="advanced-features" className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <FaPlug className="text-2xl text-comic-red" />
-          <h3 className="font-comic text-2xl text-comic-red mb-0">Advanced Features</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-comic-red/10 p-4 rounded-lg border border-comic-red">
-            <div className="flex items-center gap-2 mb-2">
-              <FaPlug className="text-comic-red" />
-              <h4 className="font-comic font-bold text-comic-red mb-0">Plugin System</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg p-5 border border-blue-200">
+            <div className="flex items-center gap-2 mb-3">
+              <FaRobot className="text-blue-600" />
+              <h4 className="font-semibold text-gray-900">AI Integration</h4>
             </div>
-            <p className="font-comic text-sm mb-2">Add business features instantly:</p>
-            <CodeBlock code="--plugins stripe,resend,sendgrid" />
-            <p className="font-comic text-xs mt-2">Available: stripe, resend, sendgrid, socketio</p>
-          </div>
-          <div className="bg-comic-purple/10 p-4 rounded-lg border border-comic-purple">
-            <div className="flex items-center gap-2 mb-2">
-              <FaRobot className="text-comic-purple" />
-              <h4 className="font-comic font-bold text-comic-purple mb-0">AI Integration</h4>
-            </div>
-            <p className="font-comic text-sm mb-2">Claude MCP servers for enhanced development:</p>
-            <CodeBlock code="--ai claude --mcp-servers postgresql,github-official" />
-            <p className="font-comic text-xs mt-2">
-              MCP servers: postgresql, github-official, mongodb, cloudflare
+            <p className="text-sm text-gray-700">
+              Add <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs">--ai claude</code> to
+              include AI assistant files like CLAUDE.md and context files
             </p>
           </div>
-          <div className="bg-comic-green/10 p-4 rounded-lg border border-comic-green">
-            <div className="flex items-center gap-2 mb-2">
-              <FaCode className="text-comic-green" />
-              <h4 className="font-comic font-bold text-comic-green mb-0">Powerups</h4>
-            </div>
-            <p className="font-comic text-sm mb-2">Enhanced development tools:</p>
-            <CodeBlock code="--powerups storybook,sentry,posthog" />
-            <p className="font-comic text-xs mt-2">
-              Available: sentry, posthog, storybook, husky, vitest, playwright
-            </p>
-          </div>
-          <div className="bg-comic-orange/10 p-4 rounded-lg border border-comic-orange">
-            <div className="flex items-center gap-2 mb-2">
-              <FaShieldAlt className="text-comic-orange" />
-              <h4 className="font-comic font-bold text-comic-orange mb-0">API Clients</h4>
-            </div>
-            <p className="font-comic text-sm mb-2">Data fetching and state management:</p>
-            <CodeBlock code="--api-client tanstack-query" />
-            <p className="font-comic text-xs mt-2">
-              Available: tanstack-query, swr, axios, trpc, apollo-client
-            </p>
-          </div>
-        </div>
-      </div>
 
-      <div id="init-examples" className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <FaTerminal className="text-2xl text-comic-green" />
-          <h3 className="font-comic text-2xl text-comic-green mb-0">Real-World Examples</h3>
+          <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-lg p-5 border border-green-200">
+            <div className="flex items-center gap-2 mb-3">
+              <FaPlug className="text-green-600" />
+              <h4 className="font-semibold text-gray-900">Auto Install</h4>
+            </div>
+            <p className="text-sm text-gray-700">
+              Use <code className="bg-green-100 px-1.5 py-0.5 rounded text-xs">--install</code> to
+              automatically install dependencies after project creation
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-lg p-5 border border-purple-200">
+            <div className="flex items-center gap-2 mb-3">
+              <FaMobile className="text-purple-600" />
+              <h4 className="font-semibold text-gray-900">Platform Support</h4>
+            </div>
+            <p className="text-sm text-gray-700">
+              Set <code className="bg-purple-100 px-1.5 py-0.5 rounded text-xs">--platform</code> to
+              web, mobile, or desktop for specialized setups
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-lg p-5 border border-orange-200">
+            <div className="flex items-center gap-2 mb-3">
+              <FaShieldAlt className="text-orange-600" />
+              <h4 className="font-semibold text-gray-900">Authentication</h4>
+            </div>
+            <p className="text-sm text-gray-700">
+              Choose from multiple auth providers with{" "}
+              <code className="bg-orange-100 px-1.5 py-0.5 rounded text-xs">--auth</code>
+            </p>
+          </div>
         </div>
+      </section>
+
+      {/* Examples Section */}
+      <section
+        id="init-examples"
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <FaTerminal className="text-2xl text-indigo-600" />
+          <h3 className="text-2xl font-semibold text-gray-900 mb-0">Examples</h3>
+        </div>
+
         <div className="space-y-6">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaRocket className="text-comic-blue" />
-              <h4 className="font-comic text-lg font-bold mb-0">SaaS Application</h4>
-            </div>
-            <p className="font-comic text-sm mb-2">
-              Full-stack SaaS with authentication, payments, and database:
+            <p className="text-gray-700 mb-3 font-medium">
+              Interactive Mode (Recommended for beginners):
             </p>
-            <CodeBlock code="npx create-precast-app@latest my-saas \\\n  --framework next \\\n  --database postgres \\\n  --orm prisma \\\n  --auth better-auth \\\n  --ui-library shadcn \\\n  --plugins stripe,resend \\\n  --docker --install" />
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaCode className="text-comic-purple" />
-              <h4 className="font-comic text-lg font-bold mb-0">Portfolio Website</h4>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <CodeBlock code="bunx create-precast-app@latest" />
             </div>
-            <p className="font-comic text-sm mb-2">
-              Static site with modern styling and animations:
+            <p className="text-sm text-gray-600 mt-2 italic">
+              Launches an interactive wizard to guide you through all options
             </p>
-            <CodeBlock code="npx create-precast-app@latest my-portfolio \\\n  --framework astro \\\n  --styling tailwind \\\n  --ui-library shadcn \\\n  --typescript --install" />
           </div>
 
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaMobile className="text-comic-green" />
-              <h4 className="font-comic text-lg font-bold mb-0">Mobile App</h4>
+            <p className="text-gray-700 mb-3 font-medium">React + Express + PostgreSQL Stack:</p>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <CodeBlock code="bunx create-precast-app@latest my-app --framework react --backend express --database postgres --orm prisma --install" />
             </div>
-            <p className="font-comic text-sm mb-2">Cross-platform mobile application:</p>
-            <CodeBlock code="npx create-precast-app@latest my-mobile-app \\\n  --framework react-native \\\n  --auth clerk \\\n  --styling tailwind \\\n  --database supabase \\\n  --install" />
           </div>
 
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaRocket className="text-comic-orange" />
-              <h4 className="font-comic text-lg font-bold mb-0">Rapid Prototyping</h4>
+            <p className="text-gray-700 mb-3 font-medium">Next.js Full-Stack with Tailwind:</p>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <CodeBlock code="bunx create-precast-app@latest my-nextjs-app --framework next --styling tailwind --ui-library shadcn --auth better-auth --install" />
             </div>
-            <p className="font-comic text-sm mb-2">Quick setup for experimentation:</p>
-            <CodeBlock code="npx create-precast-app@latest prototype \\\n  --framework vite \\\n  --ui-framework react \\\n  --styling tailwind \\\n  --yes --install" />
           </div>
 
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaShieldAlt className="text-comic-red" />
-              <h4 className="font-comic text-lg font-bold mb-0">Enterprise API</h4>
+            <p className="text-gray-700 mb-3 font-medium">Vue + Fastify API:</p>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <CodeBlock code="bunx create-precast-app@latest vue-project --framework vue --backend fastify --api-client tanstack-query --install" />
             </div>
-            <p className="font-comic text-sm mb-2">
-              Scalable backend with monitoring and documentation:
-            </p>
-            <CodeBlock code="npx create-precast-app@latest enterprise-api \\\n  --framework none \\\n  --backend nestjs \\\n  --database postgres \\\n  --orm prisma \\\n  --auth passport \\\n  --docker \\\n  --plugins monitoring,analytics \\\n  --install" />
+          </div>
+
+          <div>
+            <p className="text-gray-700 mb-3 font-medium">Minimal Setup (Frontend Only):</p>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <CodeBlock code="bunx create-precast-app@latest simple-app --framework react --backend none --database none" />
+            </div>
+          </div>
+
+          <div>
+            <p className="text-gray-700 mb-3 font-medium">Mobile App with React Native:</p>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <CodeBlock code="bunx create-precast-app@latest mobile-app --framework react --backend express" />
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div id="pro-tips" className="bg-comic-yellow/20 p-6 rounded-lg border-2 border-comic-black">
+      {/* Project Structure Section */}
+      <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <FaCode className="text-2xl text-teal-600" />
+          <h3 className="text-2xl font-semibold text-gray-900 mb-0">Generated Project Structure</h3>
+        </div>
+
+        <div className="space-y-6">
+          <p className="text-gray-700 leading-relaxed">
+            The init command creates a well-organized project structure based on your selections:
+          </p>
+
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <CodeBlock
+              code={`# Single App Structure (default)
+my-app/
+├── src/                    # Application source code
+│   ├── components/         # React/Vue/Angular components
+│   ├── pages/             # Page components or routes
+│   ├── styles/            # Global styles and themes
+│   ├── utils/             # Utility functions
+│   └── App.tsx            # Main application component
+├── prisma/                # Database schema (if Prisma selected)
+├── public/                # Static assets
+├── .env.example           # Environment variables template
+├── package.json          # Dependencies and scripts
+└── tsconfig.json         # TypeScript configuration
+
+# Monorepo Structure (with backend)
+my-app/
+├── apps/
+│   ├── web/               # Frontend application
+│   │   ├── src/
+│   │   ├── public/
+│   │   └── package.json
+│   └── api/               # Backend application
+│       ├── src/
+│       └── package.json
+├── packages/
+│   └── shared/            # Shared utilities and types
+├── prisma/                # Database schema
+├── package.json          # Workspace configuration
+└── turbo.json            # Turbo configuration`}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <FaCheckCircle className="text-2xl text-green-600" />
+          <h3 className="text-2xl font-semibold text-gray-900 mb-0">What&apos;s Included</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-3">Development Tools</h4>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>TypeScript configuration</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>ESLint & Prettier setup</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>Git repository initialization</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>VS Code settings</span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-3">Production Ready</h4>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>Environment variables setup</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>Docker configuration (optional)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>CI/CD pipeline templates</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 mt-1">✓</span>
+                <span>Build optimization</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Tips Section */}
+      <section className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-8">
         <div className="flex items-center gap-3 mb-4">
-          <FaRocket className="text-xl text-comic-orange" />
-          <h3 className="font-comic text-xl font-bold mb-0">Pro Tips</h3>
+          <FaLightbulb className="text-xl text-blue-600" />
+          <h3 className="text-xl font-semibold text-gray-900">Pro Tips</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaRocket className="text-comic-blue" />
-              <h4 className="font-comic font-bold mb-0">Performance</h4>
-            </div>
-            <ul className="list-disc list-inside font-comic text-sm space-y-1">
-              <li>
-                Use <code>bun</code> for 3x faster installs
-              </li>
-              <li>
-                Add <code>--install</code> to skip manual steps
-              </li>
-              <li>
-                Use <code>--yes</code> for automation scripts
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaCode className="text-comic-green" />
-              <h4 className="font-comic font-bold mb-0">Best Practices</h4>
-            </div>
-            <ul className="list-disc list-inside font-comic text-sm space-y-1">
-              <li>Always enable TypeScript for better DX</li>
-              <li>Include Docker for consistent environments</li>
-              <li>Choose shadcn/ui for flexible components</li>
-            </ul>
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaTerminal className="text-comic-purple" />
-              <h4 className="font-comic font-bold mb-0">Automation</h4>
-            </div>
-            <ul className="list-disc list-inside font-comic text-sm space-y-1">
-              <li>Save common configs as shell aliases</li>
-              <li>Use environment variables for team setups</li>
-              <li>Combine with CI/CD for automated deployments</li>
-            </ul>
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FaShieldAlt className="text-comic-red" />
-              <h4 className="font-comic font-bold mb-0">Security</h4>
-            </div>
-            <ul className="list-disc list-inside font-comic text-sm space-y-1">
-              <li>Secure passwords generated automatically</li>
-              <li>Environment files created with examples</li>
-              <li>Git secrets protection included</li>
-            </ul>
-          </div>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Use Bun for 10x faster installation speed</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Run without arguments for interactive mode</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>The --install flag saves time by auto-installing deps</span>
+            </li>
+          </ul>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Choose &quot;monorepo&quot; for full-stack projects</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Add --ai flag for AI assistant documentation</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Review precast.jsonc after creation</span>
+            </li>
+          </ul>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

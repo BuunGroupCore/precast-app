@@ -112,6 +112,11 @@ export const ANALYTICS = {
 export const FEATURES = {
   // Set to true to show the beta disclaimer, false to hide it
   SHOW_BETA_DISCLAIMER: true,
+  // Set to true when design system is ready for production
+  DESIGN_SYSTEM_ENABLED: false,
+  // Set to false to hide add command documentation (not ready yet)
+  SHOW_ADD_COMMAND_DOCS: false,
+  SHOW_LIST_COMMAND_DOCS: false,
 } as const;
 
 export const COMMUNITY_GOALS = {

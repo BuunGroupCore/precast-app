@@ -520,6 +520,15 @@ export const PowerUpsSection: React.FC<PowerUpsSectionProps> = ({
               </p>
             </div>
           )}
+
+          {/* Bottom Collapse Button */}
+          <button
+            onClick={() => setIsExpanded(false)}
+            className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-comic-gray/10 hover:bg-comic-gray/20 rounded-lg transition-colors font-comic font-bold text-sm mt-4"
+          >
+            <BuilderIcon icon={FaChevronUp} className="text-sm" />
+            Collapse Power-ups
+          </button>
         </motion.div>
       )}
     </motion.div>

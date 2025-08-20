@@ -27,6 +27,7 @@ export interface MCPServer {
     command: string;
     args?: string[];
     env?: { [key: string]: string };
+    envDescriptions?: { [key: string]: string };
   };
   /** Repository URL */
   repository?: string;
@@ -57,6 +58,9 @@ export const mcpServers: MCPServer[] = [
       env: {
         ALLOWED_DIRECTORIES: "${ALLOWED_DIRECTORIES:-/path/to/your/project}",
       },
+      envDescriptions: {
+        ALLOWED_DIRECTORIES: "Comma-separated list of directories the server can access",
+      },
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
   },
@@ -77,6 +81,9 @@ export const mcpServers: MCPServer[] = [
       env: {
         POSTGRES_CONNECTION_STRING: "postgresql://user:password@localhost:5432/database",
       },
+      envDescriptions: {
+        POSTGRES_CONNECTION_STRING: "Full PostgreSQL connection string with credentials",
+      },
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres",
   },
@@ -96,6 +103,9 @@ export const mcpServers: MCPServer[] = [
       env: {
         SUPABASE_ACCESS_TOKEN: "${SUPABASE_ACCESS_TOKEN}",
       },
+      envDescriptions: {
+        SUPABASE_ACCESS_TOKEN: "Personal access token from Supabase dashboard",
+      },
     },
     repository: "https://github.com/supabase-community/supabase-mcp",
   },
@@ -114,6 +124,9 @@ export const mcpServers: MCPServer[] = [
       args: ["-y", "mongodb-mcp-server@latest"],
       env: {
         MDB_MCP_CONNECTION_STRING: "${MDB_MCP_CONNECTION_STRING}",
+      },
+      envDescriptions: {
+        MDB_MCP_CONNECTION_STRING: "MongoDB connection string with Atlas or local credentials",
       },
     },
     repository: "https://github.com/mongodb-js/mongodb-mcp-server",
@@ -142,6 +155,9 @@ export const mcpServers: MCPServer[] = [
       env: {
         GITHUB_TOKEN: "${GITHUB_TOKEN:-${GITHUB_PERSONAL_ACCESS_TOKEN}}",
       },
+      envDescriptions: {
+        GITHUB_TOKEN: "Personal access token with repo and read permissions",
+      },
     },
     repository: "https://github.com/github/github-mcp-server",
   },
@@ -160,6 +176,9 @@ export const mcpServers: MCPServer[] = [
       args: ["-y", "@modelcontextprotocol/server-brave-search"],
       env: {
         BRAVE_API_KEY: "${BRAVE_API_KEY}",
+      },
+      envDescriptions: {
+        BRAVE_API_KEY: "API key from Brave Search API dashboard",
       },
     },
     repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
@@ -180,6 +199,9 @@ export const mcpServers: MCPServer[] = [
       args: ["clone", "https://github.com/cloudflare/mcp-server-cloudflare.git"],
       env: {
         CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}",
+      },
+      envDescriptions: {
+        CLOUDFLARE_API_TOKEN: "API token with Zone:Edit permissions from Cloudflare dashboard",
       },
     },
     repository: "https://github.com/cloudflare/mcp-server-cloudflare",

@@ -189,7 +189,7 @@ export const uiLibraries: UILibrary[] = [
     icon: SiShadcnui,
     color: "text-gray-800",
     description: "Beautifully designed components that you can copy and paste into your apps",
-    frameworks: ["react", "next", "remix", "vite"],
+    frameworks: ["react", "next", "react-router", "vite"],
     requires: ["tailwind"],
   },
   {
@@ -198,7 +198,7 @@ export const uiLibraries: UILibrary[] = [
     icon: "precast",
     color: "text-black",
     description: "Bold, raw, and unapologetic design components with comic book aesthetics",
-    frameworks: ["react", "next", "remix"],
+    frameworks: ["react", "next", "react-router"],
     requires: ["css"], // Uses plain CSS, not Tailwind
   },
   {
@@ -207,7 +207,7 @@ export const uiLibraries: UILibrary[] = [
     icon: SiMui,
     color: "text-blue-600",
     description: "React components implementing Google's Material Design system",
-    frameworks: ["react", "next", "remix"],
+    frameworks: ["react", "next", "react-router"],
     incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
     disabled: true,
   },
@@ -217,7 +217,7 @@ export const uiLibraries: UILibrary[] = [
     icon: SiChakraui,
     color: "text-teal-500",
     description: "Simple, modular and accessible component library for React",
-    frameworks: ["react", "next", "remix"],
+    frameworks: ["react", "next", "react-router"],
     incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
     disabled: true,
   },
@@ -227,7 +227,7 @@ export const uiLibraries: UILibrary[] = [
     icon: SiAntdesign,
     color: "text-blue-500",
     description: "Enterprise-class UI design language and React components",
-    frameworks: ["react", "next", "remix"],
+    frameworks: ["react", "next", "react-router"],
     incompatible: ["tailwind"], // Has its own design system, not compatible with Tailwind
     disabled: true,
   },
@@ -237,7 +237,7 @@ export const uiLibraries: UILibrary[] = [
     icon: SiMantine,
     color: "text-blue-600",
     description: "Full-featured React components and hooks library with dark mode support",
-    frameworks: ["react", "next", "remix"],
+    frameworks: ["react", "next", "react-router"],
     incompatible: ["tailwind"], // Uses CSS-in-JS, not compatible with Tailwind
     disabled: true,
   },

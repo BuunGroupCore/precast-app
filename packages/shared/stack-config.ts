@@ -538,7 +538,7 @@ export const powerUpDefs: PowerUpOption[] = [
     id: "million",
     name: "Million.js",
     description: "Make React 70% faster with a compiler",
-    frameworks: ["react", "next", "remix", "react-router", "tanstack-router", "tanstack-start"],
+    frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start"],
     requires: ["react"],
     conflicts: [],
     incompatible: [],
@@ -556,7 +556,7 @@ export const powerUpDefs: PowerUpOption[] = [
     id: "react-helmet",
     name: "React Helmet",
     description: "Document head management for React",
-    frameworks: ["react", "remix"],
+    frameworks: ["react", "react-router"],
     requires: ["react"],
     conflicts: ["next-seo"],
     incompatible: ["next"],
@@ -565,7 +565,7 @@ export const powerUpDefs: PowerUpOption[] = [
     id: "react-aria",
     name: "React Aria",
     description: "Library of React Hooks for accessible UI primitives",
-    frameworks: ["react", "next", "remix", "react-router", "tanstack-router", "tanstack-start"],
+    frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start"],
     requires: ["react"],
     conflicts: ["axe-core"],
     incompatible: [],
@@ -687,9 +687,7 @@ function validatePowerups(powerups: string[], framework: string): string[] {
         if (requirement === framework) continue; // Framework requirement satisfied
         if (
           requirement === "react" &&
-          ["react", "next", "remix", "react-router", "tanstack-router", "tanstack-start"].includes(
-            framework
-          )
+          ["react", "next", "react-router", "tanstack-router", "tanstack-start"].includes(framework)
         )
           continue;
         if (requirement === "vue" && ["vue", "nuxt"].includes(framework)) continue;

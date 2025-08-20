@@ -10,16 +10,28 @@ import {
   FaHashtag,
   FaBars,
   FaTimes,
+  FaUsers,
 } from "react-icons/fa";
 
-import { CliCommandsDocs } from "@/components/docs/CliCommandsDocs";
-import { AddCommandDocs } from "@/components/docs/commands/AddCommandDocs";
-import { AddFeaturesCommandDocs } from "@/components/docs/commands/AddFeaturesCommandDocs";
-import { BannerCommandDocs } from "@/components/docs/commands/BannerCommandDocs";
-import { InitCommandDocs } from "@/components/docs/commands/InitCommandDocs";
-import { ListCommandDocs } from "@/components/docs/commands/ListCommandDocs";
-import { FAQDocs } from "@/components/docs/FAQDocs";
-import { GettingStartedSimple } from "@/components/docs/GettingStartedSimple";
+import {
+  CliCommandsDocs,
+  DocsNavigation,
+  FAQDocs,
+  GettingStartedProfessional,
+  GuidesIndexDocs,
+} from "@/components/docs";
+import {
+  AddCommandDocs,
+  InitCommandDocs,
+  ListCommandDocs,
+  StatusCommandDocs,
+  DeployCommandDocs,
+  GenerateCommandDocs,
+  TurboCommandDocs,
+  TelemetryCommandDocs,
+} from "@/components/docs/commands";
+import { ContributingDocs, DeveloperHomeDocs } from "@/components/docs/developers";
+import { FEATURES } from "@/config/constants";
 import { DocsPageSEO } from "@/features/common";
 
 interface DocSection {
@@ -41,11 +53,20 @@ const docSections: DocSection[] = [
     icon: FaTerminal,
     subsections: [
       { id: "init", title: "init" },
-      { id: "add", title: "add" },
-      { id: "add-features", title: "add-features" },
-      { id: "banner", title: "banner" },
-      { id: "list", title: "list" },
+      ...(FEATURES.SHOW_ADD_COMMAND_DOCS ? [{ id: "add", title: "add" }] : []),
+      { id: "status", title: "status" },
+      { id: "deploy", title: "deploy" },
+      { id: "generate", title: "generate" },
+      { id: "turbo", title: "turbo" },
+      { id: "telemetry", title: "telemetry" },
+      ...(FEATURES.SHOW_LIST_COMMAND_DOCS ? [{ id: "list", title: "list" }] : []),
     ],
+  },
+  {
+    id: "developers",
+    title: "Developers",
+    icon: FaUsers,
+    subsections: [{ id: "contributing", title: "Contributing" }],
   },
   {
     id: "guides",
@@ -68,6 +89,25 @@ export function DocsPage() {
   const [expandedSections, setExpandedSections] = useState<string[]>(["getting-started"]);
   const [activeTocItem, setActiveTocItem] = useState("");
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  // Build a flat list of all navigable sections
+  const allSections = docSections.reduce<{ id: string; title: string }[]>((acc, section) => {
+    if (section.subsections) {
+      section.subsections.forEach((sub) => {
+        if (!(sub.id === "add" && !FEATURES.SHOW_ADD_COMMAND_DOCS)) {
+          acc.push({ id: `${section.id}-${sub.id}`, title: sub.title });
+        }
+      });
+    } else {
+      acc.push({ id: section.id, title: section.title });
+    }
+    return acc;
+  }, []);
+
+  const currentIndex = allSections.findIndex((s) => s.id === activeSection);
+  const prevPage = currentIndex > 0 ? allSections[currentIndex - 1] : undefined;
+  const nextPage =
+    currentIndex < allSections.length - 1 ? allSections[currentIndex + 1] : undefined;
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) =>
@@ -227,16 +267,14 @@ export function DocsPage() {
       <div className="flex min-h-[calc(100vh-8rem)]">
         {/* Desktop Sidebar */}
         <aside className="hidden xl:block w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0">
-          <div
-            className="relative border-4 rounded-lg p-4 h-full overflow-y-auto"
-            style={{
-              borderColor: "var(--comic-black)",
-              backgroundColor: "var(--comic-white)",
-              boxShadow: "4px 4px 0 var(--comic-black)",
-            }}
-          >
-            <h2 className="font-comic text-2xl text-comic-purple mb-6">DOCUMENTATION</h2>
-            <nav className="space-y-2">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-full overflow-y-auto">
+            <h2
+              className="text-2xl font-semibold text-gray-900 mb-6"
+              style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+            >
+              Documentation
+            </h2>
+            <nav className="space-y-1">
               {docSections.map((section) => (
                 <div key={section.id}>
                   <button
@@ -246,21 +284,23 @@ export function DocsPage() {
                         toggleSection(section.id);
                       }
                     }}
-                    className={`w-full flex items-center justify-between p-3 rounded-lg font-comic text-sm transition-all ${
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all ${
                       activeSection === section.id
-                        ? "bg-comic-yellow text-comic-black border-2 border-comic-black shadow-comic"
-                        : "hover:bg-comic-yellow/20"
+                        ? "bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600 pl-2"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <section.icon className="text-lg" />
+                    <div className="flex items-center gap-3">
+                      <section.icon
+                        className={`text-base ${activeSection === section.id ? "text-blue-600" : "text-gray-500"}`}
+                      />
                       <span>{section.title}</span>
                     </div>
                     {section.subsections &&
                       (expandedSections.includes(section.id) ? (
-                        <FaChevronDown className="text-xs" />
+                        <FaChevronDown className="text-xs text-gray-400" />
                       ) : (
-                        <FaChevronRight className="text-xs" />
+                        <FaChevronRight className="text-xs text-gray-400" />
                       ))}
                   </button>
                   {section.subsections && expandedSections.includes(section.id) && (
@@ -268,16 +308,16 @@ export function DocsPage() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="ml-6 mt-1 space-y-1"
+                      className="ml-9 mt-1 space-y-0.5"
                     >
                       {section.subsections.map((sub) => (
                         <button
                           key={sub.id}
                           onClick={() => setActiveSection(`${section.id}-${sub.id}`)}
-                          className={`w-full text-left p-2 rounded font-comic text-xs transition-all ${
+                          className={`w-full text-left px-3 py-2 rounded-md text-sm transition-all ${
                             activeSection === `${section.id}-${sub.id}`
-                              ? "bg-comic-blue text-comic-white"
-                              : "hover:bg-comic-blue/20"
+                              ? "bg-gray-100 text-gray-900 font-medium"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                           }`}
                         >
                           {sub.title}
@@ -291,99 +331,114 @@ export function DocsPage() {
           </div>
         </aside>
 
-        <main className="flex-1 px-4 xl:px-8 py-6 overflow-y-auto">
-          <motion.div
-            key={activeSection}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="mb-8">
-              <h1 className="action-text text-4xl md:text-5xl text-comic-red mb-8">
-                {activeSection.startsWith("cli-commands-")
-                  ? "CLI Commands"
-                  : currentSection?.title || "Documentation"}
-              </h1>
-              <div className="speech-bubble max-w-2xl">
-                <p className="font-comic text-lg">
-                  Learn how to use PRECAST to build amazing projects with superhero speed!
-                </p>
+        <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 py-6 max-w-5xl">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-8">
+                <h1
+                  className="text-4xl font-bold text-gray-900 mb-2"
+                  style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+                >
+                  {activeSection.startsWith("cli-commands-")
+                    ? "CLI Commands"
+                    : currentSection?.title || "Documentation"}
+                </h1>
+                <div className="h-1 w-20 bg-blue-600 rounded"></div>
               </div>
-            </div>
 
-            <div className="w-full mb-8">
-              <div className="relative">
-                <div className="h-2 bg-comic-black rounded-full"></div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
-                  <div className="action-text text-2xl text-comic-red bg-comic-black px-4 py-1 rounded-full border-4 border-comic-red">
-                    LEARN!
-                  </div>
-                </div>
+              <div className="space-y-8">
+                {activeSection === "getting-started" && <GettingStartedProfessional />}
+                {activeSection === "cli-commands" && (
+                  <CliCommandsDocs
+                    onNavigateToCommand={(command) => setActiveSection(`cli-commands-${command}`)}
+                  />
+                )}
+                {activeSection === "cli-commands-init" && <InitCommandDocs />}
+                {FEATURES.SHOW_ADD_COMMAND_DOCS && activeSection === "cli-commands-add" && (
+                  <AddCommandDocs />
+                )}
+                {activeSection === "cli-commands-status" && <StatusCommandDocs />}
+                {activeSection === "cli-commands-deploy" && <DeployCommandDocs />}
+                {activeSection === "cli-commands-generate" && <GenerateCommandDocs />}
+                {activeSection === "cli-commands-turbo" && <TurboCommandDocs />}
+                {activeSection === "cli-commands-telemetry" && <TelemetryCommandDocs />}
+                {activeSection === "cli-commands-list" && <ListCommandDocs />}
+                {activeSection === "developers" && <DeveloperHomeDocs />}
+                {activeSection === "developers-contributing" && <ContributingDocs />}
+                {activeSection === "guides" && <GuidesIndexDocs />}
+                {activeSection === "faq" && <FAQDocs />}
               </div>
-            </div>
 
-            <div className="space-y-8">
-              {activeSection === "getting-started" && <GettingStartedSimple />}
-              {activeSection === "cli-commands" && <CliCommandsDocs />}
-              {activeSection === "cli-commands-init" && <InitCommandDocs />}
-              {activeSection === "cli-commands-add" && <AddCommandDocs />}
-              {activeSection === "cli-commands-add-features" && <AddFeaturesCommandDocs />}
-              {activeSection === "cli-commands-banner" && <BannerCommandDocs />}
-              {activeSection === "cli-commands-list" && <ListCommandDocs />}
-              {activeSection === "guides" && (
-                <div className="comic-panel p-6">
-                  <h2 className="font-comic text-3xl text-comic-green mb-4">Guides</h2>
-                  <p className="font-comic">Detailed guides coming soon!</p>
-                </div>
-              )}
-              {activeSection === "faq" && <FAQDocs />}
-            </div>
-          </motion.div>
+              {/* Navigation buttons */}
+              <DocsNavigation
+                prevPage={
+                  prevPage
+                    ? {
+                        title: prevPage.title,
+                        onClick: () => {
+                          setActiveSection(prevPage.id);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        },
+                      }
+                    : undefined
+                }
+                nextPage={
+                  nextPage
+                    ? {
+                        title: nextPage.title,
+                        onClick: () => {
+                          setActiveSection(nextPage.id);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        },
+                      }
+                    : undefined
+                }
+              />
+            </motion.div>
+          </div>
         </main>
 
         {/* Desktop TOC - Hidden on mobile */}
         <aside className="hidden xl:block w-80 sticky top-32 h-[calc(100vh-8rem)] p-4 flex-shrink-0">
-          <div
-            className="relative border-4 rounded-lg p-4 h-full"
-            style={{
-              borderColor: "var(--comic-black)",
-              backgroundColor: "var(--comic-white)",
-              boxShadow: "4px 4px 0 var(--comic-black)",
-            }}
-          >
-            <h3 className="font-comic text-xl text-comic-purple mb-4 flex items-center gap-2">
-              <FaHashtag />
-              ON THIS PAGE
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-full">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <FaHashtag className="text-gray-400" />
+              On this page
             </h3>
             <nav className="space-y-2">
               {activeSection === "getting-started" && (
                 <>
                   <button
                     onClick={() => scrollToSection("installation")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "installation"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Installation
                   </button>
                   <button
                     onClick={() => scrollToSection("project-setup")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "project-setup"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Project Setup
                   </button>
                   <button
                     onClick={() => scrollToSection("next-steps")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "next-steps"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Next Steps
@@ -394,20 +449,20 @@ export function DocsPage() {
                 <>
                   <button
                     onClick={() => scrollToSection("commands")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "commands"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     CLI Commands
                   </button>
                   <button
                     onClick={() => scrollToSection("examples")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "examples"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Examples
@@ -418,145 +473,307 @@ export function DocsPage() {
                 <>
                   <button
                     onClick={() => scrollToSection("init-overview")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "init-overview"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Overview
                   </button>
                   <button
                     onClick={() => scrollToSection("init-options")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "init-options"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Options
                   </button>
                   <button
                     onClick={() => scrollToSection("init-examples")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "init-examples"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Examples
                   </button>
                 </>
               )}
-              {activeSection === "cli-commands-add" && (
+              {FEATURES.SHOW_ADD_COMMAND_DOCS && activeSection === "cli-commands-add" && (
                 <>
                   <button
                     onClick={() => scrollToSection("add-overview")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "add-overview"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Overview
                   </button>
                   <button
                     onClick={() => scrollToSection("add-resources")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "add-resources"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Available Resources
                   </button>
                   <button
                     onClick={() => scrollToSection("add-options")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "add-options"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Options
                   </button>
                   <button
                     onClick={() => scrollToSection("add-examples")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "add-examples"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Examples
                   </button>
                 </>
               )}
-              {activeSection === "cli-commands-add-features" && (
+              {activeSection === "cli-commands-status" && (
                 <>
                   <button
-                    onClick={() => scrollToSection("add-features-overview")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-                      activeTocItem === "add-features-overview"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                    onClick={() => scrollToSection("status-info")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "status-info"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
-                    Overview
+                    Information Displayed
                   </button>
                   <button
-                    onClick={() => scrollToSection("add-features-options")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-                      activeTocItem === "add-features-options"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                    onClick={() => scrollToSection("status-options")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "status-options"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
-                    Options
+                    Command Options
                   </button>
                   <button
-                    onClick={() => scrollToSection("add-features-examples")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-                      activeTocItem === "add-features-examples"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                    onClick={() => scrollToSection("status-examples")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "status-examples"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Examples
                   </button>
                 </>
               )}
-              {activeSection === "cli-commands-banner" && (
+              {activeSection === "cli-commands-deploy" && (
                 <>
                   <button
-                    onClick={() => scrollToSection("banner-overview")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-                      activeTocItem === "banner-overview"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                    onClick={() => scrollToSection("deploy-features")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "deploy-features"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
-                    Overview
+                    Key Features
                   </button>
                   <button
-                    onClick={() => scrollToSection("banner-how-it-works")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-                      activeTocItem === "banner-how-it-works"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                    onClick={() => scrollToSection("deploy-options")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "deploy-options"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
-                    How it Works
+                    Command Options
                   </button>
                   <button
-                    onClick={() => scrollToSection("banner-example")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
-                      activeTocItem === "banner-example"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                    onClick={() => scrollToSection("deploy-examples")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "deploy-examples"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
-                    Example
+                    Usage Examples
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("deploy-services")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "deploy-services"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Available Services
+                  </button>
+                </>
+              )}
+              {activeSection === "cli-commands-generate" && (
+                <>
+                  <button
+                    onClick={() => scrollToSection("generate-features")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "generate-features"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Supported ORMs
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("generate-options")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "generate-options"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Command Options
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("generate-workflow")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "generate-workflow"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Typical Workflow
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("generate-examples")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "generate-examples"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Examples
+                  </button>
+                </>
+              )}
+              {activeSection === "cli-commands-turbo" && (
+                <>
+                  <button
+                    onClick={() => scrollToSection("turbo-subcommands")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "turbo-subcommands"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Subcommands
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("turbo-build-options")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "turbo-build-options"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Build Options
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("turbo-features")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "turbo-features"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    TUI Features
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("turbo-examples")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "turbo-examples"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Usage Examples
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("turbo-workflow")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "turbo-workflow"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Monorepo Workflow
+                  </button>
+                </>
+              )}
+              {activeSection === "cli-commands-telemetry" && (
+                <>
+                  <button
+                    onClick={() => scrollToSection("telemetry-actions")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "telemetry-actions"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Available Actions
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("telemetry-data")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "telemetry-data"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    What We Collect
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("telemetry-privacy")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "telemetry-privacy"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Privacy First
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("telemetry-env")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "telemetry-env"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Environment Variables
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("telemetry-examples")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "telemetry-examples"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Examples
                   </button>
                 </>
               )}
@@ -564,23 +781,77 @@ export function DocsPage() {
                 <>
                   <button
                     onClick={() => scrollToSection("list-overview")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "list-overview"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Overview
                   </button>
                   <button
                     onClick={() => scrollToSection("list-future")}
-                    className={`w-full text-left font-comic text-sm transition-all py-2 px-3 rounded-lg border-2 ${
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
                       activeTocItem === "list-future"
-                        ? "bg-comic-yellow text-comic-black border-comic-black shadow-comic"
-                        : "text-comic-black hover:bg-comic-yellow/20 border-transparent"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
                     }`}
                   >
                     Future Functionality
+                  </button>
+                </>
+              )}
+              {activeSection === "developers-contributing" && (
+                <>
+                  <button
+                    onClick={() => scrollToSection("contribute-types")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "contribute-types"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Ways to Contribute
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("contribute-setup")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "contribute-setup"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Getting Started
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("contribute-workflow")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "contribute-workflow"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Development Workflow
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("contribute-standards")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "contribute-standards"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Code Standards
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("contribute-commit")}
+                    className={`w-full text-left text-sm transition-all py-2 px-3 rounded-md ${
+                      activeTocItem === "contribute-commit"
+                        ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-blue-600 pl-2"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-2 border-transparent"
+                    }`}
+                  >
+                    Commit Convention
                   </button>
                 </>
               )}

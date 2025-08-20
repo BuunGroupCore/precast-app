@@ -5,7 +5,6 @@
   "dependencies": {
     "react": ["react-aria", "react-aria-components"],
     "next": ["react-aria", "react-aria-components"],
-    "remix": ["react-aria", "react-aria-components"],
     "react-router": ["react-aria", "react-aria-components"],
     "tanstack-router": ["react-aria", "react-aria-components"],
     "tanstack-start": ["react-aria", "react-aria-components"]

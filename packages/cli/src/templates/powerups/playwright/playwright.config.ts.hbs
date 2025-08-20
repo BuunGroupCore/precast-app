@@ -25,7 +25,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.BASE_URL || 'http://localhost:{{#if framework}}{{#ifEquals framework "next"}}3000{{/ifEquals}}{{#ifEquals framework "nuxt"}}3000{{/ifEquals}}{{#ifEquals framework "vite"}}5173{{/ifEquals}}{{#ifEquals framework "react"}}3000{{/ifEquals}}{{#ifEquals framework "vue"}}5173{{/ifEquals}}{{#ifEquals framework "angular"}}4200{{/ifEquals}}{{#ifEquals framework "svelte"}}5173{{/ifEquals}}{{#ifEquals framework "solid"}}3000{{/ifEquals}}{{#ifEquals framework "remix"}}3000{{/ifEquals}}{{#ifEquals framework "astro"}}4321{{/ifEquals}}{{else}}3000{{/if}}',
+    baseURL: process.env.BASE_URL || 'http://localhost:{{#if framework}}{{#ifEquals framework "next"}}3000{{/ifEquals}}{{#ifEquals framework "nuxt"}}3000{{/ifEquals}}{{#ifEquals framework "vite"}}5173{{/ifEquals}}{{#ifEquals framework "react"}}3000{{/ifEquals}}{{#ifEquals framework "vue"}}5173{{/ifEquals}}{{#ifEquals framework "angular"}}4200{{/ifEquals}}{{#ifEquals framework "svelte"}}5173{{/ifEquals}}{{#ifEquals framework "solid"}}3000{{/ifEquals}}{{#ifEquals framework "react-router"}}3000{{/ifEquals}}{{#ifEquals framework "astro"}}4321{{/ifEquals}}{{else}}3000{{/if}}',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',

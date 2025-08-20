@@ -67,11 +67,11 @@ export class FeatureInstaller {
       if (!dryRun) {
         this.showUsageInstructions(feature);
       }
-    } catch (_error) {
+    } catch (error) {
       logger.error(
-        `Failed to install feature ${feature.name}: ${_error instanceof Error ? _error.message : String(_error)}`
+        `Failed to install feature ${feature.name}: ${error instanceof Error ? error.message : String(error)}`
       );
-      throw _error;
+      throw error;
     }
   }
 
@@ -326,7 +326,7 @@ export class FeatureInstaller {
   /**
    * Update import statements in main app files
    */
-  private async updateImports(feature: FeatureManifest, project: DetectedProject): Promise<void> {
+  private async updateImports(feature: FeatureManifest, _project: DetectedProject): Promise<void> {
     // This would be implemented to automatically add imports to main app files
     // For now, we'll just log what should be done
     logger.info("Manual step required: Add AuthProvider to your app root");
@@ -408,7 +408,7 @@ export default function ExamplePage() {
         const packageJson = fs.readJsonSync(packageJsonPath);
         return packageJson.name || path.basename(projectPath);
       }
-    } catch (_error) {
+    } catch {
       // Fallback to directory name
     }
     return path.basename(projectPath);

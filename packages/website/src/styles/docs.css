@@ -1,0 +1,325 @@
+/* Professional Documentation Styles - Applied to Comic Theme */
+
+/* Improved Typography for Docs */
+.docs-improved {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Documentation Typography */
+.docs-content {
+  @apply text-gray-700;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.docs-content h1 {
+  @apply text-4xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-gray-200;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.docs-content h2 {
+  @apply text-3xl font-semibold text-gray-900 mb-4 mt-8;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.docs-content h3 {
+  @apply text-2xl font-semibold text-gray-800 mb-3 mt-6;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.docs-content h4 {
+  @apply text-xl font-medium text-gray-800 mb-2 mt-4;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.docs-content p {
+  @apply mb-4 text-gray-700 leading-relaxed;
+}
+
+/* Professional Panels */
+.docs-panel {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+.docs-panel-info {
+  @apply bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r;
+}
+
+.docs-panel-warning {
+  @apply bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r;
+}
+
+.docs-panel-success {
+  @apply bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r;
+}
+
+.docs-panel-error {
+  @apply bg-red-50 border-l-4 border-red-500 p-4 rounded-r;
+}
+
+/* Code Blocks - Professional Style */
+.docs-code {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 my-4 overflow-x-auto;
+  font-family:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.docs-code-inline {
+  @apply bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm;
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+}
+
+/* Professional Tables */
+.docs-table {
+  @apply w-full border-collapse my-6;
+}
+
+.docs-table thead {
+  @apply bg-gray-50 border-b-2 border-gray-200;
+}
+
+.docs-table th {
+  @apply text-left px-4 py-3 font-semibold text-gray-700 text-sm uppercase tracking-wider;
+}
+
+.docs-table td {
+  @apply px-4 py-3 border-b border-gray-200 text-gray-700;
+}
+
+.docs-table tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Professional Navigation */
+.docs-nav {
+  @apply bg-white border-r border-gray-200;
+}
+
+.docs-nav-item {
+  @apply block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors;
+  font-size: 14px;
+}
+
+.docs-nav-item.active {
+  @apply bg-blue-50 text-blue-600 border-l-3 border-blue-600;
+}
+
+.docs-nav-section {
+  @apply font-semibold text-gray-900 px-4 py-2 text-sm uppercase tracking-wider;
+}
+
+/* TOC Styling */
+.docs-toc {
+  @apply bg-gray-50 border border-gray-200 rounded-lg p-4;
+}
+
+.docs-toc-item {
+  @apply block py-1 text-sm text-gray-600 hover:text-blue-600 transition-colors;
+}
+
+.docs-toc-item.active {
+  @apply text-blue-600 font-medium;
+}
+
+/* Professional Badges */
+.docs-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.docs-badge-blue {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.docs-badge-green {
+  @apply bg-green-100 text-green-800;
+}
+
+.docs-badge-yellow {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.docs-badge-red {
+  @apply bg-red-100 text-red-800;
+}
+
+.docs-badge-gray {
+  @apply bg-gray-100 text-gray-800;
+}
+
+/* Professional Cards */
+.docs-card {
+  @apply bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow;
+}
+
+.docs-card-header {
+  @apply text-lg font-semibold text-gray-900 mb-2;
+}
+
+.docs-card-body {
+  @apply text-gray-600 text-sm;
+}
+
+/* Professional Lists */
+.docs-list {
+  @apply space-y-2 my-4;
+}
+
+.docs-list li {
+  @apply text-gray-700 leading-relaxed;
+}
+
+.docs-list-disc {
+  @apply list-disc list-inside ml-4;
+}
+
+.docs-list-decimal {
+  @apply list-decimal list-inside ml-4;
+}
+
+/* Professional Buttons */
+.docs-button {
+  @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors;
+}
+
+.docs-button-secondary {
+  @apply inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors;
+}
+
+/* Professional Callouts */
+.docs-callout {
+  @apply my-6 rounded-lg p-4;
+}
+
+.docs-callout-info {
+  @apply bg-blue-50 border border-blue-200;
+}
+
+.docs-callout-info .docs-callout-title {
+  @apply text-blue-900 font-semibold mb-1;
+}
+
+.docs-callout-info .docs-callout-content {
+  @apply text-blue-700;
+}
+
+.docs-callout-warning {
+  @apply bg-amber-50 border border-amber-200;
+}
+
+.docs-callout-warning .docs-callout-title {
+  @apply text-amber-900 font-semibold mb-1;
+}
+
+.docs-callout-warning .docs-callout-content {
+  @apply text-amber-700;
+}
+
+.docs-callout-success {
+  @apply bg-emerald-50 border border-emerald-200;
+}
+
+.docs-callout-success .docs-callout-title {
+  @apply text-emerald-900 font-semibold mb-1;
+}
+
+.docs-callout-success .docs-callout-content {
+  @apply text-emerald-700;
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Professional scrollbar styling */
+.docs-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.docs-content::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+.docs-content::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded;
+}
+
+.docs-content::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .docs-content {
+    font-size: 15px;
+  }
+
+  .docs-content h1 {
+    @apply text-3xl;
+  }
+
+  .docs-content h2 {
+    @apply text-2xl;
+  }
+
+  .docs-content h3 {
+    @apply text-xl;
+  }
+}
+
+/* Professional syntax highlighting for code */
+.docs-code .token-comment {
+  @apply text-gray-500;
+}
+
+.docs-code .token-keyword {
+  @apply text-purple-400;
+}
+
+.docs-code .token-string {
+  @apply text-green-400;
+}
+
+.docs-code .token-number {
+  @apply text-blue-400;
+}
+
+.docs-code .token-function {
+  @apply text-yellow-400;
+}
+
+/* Breadcrumb Navigation */
+.docs-breadcrumb {
+  @apply flex items-center space-x-2 text-sm text-gray-500 mb-6;
+}
+
+.docs-breadcrumb-separator {
+  @apply text-gray-400;
+}
+
+.docs-breadcrumb-item {
+  @apply hover:text-blue-600 transition-colors;
+}
+
+.docs-breadcrumb-current {
+  @apply text-gray-900 font-medium;
+}

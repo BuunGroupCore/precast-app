@@ -1,6 +1,6 @@
 import { IconType } from "react-icons";
 import { FaReact, FaVuejs, FaServer, FaCloud, FaBolt, FaBuilding } from "react-icons/fa";
-import { SiNextdotjs, SiRemix } from "react-icons/si";
+import { SiNextdotjs, SiReactrouter } from "react-icons/si";
 
 import type { ExtendedProjectConfig } from "@/components/builder/types";
 
@@ -198,13 +198,13 @@ export const preferredStacks: PreferredStack[] = [
     tags: ["Serverless", "Edge", "Supabase", "Vercel"],
   },
   {
-    id: "remix-stack",
-    name: "Remix Full-Stack",
-    description: "Modern Remix stack with PostgreSQL, Prisma, and comprehensive tooling",
+    id: "react-router-stack",
+    name: "React Router v7 Full-Stack",
+    description: "Modern React Router v7 stack with PostgreSQL, Prisma, and comprehensive tooling",
     category: "fullstack",
-    icon: SiRemix,
+    icon: SiReactrouter,
     config: {
-      framework: "remix",
+      framework: "react-router",
       styling: "tailwind",
       uiLibrary: "shadcn",
       backend: "none",
@@ -220,7 +220,7 @@ export const preferredStacks: PreferredStack[] = [
       powerups: ["vitest", "playwright", "eslint", "prettier"],
       mcpServers: ["filesystem", "postgres"],
     },
-    tags: ["Remix", "Full-stack", "SSR"],
+    tags: ["React Router v7", "Full-stack", "SSR"],
   },
   {
     id: "tanstack-start",

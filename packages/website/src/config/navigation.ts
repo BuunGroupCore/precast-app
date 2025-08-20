@@ -20,7 +20,7 @@ import {
 import { RiTwitterXFill } from "react-icons/ri";
 import { SiNpm } from "react-icons/si";
 
-import { EMAILS } from "./constants";
+import { EMAILS, FEATURES } from "./constants";
 
 /**
  * Navigation item configuration
@@ -101,11 +101,16 @@ export const mainNavigation: NavItem[] = [
           icon: FaCube,
           href: "/components",
         },
-        {
-          label: "DESIGN SYSTEM",
-          icon: FaCode,
-          href: "/design-system",
-        },
+        // Design System - Currently under development
+        ...(FEATURES.DESIGN_SYSTEM_ENABLED
+          ? [
+              {
+                label: "DESIGN SYSTEM",
+                icon: FaCode,
+                href: "/design-system",
+              },
+            ]
+          : []),
         {
           label: "METRICS",
           icon: FaChartLine,

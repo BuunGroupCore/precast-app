@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useMemo } from "react";
 import { FaReact, FaVuejs, FaAngular, FaClock } from "react-icons/fa";
 import { SiNextdotjs, SiNuxtdotjs, SiSvelte, SiRemix, SiAstro } from "react-icons/si";
+import { TanStackIcon } from "../icons/TanStackIcon";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 import type { AnalyticsMetrics } from "../../hooks/usePrecastAPI";
@@ -22,6 +23,8 @@ const FRAMEWORK_COLORS = {
   remix: "#74B9FF", // comic-blue variant
   astro: "#FD79A8", // comic-pink
   vite: "#A29BFE", // comic-purple variant
+  "tanstack-start": "#FF8A65", // comic-orange for TanStack
+  "tanstack-router": "#FFB74D", // comic-orange variant for TanStack
 } as const;
 
 const FRAMEWORK_ICONS = {
@@ -33,6 +36,8 @@ const FRAMEWORK_ICONS = {
   svelte: SiSvelte,
   remix: SiRemix,
   astro: SiAstro,
+  "tanstack-start": TanStackIcon,
+  "tanstack-router": TanStackIcon,
 } as const;
 
 interface TooltipProps {
@@ -196,7 +201,12 @@ export function FrameworkUsageChart({ analytics }: FrameworkUsageChartProps) {
               <div className="flex items-center gap-3">
                 {Icon && <Icon className="text-xl text-comic-purple" />}
                 <span className="font-comic font-bold text-comic-purple capitalize">
-                  {framework.name}
+                  {framework.name.includes("tanstack")
+                    ? framework.name
+                        .replace(/tanstack-/g, "TanStack ")
+                        .replace(/start/g, "Start")
+                        .replace(/router/g, "Router")
+                    : framework.name}
                 </span>
               </div>
               <div className="text-right">

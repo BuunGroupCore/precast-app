@@ -148,19 +148,66 @@ export function ShowcasePage() {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen pt-40 pb-20 flex items-center justify-center">
-        <div className="text-center">
-          <FaBolt className="animate-spin text-6xl mb-4 text-comic-yellow mx-auto" />
-          <p className="font-comic text-xl">Loading awesome projects...</p>
-        </div>
-      </div>
-    );
-  }
+  // Remove the loading state here since we're using the global loading system
+  // The global loading indicator will handle the loading state
 
   return (
     <div className="min-h-screen pt-32 pb-20">
+      {/* Page Header - Outside the main container like other pages */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-12"
+      >
+        <h1 className="action-text text-5xl md:text-7xl text-comic-purple mb-6">HALL OF HEROES</h1>
+
+        {/* Comic Speech Bubble */}
+        <div className="relative max-w-3xl mx-auto mb-8 px-4">
+          <div
+            className="speech-bubble bg-comic-yellow border-4 border-comic-black p-6 rounded-3xl relative"
+            style={{
+              backgroundColor: "var(--comic-yellow)",
+              borderColor: "var(--comic-black)",
+              boxShadow: "4px 4px 0 var(--comic-black)",
+            }}
+          >
+            <p className="font-comic text-lg md:text-xl text-comic-black">
+              <FaUsers className="inline text-comic-red mr-2" />
+              Behold the <strong>LEGENDARY PROJECTS</strong> created by developers using Precast!
+              These heroes have assembled their ultimate tech stacks and built amazing things.
+            </p>
+
+            {/* Fixed Speech bubble tail - positioned outside */}
+            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+              <div
+                className="w-0 h-0 border-l-[20px] border-r-[20px] border-t-[20px] border-l-transparent border-r-transparent"
+                style={{
+                  borderTopColor: "var(--comic-black)",
+                }}
+              />
+              <div
+                className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[16px] border-r-[16px] border-t-[16px] border-l-transparent border-r-transparent"
+                style={{
+                  borderTopColor: "var(--comic-yellow)",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Comic Separator */}
+        <div className="mb-12 max-w-7xl mx-auto px-4">
+          <div className="relative">
+            <div className="h-2 bg-comic-black rounded-full"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
+              <div className="action-text text-2xl text-comic-purple bg-comic-black px-4 py-1 rounded-full border-4 border-comic-purple">
+                ASSEMBLE!
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Comic Book Page Container */}
       <div className="max-w-7xl mx-auto px-4">
         {/* Comic Book Page Background */}
@@ -179,125 +226,67 @@ export function ShowcasePage() {
             backgroundSize: "50px 50px, 100px 100px, 100px 100px",
           }}
         >
-          {/* Page Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <h1 className="action-text text-5xl md:text-7xl text-comic-purple mb-6">
-              HALL OF HEROES
-            </h1>
+          {/* Submit Hero Project Button */}
+          <div className="text-center mb-8">
+            <motion.button
+              onClick={() => navigate("/submit-project")}
+              whileHover={{ scale: 1.05, rotate: 1 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-full border-4 border-comic-black font-comic font-bold text-lg transition-all"
+              style={{
+                backgroundColor: "var(--comic-red)",
+                borderColor: "var(--comic-black)",
+                color: "var(--comic-white)",
+                boxShadow: "4px 4px 0 var(--comic-black)",
+              }}
+            >
+              <FaPlus />
+              SUBMIT YOUR HERO PROJECT
+            </motion.button>
+          </div>
 
-            {/* Comic Speech Bubble */}
-            <div className="relative max-w-3xl mx-auto mb-8">
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="relative">
               <div
-                className="speech-bubble bg-comic-yellow border-4 border-comic-black p-6 rounded-3xl relative"
+                className="relative border-4 border-comic-black rounded-2xl p-1"
                 style={{
-                  backgroundColor: "var(--comic-yellow)",
+                  backgroundColor: "var(--comic-white)",
                   borderColor: "var(--comic-black)",
                   boxShadow: "4px 4px 0 var(--comic-black)",
                 }}
               >
-                <p className="font-comic text-lg md:text-xl text-comic-black">
-                  <FaUsers className="inline text-comic-red mr-2" />
-                  Behold the <strong>LEGENDARY PROJECTS</strong> created by developers using
-                  Precast! These heroes have assembled their ultimate tech stacks and built amazing
-                  things.
-                </p>
-
-                {/* Fixed Speech bubble tail - positioned outside */}
-                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-                  <div
-                    className="w-0 h-0 border-l-[20px] border-r-[20px] border-t-[20px] border-l-transparent border-r-transparent"
-                    style={{
-                      borderTopColor: "var(--comic-black)",
-                    }}
+                <div className="flex items-center">
+                  <div className="pl-4 pr-2">
+                    <FaSearch className="text-comic-black text-xl" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search heroes by name, author, or description..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="flex-1 p-3 bg-transparent font-comic text-lg text-comic-black placeholder-comic-black/60 outline-none"
                   />
-                  <div
-                    className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[16px] border-r-[16px] border-t-[16px] border-l-transparent border-r-transparent"
-                    style={{
-                      borderTopColor: "var(--comic-yellow)",
-                    }}
-                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="pr-4 pl-2 text-comic-black hover:text-comic-red transition-colors"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               </div>
-            </div>
-
-            {/* Comic Separator */}
-            <div className="mb-12">
-              <div className="relative">
-                <div className="h-2 bg-comic-black rounded-full"></div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 -top-4">
-                  <div className="action-text text-2xl text-comic-purple bg-comic-black px-4 py-1 rounded-full border-4 border-comic-purple">
-                    ASSEMBLE!
-                  </div>
+              {/* Search Results Count */}
+              {searchTerm && (
+                <div className="text-center mt-2">
+                  <span className="font-comic text-sm text-comic-black/70">
+                    Found {filteredProjects.length} hero{filteredProjects.length !== 1 ? "s" : ""}
+                  </span>
                 </div>
-              </div>
+              )}
             </div>
-
-            {/* Submit Hero Project Button */}
-            <div className="text-center mb-8">
-              <motion.button
-                onClick={() => navigate("/submit-project")}
-                whileHover={{ scale: 1.05, rotate: 1 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-full border-4 border-comic-black font-comic font-bold text-lg transition-all"
-                style={{
-                  backgroundColor: "var(--comic-red)",
-                  borderColor: "var(--comic-black)",
-                  color: "var(--comic-white)",
-                  boxShadow: "4px 4px 0 var(--comic-black)",
-                }}
-              >
-                <FaPlus />
-                SUBMIT YOUR HERO PROJECT
-              </motion.button>
-            </div>
-
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8">
-              <div className="relative">
-                <div
-                  className="relative border-4 border-comic-black rounded-2xl p-1"
-                  style={{
-                    backgroundColor: "var(--comic-white)",
-                    borderColor: "var(--comic-black)",
-                    boxShadow: "4px 4px 0 var(--comic-black)",
-                  }}
-                >
-                  <div className="flex items-center">
-                    <div className="pl-4 pr-2">
-                      <FaSearch className="text-comic-black text-xl" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search heroes by name, author, or description..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="flex-1 p-3 bg-transparent font-comic text-lg text-comic-black placeholder-comic-black/60 outline-none"
-                    />
-                    {searchTerm && (
-                      <button
-                        onClick={() => setSearchTerm("")}
-                        className="pr-4 pl-2 text-comic-black hover:text-comic-red transition-colors"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {/* Search Results Count */}
-                {searchTerm && (
-                  <div className="text-center mt-2">
-                    <span className="font-comic text-sm text-comic-black/70">
-                      Found {filteredProjects.length} hero{filteredProjects.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
+          </div>
 
           {/* Error State */}
           {error && (

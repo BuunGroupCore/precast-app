@@ -33,7 +33,7 @@ export function AddCommandDocs() {
         </p>
         <div className="bg-comic-green/10 p-4 rounded-lg border border-comic-green">
           <p className="font-comic font-bold text-comic-green mb-2">Basic Usage:</p>
-          <CodeBlock code="precast add [resource] [name] [options]" />
+          <CodeBlock code="bunx create-precast-app@latest add [resource] [name] [options]" />
         </div>
       </div>
 
@@ -182,9 +182,9 @@ export function AddCommandDocs() {
           <div>
             <h4 className="font-comic text-lg font-bold mb-2">🧩 Component Generation</h4>
             <div className="space-y-2">
-              <CodeBlock code="precast add component Button" />
-              <CodeBlock code="precast add page Dashboard --typescript" />
-              <CodeBlock code="precast add layout MainLayout" />
+              <CodeBlock code="bunx create-precast-app@latest add component Button" />
+              <CodeBlock code="bunx create-precast-app@latest add page Dashboard --typescript" />
+              <CodeBlock code="bunx create-precast-app@latest add layout MainLayout" />
             </div>
           </div>
 
@@ -194,9 +194,9 @@ export function AddCommandDocs() {
               <h4 className="font-comic text-lg font-bold mb-0">API Development</h4>
             </div>
             <div className="space-y-2">
-              <CodeBlock code="precast add api users" />
-              <CodeBlock code="precast add route auth/login" />
-              <CodeBlock code="precast add middleware auth" />
+              <CodeBlock code="bunx create-precast-app@latest add api users" />
+              <CodeBlock code="bunx create-precast-app@latest add route auth/login" />
+              <CodeBlock code="bunx create-precast-app@latest add middleware auth" />
             </div>
           </div>
 
@@ -206,9 +206,9 @@ export function AddCommandDocs() {
               <h4 className="font-comic text-lg font-bold mb-0">Hooks & Utilities</h4>
             </div>
             <div className="space-y-2">
-              <CodeBlock code="precast add hook useAuth" />
-              <CodeBlock code="precast add util formatDate --no-typescript" />
-              <CodeBlock code="precast add service UserService" />
+              <CodeBlock code="bunx create-precast-app@latest add hook useAuth" />
+              <CodeBlock code="bunx create-precast-app@latest add util formatDate --no-typescript" />
+              <CodeBlock code="bunx create-precast-app@latest add service UserService" />
             </div>
           </div>
 
@@ -218,9 +218,9 @@ export function AddCommandDocs() {
               <h4 className="font-comic text-lg font-bold mb-0">Database Operations</h4>
             </div>
             <div className="space-y-2">
-              <CodeBlock code="precast add model User" />
-              <CodeBlock code="precast add migration add_user_table" />
-              <CodeBlock code="precast add seed users" />
+              <CodeBlock code="bunx create-precast-app@latest add model User" />
+              <CodeBlock code="bunx create-precast-app@latest add migration add_user_table" />
+              <CodeBlock code="bunx create-precast-app@latest add seed users" />
             </div>
           </div>
 
@@ -230,9 +230,9 @@ export function AddCommandDocs() {
               <h4 className="font-comic text-lg font-bold mb-0">Feature Integration</h4>
             </div>
             <div className="space-y-2">
-              <CodeBlock code="precast add auth --provider clerk" />
-              <CodeBlock code="precast add ui-library --library shadcn" />
-              <CodeBlock code="precast add plugin --plugin stripe" />
+              <CodeBlock code="bunx create-precast-app@latest add auth --provider clerk" />
+              <CodeBlock code="bunx create-precast-app@latest add ui-library --library shadcn" />
+              <CodeBlock code="bunx create-precast-app@latest add plugin --plugin stripe" />
             </div>
           </div>
         </div>

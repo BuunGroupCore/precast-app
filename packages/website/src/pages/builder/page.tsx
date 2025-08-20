@@ -20,7 +20,6 @@ import {
   PluginsSection,
   PowerUpsSection,
   PreferredStacksDialog,
-  PresetTemplatesSection,
   ProjectNameSection,
   RuntimeSection,
   StylingSection,
@@ -470,8 +469,8 @@ export function BuilderPage() {
               <h2 id="configuration-heading" className="sr-only">
                 Project Configuration Options
               </h2>
-              {/* Preset Templates - First to offer quick starts */}
-              <PresetTemplatesSection config={config} setConfig={setConfig} />
+              {/* Preset Templates - First to offer quick starts
+              <PresetTemplatesSection config={config} setConfig={setConfig} /> */}
 
               {/* 1. Framework Selection - The foundation */}
               <div data-section="framework">

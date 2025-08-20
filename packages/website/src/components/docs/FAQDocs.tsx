@@ -10,7 +10,16 @@ import {
   FaComments,
   FaBook,
   FaBug,
+  FaPalette,
+  FaRobot,
+  FaCode,
+  FaBullseye,
+  FaGithub,
   FaDiscord,
+  FaSearch,
+  FaLightbulb,
+  FaHeart,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 import { CodeBlock } from "@/features/common";
@@ -42,7 +51,7 @@ const faqs: FAQItem[] = [
   {
     question: "How do I install PRECAST?",
     answer:
-      "You don't need to install PRECAST globally. Just use npx for the latest version: npx create-precast-app@latest my-app. You can also use other package managers like bun, pnpm, or yarn. For the fastest experience, we recommend using Bun.",
+      "You don&apos;t need to install PRECAST globally. Just use npx for the latest version: npx create-precast-app@latest my-app. You can also use other package managers like bun, pnpm, or yarn. For the fastest experience, we recommend using Bun.",
     category: "Getting Started",
     code: "npx create-precast-app@latest my-app --install",
   },
@@ -59,25 +68,25 @@ const faqs: FAQItem[] = [
     question: "Which frontend frameworks are supported?",
     answer:
       "PRECAST supports React, Vue, Next.js, Nuxt, Svelte, Angular, Astro, Vite, Vanilla JavaScript, and React Native for mobile. Some frameworks like Angular, Nuxt, and Remix are currently in testing phase. Check our roadmap for the latest status of each framework.",
-    category: "Frameworks",
+    category: "Frameworks & Technologies",
   },
   {
     question: "What backend options are available?",
     answer:
       "Choose from Express.js, Hono, NestJS, Fastify (testing), Next.js API Routes, Cloudflare Workers, FastAPI (Python), Koa, or go frontend-only with no backend. Each backend comes pre-configured with TypeScript support and best practices.",
-    category: "Frameworks",
+    category: "Frameworks & Technologies",
   },
   {
     question: "Which databases and ORMs are supported?",
     answer:
-      "Databases: PostgreSQL, MySQL, MongoDB, Supabase (testing), Firebase (testing), Neon (testing), Turso (testing), PlanetScale (testing), Cloudflare D1. ORMs: Prisma, Drizzle, TypeORM, Mongoose. The tool automatically handles compatibility checks between your chosen database and ORM.",
-    category: "Frameworks",
+      "PRECAST supports a wide range of databases and ORMs with automatic compatibility checking. See the support tables below for current status and recommendations.",
+    category: "Frameworks & Technologies",
   },
   {
     question: "Can I use TypeScript?",
     answer:
       "TypeScript is enabled by default in all projects because it dramatically improves developer experience and code quality. You can disable it with --no-typescript, but we strongly recommend keeping it enabled for better IntelliSense, error catching, and maintainability.",
-    category: "Frameworks",
+    category: "Frameworks & Technologies",
   },
 
   // Authentication & Security
@@ -85,14 +94,14 @@ const faqs: FAQItem[] = [
     question: "How do I add authentication?",
     answer:
       "Use the --auth flag with options like better-auth (recommended for new projects), NextAuth (great for Next.js), Clerk (managed solution with UI), Auth0 (enterprise), or Passport.js (traditional). Each option comes with pre-configured routes, middleware, and database schemas.",
-    category: "Authentication",
+    category: "Authentication & Security",
     code: "npx create-precast-app@latest my-app --auth better-auth --database postgres",
   },
   {
     question: "Are passwords and secrets handled securely?",
     answer:
       "Yes! PRECAST automatically generates secure random passwords for database services, creates .env files with example values, includes .gitignore rules to prevent secret commits, and sets up environment variable validation. Never commit your actual secrets to version control.",
-    category: "Authentication",
+    category: "Authentication & Security",
   },
 
   // UI & Styling
@@ -105,7 +114,7 @@ const faqs: FAQItem[] = [
   {
     question: "What is shadcn/ui and why is it recommended?",
     answer:
-      "shadcn/ui is a collection of copy-paste React components built with Radix UI and Tailwind CSS. It's recommended because components are fully customizable (you own the code), accessible by default, and beautifully designed. Unlike traditional UI libraries, you copy only what you need.",
+      "shadcn/ui is a collection of copy-paste React components built with Radix UI and Tailwind CSS. It&apos;s recommended because components are fully customizable (you own the code), accessible by default, and beautifully designed. Unlike traditional UI libraries, you copy only what you need.",
     category: "UI & Styling",
   },
 
@@ -114,17 +123,17 @@ const faqs: FAQItem[] = [
     question: "Can I create mobile applications?",
     answer:
       "Yes! PRECAST supports React Native with Expo for cross-platform mobile development. Use --framework react-native to create iOS and Android apps with shared codebase, navigation, and styling. Full TypeScript support and modern development tools included.",
-    category: "Mobile",
+    category: "Mobile Development",
     code: "npx create-precast-app@latest my-mobile-app --framework react-native --auth clerk",
   },
   {
     question: "Does React Native support work with authentication and databases?",
     answer:
       "Absolutely! React Native projects can use Clerk for managed authentication, Supabase for real-time databases, or any REST API backend. The setup includes navigation, async storage, and mobile-optimized patterns.",
-    category: "Mobile",
+    category: "Mobile Development",
   },
 
-  // Business Features & Plugins
+  // Business Features
   {
     question: "What business plugins are available?",
     answer:
@@ -159,20 +168,20 @@ const faqs: FAQItem[] = [
     question: "Is Docker supported?",
     answer:
       "Yes! Add --docker to include Docker and Docker Compose configuration with multi-stage builds, development hot-reload, production optimization, database services, and environment-specific configurations. Perfect for consistent development and deployment environments.",
-    category: "Development",
+    category: "Development & Deployment",
   },
   {
     question: "Which package managers are supported?",
     answer:
       "PRECAST supports npm, yarn, pnpm, and Bun with automatic detection and fallback. Bun is recommended for 3x faster installs and better performance. The tool detects your preferred manager from existing projects or uses system defaults.",
-    category: "Development",
+    category: "Development & Deployment",
     code: "npx create-precast-app@latest my-app --package-manager bun --install",
   },
   {
     question: "What development tools are included?",
     answer:
       "Every project includes ESLint for code quality, Prettier for formatting, Git repository initialization, .gitignore with sensible defaults, TypeScript configuration, modern build tools (Vite/Next.js), hot-reload development server, and environment variable management.",
-    category: "Development",
+    category: "Development & Deployment",
   },
 
   // Troubleshooting
@@ -185,8 +194,13 @@ const faqs: FAQItem[] = [
   {
     question: "How do I report bugs or request features?",
     answer:
-      "Report bugs and request features on our GitHub repository at github.com/BuunGroupCore/precast-app. Include your system info (run precast --version), the exact command used, and the error message. Check existing issues first to avoid duplicates.",
+      "Report bugs and request features on our GitHub repository. Include your system info (run precast --version), the exact command used, and the error message. Check existing issues first to avoid duplicates. Use our bug report template for faster resolution.",
     category: "Troubleshooting",
+    code: `# Get system info first
+bunx create-precast-app@latest --version
+
+# Then report at:
+# https://github.com/BuunGroupCore/precast-app/issues/new?template=bug_report.md`,
   },
   {
     question: "Can I customize the generated project structure?",
@@ -195,34 +209,49 @@ const faqs: FAQItem[] = [
     category: "Troubleshooting",
   },
 
-  // Roadmap & Future
+  // Roadmap & Contributing
   {
     question: "What features are coming soon?",
     answer:
-      "Check our roadmap for upcoming features: Angular and Nuxt are in testing, Supabase and Firebase database integration, more authentication providers (Auth0, Passport.js), additional UI libraries (Material UI, Chakra UI), and mobile framework expansions. Some features are planned for Q1-Q3 2026.",
-    category: "Roadmap",
+      "Check our roadmap for upcoming features: Angular and Nuxt are in testing, Supabase and Firebase database integration, more authentication providers (Auth0, Passport.js), additional UI libraries (Material UI, Chakra UI), and mobile framework expansions. View our detailed roadmap for timelines and progress.",
+    category: "Roadmap & Contributing",
+    code: `# View roadmap at:
+# https://precast.app/roadmap
+
+# Or check GitHub milestones:
+# https://github.com/BuunGroupCore/precast-app/milestones`,
   },
   {
     question: "How can I contribute to PRECAST?",
     answer:
       "Contribute by reporting bugs, suggesting features, improving documentation, or submitting pull requests on GitHub. Check CONTRIBUTING.md for guidelines. We especially welcome help with testing new framework integrations and expanding our template library.",
-    category: "Roadmap",
+    category: "Roadmap & Contributing",
   },
 ];
 
 /**
- * FAQ documentation component with categorized questions
+ * FAQ documentation component with categorized questions and professional styling
  */
 export function FAQDocs() {
   const [openItems, setOpenItems] = useState<number[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const categories = [
     "All",
     ...Array.from(new Set(faqs.map((f) => f.category).filter(Boolean) as string[])),
   ];
-  const filteredFaqs =
-    selectedCategory === "All" ? faqs : faqs.filter((faq) => faq.category === selectedCategory);
+
+  const filteredFaqs = faqs.filter((faq) => {
+    const matchesCategory = selectedCategory === "All" || faq.category === selectedCategory;
+    const matchesSearch =
+      searchQuery === "" ||
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (faq.category && faq.category.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchesCategory && matchesSearch;
+  });
 
   const toggleItem = (index: number) => {
     setOpenItems((prev) =>
@@ -233,89 +262,247 @@ export function FAQDocs() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "Getting Started":
-        return <FaRocket className="text-comic-blue" />;
-      case "Frameworks":
-        return <FaTools className="text-comic-green" />;
-      case "Mobile":
-        return <FaMobile className="text-comic-purple" />;
-      case "Authentication":
-        return <FaShieldAlt className="text-comic-red" />;
+        return <FaRocket className="text-blue-600" />;
+      case "Frameworks & Technologies":
+        return <FaTools className="text-green-600" />;
+      case "Mobile Development":
+        return <FaMobile className="text-purple-600" />;
+      case "Authentication & Security":
+        return <FaShieldAlt className="text-red-600" />;
+      case "UI & Styling":
+        return <FaPalette className="text-pink-600" />;
+      case "Business Features":
+        return <FaBullseye className="text-orange-600" />;
+      case "AI Integration":
+        return <FaRobot className="text-indigo-600" />;
+      case "Development & Deployment":
+        return <FaCode className="text-teal-600" />;
+      case "Troubleshooting":
+        return <FaBug className="text-yellow-600" />;
+      case "Roadmap & Contributing":
+        return <FaHeart className="text-rose-600" />;
       default:
-        return null;
+        return <FaQuestionCircle className="text-gray-600" />;
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "Getting Started":
+        return "blue";
+      case "Frameworks & Technologies":
+        return "green";
+      case "Mobile Development":
+        return "purple";
+      case "Authentication & Security":
+        return "red";
+      case "UI & Styling":
+        return "pink";
+      case "Business Features":
+        return "orange";
+      case "AI Integration":
+        return "indigo";
+      case "Development & Deployment":
+        return "teal";
+      case "Troubleshooting":
+        return "yellow";
+      case "Roadmap & Contributing":
+        return "rose";
+      default:
+        return "gray";
+    }
+  };
+
+  const getCategoryButtonStyles = (category: string, isSelected: boolean) => {
+    const color = getCategoryColor(category);
+
+    if (isSelected) {
+      switch (color) {
+        case "blue":
+          return "bg-blue-600 text-white shadow-lg";
+        case "green":
+          return "bg-green-600 text-white shadow-lg";
+        case "purple":
+          return "bg-purple-600 text-white shadow-lg";
+        case "red":
+          return "bg-red-600 text-white shadow-lg";
+        case "pink":
+          return "bg-pink-600 text-white shadow-lg";
+        case "orange":
+          return "bg-orange-600 text-white shadow-lg";
+        case "indigo":
+          return "bg-indigo-600 text-white shadow-lg";
+        case "teal":
+          return "bg-teal-600 text-white shadow-lg";
+        case "yellow":
+          return "bg-yellow-600 text-white shadow-lg";
+        case "rose":
+          return "bg-rose-600 text-white shadow-lg";
+        case "gray":
+          return "bg-gray-600 text-white shadow-lg";
+        default:
+          return "bg-blue-600 text-white shadow-lg";
+      }
+    } else {
+      switch (color) {
+        case "blue":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700";
+        case "green":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-green-50 hover:border-green-300 hover:text-green-700";
+        case "purple":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700";
+        case "red":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:border-red-300 hover:text-red-700";
+        case "pink":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-pink-50 hover:border-pink-300 hover:text-pink-700";
+        case "orange":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700";
+        case "indigo":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700";
+        case "teal":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700";
+        case "yellow":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-yellow-50 hover:border-yellow-300 hover:text-yellow-700";
+        case "rose":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700";
+        case "gray":
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700";
+        default:
+          return "bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700";
+      }
     }
   };
 
   return (
-    <div className="space-y-8">
-      <section id="faq-section" className="comic-panel p-6">
+    <div className="space-y-8 pt-6">
+      {/* Header Section */}
+      <section
+        id="faq-section"
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
+      >
         <div className="flex items-center gap-3 mb-6">
-          <FaQuestionCircle className="text-3xl text-comic-blue" />
-          <h2 className="font-comic text-3xl text-comic-blue mb-0">Frequently Asked Questions</h2>
+          <FaQuestionCircle className="text-2xl text-blue-600" />
+          <h2
+            className="text-3xl font-semibold text-gray-900 mb-0"
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            Frequently Asked Questions
+          </h2>
         </div>
-        <p className="font-comic mb-6 text-comic-gray">
+
+        <p
+          className="text-gray-700 leading-relaxed mb-6"
+          style={{ fontSize: "16px", lineHeight: "1.7" }}
+        >
           Find answers to common questions about PRECAST features, setup, and usage. Can&apos;t find
           what you&apos;re looking for? Check our GitHub issues or create a new one.
         </p>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {categories.map((category) => (
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <FaSearch className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search questions, answers, or categories..."
+            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          />
+          {searchQuery && (
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-3 py-2 rounded-lg border-2 border-comic-black font-comic text-sm flex items-center gap-2 transition-all ${
-                selectedCategory === category
-                  ? "bg-comic-blue text-comic-white"
-                  : "bg-comic-white text-comic-black hover:bg-comic-yellow"
-              }`}
-              style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.3)" }}
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
             >
-              {getCategoryIcon(category)}
-              {category}
+              <span className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-pointer">×</span>
             </button>
-          ))}
+          )}
         </div>
 
-        <div className="space-y-3">
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-3 mb-8">
+          {categories.map((category) => {
+            const isSelected = selectedCategory === category;
+
+            return (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${getCategoryButtonStyles(category, isSelected)}`}
+              >
+                {category !== "All" && getCategoryIcon(category)}
+                {category === "All" ? "All Categories" : category}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* FAQ Items */}
+        <div className="space-y-4">
           {filteredFaqs.map((faq, _index) => {
             const globalIndex = faqs.indexOf(faq);
+            const isOpen = openItems.includes(globalIndex);
+            const color = getCategoryColor(faq.category || "");
+
             return (
               <div
                 key={globalIndex}
-                className="border-2 border-comic-black rounded-lg overflow-hidden bg-comic-white"
+                className="border border-gray-200 rounded-lg overflow-hidden bg-white hover:shadow-md transition-shadow duration-200"
               >
                 <button
                   onClick={() => toggleItem(globalIndex)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-comic-yellow/10 transition-colors"
+                  className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-start gap-4 flex-1 text-left">
                     {faq.category && (
-                      <div className="flex items-center gap-1">
-                        {getCategoryIcon(faq.category)}
-                        <span className="text-xs font-comic text-comic-gray uppercase">
-                          {faq.category}
-                        </span>
-                      </div>
+                      <div className="flex-shrink-0 mt-1">{getCategoryIcon(faq.category)}</div>
                     )}
-                    <h3 className="font-comic text-lg text-left">{faq.question}</h3>
+                    <div className="flex-1">
+                      {faq.category && (
+                        <div
+                          className={`text-xs font-medium text-${color}-600 uppercase tracking-wider mb-2`}
+                        >
+                          {faq.category}
+                        </div>
+                      )}
+                      <h3 className="text-lg font-semibold text-gray-900 leading-snug">
+                        {faq.question}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="ml-2 flex-shrink-0">
-                    {openItems.includes(globalIndex) ? (
-                      <FaChevronDown className="text-comic-black" />
+                  <div className="ml-4 flex-shrink-0">
+                    {isOpen ? (
+                      <FaChevronDown className="text-gray-400 transition-transform duration-200" />
                     ) : (
-                      <FaChevronRight className="text-comic-black" />
+                      <FaChevronRight className="text-gray-400 transition-transform duration-200" />
                     )}
                   </div>
                 </button>
-                {openItems.includes(globalIndex) && (
-                  <div className="p-4 pt-0 border-t border-comic-gray/20">
-                    <p className="font-comic text-comic-gray mb-3">{faq.answer}</p>
-                    {faq.code && (
-                      <div className="mt-3">
-                        <p className="font-comic text-sm text-comic-blue mb-2">Example:</p>
-                        <CodeBlock code={faq.code} />
+
+                {isOpen && (
+                  <div className="px-6 pb-6">
+                    <div className="pl-12">
+                      <div className="border-t border-gray-100 pt-4">
+                        <p
+                          className="text-gray-700 leading-relaxed mb-4"
+                          style={{ lineHeight: "1.7" }}
+                        >
+                          {faq.answer}
+                        </p>
+                        {faq.code && (
+                          <div className="mt-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <FaLightbulb className="text-yellow-500 text-sm" />
+                              <span className="text-sm font-medium text-gray-700">Example:</span>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <CodeBlock code={faq.code} />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -324,46 +511,293 @@ export function FAQDocs() {
         </div>
 
         {filteredFaqs.length === 0 && (
-          <div className="text-center py-8">
-            <p className="font-comic text-comic-gray">No questions found in this category.</p>
+          <div className="text-center py-12">
+            <FaSearch className="mx-auto text-4xl text-gray-300 mb-4" />
+            <p className="text-gray-500 text-lg">
+              {searchQuery
+                ? "No questions found matching your search."
+                : "No questions found in this category."}
+            </p>
+            <p className="text-gray-400 text-sm mt-2">
+              {searchQuery
+                ? "Try different keywords or clear the search."
+                : "Try selecting a different category or search all questions."}
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              >
+                Clear Search
+              </button>
+            )}
           </div>
         )}
       </section>
 
-      <section className="comic-panel p-6 bg-comic-blue/10 border-comic-blue">
-        <div className="flex items-center gap-3 mb-4">
-          <FaComments className="text-2xl text-comic-blue" />
-          <h3 className="font-comic text-2xl text-comic-blue mb-0">Still Have Questions?</h3>
+      {/* Support Tables Section */}
+      <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <FaTools className="text-2xl text-green-600" />
+          <h3 className="text-2xl font-semibold text-gray-900 mb-0">Technology Support Matrix</h3>
         </div>
-        <p className="font-comic mb-4">
+
+        <div className="space-y-8">
+          {/* Databases Table */}
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">Supported Databases</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left p-4 font-semibold text-gray-900">Database</th>
+                    <th className="text-left p-4 font-semibold text-gray-900">Status</th>
+                    <th className="text-left p-4 font-semibold text-gray-900">Recommended ORMs</th>
+                    <th className="text-left p-4 font-semibold text-gray-900">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 font-medium">PostgreSQL</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Prisma, Drizzle</td>
+                    <td className="p-4 text-sm text-gray-600">
+                      World&apos;s most advanced open source database
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    <td className="p-4 font-medium">MySQL</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Prisma, Drizzle</td>
+                    <td className="p-4 text-sm text-gray-600">
+                      Popular open source relational database
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 font-medium">MongoDB</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Mongoose</td>
+                    <td className="p-4 text-sm text-gray-600">Popular NoSQL document database</td>
+                  </tr>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    <td className="p-4 font-medium">Cloudflare D1</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Drizzle</td>
+                    <td className="p-4 text-sm text-gray-600">Serverless SQLite at the edge</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 font-medium">DuckDB</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">-</td>
+                    <td className="p-4 text-sm text-gray-600">In-process analytical database</td>
+                  </tr>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    <td className="p-4 font-medium">Supabase</td>
+                    <td className="p-4">
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Testing
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Supabase Client</td>
+                    <td className="p-4 text-sm text-gray-600">Open source Firebase alternative</td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 font-medium">Firebase</td>
+                    <td className="p-4">
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Testing
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Firebase SDK</td>
+                    <td className="p-4 text-sm text-gray-600">
+                      Google&apos;s app development platform
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    <td className="p-4 font-medium">Neon</td>
+                    <td className="p-4">
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Testing
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Prisma, Drizzle</td>
+                    <td className="p-4 text-sm text-gray-600">
+                      Serverless Postgres with branching
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 font-medium">Turso</td>
+                    <td className="p-4">
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Testing
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Drizzle</td>
+                    <td className="p-4 text-sm text-gray-600">Edge-hosted distributed SQLite</td>
+                  </tr>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    <td className="p-4 font-medium">PlanetScale</td>
+                    <td className="p-4">
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Testing
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">Prisma, Drizzle</td>
+                    <td className="p-4 text-sm text-gray-600">Serverless MySQL with branching</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ORMs Table */}
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">
+              Supported ORMs & Database Clients
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left p-4 font-semibold text-gray-900">ORM/Client</th>
+                    <th className="text-left p-4 font-semibold text-gray-900">Status</th>
+                    <th className="text-left p-4 font-semibold text-gray-900">
+                      Compatible Databases
+                    </th>
+                    <th className="text-left p-4 font-semibold text-gray-900">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 font-medium">Prisma</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">PostgreSQL, MySQL, MongoDB</td>
+                    <td className="p-4 text-sm text-gray-600">Next-generation TypeScript ORM</td>
+                  </tr>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    <td className="p-4 font-medium">Drizzle</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">PostgreSQL, MySQL, Cloudflare D1</td>
+                    <td className="p-4 text-sm text-gray-600">
+                      TypeScript ORM that feels like SQL
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 font-medium">TypeORM</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">PostgreSQL, MySQL</td>
+                    <td className="p-4 text-sm text-gray-600">ORM for TypeScript and JavaScript</td>
+                  </tr>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    <td className="p-4 font-medium">Mongoose</td>
+                    <td className="p-4">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Stable
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm">MongoDB</td>
+                    <td className="p-4 text-sm text-gray-600">Elegant MongoDB object modeling</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
+            <div className="flex gap-3">
+              <FaInfoCircle className="text-blue-600 text-xl flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-blue-900 font-semibold mb-1">Automatic Compatibility Checking</p>
+                <p className="text-blue-700 text-sm">
+                  PRECAST automatically validates your technology stack choices and prevents
+                  incompatible combinations. For example, MongoDB requires Mongoose ORM, while
+                  Cloudflare D1 only works with Drizzle.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Help Section */}
+      <section className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <FaComments className="text-2xl text-blue-600" />
+          <h3 className="text-2xl font-semibold text-gray-900 mb-0">Still Have Questions?</h3>
+        </div>
+
+        <p className="text-gray-700 leading-relaxed mb-8">
           If you can&apos;t find the answer you&apos;re looking for, here are some ways to get help:
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-comic-white p-4 rounded-lg border-2 border-comic-black">
-            <div className="flex items-center gap-2 mb-2">
-              <FaBook className="text-comic-blue" />
-              <h4 className="font-comic font-bold mb-0">Documentation</h4>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center gap-3 mb-3">
+              <FaBook className="text-blue-600 text-xl" />
+              <h4 className="font-semibold text-gray-900">Documentation</h4>
             </div>
-            <p className="font-comic text-sm">
-              Browse our complete documentation with examples and guides.
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Browse our complete documentation with examples and guides for every feature.
             </p>
           </div>
-          <div className="bg-comic-white p-4 rounded-lg border-2 border-comic-black">
-            <div className="flex items-center gap-2 mb-2">
-              <FaBug className="text-comic-red" />
-              <h4 className="font-comic font-bold mb-0">GitHub Issues</h4>
+
+          <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center gap-3 mb-3">
+              <FaGithub className="text-gray-900 text-xl" />
+              <h4 className="font-semibold text-gray-900">GitHub Issues</h4>
             </div>
-            <p className="font-comic text-sm">
-              Report bugs, request features, or ask questions on GitHub.
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              Report bugs, request features, or ask questions in our GitHub repository.
             </p>
+            <a
+              href="https://github.com/BuunGroupCore/precast-app/issues/new?template=bug_report.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              Create Bug Report →
+            </a>
           </div>
-          <div className="bg-comic-white p-4 rounded-lg border-2 border-comic-black">
-            <div className="flex items-center gap-2 mb-2">
-              <FaDiscord className="text-comic-purple" />
-              <h4 className="font-comic font-bold mb-0">Discord Community</h4>
+
+          <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center gap-3 mb-3">
+              <FaDiscord className="text-indigo-600 text-xl" />
+              <h4 className="font-semibold text-gray-900">Discord Community</h4>
             </div>
-            <p className="font-comic text-sm">
-              Join our Discord server for real-time help and discussions.
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Join our Discord server for real-time help and community discussions.
             </p>
           </div>
         </div>

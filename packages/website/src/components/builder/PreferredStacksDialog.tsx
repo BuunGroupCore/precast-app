@@ -13,7 +13,7 @@ import {
   SiAuth0,
   SiReact,
   SiVuedotjs,
-  SiRemix,
+  SiReactrouter,
   SiExpress,
   SiFirebase,
   SiShadcnui,
@@ -129,7 +129,7 @@ export const PreferredStacksDialog: React.FC<PreferredStacksDialogProps> = ({
       next: SiNextdotjs,
       react: SiReact,
       vue: SiVuedotjs,
-      remix: SiRemix,
+      "react-router": SiReactrouter,
       vite: SiReact, // Using React icon for Vite
       "tanstack-start": TanStackIcon,
       tailwind: SiTailwindcss,

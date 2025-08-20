@@ -1,6 +1,5 @@
 import * as path from "path";
 
-import type { ProjectConfig } from "@shared/stack-config.js";
 import * as fs from "fs-extra";
 
 export interface FeatureDependency {
@@ -174,7 +173,7 @@ export class FeatureRegistry {
     // Detect framework
     let framework = "unknown";
     if (dependencies.next) framework = "next";
-    else if (dependencies["@remix-run/react"]) framework = "remix";
+    else if (dependencies["@remix-run/react"]) framework = "react-router";
     else if (dependencies["@tanstack/react-router"]) framework = "tanstack-router";
     else if (dependencies["@tanstack/start"]) framework = "tanstack-start";
     else if (dependencies.react) framework = "react";

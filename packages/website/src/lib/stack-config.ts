@@ -663,7 +663,7 @@ export const stylings: StackOption[] = [
     description: "A utility-first CSS framework",
     // Compatible with all frameworks except React Native (needs NativeWind)
     incompatible: ["react-native"],
-    recommended: ["react", "vue", "next", "nuxt", "astro", "remix", "svelte", "solid"],
+    recommended: ["react", "vue", "next", "nuxt", "astro", "react-router", "svelte", "solid"],
   },
   {
     id: "css",
@@ -693,7 +693,7 @@ export const stylings: StackOption[] = [
     dependencies: ["react"], // Styled Components requires React ecosystem
     // Only compatible with React-based frameworks and React Native
     incompatible: ["vue", "angular", "nuxt", "astro", "svelte", "solid", "vanilla"],
-    recommended: ["react", "next", "remix", "react-native"],
+    recommended: ["react", "next", "react-router", "react-native"],
   },
 ];
 
@@ -731,7 +731,17 @@ export const runtimes: StackOption[] = [
     // Deno 2.0 has good framework support but some limitations
     incompatible: ["react-native", "angular", "vite", "tanstack-start"], // Limited or no support
     recommendedFor: {
-      frameworks: ["react", "vue", "next", "nuxt", "astro", "remix", "solid", "svelte", "vanilla"],
+      frameworks: [
+        "react",
+        "vue",
+        "next",
+        "nuxt",
+        "astro",
+        "react-router",
+        "solid",
+        "svelte",
+        "vanilla",
+      ],
       reason:
         "Deno 2.0 provides excellent npm compatibility and native TypeScript support for most modern frameworks",
     },
@@ -767,7 +777,7 @@ export const authProviders: StackOption[] = [
     description: "Type-safe, framework-agnostic authentication library",
     recommended: ["typescript", "database"],
     recommendedFor: {
-      frameworks: ["react", "next", "vue", "svelte", "remix"],
+      frameworks: ["react", "next", "vue", "svelte", "react-router"],
       backends: ["node", "express", "hono", "fastify"],
       reason: "Framework-agnostic with excellent TypeScript support",
     },
@@ -795,7 +805,7 @@ export const authProviders: StackOption[] = [
     dependencies: ["react"],
     recommended: ["next", "typescript"],
     recommendedFor: {
-      frameworks: ["next", "react", "remix"],
+      frameworks: ["next", "react", "react-router"],
       reason: "Provides complete user management with excellent React integration",
     },
     disabled: true,
@@ -936,7 +946,7 @@ export function validateConfiguration(config: {
   const styling = stylings.find((s) => s.id === config.styling);
   if (
     styling?.dependencies?.includes("react") &&
-    !["react", "next", "remix"].includes(config.framework)
+    !["react", "next", "react-router"].includes(config.framework)
   ) {
     errors.push(`${styling.name} requires React`);
   }

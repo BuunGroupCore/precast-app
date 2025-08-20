@@ -50,7 +50,7 @@ const FRAMEWORK_ENV_MAPPING: Record<string, string[]> = {
   // Nuxt
   nuxt: ["NUXT_PUBLIC_API_URL"],
 
-  // React Router v7 (Vite-based)
+  // React Router v7 (formerly Remix - Vite-based)
   "react-router": ["VITE_API_URL"],
 
   // TanStack Router (Vite-based)
@@ -58,9 +58,6 @@ const FRAMEWORK_ENV_MAPPING: Record<string, string[]> = {
 
   // TanStack Start (has both server and client vars)
   "tanstack-start": ["VITE_API_URL", "API_URL"],
-
-  // Remix (can be Vite or custom)
-  remix: ["VITE_API_URL"],
 
   // Astro
   astro: ["PUBLIC_API_URL"],
@@ -140,7 +137,7 @@ export const detectFromDependencies = (
   }
 
   if (deps.includes("@remix-run/node") || deps.includes("@remix-run/react")) {
-    return { framework: "remix", envVars: ["VITE_API_URL"] };
+    return { framework: "react-router", envVars: ["VITE_API_URL"] };
   }
 
   if (deps.includes("astro")) {

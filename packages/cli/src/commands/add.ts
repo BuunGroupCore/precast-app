@@ -219,7 +219,7 @@ export async function addCommand(featureId: string | undefined, options: AddOpti
     try {
       project = await registry.detectProject(projectPath);
       s.stop("✅ Project analysis complete");
-    } catch (_error) {
+    } catch {
       s.stop(theme.error("❌ Failed to analyze project"));
       cancel(theme.error("This doesn't appear to be a valid project directory"));
       return;

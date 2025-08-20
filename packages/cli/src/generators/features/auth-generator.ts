@@ -33,7 +33,7 @@ const authProviders: Record<string, AuthProvider> = {
     packages: {
       next: ["next-auth@beta", "@auth/prisma-adapter"],
       react: ["@auth/core", "@auth/prisma-adapter"],
-      remix: ["@auth/core", "@auth/remix", "@auth/prisma-adapter"],
+      "react-router": ["@auth/core", "@auth/remix", "@auth/prisma-adapter"],
       solid: ["@auth/core", "@auth/solid-start", "@auth/prisma-adapter"],
       svelte: ["@auth/core", "@auth/sveltekit", "@auth/prisma-adapter"],
       // Backend packages for PostgreSQL support
@@ -61,7 +61,7 @@ const authProviders: Record<string, AuthProvider> = {
     supportedFrameworks: [
       "next",
       "react",
-      "remix",
+      "react-router",
       "solid",
       "svelte",
       "express",
@@ -90,7 +90,16 @@ const authProviders: Record<string, AuthProvider> = {
       "GOOGLE_CLIENT_SECRET",
     ],
     requiresDatabase: true,
-    supportedFrameworks: ["next", "react", "vue", "nuxt", "remix", "solid", "svelte", "astro"],
+    supportedFrameworks: [
+      "next",
+      "react",
+      "vue",
+      "nuxt",
+      "react-router",
+      "solid",
+      "svelte",
+      "astro",
+    ],
     sessionStrategy: "both",
   },
   clerk: {
@@ -99,7 +108,7 @@ const authProviders: Record<string, AuthProvider> = {
     packages: {
       next: ["@clerk/nextjs"],
       react: ["@clerk/clerk-react"],
-      remix: ["@clerk/remix"],
+      "react-router": ["@clerk/remix"],
       express: ["@clerk/express"],
     },
     envVariables: [
@@ -111,7 +120,7 @@ const authProviders: Record<string, AuthProvider> = {
       "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL",
     ],
     requiresDatabase: false,
-    supportedFrameworks: ["next", "react", "remix"],
+    supportedFrameworks: ["next", "react", "react-router"],
     sessionStrategy: "jwt",
   },
   auth0: {
@@ -193,7 +202,7 @@ const authProviders: Record<string, AuthProvider> = {
       "SUPABASE_SERVICE_KEY",
     ],
     requiresDatabase: false,
-    supportedFrameworks: ["next", "react", "vue", "nuxt", "remix", "solid", "svelte"],
+    supportedFrameworks: ["next", "react", "vue", "nuxt", "react-router", "solid", "svelte"],
     sessionStrategy: "jwt",
   },
   "firebase-auth": {
@@ -211,7 +220,7 @@ const authProviders: Record<string, AuthProvider> = {
       "FIREBASE_APP_ID",
     ],
     requiresDatabase: false,
-    supportedFrameworks: ["next", "react", "vue", "angular", "nuxt", "remix"],
+    supportedFrameworks: ["next", "react", "vue", "angular", "nuxt", "react-router"],
     sessionStrategy: "jwt",
   },
 };

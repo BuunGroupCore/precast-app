@@ -205,7 +205,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
               </div>
 
               {/* Plugin Cards Grid - Comic Style */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-4">
                 {compatiblePlugins.map((plugin) => {
                   const isSelected = selectedPlugins.includes(plugin.id);
                   const isExpanded = expandedPlugin === plugin.id;
@@ -219,7 +219,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       whileHover={{ scale: 1.02, rotate: 0.5 }}
-                      className={`comic-panel p-4 border-3 border-comic-black rounded-lg transition-all cursor-pointer relative ${
+                      className={`comic-panel p-4 pb-6 border-3 border-comic-black rounded-lg transition-all cursor-pointer relative ${
                         isSelected
                           ? "bg-gradient-to-br from-comic-purple/20 to-comic-purple/10"
                           : "bg-white hover:bg-comic-gray/5"
@@ -270,7 +270,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                           <BuilderIcon icon={Icon} className="text-2xl text-comic-purple" />
                         </motion.div>
 
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0 pr-2">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-display text-lg">{plugin.name}</h4>
                             <span
@@ -286,31 +286,33 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                             </span>
                           </div>
 
-                          <p className="font-comic text-xs text-comic-gray mb-2">
+                          <p className="font-comic text-xs text-comic-gray mb-3">
                             {plugin.description}
                           </p>
 
-                          {/* Environment Variables Badge */}
-                          {plugin.envVariables.length > 0 && (
-                            <div className="inline-flex items-center gap-1 px-2 py-1 bg-comic-gray/10 rounded mb-2">
-                              <BuilderIcon icon={FaKey} className="text-xs text-comic-darkBlue" />
-                              <p className="font-comic text-xs text-comic-darkBlue">
-                                {plugin.envVariables.length} ENV VAR
-                                {plugin.envVariables.length > 1 ? "S" : ""}
-                              </p>
-                            </div>
-                          )}
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            {/* Environment Variables Badge */}
+                            {plugin.envVariables.length > 0 && (
+                              <div className="inline-flex items-center gap-1 px-2 py-1 bg-comic-gray/10 rounded">
+                                <BuilderIcon icon={FaKey} className="text-xs text-comic-darkBlue" />
+                                <p className="font-comic text-xs text-comic-darkBlue">
+                                  {plugin.envVariables.length} ENV VAR
+                                  {plugin.envVariables.length > 1 ? "S" : ""}
+                                </p>
+                              </div>
+                            )}
 
-                          {/* Expand Button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedPlugin(isExpanded ? null : plugin.id);
-                            }}
-                            className="text-xs text-comic-purple hover:text-comic-darkBlue font-comic font-bold"
-                          >
-                            {isExpanded ? "HIDE DETAILS ▲" : "SHOW DETAILS ▼"}
-                          </button>
+                            {/* Expand Button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setExpandedPlugin(isExpanded ? null : plugin.id);
+                              }}
+                              className="text-xs text-comic-purple hover:text-comic-darkBlue font-comic font-bold flex-shrink-0"
+                            >
+                              {isExpanded ? "HIDE DETAILS ▲" : "SHOW DETAILS ▼"}
+                            </button>
+                          </div>
 
                           {/* Expanded Details */}
                           <AnimatePresence>
@@ -320,7 +322,7 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                                 animate={{ height: "auto", opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="mt-3 space-y-3 overflow-hidden"
+                                className="mt-3 space-y-3 overflow-hidden pr-2 pb-2"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 {/* Quick Start Steps */}
@@ -346,14 +348,15 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                                 )}
 
                                 {/* Links */}
-                                <div className="flex gap-3">
+                                <div className="flex flex-wrap gap-2 pt-1">
                                   {plugin.documentationUrl && (
                                     <a
                                       href={plugin.documentationUrl}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="flex items-center gap-1 px-3 py-1 bg-comic-blue text-white rounded-full font-comic font-bold text-xs hover:bg-comic-darkBlue transition-colors"
+                                      className="flex items-center gap-1 px-3 py-2 bg-comic-blue text-white rounded-full font-comic font-bold text-xs hover:bg-comic-darkBlue transition-colors"
                                       style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       DOCS
                                       <FaExternalLinkAlt className="text-xs" />
@@ -364,8 +367,9 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                                       href={plugin.setupUrl}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="flex items-center gap-1 px-3 py-1 bg-comic-purple text-white rounded-full font-comic font-bold text-xs hover:bg-comic-darkPurple transition-colors"
+                                      className="flex items-center gap-1 px-3 py-2 bg-comic-purple text-white rounded-full font-comic font-bold text-xs hover:bg-comic-darkPurple transition-colors"
                                       style={{ boxShadow: "2px 2px 0 var(--comic-black)" }}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       SETUP
                                       <FaExternalLinkAlt className="text-xs" />
@@ -404,6 +408,15 @@ export function PluginsSection({ config, setConfig }: PluginsSectionProps) {
                   </div>
                 </motion.div>
               )}
+
+              {/* Bottom Collapse Button */}
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-comic-gray/10 hover:bg-comic-gray/20 rounded-lg transition-colors font-comic font-bold text-sm mt-4"
+              >
+                <FaChevronUp className="text-sm" />
+                Collapse Plugins
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

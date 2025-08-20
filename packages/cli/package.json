@@ -1,6 +1,6 @@
 {
   "name": "create-precast-app",
-  "version": "0.1.38",
+  "version": "0.2.0",
   "description": "CLI tool to scaffold modern web applications with your chosen stack",
   "type": "module",
   "main": "./dist/index.js",

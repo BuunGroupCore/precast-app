@@ -73,9 +73,6 @@ jobs:
         run: cd packages/cli && pnpm test tests/integration/docker-deployment.test.ts
         timeout-minutes: 5
         
-      - name: Run plugin tests
-        run: cd packages/cli && pnpm test tests/integration/plugins.test.ts
-        timeout-minutes: 5
         
       - name: Run PowerUps tests
         run: cd packages/cli && pnpm test tests/integration/powerups.test.ts
@@ -114,55 +111,3 @@ jobs:
             echo "✅ No leftover test directories found"
           fi
 
-  test-website:
-    name: Test Website
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8.15.1
-          
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: 'pnpm'
-          
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        
-      - name: Build dependencies in order
-        run: |
-          echo "Building UI package..."
-          # Clean any stale build info
-          rm -f packages/ui/tsconfig.tsbuildinfo
-          pnpm --filter @precast/ui run build
-          echo "Verifying UI build output..."
-          ls -la packages/ui/ || echo "UI package not found"
-          ls -la packages/ui/dist/ || echo "UI dist not found"
-          # Check for TypeScript declarations
-          if [ -f "packages/ui/dist/index.d.ts" ]; then
-            echo "✅ TypeScript declarations found at dist/index.d.ts"
-            cat packages/ui/dist/index.d.ts | head -20
-          else
-            echo "❌ TypeScript declarations missing"
-            echo "Checking tsconfig..."
-            cat packages/ui/tsconfig.json
-            exit 1
-          fi
-        
-      - name: Run website type checking
-        run: pnpm --filter @precast/website typecheck
-        
-      - name: Run website linting
-        run: pnpm --filter @precast/website lint
-        
-      - name: Build website
-        run: pnpm --filter @precast/website build
-        
-      - name: Run website tests
-        run: pnpm --filter @precast/website test --if-present

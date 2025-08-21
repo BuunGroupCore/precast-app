@@ -1,0 +1,29 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Layout } from "@/components/layout";
+import { HomePage } from "@/pages/home";
+import { NotFoundPage } from "@/pages/not-found";
+{{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+import { PrecastWidget } from "@/components/precast/PrecastWidget";
+{{/if}}
+
+/**
+ * Main application component
+ * Clean, minimal structure with React Router
+ */
+function App() {
+  return (
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Layout>
+      {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
+      <PrecastWidget />
+      {{/if}}
+    </Router>
+  );
+}
+
+export default App;

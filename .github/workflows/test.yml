@@ -73,8 +73,6 @@ jobs:
         run: cd packages/cli && pnpm test tests/integration/docker-deployment.test.ts
         timeout-minutes: 5
         
-        
-        
       - name: Run edge case tests
         run: cd packages/cli && pnpm test tests/integration/edge-cases.test.ts
         timeout-minutes: 5

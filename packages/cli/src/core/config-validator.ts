@@ -49,6 +49,28 @@ export class ConfigValidator {
       severity: "error",
     });
     this.addRule({
+      name: "drizzle-mongodb-incompatible",
+      check: (config) => {
+        if (config.orm === "drizzle" && config.database === "mongodb") {
+          return false;
+        }
+        return true;
+      },
+      message: "Drizzle ORM is incompatible with MongoDB",
+      severity: "error",
+    });
+    this.addRule({
+      name: "fastapi-typescript-incompatible",
+      check: (config) => {
+        if (config.backend === "fastapi" && config.typescript === true) {
+          return false;
+        }
+        return true;
+      },
+      message: "FastAPI (Python) is incompatible with TypeScript backend option",
+      severity: "error",
+    });
+    this.addRule({
       name: "prisma-sqlite-warning",
       check: (config) => {
         if (config.orm === "prisma" && config.database === "sqlite") {

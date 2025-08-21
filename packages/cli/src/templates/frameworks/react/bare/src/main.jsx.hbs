@@ -1,0 +1,28 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+
+{{#if (or (eq styling "css") (eq styling "tailwind"))}}import "@/styles/globals.css";{{/if}}
+{{#if (eq styling "scss")}}import "@/styles/globals.scss";{{/if}}
+
+import App from "@/App";
+{{#if (eq apiClient "tanstack-query")}}import { QueryProvider } from "@/providers/query-provider";{{/if}}
+{{#if (eq apiClient "swr")}}import { SWRProvider } from "@/providers/swr-provider";{{/if}}
+
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Failed to find the root element");
+
+createRoot(rootElement).render(
+  <React.StrictMode>
+    {{#if (eq apiClient "tanstack-query")}}
+    <QueryProvider>
+      <App />
+    </QueryProvider>
+    {{else if (eq apiClient "swr")}}
+    <SWRProvider>
+      <App />
+    </SWRProvider>
+    {{else}}
+    <App />
+    {{/if}}
+  </React.StrictMode>
+);

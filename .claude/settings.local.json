@@ -38,7 +38,13 @@
       "Bash(jq:*)",
       "Bash(pnpm --filter @precast/cli typecheck)",
       "Bash(pnpm --filter @precast/website typecheck)",
-      "Bash(npx changeset:*)"
+      "Bash(npx changeset:*)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init my_test_project --framework vue --backend none --database none --orm none --styling css --runtime node --no-typescript --yes --no-git)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init \"123-start-with-number\" --framework react --backend none --database none --orm none --styling css --runtime node --yes --no-git)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init \"has spaces\" --framework react --backend none --database none --orm none --styling css --runtime node --yes --no-git)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init minimal-react --framework react --backend none --database none --orm none --styling css --runtime node --no-typescript --yes --no-git)",
+      "Bash(echo $?)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-no-gitignore --framework react --backend none --database none --orm none --styling css --runtime node --no-gitignore --yes --no-git)"
     ],
     "additionalDirectories": [
       "/tmp"

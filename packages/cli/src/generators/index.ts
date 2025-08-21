@@ -183,13 +183,17 @@ export async function generateTemplate(config: ProjectConfig, projectPath: strin
   let dockerPasswords: Record<string, string> | undefined;
   if (config.docker && config.database && config.database !== "none") {
     try {
+      logger.debug(`Setting up Docker for database: ${config.database}`);
       const { setupDockerCompose } = await import("@/utils/docker/docker-setup.js");
       const result = await setupDockerCompose(config, projectPath);
       dockerPasswords = result.passwords;
+      logger.debug(`Docker setup completed for ${config.database}`);
     } catch (error) {
       logger.warn(`Failed to setup Docker configuration: ${error}`);
       errorCollector.addError("Docker configuration setup", error);
     }
+  } else {
+    logger.debug(`Skipping Docker setup: docker=${config.docker}, database=${config.database}`);
   }
 
   try {

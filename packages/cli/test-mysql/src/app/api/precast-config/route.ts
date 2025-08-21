@@ -1,0 +1,44 @@
+import { NextRequest, NextResponse } from "next/server";
+import { readFile } from "fs/promises";
+import { join } from "path";
+
+export async function GET() {
+  try {
+    // Read precast.jsonc from project root
+    const configPath = join(process.cwd(), "precast.jsonc");
+
+    try {
+      const configText = await readFile(configPath, "utf-8");
+
+      // Parse JSONC (JSON with comments)
+      const cleanJson = configText
+        .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
+        .replace(/^\s*\/\/.*$/gm, "") // Remove single-line comments
+        .replace(/,\s*([}\]])/g, "$1"); // Remove trailing commas
+
+      const config = JSON.parse(cleanJson);
+      return NextResponse.json(config, {
+        headers: { "Cache-Control": "no-cache" },
+      });
+    } catch (fileError) {
+      // File doesn't exist or can't be read, return fallback
+      const fallbackConfig = {
+        docker: true,
+        database: "none",
+        backend: "none",
+        powerups: [],
+      };
+
+      return NextResponse.json(fallbackConfig, {
+        headers: { "Cache-Control": "no-cache" },
+      });
+    }
+  } catch (error) {
+    // Unexpected error
+    console.error("Unexpected error in precast-config API:", error);
+    return NextResponse.json(
+      { error: "Failed to load configuration" },
+      { status: 500, headers: { "Cache-Control": "no-cache" } }
+    );
+  }
+}

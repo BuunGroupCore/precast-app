@@ -37,7 +37,11 @@
       "Bash(do echo \"=== $pkg scripts ===\")",
       "Bash(jq:*)",
       "Bash(pnpm --filter @precast/cli typecheck)",
-      "Bash(pnpm --filter @precast/website typecheck)"
+      "Bash(pnpm --filter @precast/website typecheck)",
+      "Bash(npx changeset:*)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   },
   "outputStyle": "Ultra Concise"

@@ -1,17 +1,17 @@
 # CLI Test Report
 
-> Last Updated: Aug 20, 2025, 16:24:51
+> Last Updated: Aug 21, 2025, 11:08:07
 
 ## Summary
 
 | Metric             | Value  | Status |
 | ------------------ | ------ | ------ |
-| **Total Tests**    | 5      | -      |
-| **Passed**         | 5      | ✅     |
+| **Total Tests**    | 10     | -      |
+| **Passed**         | 10     | ✅     |
 | **Failed**         | 0      | ✅     |
 | **Skipped**        | 0      | -      |
 | **Success Rate**   | 100.0% | 🟢     |
-| **Total Duration** | 22.0s  | -      |
+| **Total Duration** | 29.1s  | -      |
 
 ## Cleanup Status
 
@@ -23,25 +23,31 @@
 
 ## Test Suites
 
-| Suite                                                                                              | Total | Passed | Failed | Skipped | Success Rate | Duration            |
-| -------------------------------------------------------------------------------------------------- | ----- | ------ | ------ | ------- | ------------ | ------------------- |
-| **CLI Project Quality Tests - With Install & Validation > Cleanup Verification**                   | 1     | 1 ✅   | 0      | 0       | 100.0% 🟢    | 663.7971149999976ms |
-| **CLI Project Quality Tests - With Install & Validation > Critical Projects - Full Quality Check** | 1     | 1 ✅   | 0      | 0       | 100.0% 🟢    | 3.9s                |
-| **CLI Project Quality Tests - With Install & Validation > Install Verification**                   | 1     | 1 ✅   | 0      | 0       | 100.0% 🟢    | 1.7s                |
-| **CLI Project Quality Tests - With Install & Validation > TypeScript vs JavaScript Projects**      | 2     | 2 ✅   | 0      | 0       | 100.0% 🟢    | 14.6s               |
+| Suite                                                         | Total | Passed | Failed | Skipped | Success Rate | Duration            |
+| ------------------------------------------------------------- | ----- | ------ | ------ | ------- | ------------ | ------------------- |
+| **Docker Deployment Tests > Docker Configuration Generation** | 3     | 3 ✅   | 0      | 0       | 100.0% 🟢    | 6.6s                |
+| **Docker Deployment Tests > Docker Security**                 | 2     | 2 ✅   | 0      | 0       | 100.0% 🟢    | 7.2s                |
+| **Docker Deployment Tests > Docker with Admin Tools**         | 1     | 1 ✅   | 0      | 0       | 100.0% 🟢    | 760.3385880000023ms |
+| **Docker Deployment Tests > Docker with Auto-Deploy**         | 1     | 1 ✅   | 0      | 0       | 100.0% 🟢    | 3.0s                |
+| **Docker Deployment Tests > Docker with Multiple Databases**  | 3     | 3 ✅   | 0      | 0       | 100.0% 🟢    | 8.5s                |
 
 ## Detailed Results
 
 <details>
 <summary>Click to expand all test results</summary>
 
-| Status | Test Name                                                          | Suite                                                                                          | Duration            |
-| ------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------- |
-| ✅     | should generate react-express-postgres with passing quality checks | CLI Project Quality Tests - With Install & Validation > Critical Projects - Full Quality Check | 3.9s                |
-| ✅     | should generate TypeScript project with passing type checks        | CLI Project Quality Tests - With Install & Validation > TypeScript vs JavaScript Projects      | 9.6s                |
-| ✅     | should generate JavaScript project without type errors             | CLI Project Quality Tests - With Install & Validation > TypeScript vs JavaScript Projects      | 5.0s                |
-| ✅     | should automatically cleanup test directories                      | CLI Project Quality Tests - With Install & Validation > Cleanup Verification                   | 663.7971149999976ms |
-| ✅     | should properly install dependencies when --install flag is used   | CLI Project Quality Tests - With Install & Validation > Install Verification                   | 1.7s                |
+| Status | Test Name                                                               | Suite                                                     | Duration            |
+| ------ | ----------------------------------------------------------------------- | --------------------------------------------------------- | ------------------- |
+| ✅     | should generate react-express-docker-postgres with Docker configuration | Docker Deployment Tests > Docker Configuration Generation | 3.2s                |
+| ✅     | should generate next-docker-mysql with Docker configuration             | Docker Deployment Tests > Docker Configuration Generation | 886.5321999999996ms |
+| ✅     | should generate docker-mongodb-redis with Docker configuration          | Docker Deployment Tests > Docker Configuration Generation | 2.6s                |
+| ✅     | should generate Docker config with auto-deploy scripts                  | Docker Deployment Tests > Docker with Auto-Deploy         | 3.0s                |
+| ✅     | should generate Docker config for postgres                              | Docker Deployment Tests > Docker with Multiple Databases  | 3.3s                |
+| ✅     | should generate Docker config for mysql                                 | Docker Deployment Tests > Docker with Multiple Databases  | 3.0s                |
+| ✅     | should generate Docker config for mongodb                               | Docker Deployment Tests > Docker with Multiple Databases  | 2.2s                |
+| ✅     | should check if admin tools are configured in templates                 | Docker Deployment Tests > Docker with Admin Tools         | 760.3385880000023ms |
+| ✅     | should use secure passwords by default                                  | Docker Deployment Tests > Docker Security                 | 2.9s                |
+| ✅     | should allow simple passwords when --no-secure-passwords is used        | Docker Deployment Tests > Docker Security                 | 4.2s                |
 
 </details>
 
@@ -73,4 +79,4 @@ ls -la /tmp/ | grep precast-test- | wc -l
 
 ---
 
-_Generated by CLI Test Reporter at Aug 20, 2025, 16:24:51_
+_Generated by CLI Test Reporter at Aug 21, 2025, 11:08:07_

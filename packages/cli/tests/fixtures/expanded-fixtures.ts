@@ -382,19 +382,24 @@ export const DOCKER_FIXTURES: ProjectFixture[] = [
       expectedDuration: 12000,
     },
     expectedFiles: [
-      "docker-compose.yml",
       "docker/postgres/docker-compose.yml",
-      "docker/wait-for-db.sh",
-      ".env.docker",
+      "docker/postgres/.env",
+      "docker/postgres/.env.example",
+      "docker/postgres/wait-for-db.sh",
+      "docker/postgres/README.md",
     ],
     expectedDependencies: ["react", "express", "@prisma/client"],
     expectedDevDependencies: ["typescript"],
     validationRules: [
-      { type: "file-exists", path: "docker-compose.yml", description: "Docker Compose file" },
       {
         type: "file-exists",
         path: "docker/postgres/docker-compose.yml",
         description: "Postgres Docker config",
+      },
+      {
+        type: "file-exists",
+        path: "docker/postgres/.env",
+        description: "Postgres environment file",
       },
     ],
   },
@@ -403,7 +408,7 @@ export const DOCKER_FIXTURES: ProjectFixture[] = [
     config: {
       name: "next-docker-mysql",
       framework: "next",
-      backend: "none",
+      backend: "next-api", // Next.js API routes to connect to database
       database: "mysql",
       orm: "drizzle",
       styling: "tailwind",
@@ -413,7 +418,11 @@ export const DOCKER_FIXTURES: ProjectFixture[] = [
       category: "common",
       expectedDuration: 10000,
     },
-    expectedFiles: ["docker-compose.yml", "docker/mysql/docker-compose.yml", ".env.docker"],
+    expectedFiles: [
+      "docker/mysql/docker-compose.yml",
+      "docker/mysql/.env",
+      "docker/mysql/.env.example",
+    ],
     expectedDependencies: ["next", "drizzle-orm", "mysql2"],
     expectedDevDependencies: ["typescript"],
     validationRules: [
@@ -440,7 +449,11 @@ export const DOCKER_FIXTURES: ProjectFixture[] = [
       category: "edge",
       expectedDuration: 11000,
     },
-    expectedFiles: ["docker-compose.yml", "docker/mongodb/docker-compose.yml", ".env.docker"],
+    expectedFiles: [
+      "docker/mongodb/docker-compose.yml",
+      "docker/mongodb/.env",
+      "docker/mongodb/.env.example",
+    ],
     expectedDependencies: ["react", "express", "mongoose", "redis"],
     expectedDevDependencies: ["typescript"],
     validationRules: [

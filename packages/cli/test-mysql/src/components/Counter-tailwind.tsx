@@ -1,0 +1,34 @@
+"use client";
+
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">Counter Example</h2>
+      <div className="flex items-center justify-center space-x-4">
+        <button
+          onClick={() => setCount(count - 1)}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+        >
+          -
+        </button>
+        <span className="text-2xl font-bold text-gray-800 min-w-[3rem] text-center">{count}</span>
+        <button
+          onClick={() => setCount(count + 1)}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+        >
+          +
+        </button>
+      </div>
+      <button
+        onClick={() => setCount(0)}
+        className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors w-full"
+      >
+        Reset
+      </button>
+    </div>
+  );
+}

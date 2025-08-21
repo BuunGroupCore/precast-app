@@ -1,0 +1,83 @@
+/**
+ * TypeScript interfaces and types for PrecastWidget
+ * Extracted from main component for better organization
+ */
+
+export interface TestResult {
+  success: boolean;
+  message: string;
+  details?: unknown;
+  timestamp: string;
+}
+
+export interface SystemInfo {
+  uptime: number;
+  environment: string;
+  apiPort?: number;
+  dbPort?: number;
+}
+
+export interface PrecastConfig {
+  framework?: string;
+  backend?: string;
+  database?: string;
+  orm?: string;
+  docker?: boolean;
+  powerups?: string[];
+  [key: string]: unknown;
+}
+
+export interface Service {
+  name: string;
+  type: string;
+  icon: string;
+  port?: number;
+  testEndpoint?: string;
+  containers?: Array<{ name: string; port: number; icon: string }>;
+}
+
+export interface AuthDetails {
+  email?: string;
+  user?: {
+    email?: string;
+    [key: string]: unknown;
+  };
+  session?: unknown;
+  token?: unknown;
+  [key: string]: unknown;
+}
+
+/**
+ * Extended types for service registry system
+ */
+export interface ServiceDefinition {
+  key: string;
+  name: string;
+  type: string;
+  icon: string;
+  category:
+    | "infrastructure"
+    | "monitoring"
+    | "communication"
+    | "analytics"
+    | "payment"
+    | "auth"
+    | "storage";
+  testFunction?: string; // Function name for testing
+  healthEndpoint?: string;
+  requiredConfig?: string[];
+  port?: number;
+  containers?: Array<{ name: string; port: number; icon: string }>;
+}
+
+export interface ServiceTestContext {
+  apiUrl: string;
+  headers: HeadersInit;
+  config: PrecastConfig | null;
+}
+
+export type AuthMode = "signup" | "signin";
+
+export type LoadingState = Record<string, boolean>;
+
+export type TestResultsState = Record<string, TestResult>;

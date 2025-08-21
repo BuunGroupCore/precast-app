@@ -1,0 +1,141 @@
+/**
+ * Express Server Configuration
+ * @module server
+ * @description Main Express.js server with authentication, API routes, and health checks
+ */
+
+import cors from "cors";
+import { config } from "dotenv";
+import express, { type Request, type Response, json, urlencoded } from "express";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
+
+import healthRoutes from "@/api/routes/health.js";
+import { APP_CONFIG, SERVER_CONFIG, CORS_CONFIG, HEALTH_CHECK_CONFIG } from "@/config/constants.js";
+
+config();
+
+const app = express();
+
+// Security middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  })
+);
+
+// CORS with credentials
+app.use(
+  cors({
+    ...CORS_CONFIG,
+    credentials: true,
+  })
+);
+
+// Body parsing with limits to prevent DoS
+app.use(json({ limit: "10mb" }));
+app.use(urlencoded({ extended: true, limit: "10mb" }));
+
+// Trust proxy for secure cookies behind reverse proxy
+app.set("trust proxy", 1);
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Auth rate limiting (stricter but reasonable for session checks)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Allow enough for session checks and auth operations
+  message: "Too many authentication attempts, please try again later.",
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+// Apply rate limiting
+app.use("/api/", limiter);
+app.use("/api/auth/", authLimiter);
+
+// Input sanitization
+app.use(
+  mongoSanitize({
+    replaceWith: "_",
+    allowDots: false,
+  })
+);
+
+app.use("/api", healthRoutes);
+
+/**
+ * Health check endpoint
+ */
+app.get(HEALTH_CHECK_CONFIG.path, (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    message: HEALTH_CHECK_CONFIG.message,
+    timestamp: new Date().toISOString(),
+    version: APP_CONFIG.version,
+    environment: APP_CONFIG.environment,
+  });
+});
+
+/**
+ * Hello world endpoint
+ */
+app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (_req: Request, res: Response) => {
+  res.json({
+    message: `Hello from ${APP_CONFIG.name}!`,
+    version: APP_CONFIG.version,
+  });
+});
+
+/**
+ * 404 handler for unmatched routes
+ */
+app.use("*", (req: Request, res: Response) => {
+  res.status(404).json({
+    error: "Route not found",
+    path: req.originalUrl,
+  });
+});
+
+/**
+ * Global error handler
+ */
+app.use((err: Error, _req: Request, res: Response) => {
+  if (process.env.NODE_ENV === "development") {
+    console.error(err.stack);
+  }
+  res.status(500).json({
+    error: "Internal server error",
+    message: process.env.NODE_ENV === "development" ? err.message : "Something went wrong",
+  });
+});
+
+/**
+ * Start server on localhost only
+ */
+app.listen(SERVER_CONFIG.port, SERVER_CONFIG.host, () => {
+  console.log(`[SERVER] Server running on http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);
+  console.log(
+    `[API] Health check: http://${SERVER_CONFIG.host}:${SERVER_CONFIG.port}${HEALTH_CHECK_CONFIG.path}`
+  );
+  console.log(`[INFO] Environment: ${APP_CONFIG.environment}`);
+});

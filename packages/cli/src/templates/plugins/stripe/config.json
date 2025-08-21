@@ -5,10 +5,12 @@
   "category": "payments",
   "pricing": "freemium",
   "dependencies": {
-    "*": ["stripe@^13.0.0"],
     "react": ["@stripe/stripe-js@^2.4.0", "@stripe/react-stripe-js@^2.4.0"],
     "vue": ["@stripe/stripe-js@^2.4.0"],
     "next": ["@stripe/stripe-js@^2.4.0", "@stripe/react-stripe-js@^2.4.0"]
+  },
+  "backendDependencies": {
+    "*": ["stripe@^13.0.0"]
   },
   "devDependencies": {
     "*": ["@types/stripe@^8.0.0"]
@@ -22,7 +24,7 @@
     "react": [
       {
         "template": "react/checkout.tsx.hbs",
-        "output": "src/components/stripe/CheckoutForm.tsx"
+        "output": "src/components/StripeCheckout.tsx"
       }
     ],
     "next": [
@@ -40,7 +42,7 @@
     "express": [
       {
         "template": "express/payment-route.ts.hbs",
-        "output": "src/api/routes/payment.ts"
+        "output": "src/routes/stripe.ts"
       }
     ]
   },

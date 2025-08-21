@@ -1,0 +1,110 @@
+/**
+ * PrecastWidget - Barrel Export
+ * Main entry point for the modular PrecastWidget system
+ */
+
+// Main component
+import { PrecastWidget } from "./PrecastWidget";
+export { PrecastWidget };
+
+// Types
+export type {
+  TestResult,
+  SystemInfo,
+  PrecastConfig,
+  Service,
+  ServiceDefinition,
+  AuthDetails,
+  ServiceTestContext,
+  AuthMode,
+  LoadingState,
+  TestResultsState,
+} from "./types";
+
+// Components (for advanced usage)
+export { FloatingButton } from "./components/FloatingButton";
+export { ServicePanel } from "./components/ServicePanel";
+export { ServiceCard } from "./components/ServiceCard";
+export { ServiceTabBar } from "./components/ServiceTabBar";
+export { TestButton } from "./components/TestButton";
+export { ResultDisplay } from "./components/ResultDisplay";
+export { AuthTestForm } from "./components/AuthTestForm";
+export { DockerContainerList } from "./components/DockerContainerList";
+
+// Hooks (for advanced usage)
+export { usePrecastConfig } from "./hooks/usePrecastConfig";
+export { useSystemInfo } from "./hooks/useSystemInfo";
+export { useServiceRegistry } from "./hooks/useServiceRegistry";
+export { useGenericTesting } from "./hooks/useGenericTesting";
+export { useApiRequest } from "./hooks/useApiRequest";
+
+// Services (for advanced usage)
+export { testApiHealth, testApiHealthSimple, isApiServiceAvailable } from "./services/apiService";
+export {
+  testDatabaseConnection,
+  testDatabaseConnectionSimple,
+  isDatabaseServiceAvailable,
+} from "./services/databaseService";
+export {
+  testDockerHealth,
+  testDockerHealthSimple,
+  isDockerServiceAvailable,
+} from "./services/dockerService";
+export {
+  testEmailService,
+  testEmailServiceSimple,
+  isEmailServiceAvailable,
+} from "./services/emailService";
+export {
+  testAuthService,
+  testAuthStatus,
+  testAuthStatusSimple,
+  isAuthServiceAvailable,
+} from "./services/authService";
+export {
+  testPaymentService,
+  testPaymentServiceSimple,
+  isPaymentServiceAvailable,
+} from "./services/paymentService";
+
+// Service Registry
+export {
+  getAvailableServices,
+  getServicesByCategory,
+  getDefaultActiveTab,
+} from "./services/serviceRegistry";
+
+// Service Base Types and Functions - using export type for interfaces
+export type { BaseServiceTester, AbstractServiceTester } from "./services/baseService";
+
+export {
+  CommonTestPatterns,
+  registerServiceTester,
+  getServiceTester,
+} from "./services/baseService";
+
+// Utilities (for advanced usage)
+export { getServiceIcon, getIconCategory, hasServiceIcon } from "./utils/serviceIcons";
+export {
+  getApiUrl,
+  isDevelopment,
+  getApiHeaders,
+  getSimpleApiHeaders,
+  getEnvironmentConfig,
+  isValidApiUrl,
+  getDefaultPorts,
+} from "./utils/environmentUtils";
+export {
+  WIDGET_CONFIG,
+  SERVICE_CATEGORIES,
+  DEFAULT_SERVICES,
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+  LOADING_MESSAGES,
+  CSS_CLASSES,
+  getStyleClass,
+  TEST_DEFAULTS,
+} from "./utils/constants";
+
+// Default export
+export default PrecastWidget;

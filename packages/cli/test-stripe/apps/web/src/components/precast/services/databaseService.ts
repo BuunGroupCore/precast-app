@@ -1,0 +1,103 @@
+/**
+ * Database Service Testing Module
+ * @module databaseService
+ * @description Functions for testing database connectivity and health
+ */
+
+import { TestResult, ServiceTestContext } from "../types";
+
+/**
+ * Tests database connection through the health API endpoint
+ * @param {Function} setLoading - Loading state setter function
+ * @param {Function} addTestResult - Function to add test results
+ * @param {string} apiUrl - Base API URL for testing
+ * @returns {Promise<void>}
+ */
+export const testDatabaseConnection = async (
+  setLoading: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+  addTestResult: (service: string, result: Omit<TestResult, "timestamp">) => void,
+  apiUrl: string
+): Promise<void> => {
+  setLoading((prev) => ({ ...prev, database: true }));
+  try {
+    const response = await fetch(`${apiUrl}/api/health/database`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      addTestResult("database", {
+        success: true,
+        message: "DATABASE CONNECTED",
+        details: data,
+      });
+    } else {
+      addTestResult("database", {
+        success: false,
+        message: "CONNECTION FAILED",
+        details: data.error,
+      });
+    }
+  } catch (error) {
+    addTestResult("database", {
+      success: false,
+      message: "NETWORK ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  } finally {
+    setLoading((prev) => ({ ...prev, database: false }));
+  }
+};
+
+/**
+ * Simplified database connection test for service registry
+ * @param {ServiceTestContext} context - Test context with URL and headers
+ * @returns {Promise<TestResult>} Test result object
+ */
+export const testDatabaseConnectionSimple = async (
+  context: ServiceTestContext
+): Promise<TestResult> => {
+  try {
+    const response = await fetch(`${context.apiUrl}/api/health/database`, {
+      method: "GET",
+      headers: context.headers,
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: "DATABASE CONNECTED",
+        details: data,
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        message: "CONNECTION FAILED",
+        details: data.error,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "NETWORK ERROR",
+      details: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+/**
+ * Checks if database service is available
+ * @returns {boolean} True if database is configured
+ */
+export const isDatabaseServiceAvailable = (): boolean => {
+  return true;
+};

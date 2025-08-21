@@ -1,0 +1,31 @@
+import { PrismaClient } from "@prisma/client";
+
+/**
+ * Global type for Prisma client instance
+ * @description Prevents multiple instances in development with hot reloading
+ */
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+/**
+ * Prisma client singleton
+ * @description Reuses the same client instance across hot reloads in development
+ */
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+
+/**
+ * Graceful shutdown handler
+ * @description Ensures database connections are properly closed
+ */
+process.on("beforeExit", async () => {
+  await prisma.$disconnect();
+});

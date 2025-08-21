@@ -93,11 +93,8 @@ function CheckoutFormContent({
   return (
     <form onSubmit={handleSubmit} className="stripe-checkout-form space-y-4">
       <PaymentElement 
-        options={{
-          layout: "tabs",
-          business: {
-            name: process.env.NEXT_PUBLIC_APP_NAME || "Your Business"
-          }
+        options=\{{
+          layout: "tabs"
         }}
       />
       
@@ -343,11 +340,8 @@ function CheckoutFormContent({ amount, currency = "usd", onSuccess, onError }) {
   return (
     <form onSubmit={handleSubmit} className="stripe-checkout-form space-y-4">
       <PaymentElement 
-        options={{
-          layout: "tabs",
-          business: {
-            name: process.env.NEXT_PUBLIC_APP_NAME || "Your Business"
-          }
+        options=\{{
+          layout: "tabs"
         }}
       />
       

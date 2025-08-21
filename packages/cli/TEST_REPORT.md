@@ -1,17 +1,17 @@
 # CLI Test Report
 
-> Last Updated: Aug 21, 2025, 11:08:07
+> Last Updated: Aug 21, 2025, 11:33:42
 
 ## Summary
 
-| Metric             | Value  | Status |
-| ------------------ | ------ | ------ |
-| **Total Tests**    | 10     | -      |
-| **Passed**         | 10     | ✅     |
-| **Failed**         | 0      | ✅     |
-| **Skipped**        | 0      | -      |
-| **Success Rate**   | 100.0% | 🟢     |
-| **Total Duration** | 29.1s  | -      |
+| Metric             | Value | Status |
+| ------------------ | ----- | ------ |
+| **Total Tests**    | 13    | -      |
+| **Passed**         | 0     | ✅     |
+| **Failed**         | 1     | ❌     |
+| **Skipped**        | 12    | ⏭️     |
+| **Success Rate**   | 0.0%  | 🔴     |
+| **Total Duration** | 5.2s  | -      |
 
 ## Cleanup Status
 
@@ -23,31 +23,42 @@
 
 ## Test Suites
 
-| Suite                                                         | Total | Passed | Failed | Skipped | Success Rate | Duration            |
-| ------------------------------------------------------------- | ----- | ------ | ------ | ------- | ------------ | ------------------- |
-| **Docker Deployment Tests > Docker Configuration Generation** | 3     | 3 ✅   | 0      | 0       | 100.0% 🟢    | 6.6s                |
-| **Docker Deployment Tests > Docker Security**                 | 2     | 2 ✅   | 0      | 0       | 100.0% 🟢    | 7.2s                |
-| **Docker Deployment Tests > Docker with Admin Tools**         | 1     | 1 ✅   | 0      | 0       | 100.0% 🟢    | 760.3385880000023ms |
-| **Docker Deployment Tests > Docker with Auto-Deploy**         | 1     | 1 ✅   | 0      | 0       | 100.0% 🟢    | 3.0s                |
-| **Docker Deployment Tests > Docker with Multiple Databases**  | 3     | 3 ✅   | 0      | 0       | 100.0% 🟢    | 8.5s                |
+| Suite                                         | Total | Passed | Failed | Skipped | Success Rate | Duration |
+| --------------------------------------------- | ----- | ------ | ------ | ------- | ------------ | -------- |
+| **Plugin System Tests > Analytics Plugins**   | 2     | 0      | 0      | 2 ⏭️    | 0.0% 🔴      | 0ms      |
+| **Plugin System Tests > Email Plugins**       | 2     | 0      | 0      | 2 ⏭️    | 0.0% 🔴      | 0ms      |
+| **Plugin System Tests > Multiple Plugins**    | 1     | 0      | 0      | 1 ⏭️    | 0.0% 🔴      | 0ms      |
+| **Plugin System Tests > Plugin Installation** | 5     | 0      | 1 ❌   | 4 ⏭️    | 0.0% 🔴      | 4.0s     |
+| **Plugin System Tests > Socket.IO Plugin**    | 1     | 0      | 0      | 1 ⏭️    | 0.0% 🔴      | 0ms      |
+| **Plugin System Tests > Storage Plugins**     | 1     | 0      | 0      | 1 ⏭️    | 0.0% 🔴      | 0ms      |
+| **Plugin System Tests > Stripe Plugin**       | 1     | 0      | 0      | 1 ⏭️    | 0.0% 🔴      | 0ms      |
+
+## Failed Tests
+
+| Test                                                   | Suite                                     | Error                              | Duration |
+| ------------------------------------------------------ | ----------------------------------------- | ---------------------------------- | -------- |
+| should install react-with-payment-plugins with plugins | Plugin System Tests > Plugin Installation | `expected undefined to be defined` | 4.0s     |
 
 ## Detailed Results
 
 <details>
 <summary>Click to expand all test results</summary>
 
-| Status | Test Name                                                               | Suite                                                     | Duration            |
-| ------ | ----------------------------------------------------------------------- | --------------------------------------------------------- | ------------------- |
-| ✅     | should generate react-express-docker-postgres with Docker configuration | Docker Deployment Tests > Docker Configuration Generation | 3.2s                |
-| ✅     | should generate next-docker-mysql with Docker configuration             | Docker Deployment Tests > Docker Configuration Generation | 886.5321999999996ms |
-| ✅     | should generate docker-mongodb-redis with Docker configuration          | Docker Deployment Tests > Docker Configuration Generation | 2.6s                |
-| ✅     | should generate Docker config with auto-deploy scripts                  | Docker Deployment Tests > Docker with Auto-Deploy         | 3.0s                |
-| ✅     | should generate Docker config for postgres                              | Docker Deployment Tests > Docker with Multiple Databases  | 3.3s                |
-| ✅     | should generate Docker config for mysql                                 | Docker Deployment Tests > Docker with Multiple Databases  | 3.0s                |
-| ✅     | should generate Docker config for mongodb                               | Docker Deployment Tests > Docker with Multiple Databases  | 2.2s                |
-| ✅     | should check if admin tools are configured in templates                 | Docker Deployment Tests > Docker with Admin Tools         | 760.3385880000023ms |
-| ✅     | should use secure passwords by default                                  | Docker Deployment Tests > Docker Security                 | 2.9s                |
-| ✅     | should allow simple passwords when --no-secure-passwords is used        | Docker Deployment Tests > Docker Security                 | 4.2s                |
+| Status | Test Name                                               | Suite                                     | Duration |
+| ------ | ------------------------------------------------------- | ----------------------------------------- | -------- |
+| ❌     | should install react-with-payment-plugins with plugins  | Plugin System Tests > Plugin Installation | 4.0s     |
+| ⏭️     | should install next-with-email-plugins with plugins     | Plugin System Tests > Plugin Installation | 0ms      |
+| ⏭️     | should install react-with-realtime-plugins with plugins | Plugin System Tests > Plugin Installation | 0ms      |
+| ⏭️     | should install next-with-analytics-plugins with plugins | Plugin System Tests > Plugin Installation | 0ms      |
+| ⏭️     | should install react-with-storage-plugins with plugins  | Plugin System Tests > Plugin Installation | 0ms      |
+| ⏭️     | should setup Stripe with all necessary files            | Plugin System Tests > Stripe Plugin       | 0ms      |
+| ⏭️     | should setup resend email service                       | Plugin System Tests > Email Plugins       | 0ms      |
+| ⏭️     | should setup sendgrid email service                     | Plugin System Tests > Email Plugins       | 0ms      |
+| ⏭️     | should setup Socket.IO for real-time communication      | Plugin System Tests > Socket.IO Plugin    | 0ms      |
+| ⏭️     | should setup PostHog analytics                          | Plugin System Tests > Analytics Plugins   | 0ms      |
+| ⏭️     | should setup Sentry error tracking                      | Plugin System Tests > Analytics Plugins   | 0ms      |
+| ⏭️     | should setup Cloudinary for image storage               | Plugin System Tests > Storage Plugins     | 0ms      |
+| ⏭️     | should install multiple plugins together                | Plugin System Tests > Multiple Plugins    | 0ms      |
 
 </details>
 
@@ -55,7 +66,7 @@
 
 ```
 Success Rate Trend (last 5 runs):
-Current: [██████████] 100.0%
+Current: [░░░░░░░░░░] 0.0%
 ```
 
 ## Quick Commands
@@ -79,4 +90,4 @@ ls -la /tmp/ | grep precast-test- | wc -l
 
 ---
 
-_Generated by CLI Test Reporter at Aug 21, 2025, 11:08:07_
+_Generated by CLI Test Reporter at Aug 21, 2025, 11:33:42_

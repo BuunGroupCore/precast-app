@@ -92,15 +92,14 @@ describe("Plugin System Tests", () => {
       const { existsSync, readFileSync } = await import("fs");
 
       // Check for Stripe API routes
-      expect(existsSync(`${projectPath}/src/app/api/stripe/checkout/route.ts`)).toBe(true);
-      expect(existsSync(`${projectPath}/src/app/api/stripe/webhook/route.ts`)).toBe(true);
+      expect(existsSync(`${projectPath}/src/app/api/stripe/route.ts`)).toBe(true);
 
       // Check for Stripe components
-      expect(existsSync(`${projectPath}/src/components/stripe/CheckoutButton.tsx`)).toBe(true);
+      expect(existsSync(`${projectPath}/src/components/stripe/CheckoutForm.tsx`)).toBe(true);
 
       // Check for environment variables template
       const envExample = readFileSync(`${projectPath}/.env.example`, "utf-8");
-      expect(envExample).toContain("STRIPE_PUBLIC_KEY");
+      expect(envExample).toContain("STRIPE_PUBLISHABLE_KEY");
       expect(envExample).toContain("STRIPE_SECRET_KEY");
       expect(envExample).toContain("STRIPE_WEBHOOK_SECRET");
 

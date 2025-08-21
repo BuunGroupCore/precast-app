@@ -1,0 +1,28 @@
+{
+  "$schema": "https://precast.dev/precast.schema.json",
+  "version": "1.0.0",
+  "createdAt": "2025-08-21T01:32:19.130Z",
+  "framework": "react",
+  "language": "typescript",
+  "typescript": true,
+  "git": false,
+  "packageManager": "bun",
+  "backend": "express",
+  "database": "postgres",
+  "orm": "prisma",
+  "styling": "css",
+  "aiAssistant": "none",
+  "gitignore": true,
+  "eslint": true,
+  "prettier": true,
+  "docker": false,
+  "securePasswords": true,
+  "packageManagerVersion": "1.2.20",
+  "runtime": "node",
+  "deploymentType": "fullstack",
+  "colorPalette": "shadcn",
+  "plugins": [
+    "stripe"
+  ],
+  "autoInstall": false
+}

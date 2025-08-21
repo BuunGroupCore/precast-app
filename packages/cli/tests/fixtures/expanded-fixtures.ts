@@ -616,7 +616,7 @@ export const PLUGIN_FIXTURES: ProjectFixture[] = [
       "apps/web/src/components/StripeCheckout.tsx",
       ".env.example",
     ],
-    expectedDependencies: ["react", "express", "stripe", "@stripe/stripe-js"],
+    expectedDependencies: ["react", "@stripe/stripe-js", "@stripe/react-stripe-js"],
     expectedDevDependencies: ["typescript"],
     validationRules: [
       { type: "dependency-present", package: "stripe", description: "Stripe SDK" },

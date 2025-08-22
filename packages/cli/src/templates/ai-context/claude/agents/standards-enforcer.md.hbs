@@ -176,7 +176,7 @@ export class MyComponent implements OnInit {
 const buttonStyles = "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded";
 
 // ❌ BAD - Inline styles mixed with Tailwind
-<div className="p-4" style={{backgroundColor: 'red'}}>
+<div className="p-4" style=\{{ backgroundColor: 'red' }}>
 ```
 
 **MUST** follow Tailwind ESLint plugin rules if configured.

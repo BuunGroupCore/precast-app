@@ -445,11 +445,11 @@ async function setupPowerUpFiles(
       nodeEnv: process.env.NODE_ENV || "development",
     });
 
-    // Determine output path - use project root for docker-related files in monorepos
+    // Determine output path - use project root for docker-related files and turbo.json in monorepos
     let basePath = targetPath;
 
-    // For monorepo projects, put docker files at the root level
-    if (projectRootPath && file.output.startsWith("docker/")) {
+    // For monorepo projects, put docker files and turbo.json at the root level
+    if (projectRootPath && (file.output.startsWith("docker/") || file.output === "turbo.json")) {
       basePath = projectRootPath;
     }
 

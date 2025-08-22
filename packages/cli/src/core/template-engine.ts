@@ -266,7 +266,7 @@ export class TemplateEngine {
     const fileName = path.basename(file);
 
     const isConfigFile = fileName.match(
-      /(\.(config|rc)\.(js|mjs|cjs|ts)\.hbs$|^(tailwind|postcss)\.config\.(js|mjs|cjs|ts)\.hbs$)/
+      /(\.(config|rc)\.(js|mjs|cjs|ts)\.hbs$|^(tailwind|postcss|vite|vitest|tsconfig|eslint|prettier)\.config\.(js|mjs|cjs|ts)\.hbs$)/
     );
 
     if (context.gitignore === false && fileName === "_gitignore") {
@@ -316,12 +316,12 @@ export class TemplateEngine {
     // - Skip JS config files if a TS version exists
     if (context.typescript) {
       // For config files, check if a TypeScript version exists
-      if (isConfigFile && fileName.endsWith(".js.hbs")) {
-        const tsConfigName = fileName.replace(/\.js\.hbs$/, ".ts.hbs");
+      if (isConfigFile && (fileName.endsWith(".js.hbs") || fileName.endsWith(".mjs.hbs"))) {
+        const tsConfigName = fileName.replace(/\.(m?js)\.hbs$/, ".ts.hbs");
         const tsConfigPath = path.join(path.dirname(file), tsConfigName);
         if (sourceDir) {
           const fullTsConfigPath = path.join(this.templateRoot, sourceDir, tsConfigPath);
-          // Skip JS config if TS version exists
+          // Skip JS/MJS config if TS version exists
           if (fsExtra.pathExistsSync(fullTsConfigPath)) {
             return true;
           }
@@ -330,6 +330,20 @@ export class TemplateEngine {
       // Skip non-config JS/JSX files when TypeScript is enabled
       else if ((fileName.endsWith(".js.hbs") || fileName.endsWith(".jsx.hbs")) && !isConfigFile) {
         return true;
+      }
+    }
+
+    // When TypeScript is disabled:
+    // - Use .mjs config files if no .js version exists (for ESM compatibility)
+    if (!context.typescript && isConfigFile && fileName.endsWith(".mjs.hbs")) {
+      const jsConfigName = fileName.replace(/\.mjs\.hbs$/, ".js.hbs");
+      const jsConfigPath = path.join(path.dirname(file), jsConfigName);
+      if (sourceDir) {
+        const fullJsConfigPath = path.join(this.templateRoot, sourceDir, jsConfigPath);
+        // Only use .mjs if no .js version exists
+        if (fsExtra.pathExistsSync(fullJsConfigPath)) {
+          return true;
+        }
       }
     }
     if (context.styling !== "scss" && fileName.endsWith(".scss.hbs")) {

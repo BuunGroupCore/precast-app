@@ -532,7 +532,8 @@ async function generateMonorepoProject(
     ) {
       const webPackageJson = JSON.parse(await fs.readFile(webPackageJsonPath, "utf-8"));
       webPackageJson.dependencies = webPackageJson.dependencies || {};
-      webPackageJson.dependencies[sharedPackageName] = "workspace:*";
+      // Use file: protocol for local shared package instead of workspace:*
+      webPackageJson.dependencies[sharedPackageName] = "file:../../packages/shared";
       await fs.writeFile(webPackageJsonPath, JSON.stringify(webPackageJson, null, 2));
     }
 
@@ -544,7 +545,8 @@ async function generateMonorepoProject(
     ) {
       const apiPackageJson = JSON.parse(await fs.readFile(apiPackageJsonPath, "utf-8"));
       apiPackageJson.dependencies = apiPackageJson.dependencies || {};
-      apiPackageJson.dependencies[sharedPackageName] = "workspace:*";
+      // Use file: protocol for local shared package instead of workspace:*
+      apiPackageJson.dependencies[sharedPackageName] = "file:../../packages/shared";
       await fs.writeFile(apiPackageJsonPath, JSON.stringify(apiPackageJson, null, 2));
     }
 

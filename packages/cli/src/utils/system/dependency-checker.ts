@@ -2,6 +2,7 @@ export interface CompatibilityRule {
   name?: string;
   frameworks: string[];
   requiredDeps?: string[];
+  devDeps?: boolean; // Whether to install as dev dependencies (default true)
   incompatibleWith?: string[];
   setupCommand?: string;
   postInstallSteps?: string[];
@@ -15,12 +16,32 @@ export const UI_LIBRARY_COMPATIBILITY: Record<string, CompatibilityRule> = {
   shadcn: {
     name: "shadcn/ui",
     frameworks: ["react", "next", "react-router", "tanstack-router", "tanstack-start", "vite"],
-    requiredDeps: ["tailwindcss-animate", "class-variance-authority", "clsx", "tailwind-merge"],
+    requiredDeps: [
+      // Core styling utilities - these are essential and should be regular deps
+      "tailwindcss-animate",
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge",
+      // Most commonly needed Radix UI primitives
+      "@radix-ui/react-slot",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-label",
+      "@radix-ui/react-popover",
+      "@radix-ui/react-separator",
+      "@radix-ui/react-tabs",
+      "@radix-ui/react-tooltip",
+      // Icon libraries
+      "lucide-react",
+      "@radix-ui/react-icons",
+    ],
+    devDeps: false, // Install as regular dependencies, not dev dependencies
     setupCommand: "npx shadcn@latest init",
     postInstallSteps: [
       "Configure components.json",
       "Add CSS variables to globals.css",
       "Configure tailwind.config.js",
+      "Additional Radix UI components will be installed as needed by shadcn CLI",
     ],
   },
   daisyui: {

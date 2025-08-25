@@ -23,8 +23,8 @@
     {{/if}}
     {{/if}}
     {{#if (and orm (eq orm "prisma"))}}
-    {{#if (ne generate false)}}"postinstall": "cd apps/api && prisma generate",{{/if}}
-    "predev": "cd apps/api && prisma generate && prisma db push --skip-generate",
+    {{#if (ne generate false)}}"postinstall": "cd apps/api && npx prisma generate || echo 'Prisma generate will run on first dev'",{{/if}}
+    "predev": "cd apps/api && npx prisma generate && npx prisma db push --skip-generate",
     "prebuild": "cd apps/api && prisma generate",
     "db:generate": "cd apps/api && prisma generate",
     "db:push": "cd apps/api && prisma db push",

@@ -1,11 +1,13 @@
 
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
 {{#if (eq framework "next")}}
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+// import { usePathname } from 'next/navigation'; // Uncomment if needed for route-based logic
 {{else if (eq framework "react")}}
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom'; // Uncomment if needed for route-based logic
 {{/if}}
 
 interface User {
@@ -57,10 +59,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   {{#if (eq framework "next")}}
   const router = useRouter();
-  const pathname = usePathname();
+  // const pathname = usePathname(); // Uncomment if needed for route-based logic
   {{else if (eq framework "react")}}
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation(); // Uncomment if needed for route-based logic
   {{/if}}
 
   const getApiUrl = useCallback(() => {

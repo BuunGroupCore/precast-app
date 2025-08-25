@@ -1,0 +1,47 @@
+{
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended"{{#if typescript}},
+    "plugin:@typescript-eslint/recommended"{{/if}}{{#ifEquals framework "react"}},
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"{{/ifEquals}}{{#ifEquals framework "vue"}},
+    "plugin:vue/vue3-recommended"{{/ifEquals}}
+  ],
+  "parser": {{#if typescript}}"@typescript-eslint/parser"{{else}}"@babel/eslint-parser"{{/if}},
+  {{#if typescript}}
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"{{#ifEquals framework "react"}},
+    "ecmaFeatures": {
+      "jsx": true
+    }{{/ifEquals}}
+  },
+  {{/if}}
+  "plugins": [{{#if typescript}}
+    "@typescript-eslint"{{#ifEquals framework "react"}},{{/ifEquals}}{{/if}}{{#ifEquals framework "react"}}
+    "react",
+    "react-hooks",
+    "react-refresh"{{/ifEquals}}{{#ifEquals framework "vue"}}
+    "vue"{{/ifEquals}}
+  ],
+  "rules": {{{#if typescript}}
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",{{/if}}{{#ifEquals framework "react"}}
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "react-refresh/only-export-components": ["warn", { "allowConstantExport": true }],{{/ifEquals}}{{#ifEquals framework "vue"}}
+    "vue/multi-word-component-names": "off",{{/ifEquals}}
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-debugger": "error"
+  },{{#ifEquals framework "react"}}
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },{{/ifEquals}}
+  "ignorePatterns": ["dist", "build", ".eslintrc.json"]
+}

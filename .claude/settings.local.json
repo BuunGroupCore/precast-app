@@ -46,7 +46,17 @@
       "Bash(echo $?)",
       "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-no-gitignore --framework react --backend none --database none --orm none --styling css --runtime node --no-gitignore --yes --no-git)",
       "Bash(for subframework in bare next remix tanstack-router tanstack-start vite native)",
-      "Bash(do echo \"=== React/$subframework ===\")"
+      "Bash(do echo \"=== React/$subframework ===\")",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-npm --framework react --backend none --database none --styling tailwind --package-manager npm --yes --no-git --install)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-pnpm --framework react --backend none --database none --styling tailwind --package-manager pnpm --yes --no-git --install)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-yarn --framework react --backend none --database none --styling tailwind --package-manager yarn --yes --no-git --install)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-bun --framework react --backend none --database none --styling tailwind --package-manager bun --yes --no-git --install)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-npm-mono --framework react --backend hono --database none --styling tailwind --package-manager npm --yes --no-git --install)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-pnpm-mono --framework react --backend hono --database none --styling tailwind --package-manager pnpm --yes --no-git)",
+      "Bash(pnpm install:*)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init /tmp/test-npm-mono --framework react --backend hono --database none --styling tailwind --package-manager npm --yes --no-git)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-npm-mono --framework react --backend hono --database none --styling tailwind --package-manager npm --yes --no-git)",
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-bun-mono --framework react --backend hono --database none --styling tailwind --package-manager bun --yes --no-git --install)"
     ],
     "additionalDirectories": [
       "/tmp"

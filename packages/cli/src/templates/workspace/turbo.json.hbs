@@ -13,8 +13,7 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true,
-      "interactive": true
+      "persistent": true
     },
     "start": {
       "dependsOn": ["build"],
@@ -31,13 +30,11 @@
     },
     "test": {
       "outputs": ["coverage/**"],
-      "outputLogs": "new-only",
-      "interactive": true
+      "outputLogs": "new-only"
     },
     "test:watch": {
       "cache": false,
-      "persistent": true,
-      "interactive": true
+      "persistent": true
     },
     "clean": {
       "cache": false

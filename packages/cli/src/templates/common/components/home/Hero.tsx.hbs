@@ -2,60 +2,7 @@
 
 {{/if}}import { APP_CONFIG } from "@/config/constants";
 import { Terminal, Zap, Database, Server } from "lucide-react";
-import { 
-  {{#if (or (eq framework 'react') (eq framework 'next') (eq framework 'react-router'))}}
-  SiReact, 
-  {{else if (or (eq framework 'tanstack-router') (eq framework 'tanstack-start'))}}
-  SiReact as SiTanstack, 
-  {{else if (eq framework 'vue')}}
-  SiVuedotjs as SiVue,
-  {{else if (eq framework 'svelte')}}
-  SiSvelte,
-  {{else if (eq framework 'solid')}}
-  SiSolid,
-  {{else if (eq framework 'angular')}}
-  SiAngular,
-  {{else if (eq framework 'astro')}}
-  SiAstro,
-  {{else if (or (eq framework 'vanilla') (eq framework 'vite'))}}
-  SiJavascript,
-  {{/if}}
-  {{#if (eq styling 'tailwind')}}
-  SiTailwindcss, 
-  {{/if}}
-  {{#if typescript}}
-  SiTypescript, 
-  {{/if}}
-  {{#if (eq backend 'hono')}}
-  SiHono,
-  {{else if (eq backend 'express')}}
-  SiExpress,
-  {{else if (eq backend 'fastify')}}
-  SiFastify,
-  {{else if (eq backend 'nestjs')}}
-  SiNestjs,
-  {{else if (eq backend 'koa')}}
-  SiNodedotjs as SiKoa,
-  {{else if (eq backend 'node')}}
-  SiNodedotjs,
-  {{/if}}
-  {{#if (eq database 'postgres')}}
-  SiPostgresql,
-  {{else if (eq database 'mysql')}}
-  SiMysql,
-  {{else if (eq database 'mongodb')}}
-  SiMongodb,
-  {{/if}}
-  {{#if (eq orm 'prisma')}}
-  SiPrisma
-  {{else if (eq orm 'drizzle')}}
-  SiNodedotjs as SiDrizzle
-  {{else if (eq orm 'typeorm')}}
-  SiNodedotjs as SiTypeorm
-  {{else if (eq orm 'mongoose')}}
-  SiMongodb as SiMongoose
-  {{/if}}
-} from "react-icons/si";
+import { SiReact{{#if typescript}}, SiTypescript{{/if}}{{#if (eq styling 'tailwind')}}, SiTailwindcss{{/if}} } from "react-icons/si";
 import { useState, useEffect } from "react";
 
 /**
@@ -103,7 +50,9 @@ export function Hero() {
     {{#if (eq styling 'tailwind')}}
     { name: "TAILWIND", icon: <SiTailwindcss size={20} />, color: "text-black" },
     {{/if}}
+    {{#if typescript}}
     { name: "TYPESCRIPT", icon: <SiTypescript size={20} />, color: "text-black" },
+    {{/if}}
     {{#if (and backend (ne backend 'none'))}}
     { name: "{{#if (eq backend 'hono')}}HONO{{else if (eq backend 'express')}}EXPRESS{{else if (eq backend 'fastify')}}FASTIFY{{else if (eq backend 'nestjs')}}NESTJS{{else if (eq backend 'koa')}}KOA{{else if (eq backend 'node')}}NODE{{/if}}", icon: <{{#if (eq backend 'hono')}}SiHono{{else if (eq backend 'express')}}SiExpress{{else if (eq backend 'fastify')}}SiFastify{{else if (eq backend 'nestjs')}}SiNestjs{{else if (eq backend 'koa')}}SiKoa{{else if (eq backend 'node')}}SiNodedotjs{{/if}} size={20} />, color: "text-black" },
     {{/if}}

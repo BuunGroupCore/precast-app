@@ -5,32 +5,32 @@
   "dependencies": {},
   "devDependencies": {
     "react": [
-      "eslint",
-      "eslint-config-prettier",
-      "eslint-plugin-prettier",
-      "eslint-plugin-react",
-      "eslint-plugin-react-hooks"
+      "eslint@^9.19.0",
+      "@eslint/js@^9.19.0",
+      "eslint-plugin-react@^7.37.0",
+      "eslint-plugin-react-hooks@^5.0.0",
+      "eslint-plugin-react-refresh@^0.5.0"
     ],
-    "next": ["eslint", "eslint-config-next", "eslint-config-prettier"],
+    "next": ["eslint@^9.19.0", "@eslint/js@^9.19.0", "@next/eslint-config-next"],
     "vue": [
-      "eslint",
-      "eslint-plugin-vue",
-      "eslint-config-prettier",
-      "@vue/eslint-config-typescript"
+      "eslint@^9.19.0",
+      "@eslint/js@^9.19.0",
+      "eslint-plugin-vue@^9.31.0",
+      "@vue/eslint-config-typescript@^14.1.0"
     ],
     "angular": [
-      "@angular-eslint/eslint-plugin",
-      "@angular-eslint/template-parser",
-      "eslint-config-prettier"
+      "@angular-eslint/eslint-plugin@^18.4.0",
+      "@angular-eslint/template-parser@^18.4.0",
+      "eslint@^9.19.0",
+      "@eslint/js@^9.19.0"
     ],
-    "svelte": ["eslint", "eslint-plugin-svelte", "eslint-config-prettier"],
-    "solid": ["eslint", "eslint-config-prettier", "eslint-plugin-solid"],
+    "svelte": ["eslint@^9.19.0", "@eslint/js@^9.19.0", "eslint-plugin-svelte@^2.46.0"],
+    "solid": ["eslint@^9.19.0", "@eslint/js@^9.19.0", "eslint-plugin-solid@^0.15.0"],
     "*": [
-      "eslint",
-      "eslint-config-prettier",
-      "eslint-plugin-prettier",
-      "@typescript-eslint/parser",
-      "@typescript-eslint/eslint-plugin"
+      "eslint@^9.19.0",
+      "@eslint/js@^9.19.0",
+      "@typescript-eslint/parser@^8.19.0",
+      "@typescript-eslint/eslint-plugin@^8.19.0"
     ]
   },
   "envVariables": {},
@@ -40,7 +40,7 @@
   },
   "setupFiles": {
     "*": [
-      { "template": ".eslintrc.js.hbs", "output": ".eslintrc.js" },
+      { "template": "eslint.config.js.hbs", "output": "eslint.config.js" },
       { "template": ".eslintignore.hbs", "output": ".eslintignore" }
     ]
   },

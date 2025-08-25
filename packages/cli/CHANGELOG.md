@@ -1,5 +1,133 @@
 # create-precast-app
 
+## 0.2.1
+
+### Patch Changes
+
+- [`b84ca5e`](https://github.com/BuunGroupCore/precast-app/commit/b84ca5e9664d8be0f0baad4d1b261a6735f91c92) - fix: Correct CI/CD workflows based on actual package structure
+
+  ## Package Structure (Correct Understanding)
+
+  ### Public Package (Published to npm)
+  - **`create-precast-app`** - The CLI tool (only package in changesets)
+
+  ### Private Packages (Not published, ignored by changesets)
+  - **`@precast/website`** - Has build script
+  - **`@precast/ui`** - Has build script
+  - **`@precast/utils`** - NO build script (exports TypeScript directly)
+  - **`@precast/hooks`** - NO build script (exports TypeScript directly)
+
+  ### Not a Package
+  - **`/packages/shared/`** - Just shared TypeScript files, no package.json
+
+  ## Fixes Applied
+
+  ### Test Workflow
+  - Only build UI package (the only dependency with a build script)
+  - Don't try to build @precast/shared (doesn't exist as package)
+  - Don't try to build @precast/utils (no build script)
+  - Fixed pnpm execution context issues
+
+  ### Release Workflow
+  - Split into two workflows (release-pr.yml and github-release.yml)
+  - Only include `create-precast-app` in changesets (others are ignored)
+  - Build UI, CLI, and website in correct order
+
+  ### Changeset Configuration
+  - Correctly ignores all private packages
+  - Only tracks `create-precast-app` for versioning
+
+- [`37eee42`](https://github.com/BuunGroupCore/precast-app/commit/37eee42d6cd2762ac5152631e3a2ad4feae3b369) - Fix Docker deployment tests to match CLI implementation
+  - Updated test expectations to match actual Docker file structure (files in `docker/{database}/` directory)
+  - Fixed auto-deploy script tests to handle platform-specific generation (.sh on Unix, .bat on Windows)
+  - Corrected Next.js MySQL test fixture to use `backend: "next-api"` (databases require backends per CLI validation)
+  - Removed invalid Redis database test (Redis is not a database option)
+  - Added debug logging to Docker setup for better troubleshooting
+  - All 10 Docker deployment tests now passing with proper validation
+
+- [`b332305`](https://github.com/BuunGroupCore/precast-app/commit/b332305f01b2921878f5f7340ac6885cd1a55018) - fix: Split release workflow for proper GitHub releases
+
+  ## Problem
+
+  The previous release workflow tried to create GitHub releases in the same run as the changesets PR creation, which would never work since the PR needs to be merged first.
+
+  ## Solution
+
+  Split the release process into two separate workflows:
+
+  ### 1. `release-pr.yml` - Release PR Creation
+  - Creates changesets PR with version bumps
+  - Runs on push to main
+  - Builds all packages before creating PR
+  - Handles npm publishing when PR is merged
+
+  ### 2. `github-release.yml` - GitHub Release Creation
+  - Triggers automatically on tag push (`v*`)
+  - Can also be triggered manually with a specific tag
+  - Creates GitHub release with:
+    - Full monorepo archive
+    - Standalone CLI archive
+    - Extracted changelog for the version
+    - Build instructions
+  - Prevents duplicate releases
+  - No npm references, GitHub-only distribution
+
+  ## Benefits
+  - **Actually works** - Proper separation of PR creation and release creation
+  - **Automatic triggering** - Tag push automatically creates GitHub release
+  - **Manual fallback** - Can manually create releases if needed
+  - **Better archives** - Both full repo and standalone CLI archives
+  - **Changelog integration** - Extracts version-specific changes
+  - **Duplicate prevention** - Won't recreate existing releases
+
+  ## Migration
+
+  The old `release.yml` workflow is marked as deprecated but kept for reference. New releases will use the split workflow approach.
+
+- [`b332305`](https://github.com/BuunGroupCore/precast-app/commit/b332305f01b2921878f5f7340ac6885cd1a55018) - chore: Update CI/CD workflows for new testing framework and GitHub-only releases
+
+  ## CI/CD Improvements
+
+  ### Testing Workflow Updates
+  - **Matrix testing** on Node.js 18 and 20 for broader compatibility
+  - **Separated test runs** by category (unit, integration, Docker, plugins, PowerUps, edge cases)
+  - **Test report generation** with automatic upload to GitHub artifacts
+  - **Cleanup verification** to ensure no leftover test directories
+  - **Appropriate timeouts** for each test category
+  - **GitHub job summaries** for quick test result overview
+  - **Updated to upload-artifact@v4** to fix deprecation warning
+
+  ### Release Workflow Updates
+  - **GitHub-focused releases** without npm publishing references
+  - **Dual archive creation**:
+    - Full monorepo archive (`precast-app-v{version}.tar.gz`)
+    - Standalone CLI archive (`precast-cli-v{version}.tar.gz`)
+  - **Improved release notes** with:
+    - All package versions listed
+    - Build from source instructions
+    - Clone from git tag instructions
+    - Package descriptions and contents
+    - Verification steps for GitHub releases
+
+  ## Testing Changes
+
+  The test workflow now:
+  1. Builds all shared packages before testing
+  2. Runs tests in logical groups with proper isolation
+  3. Generates comprehensive test reports
+  4. Verifies automatic cleanup worked correctly
+  5. Supports both bun and pnpm as needed
+
+  ## Release Changes
+
+  The release workflow now:
+  1. Creates GitHub releases with proper tags
+  2. Provides source archives for distribution
+  3. Focuses on GitHub as the primary distribution method
+  4. Includes detailed build instructions for users
+
+  These changes improve CI/CD reliability, test visibility, and make releases more accessible to users who want to build from source.
+
 ## 0.2.0
 
 ### Minor Changes

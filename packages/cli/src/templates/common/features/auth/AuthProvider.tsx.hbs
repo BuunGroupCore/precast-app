@@ -1,6 +1,6 @@
 {{#if (eq framework "next")}}'use client';
 
-{{/if}}import React, { createContext, useContext, ReactNode } from 'react';
+{{/if}}import { createContext, useContext, ReactNode } from 'react';
 import { useAuth, AuthState, AuthActions } from './hooks/useAuth';
 
 interface AuthContextType extends AuthState, AuthActions {}

@@ -1,8 +1,8 @@
 import { APP_CONFIG } from "@/config/constants";
 import { Terminal, Zap, Database, Server } from "lucide-react";
 import { 
-  SiReact, 
-  SiTailwindcss, 
+  SiReact, {{#if (eq styling 'tailwind')}}
+  SiTailwindcss, {{/if}}
   SiTypescript, 
   {{#if (eq backend 'hono')}}
   SiHono,

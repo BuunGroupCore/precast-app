@@ -52,6 +52,30 @@ const SECURE_VERSIONS: Record<string, DependencyUpdate> = {
     secureVersion: "^9.19.0",
     reason: "Update to latest stable version",
   },
+  "@typescript-eslint/eslint-plugin": {
+    package: "@typescript-eslint/eslint-plugin",
+    currentVersion: "<6.21.0",
+    secureVersion: "^8.19.0",
+    reason: "Update to latest stable version compatible with ESLint 9",
+  },
+  "@typescript-eslint/parser": {
+    package: "@typescript-eslint/parser",
+    currentVersion: "<6.21.0",
+    secureVersion: "^8.19.0",
+    reason: "Update to latest stable version compatible with ESLint 9",
+  },
+  "eslint-plugin-react-hooks": {
+    package: "eslint-plugin-react-hooks",
+    currentVersion: "<4.6.0",
+    secureVersion: "^5.0.0",
+    reason: "Update to latest stable version",
+  },
+  "eslint-plugin-react-refresh": {
+    package: "eslint-plugin-react-refresh",
+    currentVersion: "<0.4.5",
+    secureVersion: "^0.5.0",
+    reason: "Update to latest stable version",
+  },
 };
 
 /**

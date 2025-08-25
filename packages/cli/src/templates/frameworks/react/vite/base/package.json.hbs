@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "{{#if typescript}}tsc -b && {{/if}}vite build",
     "preview": "vite preview"{{#if typescript}},
-    "type-check": "tsc --noEmit"{{/if}}{{#if (eq orm "prisma")}},
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"{{/if}}{{#if (eq orm "prisma")}},
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
@@ -25,11 +26,24 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/node": "^20.14.0",
-    "typescript": "^5.7.2"{{/if}}{{#if (eq styling "tailwind")}},
+    "typescript": "^5.7.2",
+    "eslint": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.14"{{/if}}{{#if (eq styling "tailwind")}},
     "tailwindcss": "^3.4.13",
     "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20"{{/if}}{{#if (eq styling "scss")}},
     "sass": "^1.79.4"{{/if}}{{#if (eq orm "prisma")}},
     "prisma": "^6.14.0"{{/if}}
+  },
+  "overrides": {
+    "inflight": "npm:@npmcli/fs@^3.1.0",
+    "rimraf": "^5.0.0",
+    "glob": "^10.3.0",
+    "@humanwhocodes/config-array": "@eslint/config-array@^0.16.0",
+    "@humanwhocodes/object-schema": "@eslint/object-schema@^2.1.0"
   }
 }

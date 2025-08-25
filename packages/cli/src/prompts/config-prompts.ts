@@ -33,7 +33,7 @@ export async function gatherProjectConfig(
   projectName: string | undefined,
   options: InitOptions
 ): Promise<ProjectConfig> {
-  const name =
+  const rawName =
     projectName ||
     ((await text({
       message: "What is your project name?",
@@ -41,11 +41,15 @@ export async function gatherProjectConfig(
       defaultValue: "my-awesome-project",
       validate: (value) => {
         if (!value) return "Project name is required";
-        if (!/^[a-z0-9-]+$/.test(value)) {
-          return "Project name must be lowercase and contain only letters, numbers, and hyphens";
+        const normalized = value.toLowerCase().replace(/[\s._]/g, "-");
+        if (!/^[a-z0-9-]+$/.test(normalized)) {
+          return "Project name must contain only letters, numbers, and hyphens (spaces, dots, and underscores will be converted to hyphens)";
         }
       },
     })) as string);
+
+  // Normalize the project name
+  const name = rawName.toLowerCase().replace(/[\s._]/g, "-");
   const framework =
     options.framework ||
     (options.yes

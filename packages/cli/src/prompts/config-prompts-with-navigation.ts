@@ -145,7 +145,9 @@ export async function gatherProjectConfigWithNavigation(
       switch (currentStep) {
         case Step.NAME: {
           if (projectName || options.yes) {
-            state.name = projectName || "my-awesome-project";
+            // Normalize the project name
+            const rawName = projectName || "my-awesome-project";
+            state.name = rawName.toLowerCase().replace(/[\s._]/g, "-");
             currentStep++;
           } else {
             const result = await text({
@@ -154,8 +156,9 @@ export async function gatherProjectConfigWithNavigation(
               defaultValue: state.name || "my-awesome-project",
               validate: (value) => {
                 if (!value) return "Project name is required";
-                if (!/^[a-z0-9-]+$/.test(value)) {
-                  return "Project name must be lowercase and contain only letters, numbers, and hyphens";
+                const normalized = value.toLowerCase().replace(/[\s._]/g, "-");
+                if (!/^[a-z0-9-]+$/.test(normalized)) {
+                  return "Project name must contain only letters, numbers, and hyphens (spaces, dots, and underscores will be converted to hyphens)";
                 }
               },
             });
@@ -164,7 +167,8 @@ export async function gatherProjectConfigWithNavigation(
               cancel("Operation cancelled");
               process.exit(0);
             } else {
-              state.name = result as string;
+              // Normalize the project name
+              state.name = (result as string).toLowerCase().replace(/[\s._]/g, "-");
               currentStep++;
             }
           }

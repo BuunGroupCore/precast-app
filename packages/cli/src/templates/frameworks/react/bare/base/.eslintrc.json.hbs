@@ -1,23 +1,43 @@
-{{#if typescript}}{
-  "root": true,
-  "env": { "browser": true, "es2020": true },
+{
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": true
+  },
   "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
+    "eslint:recommended"{{#if typescript}},
+    "plugin:@typescript-eslint/recommended"{{/if}},
+    "plugin:react/recommended",
     "plugin:react-hooks/recommended"
   ],
-  "ignorePatterns": ["dist", ".eslintrc.cjs"],
-  "parser": "@typescript-eslint/parser",
+  "parser": {{#if typescript}}"@typescript-eslint/parser"{{else}}"@babel/eslint-parser"{{/if}},
   "parserOptions": {
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
-  "plugins": ["react-refresh", "@typescript-eslint"],
+  "plugins": [{{#if typescript}}
+    "@typescript-eslint",{{/if}}
+    "react",
+    "react-hooks",
+    "react-refresh"
+  ],
   "rules": {
-    "react-refresh/only-export-components": [
-      "warn",
-      { "allowConstantExport": true }
-    ],
-    "@typescript-eslint/no-non-null-assertion": "error"
-  }
-}{{/if}}
+    {{#if typescript}}
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",{{/if}}
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "react-refresh/only-export-components": ["warn", { "allowConstantExport": true }],
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-debugger": "error"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": ["dist", "build", ".eslintrc.json"]
+}

@@ -20,7 +20,8 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    {{#if typescript}}"typescript": "^5.4.2",{{/if}}
+    {{#if typescript}}"typescript": "^5.4.2",
+    "@types/node": "^22.8.4",{{/if}}
     "tsup": "^8.0.1"
   }{{#if (eq orm "prisma")}},
   "dependencies": {

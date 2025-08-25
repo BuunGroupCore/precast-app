@@ -37,11 +37,191 @@ export class TemplateEngine {
     this.registerHelper("ne", (a, b) => a !== b);
     this.registerHelper("and", (a, b) => a && b);
     this.registerHelper("or", (a, b) => a || b);
+    this.registerHelper("ifEquals", function (this: any, arg1: any, arg2: any, options: any) {
+      return arg1 === arg2 ? options.fn(this) : options.inverse(this);
+    });
     this.registerHelper("not", (a) => !a);
     this.registerHelper(
       "includes",
       (array, value) => Array.isArray(array) && array.includes(value)
     );
+
+    // Helper to build icon imports based on config
+    this.registerHelper("buildIconImports", function (this: any) {
+      const imports: string[] = [];
+
+      // Framework icons
+      if (
+        this.framework === "react" ||
+        this.framework === "next" ||
+        this.framework === "react-router"
+      ) {
+        imports.push("SiReact");
+      } else if (this.framework === "tanstack-router" || this.framework === "tanstack-start") {
+        imports.push("SiReact as SiTanstack");
+      } else if (this.framework === "vue") {
+        imports.push("SiVuedotjs as SiVue");
+      } else if (this.framework === "svelte") {
+        imports.push("SiSvelte");
+      } else if (this.framework === "solid") {
+        imports.push("SiSolid");
+      } else if (this.framework === "angular") {
+        imports.push("SiAngular");
+      } else if (this.framework === "astro") {
+        imports.push("SiAstro");
+      } else if (this.framework === "vanilla" || this.framework === "vite") {
+        imports.push("SiJavascript");
+      }
+
+      // Styling icons - only add if Tailwind
+      if (this.styling === "tailwind") {
+        imports.push("SiTailwindcss");
+      }
+
+      // TypeScript
+      if (this.typescript) {
+        imports.push("SiTypescript");
+      }
+
+      // Backend icons
+      if (this.backend === "hono") {
+        imports.push("SiHono");
+      } else if (this.backend === "express") {
+        imports.push("SiExpress");
+      } else if (this.backend === "fastify") {
+        imports.push("SiFastify");
+      } else if (this.backend === "nestjs") {
+        imports.push("SiNestjs");
+      } else if (this.backend === "koa") {
+        imports.push("SiNodedotjs as SiKoa");
+      } else if (this.backend === "node") {
+        imports.push("SiNodedotjs");
+      }
+
+      // Database icons
+      if (this.database === "postgres") {
+        imports.push("SiPostgresql");
+      } else if (this.database === "mysql") {
+        imports.push("SiMysql");
+      } else if (this.database === "mongodb") {
+        imports.push("SiMongodb");
+      }
+
+      // ORM icons
+      if (this.orm === "prisma") {
+        imports.push("SiPrisma");
+      } else if (this.orm === "drizzle") {
+        imports.push("SiNodedotjs as SiDrizzle");
+      } else if (this.orm === "typeorm") {
+        imports.push("SiNodedotjs as SiTypeorm");
+      } else if (this.orm === "mongoose") {
+        imports.push("SiMongodb as SiMongoose");
+      }
+
+      // Format imports with proper indentation
+      if (imports.length === 0) return "";
+      if (imports.length === 1) return imports[0];
+
+      return "\n  " + imports.join(",\n  ") + "\n";
+    });
+
+    // Helper for TechnologyStack component imports (includes extra icons)
+    this.registerHelper("buildTechStackImports", function (this: any) {
+      const imports: string[] = [];
+
+      // Framework icons
+      if (
+        this.framework === "react" ||
+        this.framework === "next" ||
+        this.framework === "react-router"
+      ) {
+        imports.push("SiReact");
+      } else if (this.framework === "tanstack-router" || this.framework === "tanstack-start") {
+        imports.push("SiReact as SiTanstack");
+      } else if (this.framework === "vue") {
+        imports.push("SiVuedotjs as SiVue");
+      } else if (this.framework === "svelte") {
+        imports.push("SiSvelte");
+      } else if (this.framework === "solid") {
+        imports.push("SiSolid");
+      } else if (this.framework === "angular") {
+        imports.push("SiAngular");
+      } else if (this.framework === "astro") {
+        imports.push("SiAstro");
+      } else if (this.framework === "vanilla" || this.framework === "vite") {
+        imports.push("SiJavascript");
+      }
+
+      // Vite (for multiple frameworks)
+      if (
+        [
+          "react",
+          "vue",
+          "svelte",
+          "vite-react",
+          "vite-vue",
+          "vite-svelte",
+          "vite-solid",
+          "vite-vanilla",
+          "vite",
+        ].includes(this.framework)
+      ) {
+        imports.push("SiVite");
+      }
+
+      // Styling icons - only add if Tailwind
+      if (this.styling === "tailwind") {
+        imports.push("SiTailwindcss");
+      }
+
+      // TypeScript
+      if (this.typescript) {
+        imports.push("SiTypescript");
+      }
+
+      // Always include Bun for TechnologyStack
+      imports.push("SiBun");
+
+      // Backend icons
+      if (this.backend === "hono") {
+        imports.push("SiHono");
+      } else if (this.backend === "express") {
+        imports.push("SiExpress");
+      } else if (this.backend === "fastify") {
+        imports.push("SiFastify");
+      } else if (this.backend === "nestjs") {
+        imports.push("SiNestjs");
+      }
+
+      // Database icons
+      if (this.database === "postgres") {
+        imports.push("SiPostgresql");
+      } else if (this.database === "mysql") {
+        imports.push("SiMysql");
+      } else if (this.database === "sqlite") {
+        imports.push("SiSqlite");
+      } else if (this.database === "mongodb") {
+        imports.push("SiMongodb");
+      }
+
+      // ORM icons
+      if (this.orm === "prisma") {
+        imports.push("SiPrisma");
+      } else if (this.orm === "drizzle") {
+        imports.push("SiDrizzle");
+      }
+
+      // Docker
+      if (this.docker) {
+        imports.push("SiDocker");
+      }
+
+      // Format imports with proper indentation
+      if (imports.length === 0) return "";
+      if (imports.length === 1) return imports[0];
+
+      return "\n  " + imports.join(",\n  ") + "\n";
+    });
     this.registerHelper("capitalize", (str) =>
       str ? str.charAt(0).toUpperCase() + str.slice(1) : ""
     );

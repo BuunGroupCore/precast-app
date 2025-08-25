@@ -153,9 +153,17 @@ export type AppType = typeof app;
 {{#if (eq packageManager "bun")}}console.log(`[SERVER] Server running on http://localhost:${PORT}`);
 console.log(`[API] Health check: http://localhost:${PORT}/api/health`);
 
+// Bun server configuration with better error handling
 export default {
   port: PORT,
   fetch: app.fetch,
+  // Handle server startup errors
+  error(error: Error) {
+    console.error(`[SERVER] Error:`, error);
+    return new Response("Internal Server Error", { status: 500 });
+  },
+  // Reuse port on reload
+  reusePort: true,
 };{{else}}serve({
   fetch: app.fetch,
   port: PORT,
@@ -163,8 +171,5 @@ export default {
   console.log(`[SERVER] Server running on http://localhost:${PORT}`);
   console.log(`[API] Health check: http://localhost:${PORT}/api/health`);
 });
-
-// Export the app type for RPC clients
-export type AppType = typeof app;
 
 export default app;{{/if}}

@@ -173,6 +173,45 @@ async function generateSingleAppProject(
     }
   );
 
+  // Copy base README if not exists
+  try {
+    const readmePath = path.join(projectPath, "README.md");
+    const hasReadme = await fs
+      .access(readmePath)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!hasReadme) {
+      logger.verbose("No README found, copying base template...");
+      await templateEngine.processTemplate("base/README.md.hbs", readmePath, config, {
+        overwrite: false,
+      });
+      logger.verbose("README template copied successfully");
+    } else {
+      logger.verbose("README already exists, skipping");
+    }
+  } catch (error) {
+    logger.verbose(`README copy error (optional): ${error}`);
+    // README is optional, so we don't fail on error
+  }
+
+  // Copy Prettier config if not exists
+  try {
+    const prettierPath = path.join(projectPath, ".prettierrc");
+    const hasPrettier = await fs
+      .access(prettierPath)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!hasPrettier) {
+      await templateEngine.processTemplate("common/.prettierrc.hbs", prettierPath, config, {
+        overwrite: false,
+      });
+    }
+  } catch (error) {
+    consola.debug(`Prettier config copy error: ${error}`);
+  }
+
   const commonPublicDir = `common/public`;
   const extendedConfig = {
     ...config,
@@ -226,15 +265,24 @@ async function generateSingleAppProject(
       // The actual page content is already in the Next.js app/page.tsx template
       consola.debug("Next.js uses app directory - page components will be available");
     } else {
-      // For other frameworks, copy pages as usual
-      await templateEngine.copyTemplateDirectory(
-        commonPagesDir,
-        path.join(projectPath, "src/pages"),
-        config,
-        {
-          overwrite: true,
-        }
-      );
+      // Only copy common pages for React-based frameworks
+      const frameworksWithCommonPages = [
+        "react",
+        "tanstack-router",
+        "tanstack-start",
+        "react-router",
+        "vite-react",
+      ];
+      if (frameworksWithCommonPages.includes(framework)) {
+        await templateEngine.copyTemplateDirectory(
+          commonPagesDir,
+          path.join(projectPath, "src/pages"),
+          config,
+          {
+            overwrite: true,
+          }
+        );
+      }
     }
   } catch (error) {
     consola.debug(`Common pages not found or error copying: ${error}`);
@@ -360,6 +408,23 @@ async function generateMonorepoProject(
     overwrite: true,
   });
 
+  // Copy Prettier config for monorepo
+  try {
+    const prettierPath = path.join(projectPath, ".prettierrc");
+    const hasPrettier = await fs
+      .access(prettierPath)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!hasPrettier) {
+      await templateEngine.processTemplate("common/.prettierrc.hbs", prettierPath, config, {
+        overwrite: false,
+      });
+    }
+  } catch (error) {
+    consola.debug(`Prettier config copy error: ${error}`);
+  }
+
   const appsDir = path.join(projectPath, "apps");
 
   await fs.mkdir(appsDir, { recursive: true });
@@ -418,8 +483,15 @@ async function generateMonorepoProject(
   }
 
   // For Next.js, skip copying common pages since they use app directory
-  // For other frameworks, copy pages as usual
-  if (framework !== "next") {
+  // Only copy common pages for React-based frameworks that use them
+  const frameworksWithCommonPages = [
+    "react",
+    "tanstack-router",
+    "tanstack-start",
+    "react-router",
+    "vite-react",
+  ];
+  if (framework !== "next" && frameworksWithCommonPages.includes(framework)) {
     const commonPagesDir = `common/pages`;
     try {
       const pagesPath = path.join(webDir, "src/pages");
@@ -524,6 +596,10 @@ async function generateMonorepoProject(
     const apiPackageJsonPath = path.join(apiDir, "package.json");
     const sharedPackageName = `@${config.name}/shared`;
 
+    // Use file: protocol for better npm fallback compatibility
+    // workspace: protocol causes issues when package manager fallback occurs
+    const sharedPackageRef = "file:../../packages/shared";
+
     if (
       await fs
         .access(webPackageJsonPath)
@@ -532,8 +608,7 @@ async function generateMonorepoProject(
     ) {
       const webPackageJson = JSON.parse(await fs.readFile(webPackageJsonPath, "utf-8"));
       webPackageJson.dependencies = webPackageJson.dependencies || {};
-      // Use file: protocol for local shared package instead of workspace:*
-      webPackageJson.dependencies[sharedPackageName] = "file:../../packages/shared";
+      webPackageJson.dependencies[sharedPackageName] = sharedPackageRef;
       await fs.writeFile(webPackageJsonPath, JSON.stringify(webPackageJson, null, 2));
     }
 
@@ -545,12 +620,23 @@ async function generateMonorepoProject(
     ) {
       const apiPackageJson = JSON.parse(await fs.readFile(apiPackageJsonPath, "utf-8"));
       apiPackageJson.dependencies = apiPackageJson.dependencies || {};
-      // Use file: protocol for local shared package instead of workspace:*
-      apiPackageJson.dependencies[sharedPackageName] = "file:../../packages/shared";
+      apiPackageJson.dependencies[sharedPackageName] = sharedPackageRef;
       await fs.writeFile(apiPackageJsonPath, JSON.stringify(apiPackageJson, null, 2));
     }
 
     logger.verbose("Created packages/shared for type sharing between apps");
+  }
+
+  // Create pnpm-workspace.yaml if using pnpm
+  if (config.packageManager === "pnpm") {
+    const pnpmWorkspacePath = path.join(projectPath, "pnpm-workspace.yaml");
+    await templateEngine.processTemplate(
+      "workspace/pnpm-workspace.yaml",
+      pnpmWorkspacePath,
+      config,
+      { overwrite: true }
+    );
+    logger.verbose("Created pnpm-workspace.yaml for pnpm monorepo support");
   }
 
   logger.verbose("Monorepo structure created successfully!");

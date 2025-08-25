@@ -6,10 +6,10 @@
  * @description User registration form with validation and password strength indicator
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, User, Loader2, Check, X } from 'lucide-react';
 import { AuthButton } from './AuthButton';
-import { SocialLogin } from './SocialLogin';
+// import { SocialLogin } from './SocialLogin'; // Uncomment when implementing social login
 
 /**
  * Props for the SignupForm component
@@ -41,7 +41,7 @@ export function SignupForm({
   onLoginClick,
   isLoading = false,
   error,
-  showSocialLogin = true,
+  // showSocialLogin = true, // Uncomment when implementing social login
   className = ''
 }: SignupFormProps) {
   const [email, setEmail] = useState('');

@@ -1,4 +1,4 @@
-{{#unless typescript}}import { defineConfig } from 'vite'
+{{#if typescript}}import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
@@ -15,4 +15,4 @@ export default defineConfig({
     // Allow ngrok tunnels
     allowedHosts: ["localhost", ".ngrok.app", ".ngrok-free.app", ".ngrok.io"]{{/if}}
   }
-}){{/unless}}
+}){{/if}}

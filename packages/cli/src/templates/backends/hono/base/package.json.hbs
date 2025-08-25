@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    {{#if config.orm}}{{#if (eq config.orm "prisma")}}"postinstall": "prisma generate",
+    {{#if config.orm}}{{#if (eq config.orm "prisma")}}"postinstall": "npx prisma generate || echo 'Prisma generate will run on first dev'",
     "predev": "prisma db push --skip-generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -23,9 +23,9 @@
     {{/if}}{{else}}{{#if (and config.authProvider (eq config.authProvider "better-auth") (ne config.database "none"))}}"postinstall": "tsx src/features/auth/scripts/run-migrations.ts || echo 'Migration setup will run on first start'",
     "db:migrate": "tsx src/features/auth/scripts/run-migrations.ts",
     "predev": "npm run db:migrate",
-    {{/if}}{{/if}}{{#if (eq runtime "bun")}}"dev": "bun run --watch src/index.ts",
+    {{/if}}{{/if}}{{#if (eq runtime "bun")}}"dev": "bun --hot src/index.ts",
     {{else if (eq runtime "deno")}}"dev": "deno run --watch --allow-net --allow-read --allow-env src/index.ts",
-    {{else if (eq packageManager "bun")}}"dev": "bun run --watch src/index.ts",
+    {{else if (eq packageManager "bun")}}"dev": "bun --hot src/index.ts",
     {{else}}"dev": "tsx watch src/index.ts",
     {{/if}}
     "build": "tsup",

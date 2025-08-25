@@ -1,0 +1,17 @@
+import type { Config } from 'tailwindcss'
+
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,vue,svelte,astro}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [{{#if (eq uiLibrary "daisyui")}}
+    require("daisyui"),{{/if}}
+  ],{{#if (eq uiLibrary "daisyui")}}
+  daisyui: {
+    themes: ["light", "dark", "cupcake"],
+  },{{/if}}
+} satisfies Config

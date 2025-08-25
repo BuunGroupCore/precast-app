@@ -22,7 +22,7 @@
   },
   {{/if}}
   "plugins": [{{#if typescript}}
-    "@typescript-eslint"{{#ifEquals framework "react"}},{{/ifEquals}}{{/if}}{{#ifEquals framework "react"}}
+    "@typescript-eslint",{{/if}}{{#ifEquals framework "react"}}
     "react",
     "react-hooks",
     "react-refresh"{{/ifEquals}}{{#ifEquals framework "vue"}}

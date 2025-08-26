@@ -1,6 +1,9 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import type { LinksFunction } from "@react-router/node";
-import "./styles/globals.css";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, type LinksFunction } from "react-router";
+{{#if (eq styling "tailwind")}}
+import "./tailwind.css";
+{{else}}
+import "./styles.css";
+{{/if}}
 {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
 import { PrecastWidget } from "@/components/precast/PrecastWidget";
 {{/if}}

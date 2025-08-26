@@ -1,0 +1,62 @@
+import { Router{{#if typescript}}, type Request, type Response{{/if}} } from "express";
+
+const router = Router();
+
+/**
+ * Health check endpoint
+ * @route GET /api/health
+ * @returns {Object} Health status and system information
+ */
+router.get("/", (_req{{#if typescript}}: Request{{/if}}, res{{#if typescript}}: Response{{/if}}) => {
+  const healthData = {
+    status: "healthy",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+    memory: {
+      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+      unit: "MB"
+    }{{#if database}},
+    database: {
+      status: "connected", // You can add actual DB health check here
+      type: "{{database}}"
+    }{{/if}}
+  };
+
+  res.status(200).json(healthData);
+});
+
+/**
+ * Liveness probe for Kubernetes/Docker
+ * @route GET /api/health/live
+ */
+router.get("/live", (_req{{#if typescript}}: Request{{/if}}, res{{#if typescript}}: Response{{/if}}) => {
+  res.status(200).json({ status: "alive" });
+});
+
+/**
+ * Readiness probe for Kubernetes/Docker
+ * @route GET /api/health/ready
+ */
+router.get("/ready", async (_req{{#if typescript}}: Request{{/if}}, res{{#if typescript}}: Response{{/if}}) => {
+  try {
+    // Add any readiness checks here (database, external services, etc.)
+    {{#if database}}
+    // Example: Check database connection
+    // const dbReady = await checkDatabaseConnection();
+    // if (!dbReady) {
+    //   return res.status(503).json({ status: "not ready", reason: "database unavailable" });
+    // }
+    {{/if}}
+    
+    res.status(200).json({ status: "ready" });
+  } catch (error) {
+    res.status(503).json({ 
+      status: "not ready", 
+      error: {{#if typescript}}error instanceof Error ? error.message : {{/if}}"Service not ready" 
+    });
+  }
+});
+
+export default router;

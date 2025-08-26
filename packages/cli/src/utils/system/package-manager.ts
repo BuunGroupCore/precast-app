@@ -542,11 +542,24 @@ bun.lockb`;
  * @returns Package version string
  */
 export async function getPackageVersion(): Promise<string> {
-  try {
-    const packageJsonPath = path.join(import.meta.dirname, "../../package.json");
-    const packageJson = await readJSON(packageJsonPath);
-    return packageJson.version || "1.0.0";
-  } catch {
-    return "1.0.0";
+  // Try multiple paths to find the correct package.json
+  const possiblePaths = [
+    path.join(import.meta.dirname, "../../package.json"), // dist/utils -> package.json
+    path.join(import.meta.dirname, "../../../package.json"), // src/utils/system -> package.json
+    path.join(process.cwd(), "package.json"), // current working directory
+  ];
+
+  for (const packageJsonPath of possiblePaths) {
+    try {
+      const packageJson = await readJSON(packageJsonPath);
+      if (packageJson.name === "create-precast-app") {
+        return packageJson.version || "0.2.6";
+      }
+    } catch {
+      // Continue to next path
+    }
   }
+
+  // Fallback to actual current version instead of 1.0.0
+  return "0.2.6";
 }

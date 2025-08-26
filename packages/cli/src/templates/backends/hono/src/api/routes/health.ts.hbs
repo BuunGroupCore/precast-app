@@ -1,0 +1,64 @@
+import { Hono } from "hono";
+
+const app = new Hono();
+
+/**
+ * Health check endpoint
+ * @route GET /api/health
+ * @returns {Object} Health status and system information
+ */
+app.get("/", (c) => {
+  const healthData = {
+    status: "healthy",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+    memory: {
+      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+      unit: "MB"
+    }{{#if database}},
+    database: {
+      status: "connected", // You can add actual DB health check here
+      type: "{{database}}"
+    }{{/if}}
+  };
+
+  return c.json(healthData);
+});
+
+/**
+ * Liveness probe for Kubernetes/Docker
+ * @route GET /api/health/live
+ */
+app.get("/live", (c) => {
+  return c.json({ status: "alive" });
+});
+
+/**
+ * Readiness probe for Kubernetes/Docker
+ * @route GET /api/health/ready
+ */
+app.get("/ready", async (c) => {
+  try {
+    // Add any readiness checks here (database, external services, etc.)
+    {{#if database}}
+    // Example: Check database connection
+    // const dbReady = await checkDatabaseConnection();
+    // if (!dbReady) {
+    //   c.status(503);
+    //   return c.json({ status: "not ready", reason: "database unavailable" });
+    // }
+    {{/if}}
+    
+    return c.json({ status: "ready" });
+  } catch (error) {
+    c.status(503);
+    return c.json({ 
+      status: "not ready", 
+      error: {{#if typescript}}error instanceof Error ? error.message : {{/if}}"Service not ready" 
+    });
+  }
+});
+
+export default app;

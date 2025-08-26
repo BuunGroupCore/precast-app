@@ -259,13 +259,64 @@ export async function setupPrecastWidget(
 
     // Install icon dependencies for the widget
     logger.verbose("📦 Installing icon libraries for PrecastWidget...");
-    const iconDeps = ["react-icons@^5.0.1", "lucide-react@^0.368.0"];
-    await installDependencies(iconDeps, {
-      packageManager: config.packageManager,
-      projectPath: frontendPath,
-      dev: false,
-      context: "icons",
-    });
+
+    // Check if React 19 is being used (Next.js 15+ uses React 19)
+    const packageJsonPath = path.join(frontendPath, "package.json");
+    let isReact19 = false;
+    if (await pathExists(packageJsonPath)) {
+      const pkgJson = await readJson(packageJsonPath);
+      const reactVersion = pkgJson.dependencies?.react;
+      // Check if React 19 or canary version
+      if (
+        reactVersion &&
+        (reactVersion.includes("19.") ||
+          reactVersion.includes("rc") ||
+          reactVersion.includes("canary"))
+      ) {
+        isReact19 = true;
+        logger.verbose("Detected React 19, will use --legacy-peer-deps for npm");
+      }
+    }
+
+    // For React 19 with npm, we need to use legacy-peer-deps
+    if (isReact19 && config.packageManager === "npm") {
+      try {
+        // Install using npm with legacy-peer-deps flag directly
+        const { execa } = await import("execa");
+        logger.verbose(
+          "Installing icon libraries with --legacy-peer-deps for React 19 compatibility..."
+        );
+        await execa(
+          "npm",
+          ["install", "react-icons@^5.0.1", "lucide-react@latest", "--legacy-peer-deps"],
+          {
+            cwd: frontendPath,
+            stdio: "inherit",
+          }
+        );
+      } catch (error) {
+        logger.warn("Failed to install icon libraries with --legacy-peer-deps, trying without...");
+        // Fallback to regular installation
+        await installDependencies(["react-icons@^5.0.1", "lucide-react@latest"], {
+          packageManager: config.packageManager,
+          projectPath: frontendPath,
+          dev: false,
+          context: "icons",
+        });
+      }
+    } else {
+      // For other package managers or React 18 and below, use regular installation
+      const iconDeps = isReact19
+        ? ["react-icons@^5.0.1", "lucide-react@latest"]
+        : ["react-icons@^5.0.1", "lucide-react@^0.368.0"];
+
+      await installDependencies(iconDeps, {
+        packageManager: config.packageManager,
+        projectPath: frontendPath,
+        dev: false,
+        context: "icons",
+      });
+    }
 
     // Add react-icons to the config for template processing
     const updatedConfig = {

@@ -11,9 +11,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 
-{{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
 import healthRoutes from "@/api/routes/health{{#if typescript}}.js{{/if}}";
-{{/if}}
 {{#if (includes plugins 'resend')}}
 import emailRoutes from "@/api/routes/email{{#if typescript}}.js{{/if}}";
 {{/if}}
@@ -104,7 +102,7 @@ app.use("/api", emailRoutes);
  * Better Auth route handler
  * @description Converts Express requests to Web API requests for Better Auth compatibility
  */
-app.all("/api/auth*", async (req, res) => {
+app.all("/api/auth*", async (req{{#if typescript}}: Request{{/if}}, res{{#if typescript}}: Response{{/if}}) => {
   try {
     const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     const headers{{#if typescript}}: HeadersInit{{/if}} = {};
@@ -156,22 +154,14 @@ app.use("/api/auth", authRoutes);
 {{/if}}
 
 /**
- * Health check endpoint
+ * Mount health check routes
  */
-app.get(HEALTH_CHECK_CONFIG.path, (_req: Request, res: Response) => {
-  res.json({ 
-    status: "ok", 
-    message: HEALTH_CHECK_CONFIG.message,
-    timestamp: new Date().toISOString(),
-    version: APP_CONFIG.version,
-    environment: APP_CONFIG.environment
-  });
-});
+app.use("/api/health", healthRoutes);
 
 /**
  * Hello world endpoint
  */
-app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (_req: Request, res: Response) => {
+app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (_req{{#if typescript}}: Request{{/if}}, res{{#if typescript}}: Response{{/if}}) => {
   res.json({ 
     message: `Hello from ${APP_CONFIG.name}!`,
     version: APP_CONFIG.version
@@ -181,7 +171,7 @@ app.get(`${SERVER_CONFIG.apiPrefix}/hello`, (_req: Request, res: Response) => {
 /**
  * 404 handler for unmatched routes
  */
-app.use("*", (req: Request, res: Response) => {
+app.use("*", (req{{#if typescript}}: Request{{/if}}, res{{#if typescript}}: Response{{/if}}) => {
   res.status(404).json({ 
     error: "Route not found",
     path: req.originalUrl
@@ -191,7 +181,7 @@ app.use("*", (req: Request, res: Response) => {
 /**
  * Global error handler
  */
-app.use((err: Error, _req: Request, res: Response) => {
+app.use((err{{#if typescript}}: Error{{/if}}, _req{{#if typescript}}: Request{{/if}}, res{{#if typescript}}: Response{{/if}}) => {
   if (process.env.NODE_ENV === "development") {
     console.error(err.stack);
   }

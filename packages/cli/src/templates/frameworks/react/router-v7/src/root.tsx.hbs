@@ -1,9 +1,5 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, type LinksFunction } from "react-router";
-{{#if (eq styling "tailwind")}}
-import "./tailwind.css";
-{{else}}
-import "./styles.css";
-{{/if}}
+import "./styles/globals.css";
 {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
 import { PrecastWidget } from "@/components/precast/PrecastWidget";
 {{/if}}
@@ -95,15 +91,15 @@ function Providers({ children }: { children: React.ReactNode }) {
 }
 {{/if}}
 
-import { Layout } from "@/components/layout";
+import { Layout as AppLayout } from "@/components/layout";
 
 export default function App() {
   {{#if (or (includes apiClient "tanstack-query") (eq apiClient "trpc"))}}
   return (
     <Providers>
-      <Layout>
+      <AppLayout>
         <Outlet />
-      </Layout>
+      </AppLayout>
       {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
       <PrecastWidget />
       {{/if}}
@@ -112,9 +108,9 @@ export default function App() {
   {{else}}
   return (
     <>
-      <Layout>
+      <AppLayout>
         <Outlet />
-      </Layout>
+      </AppLayout>
       {{#if (or (and database (ne database "none")) (and backend (ne backend "none")) apiClient)}}
       <PrecastWidget />
       {{/if}}

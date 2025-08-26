@@ -9,7 +9,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    {{/if}}{{#if (eq config.orm "drizzle")}}"predev": "drizzle-kit push",
+    {{/if}}{{#if (and (eq config.orm "drizzle") config.database (ne config.database "none"))}}"predev": "drizzle-kit push",
     "prebuild": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",

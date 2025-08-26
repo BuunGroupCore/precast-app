@@ -627,17 +627,7 @@ async function generateMonorepoProject(
     logger.verbose("Created packages/shared for type sharing between apps");
   }
 
-  // Create pnpm-workspace.yaml if using pnpm
-  if (config.packageManager === "pnpm") {
-    const pnpmWorkspacePath = path.join(projectPath, "pnpm-workspace.yaml");
-    await templateEngine.processTemplate(
-      "workspace/pnpm-workspace.yaml",
-      pnpmWorkspacePath,
-      config,
-      { overwrite: true }
-    );
-    logger.verbose("Created pnpm-workspace.yaml for pnpm monorepo support");
-  }
+  // pnpm-workspace.yaml is now handled by the workspace template copy with shouldSkipFile logic
 
   logger.verbose("Monorepo structure created successfully!");
 }

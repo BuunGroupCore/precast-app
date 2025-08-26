@@ -1,0 +1,55 @@
+import http from "http";
+
+/**
+ * Health check endpoint handler
+ * @route GET /api/health
+ * @returns {Object} Health status and system information
+ */
+export function handleHealthCheck(req: http.IncomingMessage, res: http.ServerResponse) {
+  if (req.url === "/api/health" && req.method === "GET") {
+    const healthData = {
+      status: "healthy",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || "development",
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+        unit: "MB"
+      }{{#if database}},
+      database: {
+        status: "connected", // You can add actual DB health check here
+        type: "{{database}}"
+      }{{/if}}
+    };
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(healthData));
+    return true;
+  }
+
+  if (req.url === "/api/health/live" && req.method === "GET") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "alive" }));
+    return true;
+  }
+
+  if (req.url === "/api/health/ready" && req.method === "GET") {
+    // Add any readiness checks here (database, external services, etc.)
+    {{#if database}}
+    // Example: Check database connection
+    // const dbReady = await checkDatabaseConnection();
+    // if (!dbReady) {
+    //   res.writeHead(503, { "Content-Type": "application/json" });
+    //   res.end(JSON.stringify({ status: "not ready", reason: "database unavailable" }));
+    //   return true;
+    // }
+    {{/if}}
+    
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "ready" }));
+    return true;
+  }
+
+  return false;
+}

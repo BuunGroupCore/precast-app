@@ -23,28 +23,28 @@
     {{/if}}
     {{/if}}
     {{#if (and orm (eq orm "prisma"))}}
-    {{#if (ne generate false)}}"postinstall": "cd apps/api && npx prisma generate || echo 'Prisma generate will run on first dev'",{{/if}}
-    "predev": "cd apps/api && npx prisma generate && npx prisma db push --skip-generate",
-    "prebuild": "cd apps/api && prisma generate",
-    "db:generate": "cd apps/api && prisma generate",
-    "db:push": "cd apps/api && prisma db push",
-    "db:migrate": "cd apps/api && prisma migrate dev",
-    "db:studio": "cd apps/api && prisma studio",
+    {{#if (ne generate false)}}"postinstall": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma generate || echo 'Prisma generate will run on first dev'",{{/if}}
+    "predev": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma generate && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma db push --skip-generate",
+    "prebuild": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma generate",
+    "db:generate": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma generate",
+    "db:push": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma db push",
+    "db:migrate": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma migrate dev",
+    "db:studio": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} prisma studio",
     {{/if}}
-    {{#if (and orm (eq orm "drizzle"))}}
-    "predev": "cd apps/api && npx drizzle-kit push --force",
-    "prebuild": "cd apps/api && npx drizzle-kit generate",
-    "db:push": "cd apps/api && npx drizzle-kit push --force",
-    "db:generate": "cd apps/api && npx drizzle-kit generate",
-    "db:migrate": "cd apps/api && npx drizzle-kit migrate",
-    "db:studio": "cd apps/api && npx drizzle-kit studio",
+    {{#if (and orm (eq orm "drizzle") database (ne database "none"))}}
+    "predev": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} drizzle-kit push --force",
+    "prebuild": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} drizzle-kit generate",
+    "db:push": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} drizzle-kit push --force",
+    "db:generate": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} drizzle-kit generate",
+    "db:migrate": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} drizzle-kit migrate",
+    "db:studio": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} drizzle-kit studio",
     {{/if}}
     {{#if (and orm (eq orm "typeorm"))}}
-    "predev": "cd apps/api && npx typeorm schema:sync -d src/data-source.ts",
-    "db:migrate": "cd apps/api && npx typeorm migration:run -d src/data-source.ts",
-    "db:generate": "cd apps/api && npx typeorm migration:generate -d src/data-source.ts",
-    "db:revert": "cd apps/api && npx typeorm migration:revert -d src/data-source.ts",
-    "db:sync": "cd apps/api && npx typeorm schema:sync -d src/data-source.ts",
+    "predev": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} typeorm schema:sync -d src/data-source.ts",
+    "db:migrate": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} typeorm migration:run -d src/data-source.ts",
+    "db:generate": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} typeorm migration:generate -d src/data-source.ts",
+    "db:revert": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} typeorm migration:revert -d src/data-source.ts",
+    "db:sync": "cd apps/api && {{#if (eq packageManager "bun")}}bunx{{else if (eq packageManager "pnpm")}}pnpm dlx{{else if (eq packageManager "yarn")}}yarn dlx{{else}}npx{{/if}} typeorm schema:sync -d src/data-source.ts",
     {{/if}}
     {{#if (and docker database (ne database "none"))}}
     "setup": "{{packageManager}} install && echo '[DOCKER] Start Docker services with: npx create-precast-app deploy' && echo '[INFO] Then run: {{packageManager}} run dev'",

@@ -453,6 +453,11 @@ export class TemplateEngine {
       return true;
     }
 
+    // Skip pnpm-workspace.yaml if not using pnpm
+    if (context.packageManager !== "pnpm" && fileName === "pnpm-workspace.yaml") {
+      return true;
+    }
+
     if (
       context.eslint === false &&
       (fileName === "_eslintrc.json" ||

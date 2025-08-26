@@ -1,6 +1,34 @@
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import boxen from "boxen";
 import chalk from "chalk";
 import gradient from "gradient-string";
+
+// Get package.json version dynamically
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Try multiple paths to find package.json (handles both dev and dist)
+const possiblePaths = [
+  path.join(__dirname, "../../../package.json"), // src/utils/ui -> package.json
+  path.join(__dirname, "../package.json"), // dist -> package.json
+  path.join(process.cwd(), "package.json"), // current working directory
+];
+
+let PACKAGE_VERSION = "0.2.5"; // fallback
+for (const packageJsonPath of possiblePaths) {
+  try {
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+    if (packageJson.name === "create-precast-app") {
+      PACKAGE_VERSION = packageJson.version;
+      break;
+    }
+  } catch {
+    // continue to next path
+  }
+}
 
 /**
  * Configuration options for banner display
@@ -22,8 +50,8 @@ export interface BannerOptions {
  * The official Precast CLI banner used consistently across all commands
  */
 export class PrecastBanner {
-  /** Current CLI version */
-  private static readonly VERSION = "0.1.37";
+  /** Current CLI version - dynamically loaded from package.json */
+  private static readonly VERSION = PACKAGE_VERSION;
   /** Official product tagline */
   private static readonly TAGLINE = "Modern Full-Stack Application Scaffolding";
   /** ASCII art logo for the banner */

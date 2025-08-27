@@ -88,7 +88,7 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
     // Determine the actual target path for shadcn initialization
     // In monorepos, we need to initialize in apps/web instead of root
     let targetPath = projectPath;
-    const isMonorepo = config.backend && config.backend !== "none" && config.backend !== "node";
+    const isMonorepo = config.backend && config.backend !== "none";
 
     if (isMonorepo) {
       targetPath = path.join(projectPath, "apps", "web");
@@ -127,10 +127,13 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
       },
     };
 
-    // Write components.json
+    // Write components.json to the correct location
+    // For monorepos, it should be in apps/web, not root
     const componentsJsonPath = path.join(targetPath, "components.json");
     await fs.writeJSON(componentsJsonPath, componentsJson, { spaces: 2 });
-    consola.success("✅ Created components.json configuration with theming");
+    consola.success(
+      `✅ Created components.json configuration in ${isMonorepo ? "apps/web" : "project root"}`
+    );
 
     // Create lib/utils.ts with cn utility
     const libPath = path.join(targetPath, "src", "lib");

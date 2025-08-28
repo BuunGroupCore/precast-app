@@ -4,18 +4,21 @@ import {
   SiReact, {{#if (eq styling 'tailwind')}}
   SiTailwindcss, {{/if}}
   SiTypescript, 
-  {{#if (eq backend 'hono')}}
+  {{#if (or (eq backend 'hono') (eq apiClient 'hono-rpc'))}}
   SiHono,
-  {{else if (eq backend 'express')}}
+  {{/if}}
+  {{#if (eq backend 'express')}}
   SiExpress,
   {{else if (eq backend 'fastify')}}
   SiFastify,
   {{else if (eq backend 'nestjs')}}
   SiNestjs,
   {{else if (eq backend 'koa')}}
-  SiNodedotjs as SiKoa,
+  SiKoa,
   {{else if (eq backend 'node')}}
   SiNodedotjs,
+  {{else if (eq backend 'cloudflare-workers')}}
+  SiCloudflare,
   {{/if}}
   {{#if (eq database 'postgres')}}
   SiPostgresql,
@@ -25,15 +28,29 @@ import {
   SiMongodb,
   {{/if}}
   {{#if (eq orm 'prisma')}}
-  SiPrisma
+  SiPrisma,
   {{else if (eq orm 'drizzle')}}
-  SiNodedotjs as SiDrizzle
+  SiDrizzle,
   {{else if (eq orm 'typeorm')}}
-  SiNodedotjs as SiTypeorm
+  SiTypeorm,
   {{else if (eq orm 'mongoose')}}
-  SiMongodb as SiMongoose
+  SiMongoose,
   {{/if}}
-} from "react-icons/si";
+  {{#if (eq apiClient "tanstack-query")}}SiReactquery,{{/if}}
+  {{#if (eq apiClient "swr")}}SiVercel,{{/if}}
+  {{#if (eq apiClient "apollo")}}SiApollographql,{{/if}}
+  {{#if (eq apiClient "axios")}}SiAxios,{{/if}}
+  {{#if (eq apiClient "trpc")}}SiTrpc,{{/if}}
+  {{#if (eq database "sqlite")}}SiSqlite,{{/if}}
+  {{#if (eq orm "typeorm")}}SiTypeorm,{{/if}}
+  {{#if (eq ui "shadcn")}}SiRadixui,{{/if}}
+  {{#if (eq ui "daisy")}}SiDaisyui,{{/if}}
+  {{#if (eq ui "mui")}}SiMui,{{/if}}
+  {{#if (eq ui "chakra")}}SiChakraui,{{/if}}
+  {{#if (eq ui "ant-design")}}SiAntdesign,{{/if}}
+  {{#if (eq ui "mantine")}}SiMantine,{{/if}}
+  {{#if (eq runtime "bun")}}SiBun{{/if}}
+} from "@icons-pack/react-simple-icons";
 import { useState, useEffect } from "react";
 
 /**
@@ -64,13 +81,22 @@ export function Hero() {
     {{/if}}
     { name: "TYPESCRIPT", icon: <SiTypescript size={20} />, color: "text-black" },
     {{#if (and backend (ne backend 'none'))}}
-    { name: "{{#if (eq backend 'hono')}}HONO{{else if (eq backend 'express')}}EXPRESS{{else if (eq backend 'fastify')}}FASTIFY{{else if (eq backend 'nestjs')}}NESTJS{{else if (eq backend 'koa')}}KOA{{else if (eq backend 'node')}}NODE{{/if}}", icon: <{{#if (eq backend 'hono')}}SiHono{{else if (eq backend 'express')}}SiExpress{{else if (eq backend 'fastify')}}SiFastify{{else if (eq backend 'nestjs')}}SiNestjs{{else if (eq backend 'koa')}}SiKoa{{else if (eq backend 'node')}}SiNodedotjs{{/if}} size={20} />, color: "text-black" },
+    { name: "{{#if (eq backend 'hono')}}HONO{{else if (eq backend 'express')}}EXPRESS{{else if (eq backend 'fastify')}}FASTIFY{{else if (eq backend 'nestjs')}}NESTJS{{else if (eq backend 'koa')}}KOA{{else if (eq backend 'node')}}NODE{{else if (eq backend 'cloudflare-workers')}}CLOUDFLARE{{/if}}", icon: <{{#if (eq backend 'hono')}}SiHono{{else if (eq backend 'express')}}SiExpress{{else if (eq backend 'fastify')}}SiFastify{{else if (eq backend 'nestjs')}}SiNestjs{{else if (eq backend 'koa')}}SiKoa{{else if (eq backend 'node')}}SiNodedotjs{{else if (eq backend 'cloudflare-workers')}}SiCloudflare{{/if}} size={20} />, color: "text-black" },
     {{/if}}
     {{#if (and database (ne database 'none'))}}
     { name: "{{#if (eq database 'postgres')}}POSTGRES{{else if (eq database 'mysql')}}MYSQL{{else if (eq database 'mongodb')}}MONGODB{{/if}}", icon: <Si{{#if (eq database 'postgres')}}Postgresql{{else if (eq database 'mysql')}}Mysql{{else if (eq database 'mongodb')}}Mongodb{{/if}} size={20} />, color: "text-black" },
     {{/if}}
     {{#if (and orm (ne orm 'none'))}}
     { name: "{{#if (eq orm 'prisma')}}PRISMA{{else if (eq orm 'drizzle')}}DRIZZLE{{else if (eq orm 'typeorm')}}TYPEORM{{else if (eq orm 'mongoose')}}MONGOOSE{{/if}}", icon: <{{#if (eq orm 'prisma')}}SiPrisma{{else if (eq orm 'drizzle')}}SiDrizzle{{else if (eq orm 'typeorm')}}SiTypeorm{{else if (eq orm 'mongoose')}}SiMongoose{{/if}} size={20} />, color: "text-black" },
+    {{/if}}
+    {{#if (and apiClient (ne apiClient 'none'))}}
+    { name: "{{#if (eq apiClient 'hono-rpc')}}HONO RPC{{else if (eq apiClient 'tanstack-query')}}TANSTACK{{else if (eq apiClient 'swr')}}SWR{{else if (eq apiClient 'axios')}}AXIOS{{else if (eq apiClient 'trpc')}}TRPC{{else if (eq apiClient 'apollo')}}APOLLO{{/if}}", icon: <{{#if (eq apiClient 'hono-rpc')}}SiHono{{else if (eq apiClient 'tanstack-query')}}SiReactquery{{else if (eq apiClient 'swr')}}SiVercel{{else if (eq apiClient 'axios')}}SiAxios{{else if (eq apiClient 'trpc')}}SiTrpc{{else if (eq apiClient 'apollo')}}SiApollographql{{/if}} size={20} />, color: "text-black" },
+    {{/if}}
+    {{#if ui}}
+    { name: "{{#if (eq ui 'shadcn')}}SHADCN{{else if (eq ui 'daisy')}}DAISY{{else if (eq ui 'mui')}}MUI{{else if (eq ui 'chakra')}}CHAKRA{{else if (eq ui 'ant-design')}}ANT{{else if (eq ui 'mantine')}}MANTINE{{/if}}", icon: <{{#if (eq ui 'shadcn')}}SiRadixui{{else if (eq ui 'daisy')}}SiDaisyui{{else if (eq ui 'mui')}}SiMui{{else if (eq ui 'chakra')}}SiChakraui{{else if (eq ui 'ant-design')}}SiAntdesign{{else if (eq ui 'mantine')}}SiMantine{{/if}} size={20} />, color: "text-black" },
+    {{/if}}
+    {{#if runtime}}
+    { name: "{{#if (eq runtime 'bun')}}BUN{{else if (eq runtime 'node')}}NODE{{/if}}", icon: <{{#if (eq runtime 'bun')}}SiBun{{else if (eq runtime 'node')}}SiNodedotjs{{/if}} size={20} />, color: "text-black" },
     {{/if}}
   ];
 
@@ -188,6 +214,37 @@ export function Hero() {
             <span>DB: {{#eq database 'postgres'}}5432{{else if (eq database 'mysql')}}3306{{else if (eq database 'mongodb')}}27017{{/eq}}</span>
           </div>
           {{/if}}
+        </div>
+      </div>
+      
+      {/* Modern Footer with Precast branding */}
+      <div className="{{#if (eq styling 'tailwind')}}mt-16 pt-8 border-t-4 border-black{{else}}footer-section{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}text-center space-y-4{{else}}footer-content{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}flex justify-center items-center space-x-2{{else}}footer-brand{{/if}}">
+            <span className="{{#if (eq styling 'tailwind')}}text-black font-mono text-sm{{else}}footer-text{{/if}}">POWERED BY</span>
+            <a 
+              href="https://precast.dev" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="{{#if (eq styling 'tailwind')}}group inline-flex items-center space-x-1{{else}}footer-link{{/if}}"
+            >
+              <span className="{{#if (eq styling 'tailwind')}}text-black font-black text-lg bg-yellow-400 px-2 py-1 group-hover:bg-yellow-300 transition-colors{{else}}brand-name{{/if}}">
+                PRECAST.DEV
+              </span>
+              <svg className="{{#if (eq styling 'tailwind')}}w-4 h-4 text-black{{else}}icon-external{{/if}}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
+          {{#if colorPalette}}
+          <div className="{{#if (eq styling 'tailwind')}}flex justify-center items-center space-x-2{{else}}color-palette-info{{/if}}">
+            <span className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 font-mono uppercase{{else}}palette-label{{/if}}">Color Scheme:</span>
+            <span className="{{#if (eq styling 'tailwind')}}text-xs font-bold text-black bg-yellow-400/20 px-2 py-1 border border-black{{else}}palette-name{{/if}}">{{colorPalette}}</span>
+          </div>
+          {{/if}}
+          <div className="{{#if (eq styling 'tailwind')}}text-black/60 font-mono text-xs{{else}}footer-tagline{{/if}}">
+            [BUILT WITH ❤️ FOR MODERN WEB DEVELOPMENT]
+          </div>
         </div>
       </div>
     </div>

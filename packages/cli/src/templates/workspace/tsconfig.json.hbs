@@ -24,6 +24,8 @@
   "include": [
     "apps/web/src/**/*"{{#if (or (eq backend "node") (eq backend "express") (eq backend "fastify") (eq backend "hono") (eq backend "nestjs") (eq backend "koa"))}},
     "apps/api/src/**/*"{{/if}}{{#if (and backend (ne backend "none"))}},
-    "packages/shared/src/**/*"{{/if}}
+    "packages/shared/src/**/*"{{/if}},
+    "tailwind.config.ts",
+    "postcss.config.ts"
   ]
 }

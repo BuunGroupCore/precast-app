@@ -1,0 +1,69 @@
+{{#if typescript}}import { useEffect, useState } from 'react';
+
+/**
+ * Custom hook to detect if a media query matches
+ * @param query - The media query string
+ * @returns Boolean indicating if the media query matches
+ */
+export function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState<boolean>(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    setMatches(media.matches);
+
+    const listener = (event: MediaQueryListEvent) => {
+      setMatches(event.matches);
+    };
+
+    if (media.addEventListener) {
+      media.addEventListener('change', listener);
+    } else {
+      media.addListener(listener);
+    }
+
+    return () => {
+      if (media.removeEventListener) {
+        media.removeEventListener('change', listener);
+      } else {
+        media.removeListener(listener);
+      }
+    };
+  }, [query]);
+
+  return matches;
+}{{else}}import { useEffect, useState } from 'react';
+
+/**
+ * Custom hook to detect if a media query matches
+ * @param {string} query - The media query string
+ * @returns {boolean} Boolean indicating if the media query matches
+ */
+export function useMediaQuery(query) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    setMatches(media.matches);
+
+    const listener = (event) => {
+      setMatches(event.matches);
+    };
+
+    if (media.addEventListener) {
+      media.addEventListener('change', listener);
+    } else {
+      media.addListener(listener);
+    }
+
+    return () => {
+      if (media.removeEventListener) {
+        media.removeEventListener('change', listener);
+      } else {
+        media.removeListener(listener);
+      }
+    };
+  }, [query]);
+
+  return matches;
+}{{/if}}

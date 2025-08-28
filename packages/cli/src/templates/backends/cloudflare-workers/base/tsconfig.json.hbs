@@ -15,7 +15,8 @@
     "types": ["@cloudflare/workers-types"{{#if (eq database "cloudflare-d1")}}, "drizzle-orm"{{/if}}],
     "paths": {
       "@/*": ["./src/*"],
-      "@db/*": ["./src/db/*"],
+      "@/config": ["./worker-configuration"],{{#if database}}
+      "@db/*": ["./src/db/*"],{{/if}}
       "@routes/*": ["./src/routes/*"],
       "@middleware/*": ["./src/middleware/*"],
       "@utils/*": ["./src/utils/*"],

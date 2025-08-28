@@ -15,6 +15,7 @@
     "db:studio": "prisma studio"{{/if}}
   },
   "dependencies": {
+    "@icons-pack/react-simple-icons": "^10.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"{{#ifAny (eq backend "express") (eq backend "fastify") (eq backend "hono")}},
     "axios": "^1.7.7"{{/ifAny}}{{#if (eq orm "prisma")}},

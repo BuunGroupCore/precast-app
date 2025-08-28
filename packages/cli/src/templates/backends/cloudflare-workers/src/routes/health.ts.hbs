@@ -1,6 +1,6 @@
 {{#if typescript}}import { Hono } from 'hono';
 
-import type { Env } from '../../worker-configuration';
+import type { Env } from '@/config';
 {{#if (eq database "cloudflare-d1")}}
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 {{/if}}
@@ -20,7 +20,7 @@ healthRoutes.get('/', async (c) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: c.env.NODE_ENV,
-    uptime: process.uptime ? process.uptime() : 'N/A',
+    uptime: 'N/A', // Cloudflare Workers don't have process.uptime
     services: {
       api: 'operational',
       {{#if (eq database "cloudflare-d1")}}database: 'checking',{{/if}}
@@ -49,8 +49,11 @@ healthRoutes.get('/', async (c) => {
   }
   {{/if}}
 
-  const statusCode = health.status === 'healthy' ? 200 : 503;
-  return c.json(health, statusCode);
+  if (health.status === 'healthy') {
+    return c.json(health, 200);
+  } else {
+    return c.json(health, 503);
+  }
 });
 
 // Detailed health check
@@ -108,8 +111,11 @@ healthRoutes.get('/detailed', async (c) => {
   }
   {{/if}}
 
-  const statusCode = detailed.status === 'healthy' ? 200 : 503;
-  return c.json(detailed, statusCode);
+  if (detailed.status === 'healthy') {
+    return c.json(detailed, 200);
+  } else {
+    return c.json(detailed, 503);
+  }
 });
 
 export { healthRoutes };{{else}}import { Hono } from 'hono';
@@ -150,8 +156,11 @@ healthRoutes.get('/', async (c) => {
   }
   {{/if}}
 
-  const statusCode = health.status === 'healthy' ? 200 : 503;
-  return c.json(health, statusCode);
+  if (health.status === 'healthy') {
+    return c.json(health, 200);
+  } else {
+    return c.json(health, 503);
+  }
 });
 
 export { healthRoutes };{{/if}}

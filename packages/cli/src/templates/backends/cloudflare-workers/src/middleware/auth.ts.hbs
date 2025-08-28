@@ -2,7 +2,7 @@
 import { HTTPException } from 'hono/http-exception';
 import { SignJWT, jwtVerify } from 'jose';
 
-import type { Env } from '../../worker-configuration';
+import type { Env } from '@/config';
 
 interface JWTPayload {
   sub: string;
@@ -12,13 +12,17 @@ interface JWTPayload {
   iat?: number;
 }
 
-// JWT secret from environment
+/**
+ * Get JWT secret from environment
+ */
 const getJWTSecret = (env: Env): Uint8Array => {
   const secret = env.JWT_SECRET || 'your-secret-key-change-in-production';
   return new TextEncoder().encode(secret);
 };
 
-// Generate JWT token
+/**
+ * Generate JWT token with 24h expiration
+ */
 export const generateToken = async (
   payload: Omit<JWTPayload, 'exp' | 'iat'>,
   env: Env
@@ -34,7 +38,9 @@ export const generateToken = async (
   return jwt;
 };
 
-// Verify JWT token
+/**
+ * Verify and decode JWT token
+ */
 export const verifyToken = async (
   token: string,
   env: Env
@@ -49,7 +55,9 @@ export const verifyToken = async (
   }
 };
 
-// Auth middleware
+/**
+ * Auth middleware - requires valid JWT token
+ */
 export const authMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
   const authHeader = c.req.header('Authorization');
   
@@ -62,12 +70,10 @@ export const authMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, ne
   try {
     const payload = await verifyToken(token, c.env);
     
-    // Check if token is expired
     if (payload.exp && payload.exp * 1000 < Date.now()) {
       throw new HTTPException(401, { message: 'Token expired' });
     }
     
-    // Add user info to context
     c.set('user', payload);
     
     await next();
@@ -79,7 +85,9 @@ export const authMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, ne
   }
 };
 
-// Optional auth middleware (doesn't fail if no token)
+/**
+ * Optional auth middleware - doesn't fail if no token
+ */
 export const optionalAuthMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
   const authHeader = c.req.header('Authorization');
   
@@ -93,14 +101,16 @@ export const optionalAuthMiddleware: MiddlewareHandler<{ Bindings: Env }> = asyn
         c.set('user', payload);
       }
     } catch {
-      // Ignore errors for optional auth
+      // Silent fail for optional auth
     }
   }
   
   await next();
 };
 
-// Role-based access control
+/**
+ * Role-based access control middleware
+ */
 export const requireRole = (roles: string[]): MiddlewareHandler => {
   return async (c, next) => {
     const user = c.get('user') as JWTPayload & { roles?: string[] };
@@ -117,7 +127,10 @@ export const requireRole = (roles: string[]): MiddlewareHandler => {
   };
 };{{else}}import { HTTPException } from 'hono/http-exception';
 
-// Simple auth middleware - replace with your implementation
+/**
+ * Basic auth middleware implementation
+ * Replace with your actual authentication logic
+ */
 export const authMiddleware = async (c, next) => {
   const authHeader = c.req.header('Authorization');
   
@@ -125,20 +138,22 @@ export const authMiddleware = async (c, next) => {
     throw new HTTPException(401, { message: 'Missing or invalid authorization header' });
   }
   
-  // Add your token verification logic here
   const token = authHeader.substring(7);
   
-  // Example: set user in context
+  // TODO: Implement token verification
   c.set('user', { id: '123', email: 'user@example.com' });
   
   await next();
 };
 
+/**
+ * Optional auth middleware - doesn't fail if no token present
+ */
 export const optionalAuthMiddleware = async (c, next) => {
   const authHeader = c.req.header('Authorization');
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    // Add your token verification logic here
+    // TODO: Implement token verification
     c.set('user', { id: '123', email: 'user@example.com' });
   }
   

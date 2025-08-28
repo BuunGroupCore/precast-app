@@ -1,8 +1,10 @@
 {{#if typescript}}import React from 'react';{{else}}import React from 'react';{{/if}}
 import { Hero } from '@/components/Hero';
-import { APP_CONFIG } from '@/config/constants';
 {{#if (or (and plugins plugins.length) (and database (ne database 'none')))}}
+import { APP_CONFIG } from '@/config/constants';
 import { AdminWidget } from '@/components/admin/AdminWidget';
+{{else}}
+import { APP_CONFIG } from '@/config/constants';
 {{/if}}
 
 {{#if typescript}}
@@ -23,28 +25,40 @@ function App() {
   return (
     {{#if (eq styling "tailwind")}}
     <>
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-900/10 to-slate-900 flex flex-col">
+    <div className="min-h-screen {{#if colorPalette}}bg-gradient-to-b from-gray-900 via-gray-900/95 to-gray-900{{else}}bg-gradient-to-b from-slate-900 via-purple-900/10 to-slate-900{{/if}} flex flex-col">
       {/* Main content */}
-      <main className="flex-grow">
-        {/* Hero Section with Precast Banner */}
+      <main className="flex-grow flex flex-col">
         <Hero />
       </main>
-
-      {/* Minimal Footer */}
-      <footer className="relative z-10 border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+      
+      {/* Modern Footer - Sticks to bottom */}
+      <footer className="mt-auto border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-sm text-gray-400">
-              Built with <span className="text-pink-400">♥</span> using{' '}
+          <div className="flex flex-col items-center space-y-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-400">Powered by</span>
               <a 
-                href="https://precast.app" 
+                href="https://precast.dev" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-purple-400 hover:text-purple-300 transition-colors"
+                className="group flex items-center space-x-1"
               >
-                Precast
+                <span className="text-sm font-bold {{#if colorPalette}}text-purple-400{{else}}bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent{{/if}} {{#if colorPalette}}group-hover:text-purple-300{{else}}group-hover:from-purple-300 group-hover:to-pink-300{{/if}} transition-all">
+                  Precast.dev
+                </span>
+                <svg className="w-4 h-4 {{#if colorPalette}}text-purple-400{{else}}text-purple-400{{/if}} {{#if colorPalette}}group-hover:text-purple-300{{else}}group-hover:text-purple-300{{/if}} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
               </a>
-              {' '}• {new Date().getFullYear()} {APP_CONFIG.name}
+            </div>
+            {{#if colorPalette}}
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-500">Color Palette:</span>
+              <span className="text-xs font-medium text-gray-400">{{colorPalette}}</span>
+            </div>
+            {{/if}}
+            <p className="text-xs text-gray-500">
+              Built with ❤️ for modern web development • {new Date().getFullYear()} {APP_CONFIG.name}
             </p>
           </div>
         </div>

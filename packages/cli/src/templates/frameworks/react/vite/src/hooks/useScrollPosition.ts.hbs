@@ -1,0 +1,68 @@
+{{#if typescript}}import { useEffect, useState } from 'react';
+
+interface ScrollPosition {
+  x: number;
+  y: number;
+}
+
+/**
+ * Custom hook to track scroll position
+ * @returns Object with x and y scroll positions
+ */
+export function useScrollPosition(): ScrollPosition {
+  const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({
+    x: 0,
+    y: 0,
+  });
+
+  useEffect(() => {
+    const updatePosition = () => {
+      setScrollPosition({
+        x: window.scrollX,
+        y: window.scrollY,
+      });
+    };
+
+    // Set initial position
+    updatePosition();
+
+    // Add event listener
+    window.addEventListener('scroll', updatePosition);
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener('scroll', updatePosition);
+  }, []);
+
+  return scrollPosition;
+}{{else}}import { useEffect, useState } from 'react';
+
+/**
+ * Custom hook to track scroll position
+ * @returns {Object} Object with x and y scroll positions
+ */
+export function useScrollPosition() {
+  const [scrollPosition, setScrollPosition] = useState({
+    x: 0,
+    y: 0,
+  });
+
+  useEffect(() => {
+    const updatePosition = () => {
+      setScrollPosition({
+        x: window.scrollX,
+        y: window.scrollY,
+      });
+    };
+
+    // Set initial position
+    updatePosition();
+
+    // Add event listener
+    window.addEventListener('scroll', updatePosition);
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener('scroll', updatePosition);
+  }, []);
+
+  return scrollPosition;
+}{{/if}}

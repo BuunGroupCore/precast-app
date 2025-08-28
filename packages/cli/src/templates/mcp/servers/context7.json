@@ -1,0 +1,16 @@
+{
+  "id": "context7",
+  "name": "Context7 MCP Server",
+  "description": "Retrieves up-to-date documentation for any library",
+  "category": "productivity",
+  "triggers": {
+    "any": true
+  },
+  "config": {
+    "server_name": "context7",
+    "command": "npx",
+    "args": ["-y", "@context7/mcp-server"],
+    "env": {}
+  },
+  "repository": "https://github.com/context7/mcp-server"
+}

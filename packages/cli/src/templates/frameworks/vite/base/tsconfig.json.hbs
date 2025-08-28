@@ -11,7 +11,8 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": true,{{#if (eq uiFramework "react")}}
+    "jsx": "react-jsx",{{/if}}
 
     /* Path aliases */
     "baseUrl": ".",
@@ -25,5 +26,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "src/**/*", "vite.config.js", "vite.config.ts", "tailwind.config.ts", "postcss.config.js", "postcss.config.ts"]
 }{{/if}}

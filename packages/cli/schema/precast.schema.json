@@ -41,7 +41,16 @@
     },
     "backend": {
       "type": "string",
-      "enum": ["express", "fastify", "hono", "nestjs", "koa", "nextjs-api", "none"],
+      "enum": [
+        "express",
+        "fastify",
+        "hono",
+        "nestjs",
+        "koa",
+        "nextjs-api",
+        "cloudflare-workers",
+        "none"
+      ],
       "description": "Backend framework"
     },
     "database": {
@@ -80,6 +89,36 @@
       "type": "string",
       "enum": ["npm", "yarn", "pnpm", "bun"],
       "description": "Package manager used for the project"
+    },
+    "authProvider": {
+      "type": "string",
+      "enum": ["better-auth", "nextauth", "clerk", "supabase", "auth0", "firebase", "none"],
+      "description": "Authentication provider configured"
+    },
+    "apiClient": {
+      "type": "string",
+      "enum": ["tanstack-query", "swr", "axios", "fetch", "hono-rpc", "none"],
+      "description": "API client library used"
+    },
+    "deploymentMethod": {
+      "type": "string",
+      "enum": ["vercel", "netlify", "railway", "render", "fly-io", "cloudflare-pages", "none"],
+      "description": "Deployment platform configured"
+    },
+    "mcpServers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "filesystem",
+          "github-official",
+          "postgresql",
+          "context7",
+          "consult7",
+          "cloudflare"
+        ]
+      },
+      "description": "MCP (Model Context Protocol) servers configured"
     },
     "aiAssistance": {
       "type": "array",

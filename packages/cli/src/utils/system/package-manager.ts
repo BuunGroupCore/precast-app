@@ -406,9 +406,21 @@ export async function installAllDependencies(options: {
   } catch (error) {
     consola.error(`❌ Failed to install dependencies with ${actualPm.id}:`, error);
 
+    // Check if it's an esbuild postinstall error with Bun
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isEsbuildError = errorMessage.includes("esbuild") && errorMessage.includes("postinstall");
+
     // If we already tried npm as a fallback, don't try again
     if (actualPm.id === "npm") {
       throw error;
+    }
+
+    // If it's an esbuild error with Bun, suggest using npm
+    if (isEsbuildError && actualPm.id === "bun") {
+      consola.warn(
+        "⚠️  esbuild postinstall script failed with Bun. This is a known compatibility issue."
+      );
+      consola.info("💡 Falling back to npm for installation...");
     }
 
     // If the original attempt failed and we haven't tried npm yet, try it

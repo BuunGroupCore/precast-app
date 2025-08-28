@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import type { Env } from '../../worker-configuration';
+import type { Env } from '@/config';
 {{#if (eq database "cloudflare-d1")}}
 import { eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
@@ -19,7 +19,9 @@ const apiRoutes = new Hono<{
   {{/if}}
 }>();
 
-// Example: List users endpoint
+/**
+ * GET /users - List all users
+ */
 apiRoutes.get('/users', async (c) => {
   {{#if (eq database "cloudflare-d1")}}
   try {
@@ -54,7 +56,9 @@ apiRoutes.get('/users', async (c) => {
   {{/if}}
 });
 
-// Example: Get user by ID
+/**
+ * GET /users/:id - Get user by ID
+ */
 apiRoutes.get('/users/:id', async (c) => {
   const id = c.req.param('id');
   
@@ -92,7 +96,6 @@ apiRoutes.get('/users/:id', async (c) => {
     );
   }
   {{else}}
-  // Example response
   return c.json({
     success: true,
     data: { id: id, name: 'John Doe', email: 'john@example.com' },
@@ -100,7 +103,9 @@ apiRoutes.get('/users/:id', async (c) => {
   {{/if}}
 });
 
-// Example: Create user with validation
+/**
+ * POST /users - Create a new user
+ */
 const createUserSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().email(),
@@ -162,7 +167,9 @@ apiRoutes.post(
   }
 );
 
-// Example: Update user
+/**
+ * PUT /users/:id - Update user
+ */
 const updateUserSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   email: z.string().email().optional(),
@@ -227,7 +234,9 @@ apiRoutes.put(
   }
 );
 
-// Example: Delete user
+/**
+ * DELETE /users/:id - Delete user
+ */
 apiRoutes.delete('/users/:id', async (c) => {
   const id = c.req.param('id');
   
@@ -271,7 +280,9 @@ apiRoutes.delete('/users/:id', async (c) => {
   {{/if}}
 });
 
-// Example: Cache endpoint using KV
+/**
+ * GET /cached - Example of KV cache usage
+ */
 apiRoutes.get('/cache/:key', async (c) => {
   const key = c.req.param('key');
   

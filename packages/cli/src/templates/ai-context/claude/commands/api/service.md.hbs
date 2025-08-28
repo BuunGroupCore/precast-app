@@ -3,14 +3,14 @@ description: Implement business logic in the API service layer
 allowed-tools: Read, Write, Edit, Task
 ---
 
-Implement service layer logic in apps/api for business operations.
+Implement service layer logic in apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}} for business operations.
 
 ## Service Implementation Process
 
 ### 1. Context and Planning
 Use the api-context agent to design the service:
 ```
-Implement service logic in apps/api for: $ARGUMENTS
+Implement service logic in apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}} for: $ARGUMENTS
 
 Focus on:
 - Separation of concerns
@@ -22,8 +22,9 @@ Focus on:
 ### 2. Service Structure
 
 ```typescript
-// apps/api/src/services/{{'{{'}}serviceName{{'}}'}}.service.ts
+// apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}}/src/services/{{'{{'}}serviceName{{'}}'}}.service.ts
 import type { {{'{{'}}Types{{'}}'}} } from '@{{name}}/shared';
+{{#if (eq backend "cloudflare-workers")}}import type { Env } from '@/config';{{/if}}
 {{#if orm}}import { db } from '../lib/db';{{/if}}
 {{#if (eq database "redis")}}import { redis } from '../lib/redis';{{/if}}
 
@@ -31,7 +32,7 @@ export class {{'{{'}}ServiceName{{'}}'}}Service {
   /**
    * Main service methods
    */
-  async create(data: CreateDto): Promise<Model> {
+  async create(data: CreateDto{{#if (eq backend "cloudflare-workers")}}, env: Env{{/if}}): Promise<Model> {
     // Validate
     await this.validateCreate(data);
     
@@ -252,7 +253,7 @@ throw new ServiceError('Invalid data', 'INVALID_DATA', 400);
 
 ### 5. Testing Services
 ```typescript
-// apps/api/src/services/__tests__/{{'{{'}}service{{'}}'}}.test.ts
+// apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}}/src/services/__tests__/{{'{{'}}service{{'}}'}}.test.ts
 describe('{{'{{'}}ServiceName{{'}}'}}Service', () => {
   describe('create', () => {
     it('should create resource', async () => {

@@ -340,12 +340,82 @@ export async function setupApiClient(config: ProjectConfig, projectPath: string)
     }
   }
 
+  // For Cloudflare Workers with Hono RPC
+  if (config.apiClient === "hono-rpc" && config.backend === "cloudflare-workers") {
+    const backendPath = path.join(projectPath, "apps", "workers");
+
+    // Create RPC routes
+    const rpcRoutesTemplatePath = path.join(apiTemplateRoot, "hono-rpc/routes/rpc.ts.hbs");
+    const rpcRoutesOutputPath = path.join(
+      backendPath,
+      "src",
+      "routes",
+      `rpc.${config.typescript ? "ts" : "js"}`
+    );
+
+    await ensureDir(path.dirname(rpcRoutesOutputPath));
+    await templateEngine.processTemplate(rpcRoutesTemplatePath, rpcRoutesOutputPath, config);
+    consola.success("Created Hono RPC routes");
+
+    // Update the Cloudflare Workers index.ts to include and mount RPC routes
+    const serverIndexPath = path.join(
+      backendPath,
+      "src",
+      `index.${config.typescript ? "ts" : "js"}`
+    );
+
+    if (await pathExists(serverIndexPath)) {
+      let serverContent = await readFile(serverIndexPath, "utf-8");
+
+      // Add import for RPC routes
+      const importStatement = "import rpcApp from '@/routes/rpc';";
+
+      // Check if import already exists
+      if (!serverContent.includes("import rpcApp")) {
+        // Find the health routes import and add RPC import after it
+        const healthImportIndex = serverContent.indexOf("import { healthRoutes }");
+        if (healthImportIndex !== -1) {
+          const nextLineIndex = serverContent.indexOf("\n", healthImportIndex) + 1;
+          serverContent =
+            serverContent.slice(0, nextLineIndex) +
+            importStatement +
+            "\n" +
+            serverContent.slice(nextLineIndex);
+        }
+      }
+
+      // Add route mounting
+      const routeMount = "app.route('/rpc', rpcApp);\n";
+
+      // Check if route mounting already exists
+      if (!serverContent.includes("app.route('/rpc', rpcApp)")) {
+        // Find the place to insert route mounting (after other routes)
+        const apiRoutesIndex = serverContent.indexOf("app.route('/api', apiRoutes);");
+        if (apiRoutesIndex !== -1) {
+          const nextLineIndex = serverContent.indexOf("\n", apiRoutesIndex) + 1;
+          serverContent =
+            serverContent.slice(0, nextLineIndex) + routeMount + serverContent.slice(nextLineIndex);
+        }
+      }
+
+      // Add AppType export for client typing
+      if (!serverContent.includes("export type AppType")) {
+        const exportStatement =
+          "\n// Export type for RPC client\nexport type AppType = typeof app;\n";
+        serverContent = serverContent + exportStatement;
+      }
+
+      await writeFile(serverIndexPath, serverContent);
+      consola.success("Updated Cloudflare Workers to include RPC routes");
+    }
+  }
   // For Express/Fastify backends with Hono RPC, create a separate Hono RPC server
-  if (
+  else if (
     config.apiClient === "hono-rpc" &&
     config.backend &&
     config.backend !== "hono" &&
-    config.backend !== "none"
+    config.backend !== "none" &&
+    config.backend !== "cloudflare-workers"
   ) {
     const backendPath = path.join(projectPath, "apps", "api");
 

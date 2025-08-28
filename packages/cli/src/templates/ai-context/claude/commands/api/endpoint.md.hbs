@@ -3,14 +3,14 @@ description: Create a new API endpoint in the backend application
 allowed-tools: Read, Write, Edit, Task
 ---
 
-Create a new API endpoint in apps/api following {{backend}} patterns.
+Create a new API endpoint in apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}} following {{backend}} patterns.
 
 ## Endpoint Creation Process
 
 ### 1. Planning with Context
 Use the api-context agent to plan the endpoint:
 ```
-Create an API endpoint in apps/api for: $ARGUMENTS
+Create an API endpoint in apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}} for: $ARGUMENTS
 
 Consider:
 - RESTful conventions
@@ -41,7 +41,7 @@ Build shared: `cd packages/shared && {{packageManager}} run build`
 
 {{#if (eq backend "express")}}
 ```typescript
-// apps/api/src/routes/{{'{{'}}resource{{'}}'}}.ts
+// apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}}/src/routes/{{'{{'}}resource{{'}}'}}.ts
 import { Router } from 'express';
 import type { {{'{{'}}Type{{'}}'}} } from '@{{name}}/shared';
 import { {{'{{'}}service{{'}}'}} } from '../services/{{'{{'}}service{{'}}'}};
@@ -92,11 +92,36 @@ app.post('/{{'{{'}}endpoint{{'}}'}}', async (c) => {
 
 export default app;
 ```
+{{else if (eq backend "cloudflare-workers")}}
+```typescript
+// apps/workers/src/routes/{{'{{'}}resource{{'}}'}}.ts
+import { Hono } from 'hono';
+import type { Env } from '@/config';
+import type { {{'{{'}}Type{{'}}'}} } from '@{{name}}/shared';
+import { {{'{{'}}service{{'}}'}} } from '../services/{{'{{'}}service{{'}}'}};
+
+const app = new Hono<{ Bindings: Env }>();
+
+app.post('/{{'{{'}}endpoint{{'}}'}}', async (c) => {
+  try {
+    const body = await c.req.json();
+    const result = await {{'{{'}}service{{'}}'}}.process(body, c.env);
+    return c.json({ success: true, data: result });
+  } catch (error) {
+    return c.json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'An error occurred' 
+    }, 500);
+  }
+});
+
+export default app;
+```
 {{/if}}
 
 ### 4. Service Layer
 ```typescript
-// apps/api/src/services/{{'{{'}}service{{'}}'}}.ts
+// apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}}/src/services/{{'{{'}}service{{'}}'}}.ts
 import type { {{'{{'}}Type{{'}}'}} } from '@{{name}}/shared';
 {{#if orm}}import { db } from '../lib/db';{{/if}}
 
@@ -164,7 +189,7 @@ throw new ApiError(400, 'Invalid input');
 
 ### 8. Testing
 ```typescript
-// apps/api/src/routes/__tests__/{{'{{'}}endpoint{{'}}'}}.test.ts
+// apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}}/src/routes/__tests__/{{'{{'}}endpoint{{'}}'}}.test.ts
 describe('POST /api/{{'{{'}}endpoint{{'}}'}}', () => {
   it('should create resource', async () => {
     const response = await request(app)
@@ -184,4 +209,4 @@ After creating the endpoint:
 3. Handle loading and error states
 4. Test full flow end-to-end
 
-Remember: The endpoint should follow RESTful conventions and maintain consistency with existing APIs in apps/api.
+Remember: The endpoint should follow RESTful conventions and maintain consistency with existing APIs in apps/{{#if (eq backend "cloudflare-workers")}}workers{{else}}api{{/if}}.

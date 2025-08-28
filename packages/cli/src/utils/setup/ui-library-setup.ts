@@ -135,6 +135,28 @@ async function setupShadcn(config: ProjectConfig, projectPath: string): Promise<
       `✅ Created components.json configuration in ${isMonorepo ? "apps/web" : "project root"}`
     );
 
+    // Install core shadcn dependencies
+    consola.info("📦 Installing shadcn/ui dependencies...");
+    const shadcnDependencies = [
+      "clsx",
+      "tailwind-merge",
+      "class-variance-authority",
+      "lucide-react",
+      "@radix-ui/react-slot",
+      "sonner", // Toast notifications
+    ];
+
+    try {
+      await installDependencies(shadcnDependencies, {
+        packageManager: config.packageManager || "npm",
+        projectPath: targetPath,
+        dev: false,
+      });
+      consola.success("✅ Installed shadcn/ui dependencies");
+    } catch (error) {
+      consola.warn("Failed to install some shadcn dependencies:", error);
+    }
+
     // Create lib/utils.ts with cn utility
     const libPath = path.join(targetPath, "src", "lib");
     await fs.ensureDir(libPath);
@@ -335,9 +357,9 @@ export function useToast() {
 
         // Add theme variables at the beginning of the file, after the tailwind directives
         const tailwindDirectives = [
-          "@tailwind base",
-          "@tailwind components",
-          "@tailwind utilities",
+          "@tailwind base;",
+          "@tailwind components;",
+          "@tailwind utilities;",
         ];
         let insertIndex = 0;
 

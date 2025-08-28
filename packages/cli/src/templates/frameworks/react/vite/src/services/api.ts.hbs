@@ -1,5 +1,5 @@
-{{#if typescript}}import { API_CONFIG } from '@/config/constants';
-import type { ApiResponse, PaginatedResponse } from '@/types';
+{{#if typescript}}import { API_URL } from '@/config/constants';
+import type { ApiResponse } from '@/types';
 
 /**
  * API Service
@@ -11,8 +11,10 @@ class ApiService {
   private headers: HeadersInit;
 
   constructor() {
-    this.baseUrl = API_CONFIG.baseUrl;
-    this.headers = API_CONFIG.headers;
+    this.baseUrl = API_URL;
+    this.headers = {
+      'Content-Type': 'application/json',
+    };
   }
 
   /**
@@ -40,7 +42,7 @@ class ApiService {
       const data = await response.json();
       
       return {
-        data,
+        data: data as T,
         status: 'success',
         timestamp: new Date().toISOString(),
       };
@@ -48,7 +50,7 @@ class ApiService {
       console.error('API Request failed:', error);
       
       return {
-        data: null as any,
+        data: null as unknown as T,
         message: error instanceof Error ? error.message : 'Unknown error',
         status: 'error',
         timestamp: new Date().toISOString(),
@@ -116,7 +118,7 @@ export const api = {
   delete: apiService.delete.bind(apiService),
   patch: apiService.patch.bind(apiService),
 };
-{{else}}import { API_CONFIG } from '@/config/constants';
+{{else}}import { API_URL } from '@/config/constants';
 
 /**
  * API Service
@@ -125,8 +127,10 @@ export const api = {
 
 class ApiService {
   constructor() {
-    this.baseUrl = API_CONFIG.baseUrl;
-    this.headers = API_CONFIG.headers;
+    this.baseUrl = API_URL;
+    this.headers = {
+      'Content-Type': 'application/json',
+    };
   }
 
   /**
@@ -151,7 +155,7 @@ class ApiService {
       const data = await response.json();
       
       return {
-        data,
+        data: data as T,
         status: 'success',
         timestamp: new Date().toISOString(),
       };

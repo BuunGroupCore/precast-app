@@ -1,7 +1,37 @@
 {{#if typescript}}import React from 'react';{{else}}import React from 'react';{{/if}}
 {{#if (eq styling "styled-components")}}import styled from 'styled-components';{{/if}}
-{{#if (eq styling "tailwind")}}import { PrecastBanner } from './PrecastBanner-tailwind';{{else}}import { PrecastBanner } from './PrecastBanner';
-import './PrecastBanner.css';{{/if}}
+import { 
+  SiReact, 
+  SiVite, 
+  {{#if typescript}}SiTypescript,{{/if}}
+  {{#if (eq styling "tailwind")}}SiTailwindcss,{{/if}}
+  {{#if (eq backend "express")}}SiExpress,{{/if}}
+  {{#if (eq backend "fastify")}}SiFastify,{{/if}}
+  {{#if (eq backend "nestjs")}}SiNestjs,{{/if}}
+  {{#if (eq backend "koa")}}SiKoa,{{/if}}
+  {{#if (eq backend "cloudflare-workers")}}SiCloudflare,{{/if}}
+  {{#if (or (eq backend "hono") (eq apiClient "hono-rpc"))}}SiHono,{{/if}}
+  {{#if (eq apiClient "tanstack-query")}}SiReactquery,{{/if}}
+  {{#if (eq apiClient "swr")}}SiVercel,{{/if}}
+  {{#if (eq apiClient "apollo")}}SiApollographql,{{/if}}
+  {{#if (eq apiClient "axios")}}SiAxios,{{/if}}
+  {{#if (eq apiClient "trpc")}}SiTrpc,{{/if}}
+  {{#if (eq database "postgres")}}SiPostgresql,{{/if}}
+  {{#if (eq database "mysql")}}SiMysql,{{/if}}
+  {{#if (eq database "mongodb")}}SiMongodb,{{/if}}
+  {{#if (eq database "sqlite")}}SiSqlite,{{/if}}
+  {{#if (eq orm "prisma")}}SiPrisma,{{/if}}
+  {{#if (eq orm "drizzle")}}SiDrizzle,{{/if}}
+  {{#if (eq orm "mongoose")}}SiMongoose,{{/if}}
+  {{#if (eq uiLibrary "shadcn")}}SiRadixui,{{/if}}
+  {{#if (eq uiLibrary "daisy")}}SiDaisyui,{{/if}}
+  {{#if (eq uiLibrary "mui")}}SiMui,{{/if}}
+  {{#if (eq uiLibrary "chakra")}}SiChakraui,{{/if}}
+  {{#if (eq uiLibrary "ant-design")}}SiAntdesign,{{/if}}
+  {{#if (eq uiLibrary "mantine")}}SiMantine,{{/if}}
+  {{#if (eq runtime "bun")}}SiBun,{{/if}}
+  {{#if (eq runtime "node")}}SiNodedotjs{{/if}}
+} from '@icons-pack/react-simple-icons';
 
 {{#if typescript}}
 /**
@@ -18,22 +48,16 @@ export const Hero: React.FC = () => {
  */
 export function Hero() {
 {{/if}}
-  const showPrecastBanner = true; // Set to false to use custom hero instead
-
-  if (showPrecastBanner) {
-    return <PrecastBanner />;
-  }
-
   return (
     {{#if (eq styling "tailwind")}}
     <section id="hero" className="relative px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* Animated badge */}
-          <div className="inline-flex items-center px-4 py-2 mb-8 text-sm font-medium rounded-full bg-purple-900/30 text-purple-300 border border-purple-800/50 backdrop-blur-sm">
+          <div className="inline-flex items-center px-4 py-2 mb-8 text-sm font-medium rounded-full {{#if colorPalette}}bg-primary/20 text-primary border border-primary/30{{else}}bg-purple-900/30 text-purple-300 border border-purple-800/50{{/if}} backdrop-blur-sm">
             <span className="relative flex h-2 w-2 mr-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full {{#if colorPalette}}bg-primary{{else}}bg-purple-400{{/if}} opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 {{#if colorPalette}}bg-primary{{else}}bg-purple-500{{/if}}"></span>
             </span>
             Built with React + Vite + {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}
           </div>
@@ -41,7 +65,7 @@ export function Hero() {
           {/* Main heading with gradient */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight">
             <span className="block text-white mb-2">Welcome to</span>
-            <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-gradient bg-300%">
+            <span className="block {{#if colorPalette}}bg-gradient-to-r from-primary via-secondary to-primary{{else}}bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400{{/if}} bg-clip-text text-transparent animate-gradient bg-300%">
               {{name}}
             </span>
           </h1>
@@ -54,43 +78,38 @@ export function Hero() {
           
           {/* CTA Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl overflow-hidden transition-all hover:scale-105 shadow-xl">
+            <a 
+              href="https://precast.dev/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative px-8 py-4 {{#if colorPalette}}bg-gradient-to-r from-primary to-secondary{{else}}bg-gradient-to-r from-purple-600 to-pink-600{{/if}} text-white font-semibold rounded-xl overflow-hidden transition-all hover:scale-105 shadow-xl inline-block"
+            >
               <span className="relative z-10">Get Started</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
+              <div className="absolute inset-0 {{#if colorPalette}}bg-gradient-to-r from-primary/80 to-secondary/80{{else}}bg-gradient-to-r from-purple-700 to-pink-700{{/if}} opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
             
-            <button className="px-8 py-4 bg-slate-800/50 backdrop-blur-sm text-white font-semibold rounded-xl border border-slate-700/50 hover:bg-slate-700/50 transition-all hover:scale-105">
+            <a 
+              href="https://precast.dev/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-slate-800/50 backdrop-blur-sm text-white font-semibold rounded-xl border border-slate-700/50 hover:bg-slate-700/50 transition-all hover:scale-105 inline-block"
+            >
               View Documentation
-            </button>
+            </a>
           </div>
           
           {/* Tech stack icons */}
           <div className="mt-16 flex justify-center items-center gap-8 opacity-60">
             <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-2">
-                <svg viewBox="-10.5 -9.45 21 18.9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="0" cy="0" r="2" fill="#61dafb"/>
-                  <g stroke="#61dafb" strokeWidth="1" fill="none">
-                    <ellipse rx="10" ry="4.5"/>
-                    <ellipse rx="10" ry="4.5" transform="rotate(60)"/>
-                    <ellipse rx="10" ry="4.5" transform="rotate(120)"/>
-                  </g>
-                </svg>
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                <SiReact className="w-10 h-10" color="#61DAFB" />
               </div>
               <span className="text-xs text-gray-400">React</span>
             </div>
             
             <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-2">
-                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M29.8836 6.146L16.7418 29.6457c-.2714.4851-.9684.488-1.2439.0052L2.0956 6.1482c-.3-.5262.1498-1.1635.746-1.057l13.156 2.3516a.7144.7144 0 00.2537-.0004l12.8808-2.3478c.5942-.1083 1.0463.5241.7515 1.0513z" fill="url(#vite-gradient)"/>
-                  <defs>
-                    <linearGradient id="vite-gradient" x1="1.7191" y1="4.9909" x2="18.0704" y2="37.1859" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#41D1FF"/>
-                      <stop offset="1" stopColor="#BD34FE"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                <SiVite className="w-10 h-10" color="#646CFF" />
               </div>
               <span className="text-xs text-gray-400">Vite</span>
             </div>
@@ -98,10 +117,7 @@ export function Hero() {
             {{#if typescript}}
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
-                <svg className="w-10 h-10" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="32" height="32" rx="2" fill="#3178C6"/>
-                  <path d="M18.245 23.759v3.068a6.492 6.492 0 001.764.575 11.56 11.56 0 002.146.192 9.968 9.968 0 002.088-.211 5.11 5.11 0 001.735-.7 3.542 3.542 0 001.181-1.266 4.469 4.469 0 00.186-3.394 3.409 3.409 0 00-.717-1.117 5.236 5.236 0 00-1.123-.877 12.027 12.027 0 00-1.477-.734q-.6-.249-1.08-.484a5.5 5.5 0 01-.813-.479 2.089 2.089 0 01-.516-.518 1.091 1.091 0 01-.181-.618 1.039 1.039 0 01.162-.571 1.4 1.4 0 01.459-.429 2.439 2.439 0 01.726-.283 4.211 4.211 0 01.956-.1 5.942 5.942 0 01.808.058 6.292 6.292 0 01.856.177 5.994 5.994 0 01.836.3 4.657 4.657 0 01.751.422V13.9a7.509 7.509 0 00-1.525-.4 12.426 12.426 0 00-1.9-.129 8.767 8.767 0 00-2.064.235 5.239 5.239 0 00-1.716.733 3.655 3.655 0 00-1.171 1.271 3.731 3.731 0 00-.431 1.845 3.588 3.588 0 00.789 2.34 6 6 0 002.395 1.639q.63.26 1.175.509a6.458 6.458 0 01.942.517 2.463 2.463 0 01.626.585 1.2 1.2 0 01.23.719 1.1 1.1 0 01-.144.552 1.269 1.269 0 01-.435.441 2.381 2.381 0 01-.726.292 4.377 4.377 0 01-1.018.105 5.773 5.773 0 01-1.969-.35 5.874 5.874 0 01-1.805-1.045zm-5.154-7.638h4v-2.527H5.938v2.527H9.92v11.254h3.171z" fill="white"/>
-                </svg>
+                <SiTypescript className="w-10 h-10" color="#3178C6" />
               </div>
               <span className="text-xs text-gray-400">TypeScript</span>
             </div>
@@ -110,11 +126,159 @@ export function Hero() {
             {{#if (eq styling "tailwind")}}
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
-                <svg className="w-10 h-10" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M16 6.4c5.302 0 9.6 4.298 9.6 9.6s-4.298 9.6-9.6 9.6-9.6-4.298-9.6-9.6 4.298-9.6 9.6-9.6zM11.2 19.2l2.4-6.4 2.4 6.4h-1.6l-.4-1.2h-1.2l-.4 1.2h-1.2zm3.6-2.4l-.4-1.2-.4 1.2h.8z" fill="#06B6D4"/>
-                </svg>
+                <SiTailwindcss className="w-10 h-10" color="#06B6D4" />
               </div>
               <span className="text-xs text-gray-400">Tailwind</span>
+            </div>
+            {{/if}}
+            
+            {{#if (and backend (ne backend "none"))}}
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                {{#if (eq backend "hono")}}
+                <SiHono className="w-10 h-10" color="#FF5B00" />
+                {{else if (eq backend "cloudflare-workers")}}
+                <SiCloudflare className="w-10 h-10" color="#F38020" />
+                {{else if (eq backend "express")}}
+                <SiExpress className="w-10 h-10" color="#000000" />
+                {{else if (eq backend "fastify")}}
+                <SiFastify className="w-10 h-10" color="#000000" />
+                {{else if (eq backend "nestjs")}}
+                <SiNestjs className="w-10 h-10" color="#E0234E" />
+                {{else if (eq backend "koa")}}
+                <SiKoa className="w-10 h-10" color="#33333D" />
+                {{else}}
+                <div className="w-10 h-10 rounded bg-green-600 flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">API</span>
+                </div>
+                {{/if}}
+              </div>
+              <span className="text-xs text-gray-400">
+                {{#if (eq backend "hono")}}Hono{{/if}}
+                {{#if (eq backend "cloudflare-workers")}}Cloudflare{{/if}}
+                {{#if (eq backend "express")}}Express{{/if}}
+                {{#if (eq backend "fastify")}}Fastify{{/if}}
+                {{#if (eq backend "nestjs")}}NestJS{{/if}}
+                {{#if (eq backend "koa")}}Koa{{/if}}
+                {{#if (eq backend "nextjs-api")}}Next.js API{{/if}}
+              </span>
+            </div>
+            {{/if}}
+            
+            {{#if (and apiClient (ne apiClient "none"))}}
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                {{#if (eq apiClient "hono-rpc")}}
+                <SiHono className="w-10 h-10" color="#FF5B00" />
+                {{else if (eq apiClient "tanstack-query")}}
+                <SiReactquery className="w-10 h-10" color="#FF4154" />
+                {{else if (eq apiClient "swr")}}
+                <SiVercel className="w-10 h-10" color="#000000" />
+                {{else if (eq apiClient "axios")}}
+                <SiAxios className="w-10 h-10" color="#5A29E4" />
+                {{else if (eq apiClient "trpc")}}
+                <SiTrpc className="w-10 h-10" color="#2596BE" />
+                {{else if (eq apiClient "apollo")}}
+                <SiApollographql className="w-10 h-10" color="#311C87" />
+                {{else}}
+                <div className="w-10 h-10 rounded bg-blue-600 flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">API</span>
+                </div>
+                {{/if}}
+              </div>
+              <span className="text-xs text-gray-400">
+                {{#if (eq apiClient "hono-rpc")}}Hono RPC{{/if}}
+                {{#if (eq apiClient "tanstack-query")}}TanStack Query{{/if}}
+                {{#if (eq apiClient "swr")}}SWR{{/if}}
+                {{#if (eq apiClient "axios")}}Axios{{/if}}
+                {{#if (eq apiClient "trpc")}}tRPC{{/if}}
+                {{#if (eq apiClient "apollo")}}Apollo{{/if}}
+              </span>
+            </div>
+            {{/if}}
+            
+            {{#if (and database (ne database "none"))}}
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                {{#if (eq database "postgres")}}
+                <SiPostgresql className="w-10 h-10" color="#4169E1" />
+                {{else if (eq database "mysql")}}
+                <SiMysql className="w-10 h-10" color="#4479A1" />
+                {{else if (eq database "mongodb")}}
+                <SiMongodb className="w-10 h-10" color="#47A248" />
+                {{else if (eq database "sqlite")}}
+                <SiSqlite className="w-10 h-10" color="#003B57" />
+                {{/if}}
+              </div>
+              <span className="text-xs text-gray-400">
+                {{#if (eq database "postgres")}}PostgreSQL{{/if}}
+                {{#if (eq database "mysql")}}MySQL{{/if}}
+                {{#if (eq database "mongodb")}}MongoDB{{/if}}
+                {{#if (eq database "sqlite")}}SQLite{{/if}}
+              </span>
+            </div>
+            {{/if}}
+            
+            {{#if (and orm (ne orm "none"))}}
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                {{#if (eq orm "prisma")}}
+                <SiPrisma className="w-10 h-10" color="#2D3748" />
+                {{else if (eq orm "drizzle")}}
+                <SiDrizzle className="w-10 h-10" color="#C5F74F" />
+                {{else if (eq orm "mongoose")}}
+                <SiMongoose className="w-10 h-10" color="#880000" />
+                {{/if}}
+              </div>
+              <span className="text-xs text-gray-400">
+                {{#if (eq orm "prisma")}}Prisma{{/if}}
+                {{#if (eq orm "drizzle")}}Drizzle{{/if}}
+                {{#if (eq orm "mongoose")}}Mongoose{{/if}}
+              </span>
+            </div>
+            {{/if}}
+            
+            {{#if uiLibrary}}
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                {{#if (eq uiLibrary "shadcn")}}
+                <SiRadixui className="w-10 h-10" color="#161618" />
+                {{else if (eq uiLibrary "daisy")}}
+                <SiDaisyui className="w-10 h-10" color="#5A0EF8" />
+                {{else if (eq uiLibrary "mui")}}
+                <SiMui className="w-10 h-10" color="#007FFF" />
+                {{else if (eq uiLibrary "chakra")}}
+                <SiChakraui className="w-10 h-10" color="#319795" />
+                {{else if (eq uiLibrary "ant-design")}}
+                <SiAntdesign className="w-10 h-10" color="#0170FE" />
+                {{else if (eq uiLibrary "mantine")}}
+                <SiMantine className="w-10 h-10" color="#339AF0" />
+                {{/if}}
+              </div>
+              <span className="text-xs text-gray-400">
+                {{#if (eq uiLibrary "shadcn")}}shadcn/ui{{/if}}
+                {{#if (eq uiLibrary "daisy")}}DaisyUI{{/if}}
+                {{#if (eq uiLibrary "mui")}}Material UI{{/if}}
+                {{#if (eq uiLibrary "chakra")}}Chakra UI{{/if}}
+                {{#if (eq uiLibrary "ant-design")}}Ant Design{{/if}}
+                {{#if (eq uiLibrary "mantine")}}Mantine{{/if}}
+              </span>
+            </div>
+            {{/if}}
+            
+            {{#if runtime}}
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                {{#if (eq runtime "bun")}}
+                <SiBun className="w-10 h-10" color="#000000" />
+                {{else if (eq runtime "node")}}
+                <SiNodedotjs className="w-10 h-10" color="#339933" />
+                {{/if}}
+              </div>
+              <span className="text-xs text-gray-400">
+                {{#if (eq runtime "bun")}}Bun{{/if}}
+                {{#if (eq runtime "node")}}Node.js{{/if}}
+              </span>
             </div>
             {{/if}}
           </div>
@@ -123,9 +287,9 @@ export function Hero() {
       
       {/* Animated particles background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-10 -right-10 w-72 h-72 bg-purple-700 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-pink-700 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-700 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-10 -right-10 w-72 h-72 {{#if colorPalette}}bg-primary{{else}}bg-purple-700{{/if}} rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-10 -left-10 w-72 h-72 {{#if colorPalette}}bg-secondary{{else}}bg-pink-700{{/if}} rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 {{#if colorPalette}}bg-accent{{else}}bg-purple-700{{/if}} rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
     </section>
     {{else if (eq styling "styled-components")}}
@@ -147,8 +311,8 @@ export function Hero() {
         </Subtitle>
         
         <CTAButtons>
-          <PrimaryButton>Get Started</PrimaryButton>
-          <SecondaryButton>View Documentation</SecondaryButton>
+          <PrimaryButton href="https://precast.dev/docs" target="_blank" rel="noopener noreferrer">Get Started</PrimaryButton>
+          <SecondaryButton href="https://precast.dev/docs" target="_blank" rel="noopener noreferrer">View Documentation</SecondaryButton>
         </CTAButtons>
       </HeroContainer>
     </HeroSection>
@@ -171,8 +335,8 @@ export function Hero() {
         </p>
         
         <div className="cta-buttons">
-          <button className="btn-primary">Get Started</button>
-          <button className="btn-secondary">View Documentation</button>
+          <a href="https://precast.dev/docs" target="_blank" rel="noopener noreferrer" className="btn-primary">Get Started</a>
+          <a href="https://precast.dev/docs" target="_blank" rel="noopener noreferrer" className="btn-secondary">View Documentation</a>
         </div>
       </div>
     </section>
@@ -301,8 +465,9 @@ const CTAButtons = styled.div`
   }
 `;
 
-const PrimaryButton = styled.button`
+const PrimaryButton = styled.a`
   position: relative;
+  display: inline-block;
   padding: 1rem 2rem;
   background: linear-gradient(to right, #9333ea, #ec4899);
   color: white;
@@ -311,13 +476,15 @@ const PrimaryButton = styled.button`
   overflow: hidden;
   transition: transform 0.2s;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
   
   &:hover {
     transform: scale(1.05);
   }
 `;
 
-const SecondaryButton = styled.button`
+const SecondaryButton = styled.a`
+  display: inline-block;
   padding: 1rem 2rem;
   background: rgba(30, 41, 59, 0.5);
   backdrop-filter: blur(4px);
@@ -326,6 +493,7 @@ const SecondaryButton = styled.button`
   border-radius: 0.75rem;
   border: 1px solid rgba(51, 65, 85, 0.5);
   transition: all 0.2s;
+  text-decoration: none;
   
   &:hover {
     background: rgba(51, 65, 85, 0.5);

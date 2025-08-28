@@ -1,0 +1,16 @@
+{
+  "id": "consult7",
+  "name": "Consult7 MCP Server",
+  "description": "Analyze files with an LLM by providing a list of file paths",
+  "category": "productivity",
+  "triggers": {
+    "any": true
+  },
+  "config": {
+    "server_name": "consult7",
+    "command": "npx",
+    "args": ["-y", "@consult7/mcp-server"],
+    "env": {}
+  },
+  "repository": "https://github.com/consult7/mcp-server"
+}

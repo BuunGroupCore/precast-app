@@ -809,31 +809,47 @@ export function generateCSSVariables(palette: ColorPalette): string {
 }
 
 /**
+ * Convert HEX color to RGB values
+ */
+function hexToRgb(hex: string): string {
+  // Remove # if present
+  hex = hex.replace("#", "");
+
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  return `${r} ${g} ${b}`;
+}
+
+/**
  * Generate Tailwind CSS config for a color palette
  */
 export function generateTailwindConfig(palette: ColorPalette): string {
+  // Convert HEX to RGB for Tailwind opacity support
   return `colors: {
       primary: {
-        DEFAULT: '${palette.colors.primary}',
-        dark: '${palette.colors.primaryDark}',
+        DEFAULT: 'rgb(${hexToRgb(palette.colors.primary)})',
+        dark: 'rgb(${hexToRgb(palette.colors.primaryDark)})',
       },
       secondary: {
-        DEFAULT: '${palette.colors.secondary}',
-        dark: '${palette.colors.secondaryDark}',
+        DEFAULT: 'rgb(${hexToRgb(palette.colors.secondary)})',
+        dark: 'rgb(${hexToRgb(palette.colors.secondaryDark)})',
       },
       accent: {
-        DEFAULT: '${palette.colors.accent}',
-        dark: '${palette.colors.accentDark}',
+        DEFAULT: 'rgb(${hexToRgb(palette.colors.accent)})',
+        dark: 'rgb(${hexToRgb(palette.colors.accentDark)})',
       },
-      background: '${palette.colors.background}',
-      surface: '${palette.colors.surface}',
+      background: 'rgb(${hexToRgb(palette.colors.background)})',
+      surface: 'rgb(${hexToRgb(palette.colors.surface)})',
       text: {
-        DEFAULT: '${palette.colors.text}',
-        secondary: '${palette.colors.textSecondary}',
+        DEFAULT: 'rgb(${hexToRgb(palette.colors.text)})',
+        secondary: 'rgb(${hexToRgb(palette.colors.textSecondary)})',
       },
-      error: '${palette.colors.error}',
-      warning: '${palette.colors.warning}',
-      success: '${palette.colors.success}',
-      info: '${palette.colors.info}',
+      error: 'rgb(${hexToRgb(palette.colors.error)})',
+      warning: 'rgb(${hexToRgb(palette.colors.warning)})',
+      success: 'rgb(${hexToRgb(palette.colors.success)})',
+      info: 'rgb(${hexToRgb(palette.colors.info)})',
     }`;
 }

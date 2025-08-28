@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
-// User schemas
+{{#if authProvider}}
+/**
+ * User validation schemas
+ */
 export const userSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
@@ -17,7 +20,22 @@ export const createUserSchema = userSchema.omit({
 
 export const updateUserSchema = createUserSchema.partial();
 
-// Type exports
 export type User = z.infer<typeof userSchema>;
 export type CreateUser = z.infer<typeof createUserSchema>;
 export type UpdateUser = z.infer<typeof updateUserSchema>;
+{{/if}}
+
+/**
+ * Common validation schemas
+ */
+export const paginationSchema = z.object({
+  limit: z.number().min(1).max(100).default(10),
+  offset: z.number().min(0).default(0),
+});
+
+export const idSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type Pagination = z.infer<typeof paginationSchema>;
+export type Id = z.infer<typeof idSchema>;

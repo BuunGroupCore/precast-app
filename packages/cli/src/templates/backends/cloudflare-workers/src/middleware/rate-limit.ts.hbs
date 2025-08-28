@@ -1,12 +1,15 @@
 {{#if typescript}}import { MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-import type { Env } from '../../worker-configuration';
+import type { Env } from '@/config';
 
 interface RateLimitConfig {
-  windowMs: number; // Time window in milliseconds
-  max: number; // Max requests per window
-  keyGenerator?: (c: any) => string; // Function to generate key
+  /** Time window in milliseconds */
+  windowMs: number;
+  /** Max requests per window */
+  max: number;
+  /** Function to generate rate limit key */
+  keyGenerator?: (c: any) => string;
 }
 
 /**
@@ -16,7 +19,13 @@ export const rateLimiter = (config: RateLimitConfig): MiddlewareHandler<{ Bindin
   const { windowMs = 60000, max = 100, keyGenerator } = config;
   
   return async (c, next) => {
-    // Generate rate limit key
+    // Check if CACHE KV namespace is available
+    if (!c.env.CACHE) {
+      // No rate limiting if KV namespace not configured
+      await next();
+      return;
+    }
+    
     const defaultKeyGen = () => {
       const ip = c.req.header('CF-Connecting-IP') || 
                   c.req.header('X-Forwarded-For') || 
@@ -106,6 +115,12 @@ export const rateLimiter = (config = {}) => {
   const { windowMs = 60000, max = 100 } = config;
   
   return async (c, next) => {
+    // Check if CACHE is available
+    if (!c.env.CACHE) {
+      await next();
+      return;
+    }
+    
     const ip = c.req.header('CF-Connecting-IP') || 'unknown';
     const key = `rate-limit:${ip}:${c.req.path}`;
     

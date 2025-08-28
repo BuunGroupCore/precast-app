@@ -1,7 +1,10 @@
 import { hc } from "hono/client";
 {{#if backend}}
-  {{#if (ne backend "none")}}
-    {{! Monorepo structure with separate backend }}
+  {{#if (eq backend "cloudflare-workers")}}
+    {{! Cloudflare Workers uses workers directory }}
+import type { AppType } from "../../../workers/src";
+  {{else if (ne backend "none")}}
+    {{! Other monorepo structures with separate backend }}
 import type { AppType } from "../../../api/src";
   {{else}}
     {{! Single app with backend in same project }}
@@ -15,11 +18,11 @@ import type { AppType } from "@/server/app";
 // Create the Hono RPC client
 export const client = hc<AppType>(
   {{#if (eq framework "next")}}
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+  process.env.NEXT_PUBLIC_API_URL || {{#if (eq backend "cloudflare-workers")}}"http://localhost:8787"{{else}}"http://localhost:3001"{{/if}}
   {{else if (eq framework "react-router")}}
-  process.env.REACT_APP_API_URL || "http://localhost:3001"
+  process.env.REACT_APP_API_URL || {{#if (eq backend "cloudflare-workers")}}"http://localhost:8787"{{else}}"http://localhost:3001"{{/if}}
   {{else}}
-  import.meta.env.VITE_API_URL || "http://localhost:3001"
+  import.meta.env.VITE_API_URL || {{#if (eq backend "cloudflare-workers")}}"http://localhost:8787"{{else}}"http://localhost:3001"{{/if}}
   {{/if}}
 );
 

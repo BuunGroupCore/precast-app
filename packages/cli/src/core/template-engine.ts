@@ -458,6 +458,48 @@ export class TemplateEngine {
       return true;
     }
 
+    // Skip turbo.json if turborepo is not enabled
+    if (!context.powerups?.includes("turborepo") && fileName === "turbo.json.hbs") {
+      return true;
+    }
+
+    // Skip auth middleware if no auth provider selected
+    if (!context.authProvider && (fileName === "auth.ts.hbs" || fileName === "auth.js.hbs")) {
+      return true;
+    }
+
+    // Skip components unless precast widget is enabled (except Hero component)
+    const isComponent = file.includes("/components/") && !file.includes("/components/ui/");
+    const isHeroComponent = fileName === "Hero.tsx.hbs" || fileName === "Hero.jsx.hbs";
+    const hasPrecastWidget =
+      (context.plugins && context.plugins.length > 0) ||
+      (context.database && context.database !== "none");
+
+    if (isComponent && !isHeroComponent && !hasPrecastWidget) {
+      return true;
+    }
+
+    // Also skip component index if no precast widget (keep minimal export)
+    if (
+      fileName === "index.ts.hbs" &&
+      file.includes("/components/index.ts.hbs") &&
+      !hasPrecastWidget
+    ) {
+      // Will be replaced with minimal version
+      return false; // Let it be processed, but content will be minimal
+    }
+
+    // Skip .js config files when TypeScript is enabled
+    // Exception: Always use .js for postcss.config to avoid ts-node requirement with Vite
+    if (context.typescript && fileName === "postcss.config.js.hbs") {
+      return false; // Don't skip - we need the .js version
+    }
+
+    // Skip .ts version of postcss.config to avoid ts-node requirement
+    if (fileName === "postcss.config.ts.hbs") {
+      return true; // Always skip the TypeScript version
+    }
+
     if (
       context.eslint === false &&
       (fileName === "_eslintrc.json" ||

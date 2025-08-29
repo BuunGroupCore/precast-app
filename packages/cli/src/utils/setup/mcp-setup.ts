@@ -6,6 +6,8 @@ import { consola } from "consola";
 import fsExtra from "fs-extra";
 import Handlebars from "handlebars";
 
+import { getTemplateRoot } from "@/utils/system/template-path.js";
+
 const { ensureDir, writeFile, pathExists, readFile, readJson, readdir } = fsExtra;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -48,23 +50,13 @@ interface MCPServer {
  */
 async function loadMCPServers(): Promise<MCPServer[]> {
   const servers: MCPServer[] = [];
-  // Try multiple paths to find the servers directory
-  const possiblePaths = [
-    path.join(__dirname, "..", "templates", "mcp", "servers"), // Built path
-    path.join(__dirname, "..", "..", "templates", "mcp", "servers"), // Another built path
-    path.join(__dirname, "..", "..", "src", "templates", "mcp", "servers"), // Dev path
-  ];
 
-  let serversDir: string | null = null;
-  for (const p of possiblePaths) {
-    if (await pathExists(p)) {
-      serversDir = p;
-      break;
-    }
-  }
+  // Use the template root to find the servers directory
+  const templateRoot = getTemplateRoot();
+  const serversDir = path.join(templateRoot, "mcp", "servers");
 
   try {
-    if (serversDir) {
+    if (await pathExists(serversDir)) {
       const files = await readdir(serversDir);
       const jsonFiles = files.filter((f) => f.endsWith(".json") && f !== "servers-index.json");
 

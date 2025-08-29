@@ -100,8 +100,8 @@ program
   .option("--ai <assistant>", "AI assistant (claude, cursor, copilot, gemini)")
   .option("--ai-docs", "Generate AI documentation files (SPEC.md, PRD.md) in docs/ai/ folder")
   .option(
-    "--mcp-servers <servers...>",
-    "MCP servers to include when using Claude AI (filesystem, memory, github-official, github-api, gitlab, postgresql, supabase, mongodb, cloudflare, aws-mcp, azure-mcp, etc.)"
+    "--mcp-servers <servers>",
+    "Comma-separated list of MCP servers to include when using Claude AI (filesystem,memory,github-official,github-api,gitlab,postgresql,supabase,mongodb,cloudflare,aws-mcp,azure-mcp,etc.)"
   )
   .option(
     "--powerups <powerups>",
@@ -148,9 +148,15 @@ program
       apiClient: options.apiClient,
       ai: options.ai,
       aiDocs: options.aiDocs,
-      mcpServers: options.mcpServers,
-      powerups: options.powerups ? options.powerups.split(",") : undefined,
-      plugins: options.plugins ? options.plugins.split(",") : undefined,
+      mcpServers: options.mcpServers
+        ? options.mcpServers.split(",").map((s: string) => s.trim())
+        : undefined,
+      powerups: options.powerups
+        ? options.powerups.split(",").map((s: string) => s.trim())
+        : undefined,
+      plugins: options.plugins
+        ? options.plugins.split(",").map((s: string) => s.trim())
+        : undefined,
       colorPalette: options.colorPalette,
       deploymentMethod: options.deployment,
       debug: options.debug,

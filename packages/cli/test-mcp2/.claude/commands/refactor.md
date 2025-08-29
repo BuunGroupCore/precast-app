@@ -1,0 +1,155 @@
+---
+description: Refactor code while maintaining functionality and following project patterns
+allowed-tools: Read, Write, Edit, Glob, Grep, Task
+---
+
+Refactor existing code to improve quality while maintaining functionality in this react project.
+
+## Research-Driven Refactoring Process
+
+### Phase 1: Context and Research Analysis
+
+1. Read @README.md and @CLAUDE.md for project standards
+2. Understand the current implementation fully
+3. Identify all dependencies and usages
+4. Document current behavior
+
+**Research current best practices** using the web-research agent:
+
+```
+Use the Task tool to spawn the web-research agent:
+
+Research modern refactoring patterns and best practices for: $ARGUMENTS
+
+Focus research on:
+- react refactoring patterns 2024
+- Performance optimization techniques for react
+- Modern code organization strategies
+- Security improvements during refactoring
+- Testing strategies for refactored code
+
+Provide evidence-based recommendations with implementation examples.
+```
+
+### Phase 2: Multi-Agent Analysis
+
+**Spawn parallel agents for comprehensive analysis:**
+
+```
+Use Task tool to launch multiple agents simultaneously:
+
+1. **web-research agent**:
+   Research latest react refactoring best practices and performance patterns
+
+2. **architecture-guide agent**:
+   Analyze current architecture and recommend structural improvements for: $ARGUMENTS
+
+3. **standards-enforcer agent**:
+   Review current code against modern standards and identify violations to fix
+
+Coordinate findings for unified refactoring strategy.
+```
+
+### Refactoring Approach
+
+Based on research findings, apply standards-enforcer guidance:
+
+```
+Analyze and refactor: $ARGUMENTS
+
+Apply research-backed improvements:
+- Code organization and structure (based on web-research findings)
+- Type safety improvements (modern TypeScript patterns)
+- Performance optimizations (evidence-based techniques)
+- Security enhancements (latest security practices)
+- Removing duplication (current best practices)
+- Improving readability (modern conventions)
+```
+
+## Refactoring Checklist
+
+### 1. Code Quality
+
+- [ ] Remove duplicate code
+- [ ] Extract reusable functions/components
+- [ ] Improve naming for clarity
+- [ ] Add proper TypeScript types (remove any)
+- [ ] Optimize imports
+
+### 2. Performance
+
+- [ ] Add React.memo where appropriate
+- [ ] Optimize useEffect dependencies
+- [ ] Use useMemo/useCallback for expensive operations
+- [ ] Reduce bundle size
+- [ ] Optimize re-renders
+
+### 3. Maintainability
+
+- [ ] Improve code documentation
+- [ ] Simplify complex logic
+- [ ] Better error handling
+- [ ] Consistent patterns
+
+### 4. Modern Patterns
+
+- [ ] Update to latest framework patterns
+- [ ] Use modern JavaScript/TypeScript features
+- [ ] Apply current best practices
+- [ ] Optimize Tailwind classes
+
+## Safety Measures
+
+### Before Refactoring
+
+- Understand all current functionality
+- Note existing tests
+- Identify potential breaking changes
+
+### During Refactoring
+
+- Make incremental changes
+- Test after each change
+- Keep functionality intact
+- Maintain backward compatibility
+
+### After Refactoring
+
+- Verify all features still work
+- Run existing tests
+- Check for performance improvements
+- Update documentation if needed
+
+## Common Refactoring Patterns
+
+### Component Extraction
+
+```typescript
+// Before: Large component with multiple responsibilities
+// After: Smaller, focused components
+```
+
+### Custom Hook Extraction
+
+```typescript
+// Extract repeated logic into custom hooks
+const useCustomLogic = () => {
+  // Shared logic here
+};
+```
+
+### Type Safety Improvements
+
+```typescript
+// Before: any or implicit types
+// After: Proper TypeScript interfaces and types
+```
+
+### Performance Optimization
+
+```typescript
+// Before: Unnecessary re-renders
+// After: Optimized with memoization
+```
+
+Remember: The goal is to improve code quality while maintaining exact functionality. Test thoroughly after refactoring.

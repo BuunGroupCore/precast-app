@@ -48,10 +48,23 @@ interface MCPServer {
  */
 async function loadMCPServers(): Promise<MCPServer[]> {
   const servers: MCPServer[] = [];
-  const serversDir = path.join(__dirname, "..", "..", "src", "templates", "mcp", "servers");
+  // Try multiple paths to find the servers directory
+  const possiblePaths = [
+    path.join(__dirname, "..", "templates", "mcp", "servers"), // Built path
+    path.join(__dirname, "..", "..", "templates", "mcp", "servers"), // Another built path
+    path.join(__dirname, "..", "..", "src", "templates", "mcp", "servers"), // Dev path
+  ];
+
+  let serversDir: string | null = null;
+  for (const p of possiblePaths) {
+    if (await pathExists(p)) {
+      serversDir = p;
+      break;
+    }
+  }
 
   try {
-    if (await pathExists(serversDir)) {
+    if (serversDir) {
       const files = await readdir(serversDir);
       const jsonFiles = files.filter((f) => f.endsWith(".json") && f !== "servers-index.json");
 

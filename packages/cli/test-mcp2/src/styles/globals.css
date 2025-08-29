@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Brutalist Design System - Tailwind Version */
+@layer base {
+  :root {
+    --color-primary: #facc15; /* yellow-400 */
+    --color-dark: #000000;
+    --color-light: #ffffff;
+    --shadow-sm: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    --shadow-md: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+    --shadow-lg: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+    --shadow-xl: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  body {
+    @apply bg-white text-black;
+  }
+}
+
+@layer components {
+  /* Brutalist Button */
+  .btn-brutalist {
+    @apply px-6 py-3 bg-yellow-400 text-black border-2 border-black font-bold uppercase text-sm tracking-wider transition-all duration-150;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-brutalist:hover {
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+    transform: translate(2px, 2px);
+  }
+
+  /* Brutalist Card */
+  .card-brutalist {
+    @apply bg-white border-2 border-black p-4;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Terminal Window */
+  .terminal-window {
+    @apply border-4 border-black bg-white;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .terminal-header {
+    @apply bg-black px-4 py-2 flex items-center justify-between;
+  }
+
+  /* Grid Background */
+  .grid-background {
+    background-image:
+      repeating-linear-gradient(0deg, black, black 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, black, black 1px, transparent 1px, transparent 40px);
+    opacity: 0.03;
+  }
+}

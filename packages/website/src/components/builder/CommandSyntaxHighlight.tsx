@@ -8,33 +8,8 @@ export const CommandSyntaxHighlight: React.FC<CommandSyntaxHighlightProps> = ({ 
   const parseCommand = (cmd: string) => {
     const segments: React.JSX.Element[] = [];
 
-    // Handle multi-word flags like --mcp-servers
-    const parts: string[] = [];
-    let current = "";
-    let inMcpServers = false;
-
-    for (let i = 0; i < cmd.length; i++) {
-      const char = cmd[i];
-
-      if (char === " " && !inMcpServers) {
-        if (current) {
-          parts.push(current);
-          current = "";
-        }
-      } else {
-        current += char;
-        if (current === "--mcp-servers") {
-          inMcpServers = true;
-        } else if (inMcpServers && current.includes("--")) {
-          // Found next flag, end mcp-servers
-          const mcpEnd = current.lastIndexOf("--");
-          parts.push(current.substring(0, mcpEnd - 1));
-          current = current.substring(mcpEnd);
-          inMcpServers = false;
-        }
-      }
-    }
-    if (current) parts.push(current);
+    // Simple space splitting since all flags now use = for values
+    const parts = cmd.split(" ").filter((p) => p.length > 0);
 
     parts.forEach((part, index) => {
       const key = `${part}-${index}`;
@@ -69,21 +44,6 @@ export const CommandSyntaxHighlight: React.FC<CommandSyntaxHighlightProps> = ({ 
           <span key={key} className="text-green-400 font-bold">
             {part}
           </span>
-        );
-      }
-      // Special handling for --mcp-servers
-      else if (part.startsWith("--mcp-servers")) {
-        const flagParts = part.split(" ");
-        segments.push(
-          <React.Fragment key={key}>
-            <span className="text-purple-400">{flagParts[0]}</span>
-            {flagParts.slice(1).map((server, i) => (
-              <React.Fragment key={`${key}-server-${i}`}>
-                <span> </span>
-                <span className="text-blue-400">{server}</span>
-              </React.Fragment>
-            ))}
-          </React.Fragment>
         );
       }
       // Flags with values (purple flag, blue value)

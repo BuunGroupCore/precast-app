@@ -101,7 +101,7 @@ program
   .option("--ai-docs", "Generate AI documentation files (SPEC.md, PRD.md) in docs/ai/ folder")
   .option(
     "--mcp-servers <servers>",
-    "Comma-separated list of MCP servers to include when using Claude AI (filesystem,memory,github-official,github-api,gitlab,postgresql,supabase,mongodb,cloudflare,aws-mcp,azure-mcp,etc.)"
+    "MCP servers to include when using Claude AI (comma-separated: filesystem,memory,github-official,context7,consult7,supabase,etc.)"
   )
   .option(
     "--powerups <powerups>",
@@ -149,7 +149,10 @@ program
       ai: options.ai,
       aiDocs: options.aiDocs,
       mcpServers: options.mcpServers
-        ? options.mcpServers.split(",").map((s: string) => s.trim())
+        ? options.mcpServers
+            .replace(/^=/, "")
+            .split(",")
+            .map((s: string) => s.trim())
         : undefined,
       powerups: options.powerups
         ? options.powerups.split(",").map((s: string) => s.trim())

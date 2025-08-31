@@ -432,9 +432,20 @@ async function generateMonorepoProject(
   const webDir = path.join(appsDir, "web");
   await fs.mkdir(webDir, { recursive: true });
 
-  await templateEngine.copyTemplateDirectory(`frameworks/${frameworkPath}/base`, webDir, config, {
-    overwrite: true,
-  });
+  // Add includePrecastWidget flag to context for framework base files
+  const baseConfig = {
+    ...config,
+    includePrecastWidget: config.powerups?.includes("precast-widget") || false,
+  };
+
+  await templateEngine.copyTemplateDirectory(
+    `frameworks/${frameworkPath}/base`,
+    webDir,
+    baseConfig,
+    {
+      overwrite: true,
+    }
+  );
 
   const commonPublicDir = `common/public`;
   const extendedConfig = {
@@ -456,7 +467,13 @@ async function generateMonorepoProject(
       .getAvailableTemplates(`frameworks/${frameworkPath}`)
       .then((dirs: string[]) => dirs.includes("src"))
   ) {
-    await templateEngine.copyTemplateDirectory(srcDir, path.join(webDir, "src"), config, {
+    // Add includePrecastWidget flag to context for framework src files
+    const srcConfig = {
+      ...config,
+      includePrecastWidget: config.powerups?.includes("precast-widget") || false,
+    };
+
+    await templateEngine.copyTemplateDirectory(srcDir, path.join(webDir, "src"), srcConfig, {
       overwrite: true,
     });
   }
@@ -496,7 +513,13 @@ async function generateMonorepoProject(
     try {
       const pagesPath = path.join(webDir, "src/pages");
 
-      await templateEngine.copyTemplateDirectory(commonPagesDir, pagesPath, config, {
+      // Add includePrecastWidget flag to context for pages
+      const pagesConfig = {
+        ...config,
+        includePrecastWidget: config.powerups?.includes("precast-widget") || false,
+      };
+
+      await templateEngine.copyTemplateDirectory(commonPagesDir, pagesPath, pagesConfig, {
         overwrite: true,
       });
     } catch (error) {
@@ -523,9 +546,20 @@ async function generateMonorepoProject(
           .catch(() => false));
 
       if (!hasIndex) {
-        await templateEngine.copyTemplateDirectory(commonComponentsDir, componentsPath, config, {
-          overwrite: false,
-        });
+        // Add includePrecastWidget flag to context for components
+        const componentsConfig = {
+          ...config,
+          includePrecastWidget: config.powerups?.includes("precast-widget") || false,
+        };
+
+        await templateEngine.copyTemplateDirectory(
+          commonComponentsDir,
+          componentsPath,
+          componentsConfig,
+          {
+            overwrite: false,
+          }
+        );
       }
     } catch (error) {
       consola.debug(`Common components not found or error copying: ${error}`);

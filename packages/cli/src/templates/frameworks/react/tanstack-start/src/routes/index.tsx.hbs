@@ -1,5 +1,5 @@
 {{#if typescript}}import { createFileRoute } from '@tanstack/react-router';
-import { Hero, GettingStarted, TechnologyStack, CTA } from "@/components/home";
+import { Hero{{#if includePrecastWidget}}, GettingStarted, TechnologyStack, CTA{{/if}} } from "@/components/home";
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -13,13 +13,15 @@ function Home() {
   return (
     <div className="{{#if (eq styling 'tailwind')}}max-w-6xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8{{else}}page-container{{/if}}">
       <Hero />
+      {{#if includePrecastWidget}}
       <GettingStarted />
       <TechnologyStack />
       <CTA />
+      {{/if}}
     </div>
   );
 }{{else}}import { createFileRoute } from '@tanstack/react-router';
-import { Hero, GettingStarted, TechnologyStack, CTA } from "@/components/home";
+import { Hero{{#if includePrecastWidget}}, GettingStarted, TechnologyStack, CTA{{/if}} } from "@/components/home";
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -33,9 +35,11 @@ function Home() {
   return (
     <div className="{{#if (eq styling 'tailwind')}}max-w-6xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8{{else}}page-container{{/if}}">
       <Hero />
+      {{#if includePrecastWidget}}
       <GettingStarted />
       <TechnologyStack />
       <CTA />
+      {{/if}}
     </div>
   );
 }{{/if}}

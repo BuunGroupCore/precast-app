@@ -1,8 +1,10 @@
 <script{{#if typescript}} lang="ts"{{/if}}>
   import Hero from '$lib/components/Hero.svelte';
+  {{#if includePrecastWidget}}
   import GettingStarted from '$lib/components/GettingStarted.svelte';
   import TechnologyStack from '$lib/components/TechnologyStack.svelte';
   import CTA from '$lib/components/CTA.svelte';
+  {{/if}}
 </script>
 
 <svelte:head>
@@ -11,6 +13,8 @@
 </svelte:head>
 
 <Hero />
+{{#if includePrecastWidget}}
 <GettingStarted />
 <TechnologyStack />
 <CTA />
+{{/if}}

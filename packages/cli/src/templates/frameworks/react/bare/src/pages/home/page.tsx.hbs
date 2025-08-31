@@ -1,4 +1,4 @@
-import { Hero, GettingStarted, TechnologyStack, CTA } from "@/components/home";
+import { Hero{{#if includePrecastWidget}}, GettingStarted, TechnologyStack, CTA{{/if}} } from "@/components/home";
 
 /**
  * Home page component
@@ -8,9 +8,11 @@ export function HomePage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <Hero />
+      {{#if includePrecastWidget}}
       <GettingStarted />
       <TechnologyStack />
       <CTA />
+      {{/if}}
     </div>
   );
 }

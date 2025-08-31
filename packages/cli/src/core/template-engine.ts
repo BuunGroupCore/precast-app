@@ -470,16 +470,25 @@ export class TemplateEngine {
 
     // Skip components unless precast widget is enabled (except Hero component)
     const isComponent = file.includes("/components/") && !file.includes("/components/ui/");
+    const isHomeComponent = file.includes("/components/home/");
     const isHeroComponent = fileName === "Hero.tsx.hbs" || fileName === "Hero.jsx.hbs";
-    const hasPrecastWidget =
-      (context.plugins && context.plugins.length > 0) ||
-      (context.database && context.database !== "none");
+    const hasPrecastWidget = context.powerups?.includes("precast-widget") || false;
 
-    if (isComponent && !isHeroComponent && !hasPrecastWidget) {
+    // Skip non-Hero home components if no precast widget
+    if (isHomeComponent && !isHeroComponent && !hasPrecastWidget) {
       return true;
     }
 
-    // Also skip component index if no precast widget (keep minimal export)
+    // Skip other components if no precast widget
+    if (isComponent && !isHomeComponent && !hasPrecastWidget) {
+      return true;
+    }
+
+    // Skip home components index file - will be handled specially
+    if (fileName === "index.ts.hbs" && file.includes("/components/home/index.ts.hbs")) {
+      return false; // Let it be processed with conditional exports
+    }
+
     if (
       fileName === "index.ts.hbs" &&
       file.includes("/components/index.ts.hbs") &&

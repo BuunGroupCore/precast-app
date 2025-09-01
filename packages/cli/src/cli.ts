@@ -250,18 +250,18 @@ program
     });
   });
 
-// Setup turbo commands with proper nested structure
+/**
+ * Setup turbo commands with proper nested structure
+ */
 const turboCmd = program
   .command("turbo")
   .description("Turbo monorepo build system with enhanced TUI");
 
-// Show turbo help when no subcommand is provided
 turboCmd.action(async () => {
   const { showTurboHelp } = await import("./commands/turbo/index.js");
   await showTurboHelp();
 });
 
-// Turbo build subcommand
 turboCmd
   .command("build")
   .description("Run Turbo build with TUI dashboard")
@@ -289,7 +289,6 @@ turboCmd
     }
   });
 
-// Turbo dev subcommand
 turboCmd
   .command("dev")
   .description("Run Turbo dev with interactive task management")

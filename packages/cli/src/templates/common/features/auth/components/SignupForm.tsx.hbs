@@ -102,28 +102,26 @@ export function SignupForm({
 
   return (
     <div>
-      <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
-        {/* Header */}
+      <div className="bg-card p-8 rounded-2xl shadow-xl border border-border">
         <div className="text-center mb-8">
-          <h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Create account
           </h1>
-          <p>
+          <p className="text-muted-foreground">
             Join us and start your journey today
           </p>
         </div>
 
-        {/* Social Login */}
         {{#if (eq authProvider "auth.js")}}
         {showSocialLogin && (
           <div>
             <SocialLogin />
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-gray-900 text-gray-500">
+                <span className="px-4 bg-card text-muted-foreground">
                   or create account with email
                 </span>
               </div>
@@ -132,23 +130,20 @@ export function SignupForm({
         )}
         {{/if}}
 
-        {/* Error Message */}
         {error && (
           <div>
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <p className="text-sm text-destructive">{error}</p>
           </div>
         )}
 
-        {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Field */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
               Full name
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
+                <User className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
                 id="name"
@@ -157,9 +152,9 @@ export function SignupForm({
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                         placeholder-gray-500 dark:placeholder-gray-400
+                className="w-full pl-10 pr-3 py-3 border border-input rounded-lg 
+                         bg-background text-foreground
+                         placeholder-muted-foreground
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all duration-200"
@@ -168,14 +163,13 @@ export function SignupForm({
             </div>
           </div>
 
-          {/* Email Field */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
               Email address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
                 id="email"
@@ -184,9 +178,9 @@ export function SignupForm({
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                         placeholder-gray-500 dark:placeholder-gray-400
+                className="w-full pl-10 pr-3 py-3 border border-input rounded-lg 
+                         bg-background text-foreground
+                         placeholder-muted-foreground
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all duration-200"
@@ -195,14 +189,13 @@ export function SignupForm({
             </div>
           </div>
 
-          {/* Password Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
               Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
                 id="password"
@@ -211,9 +204,9 @@ export function SignupForm({
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                         placeholder-gray-500 dark:placeholder-gray-400
+                className="w-full pl-10 pr-12 py-3 border border-input rounded-lg 
+                         bg-background text-foreground
+                         placeholder-muted-foreground
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all duration-200"
@@ -224,7 +217,7 @@ export function SignupForm({
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={loading}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center
-                         text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                         text-muted-foreground hover:text-foreground
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-colors duration-200"
               >
@@ -236,7 +229,6 @@ export function SignupForm({
               </button>
             </div>
             
-            {/* Password Strength Indicator */}
             {password && (
               <div>
                 <div className="flex space-x-1">
@@ -246,22 +238,22 @@ export function SignupForm({
                       className={`h-2 flex-1 rounded-full transition-colors duration-200 ${
                         i < passwordStrength.score
                           ? passwordStrength.score <= 2
-                            ? 'bg-red-400'
+                            ? 'bg-destructive'
                             : passwordStrength.score <= 3
-                            ? 'bg-yellow-400'
-                            : 'bg-green-400'
-                          : 'bg-gray-200 dark:bg-gray-700'
+                            ? 'bg-warning'
+                            : 'bg-success'
+                          : 'bg-muted'
                       }`}
                     />
                   ))}
                 </div>
                 {passwordStrength.feedback.length > 0 && (
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                  <div className="text-xs text-muted-foreground">
                     <p className="mb-1">Password requirements:</p>
                     <ul className="space-y-1">
                       {passwordStrength.feedback.map((item, i) => (
                         <li key={i} className="flex items-center space-x-2">
-                          <X className="h-3 w-3 text-red-400" />
+                          <X className="h-3 w-3 text-destructive" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -272,14 +264,13 @@ export function SignupForm({
             )}
           </div>
 
-          {/* Confirm Password Field */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
               Confirm password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
                 id="confirmPassword"
@@ -288,9 +279,9 @@ export function SignupForm({
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                         placeholder-gray-500 dark:placeholder-gray-400
+                className="w-full pl-10 pr-12 py-3 border border-input rounded-lg 
+                         bg-background text-foreground
+                         placeholder-muted-foreground
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all duration-200"
@@ -301,7 +292,7 @@ export function SignupForm({
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 disabled={loading}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center
-                         text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                         text-muted-foreground hover:text-foreground
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-colors duration-200"
               >
@@ -312,20 +303,18 @@ export function SignupForm({
                 )}
               </button>
               
-              {/* Password Match Indicator */}
               {confirmPassword && (
                 <div className="absolute inset-y-0 right-10 flex items-center">
                   {passwordsMatch ? (
-                    <Check className="h-5 w-5 text-green-400" />
+                    <Check className="h-5 w-5 text-success" />
                   ) : (
-                    <X className="h-5 w-5 text-red-400" />
+                    <X className="h-5 w-5 text-destructive" />
                   )}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Submit Button */}
           <div>
             <AuthButton
               type="submit"
@@ -344,7 +333,6 @@ export function SignupForm({
           </div>
         </form>
 
-        {/* Login Link */}
         {onLoginClick && (
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -353,7 +341,7 @@ export function SignupForm({
                 type="button"
                 onClick={onLoginClick}
                 disabled={loading}
-                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 
+                className="font-medium text-primary hover:text-primary/80 
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-colors duration-200"
               >

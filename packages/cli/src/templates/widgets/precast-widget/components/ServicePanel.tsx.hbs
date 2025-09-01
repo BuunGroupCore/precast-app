@@ -81,7 +81,6 @@ export function ServicePanel({
 
   return (
     <div className="{{#if (eq styling 'tailwind')}}fixed bottom-6 right-6 z-50 flex{{else}}precast-panel-container{{/if}}">
-      {/* Side Tab Navigation */}
       <ServiceTabBar 
         services={services}
         activeTab={activeTab}
@@ -89,15 +88,13 @@ export function ServicePanel({
         isMinimized={isMinimized}
       />
 
-      {/* Main Panel */}
       <div
-        className={`{{#if (eq styling 'tailwind')}}bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 ${isMinimized ? 'w-72 h-14' : 'w-[420px] max-h-[85vh]'}{{else}}precast-main-panel{{/if}}`}
+        className={`{{#if (eq styling 'tailwind')}}bg-card border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 ${isMinimized ? 'w-72 h-14' : 'w-[420px] max-h-[85vh]'}{{else}}precast-main-panel{{/if}}`}
         {{#unless (eq styling 'tailwind')}}
         data-minimized={isMinimized}
         {{/unless}}
       >
-        {/* Header */}
-        <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between p-3 border-b-2 border-black bg-yellow-400{{else}}panel-header{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between p-3 border-b-2 border-foreground bg-primary{{else}}panel-header{{/if}}">
           <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}header-title{{/if}}">
             <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-white border-2 border-black flex items-center justify-center p-1{{else}}header-logo{{/if}}">
               <img 
@@ -123,7 +120,7 @@ export function ServicePanel({
           <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-1{{else}}header-controls{{/if}}">
             <button
               onClick={onMinimize}
-              className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-white border-2 border-black hover:bg-yellow-400 transition-colors flex items-center justify-center{{else}}control-btn{{/if}}"
+              className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-card border-2 border-foreground hover:bg-primary transition-colors flex items-center justify-center{{else}}control-btn{{/if}}"
               title={isMinimized ? "Expand" : "Minimize"}
             >
               <span className="{{#if (eq styling 'tailwind')}}font-bold text-lg leading-none{{else}}control-icon{{/if}}">

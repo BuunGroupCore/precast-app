@@ -1,9 +1,9 @@
 <template>
-  <div{{#if (eq styling "tailwind")}} class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"{{/if}}>
+  <div{{#if (eq styling "tailwind")}} class="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"{{/if}}>
     <div{{#if (eq styling "tailwind")}} class="max-w-7xl mx-auto"{{else}} class="container"{{/if}}>
       <header{{#if (eq styling "tailwind")}} class="text-center mb-12"{{/if}}>
-        <h1{{#if (eq styling "tailwind")}} class="text-4xl font-bold text-gray-900 mb-4"{{else}} class="title"{{/if}}>Welcome to {{name}}</h1>
-        <p{{#if (eq styling "tailwind")}} class="text-lg text-gray-600"{{else}} class="subtitle"{{/if}}>A Vue.js project with {{styling}}{{#if typescript}} and TypeScript{{/if}}</p>
+        <h1{{#if (eq styling "tailwind")}} class="text-4xl font-bold text-foreground mb-4"{{else}} class="title"{{/if}}>Welcome to {{name}}</h1>
+        <p{{#if (eq styling "tailwind")}} class="text-lg text-muted-foreground"{{else}} class="subtitle"{{/if}}>A Vue.js project with {{styling}}{{#if typescript}} and TypeScript{{/if}}</p>
       </header>
 
       <main{{#if (eq styling "tailwind")}} class="grid grid-cols-1 md:grid-cols-2 gap-8"{{/if}}>

@@ -12,22 +12,14 @@ export function useMediaQuery(query: string): boolean {
     const media = window.matchMedia(query);
     setMatches(media.matches);
 
-    const listener = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
+    const listener = () => {
+      setMatches(media.matches);
     };
 
-    if (media.addEventListener) {
-      media.addEventListener('change', listener);
-    } else {
-      media.addListener(listener);
-    }
+    media.addEventListener('change', listener);
 
     return () => {
-      if (media.removeEventListener) {
-        media.removeEventListener('change', listener);
-      } else {
-        media.removeListener(listener);
-      }
+      media.removeEventListener('change', listener);
     };
   }, [query]);
 
@@ -46,22 +38,14 @@ export function useMediaQuery(query) {
     const media = window.matchMedia(query);
     setMatches(media.matches);
 
-    const listener = (event) => {
-      setMatches(event.matches);
+    const listener = () => {
+      setMatches(media.matches);
     };
 
-    if (media.addEventListener) {
-      media.addEventListener('change', listener);
-    } else {
-      media.addListener(listener);
-    }
+    media.addEventListener('change', listener);
 
     return () => {
-      if (media.removeEventListener) {
-        media.removeEventListener('change', listener);
-      } else {
-        media.removeListener(listener);
-      }
+      media.removeEventListener('change', listener);
     };
   }, [query]);
 

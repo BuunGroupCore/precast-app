@@ -5,21 +5,21 @@ export default function Counter() {
 
   return (
     {{#if (eq styling "tailwind")}}
-    <div class="bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Counter</h2>
+    <div class="bg-card p-6 rounded-lg shadow-md max-w-sm mx-auto">
+      <h2 class="text-xl font-semibold text-foreground mb-4">Counter</h2>
       <div class="flex items-center justify-center space-x-4">
         <button 
           onClick={() => setCount(count() - 1)}
-          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          class="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90"
         >
           -
         </button>
-        <span class="text-2xl font-bold text-gray-800 min-w-[3rem] text-center">
+        <span class="text-2xl font-bold text-foreground min-w-[3rem] text-center">
           {count()}
         </span>
         <button 
           onClick={() => setCount(count() + 1)}
-          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          class="px-4 py-2 bg-success text-success-foreground rounded hover:bg-success/90"
         >
           +
         </button>

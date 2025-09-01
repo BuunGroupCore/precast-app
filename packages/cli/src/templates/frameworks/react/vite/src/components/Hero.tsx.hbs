@@ -54,24 +54,24 @@ export function Hero() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* Animated badge */}
-          <div className="inline-flex items-center px-4 py-2 mb-8 text-sm font-medium rounded-full {{#if colorPalette}}bg-primary/20 text-primary border border-primary/30{{else}}bg-purple-900/30 text-purple-300 border border-purple-800/50{{/if}} backdrop-blur-sm">
+          <div className="inline-flex items-center px-4 py-2 mb-8 text-sm font-medium rounded-full bg-primary/10 text-primary-foreground border border-primary/20 backdrop-blur-sm">
             <span className="relative flex h-2 w-2 mr-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full {{#if colorPalette}}bg-primary{{else}}bg-purple-400{{/if}} opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 {{#if colorPalette}}bg-primary{{else}}bg-purple-500{{/if}}"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
             Built with React + Vite + {{#if typescript}}TypeScript{{else}}JavaScript{{/if}}
           </div>
           
           {/* Main heading with gradient */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight">
-            <span className="block text-white mb-2">Welcome to</span>
-            <span className="block {{#if colorPalette}}bg-gradient-to-r from-primary via-secondary to-primary{{else}}bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400{{/if}} bg-clip-text text-transparent animate-gradient bg-300%">
+            <span className="block text-foreground mb-2">Welcome to</span>
+            <span className="block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-gradient bg-300%">
               {{name}}
             </span>
           </h1>
           
           {/* Subtitle */}
-          <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-300">
+          <p className="mt-6 max-w-2xl mx-auto text-xl text-muted-foreground">
             Experience the future of web development with our cutting-edge technology stack. 
             Fast, secure, and scalable applications at your fingertips.
           </p>
@@ -82,17 +82,16 @@ export function Hero() {
               href="https://precast.dev/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative px-8 py-4 {{#if colorPalette}}bg-accent hover:bg-accent-dark{{else}}bg-gradient-to-r from-purple-600 to-pink-600{{/if}} text-white font-semibold rounded-xl overflow-hidden transition-all hover:scale-105 shadow-xl inline-block"
+              className="group relative px-8 py-4 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-xl overflow-hidden transition-all hover:scale-105 shadow-xl inline-block"
             >
               <span className="relative z-10">Get Started</span>
-              {{#unless colorPalette}}<div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity" />{{/unless}}
             </a>
             
             <a 
               href="https://precast.dev/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 {{#if colorPalette}}bg-white/10 hover:bg-white/20 border-white/20{{else}}bg-slate-800/50 hover:bg-slate-700/50 border-slate-700/50{{/if}} backdrop-blur-sm text-white font-semibold rounded-xl border transition-all hover:scale-105 inline-block"
+              className="px-8 py-4 bg-card/50 hover:bg-card/70 border-border backdrop-blur-sm text-foreground font-semibold rounded-xl border transition-all hover:scale-105 inline-block"
             >
               View Documentation
             </a>
@@ -104,14 +103,14 @@ export function Hero() {
               <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
                 <SiReact className="w-10 h-10" color="#61DAFB" />
               </div>
-              <span className="text-xs text-gray-400">React</span>
+              <span className="text-xs text-muted-foreground">React</span>
             </div>
             
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
                 <SiVite className="w-10 h-10" color="#646CFF" />
               </div>
-              <span className="text-xs text-gray-400">Vite</span>
+              <span className="text-xs text-muted-foreground">Vite</span>
             </div>
             
             {{#if typescript}}
@@ -119,7 +118,7 @@ export function Hero() {
               <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
                 <SiTypescript className="w-10 h-10" color="#3178C6" />
               </div>
-              <span className="text-xs text-gray-400">TypeScript</span>
+              <span className="text-xs text-muted-foreground">TypeScript</span>
             </div>
             {{/if}}
             
@@ -128,7 +127,7 @@ export function Hero() {
               <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
                 <SiTailwindcss className="w-10 h-10" color="#06B6D4" />
               </div>
-              <span className="text-xs text-gray-400">Tailwind</span>
+              <span className="text-xs text-muted-foreground">Tailwind</span>
             </div>
             {{/if}}
             
@@ -153,7 +152,7 @@ export function Hero() {
                 </div>
                 {{/if}}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {{#if (eq backend "hono")}}Hono{{/if}}
                 {{#if (eq backend "cloudflare-workers")}}Cloudflare{{/if}}
                 {{#if (eq backend "express")}}Express{{/if}}
@@ -186,7 +185,7 @@ export function Hero() {
                 </div>
                 {{/if}}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {{#if (eq apiClient "hono-rpc")}}Hono RPC{{/if}}
                 {{#if (eq apiClient "tanstack-query")}}TanStack Query{{/if}}
                 {{#if (eq apiClient "swr")}}SWR{{/if}}
@@ -210,7 +209,7 @@ export function Hero() {
                 <SiSqlite className="w-10 h-10" color="#003B57" />
                 {{/if}}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {{#if (eq database "postgres")}}PostgreSQL{{/if}}
                 {{#if (eq database "mysql")}}MySQL{{/if}}
                 {{#if (eq database "mongodb")}}MongoDB{{/if}}
@@ -230,7 +229,7 @@ export function Hero() {
                 <SiMongoose className="w-10 h-10" color="#880000" />
                 {{/if}}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {{#if (eq orm "prisma")}}Prisma{{/if}}
                 {{#if (eq orm "drizzle")}}Drizzle{{/if}}
                 {{#if (eq orm "mongoose")}}Mongoose{{/if}}
@@ -255,7 +254,7 @@ export function Hero() {
                 <SiMantine className="w-10 h-10" color="#339AF0" />
                 {{/if}}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {{#if (eq uiLibrary "shadcn")}}shadcn/ui{{/if}}
                 {{#if (eq uiLibrary "daisy")}}DaisyUI{{/if}}
                 {{#if (eq uiLibrary "mui")}}Material UI{{/if}}
@@ -275,7 +274,7 @@ export function Hero() {
                 <SiNodedotjs className="w-10 h-10" color="#339933" />
                 {{/if}}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {{#if (eq runtime "bun")}}Bun{{/if}}
                 {{#if (eq runtime "node")}}Node.js{{/if}}
               </span>

@@ -33,22 +33,22 @@ export const colorPalettes: ColorPalette[] = [
     description: "Clean, modern design system",
     category: "modern",
     colors: {
-      primary: "#0F172A",
-      primaryDark: "#020617",
-      secondary: "#64748B",
-      secondaryDark: "#475569",
-      accent: "#3B82F6",
-      accentDark: "#2563EB",
+      primary: "#1A1A1A",
+      primaryDark: "#0A0A0A",
+      secondary: "#F5F5F5",
+      secondaryDark: "#E0E0E0",
+      accent: "#2563EB",
+      accentDark: "#1D4ED8",
       background: "#FFFFFF",
-      surface: "#F8FAFC",
-      text: "#020617",
-      textSecondary: "#64748B",
-      error: "#EF4444",
+      surface: "#FAFAFA",
+      text: "#1A1A1A",
+      textSecondary: "#6B7280",
+      error: "#DC2626",
       warning: "#F59E0B",
-      success: "#10B981",
-      info: "#3B82F6",
+      success: "#16A34A",
+      info: "#2563EB",
     },
-    preview: ["#0F172A", "#64748B", "#3B82F6", "#10B981"],
+    preview: ["#1A1A1A", "#2563EB", "#16A34A", "#F5F5F5"],
   },
   {
     id: "vercel",
@@ -79,22 +79,22 @@ export const colorPalettes: ColorPalette[] = [
     description: "Vibrant gradient-friendly palette",
     category: "modern",
     colors: {
-      primary: "#635BFF",
-      primaryDark: "#5243CC",
-      secondary: "#00D4FF",
-      secondaryDark: "#00A9CC",
-      accent: "#00D924",
-      accentDark: "#00AC1D",
+      primary: "#5E3FBE",
+      primaryDark: "#4B32A3",
+      secondary: "#00BBDD",
+      secondaryDark: "#0099BB",
+      accent: "#00C853",
+      accentDark: "#00A041",
       background: "#FFFFFF",
-      surface: "#F6F9FC",
-      text: "#0A2540",
-      textSecondary: "#425466",
-      error: "#DF1B41",
-      warning: "#F59300",
-      success: "#00D924",
-      info: "#00D4FF",
+      surface: "#F7F9FC",
+      text: "#1A2332",
+      textSecondary: "#5A6169",
+      error: "#E53935",
+      warning: "#FB8C00",
+      success: "#00C853",
+      info: "#00BBDD",
     },
-    preview: ["#635BFF", "#00D4FF", "#00D924", "#0A2540"],
+    preview: ["#5E3FBE", "#00BBDD", "#00C853", "#1A2332"],
   },
   {
     id: "linear",
@@ -783,20 +783,23 @@ export function generateCSSVariables(palette: ColorPalette): string {
   /* Primary Colors */
   --color-primary: ${palette.colors.primary};
   --color-primary-dark: ${palette.colors.primaryDark};
+  --color-primary-foreground: ${palette.colors.background}; /* Ensure text on primary has contrast */
   
   /* Secondary Colors */
   --color-secondary: ${palette.colors.secondary};
   --color-secondary-dark: ${palette.colors.secondaryDark};
+  --color-secondary-foreground: ${palette.colors.text}; /* Ensure text on secondary has contrast */
   
   /* Accent Colors */
   --color-accent: ${palette.colors.accent};
   --color-accent-dark: ${palette.colors.accentDark};
+  --color-accent-foreground: ${palette.colors.background}; /* Ensure text on accent has contrast */
   
   /* Background Colors */
   --color-background: ${palette.colors.background};
   --color-surface: ${palette.colors.surface};
   
-  /* Text Colors */
+  /* Text Colors - CRITICAL: These must contrast with background */
   --color-text: ${palette.colors.text};
   --color-text-secondary: ${palette.colors.textSecondary};
   
@@ -805,51 +808,58 @@ export function generateCSSVariables(palette: ColorPalette): string {
   --color-warning: ${palette.colors.warning};
   --color-success: ${palette.colors.success};
   --color-info: ${palette.colors.info};
-}`;
+  
+  /* Ensure proper text visibility */
+  --color-foreground: ${palette.colors.text}; /* Main text color */
+  --color-muted-foreground: ${palette.colors.textSecondary}; /* Secondary text */
 }
 
-/**
- * Convert HEX color to RGB values
- */
-function hexToRgb(hex: string): string {
-  // Remove # if present
-  hex = hex.replace("#", "");
+/* Utility classes for proper text contrast */
+.text-foreground {
+  color: var(--color-text);
+}
 
-  // Convert to RGB
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
+.bg-background {
+  background-color: var(--color-background);
+  color: var(--color-text); /* Always ensure text is visible on background */
+}
 
-  return `${r} ${g} ${b}`;
+.bg-surface {
+  background-color: var(--color-surface);
+  color: var(--color-text); /* Always ensure text is visible on surface */
+}`;
 }
 
 /**
  * Generate Tailwind CSS config for a color palette
  */
 export function generateTailwindConfig(palette: ColorPalette): string {
-  // Convert HEX to RGB for Tailwind opacity support
+  // Use HEX values directly for better compatibility
   return `colors: {
-      primary: {
-        DEFAULT: 'rgb(${hexToRgb(palette.colors.primary)})',
-        dark: 'rgb(${hexToRgb(palette.colors.primaryDark)})',
+      'app-primary': {
+        DEFAULT: '${palette.colors.primary}',
+        dark: '${palette.colors.primaryDark}',
+        foreground: '${palette.colors.background}', // Ensure contrast
       },
-      secondary: {
-        DEFAULT: 'rgb(${hexToRgb(palette.colors.secondary)})',
-        dark: 'rgb(${hexToRgb(palette.colors.secondaryDark)})',
+      'app-secondary': {
+        DEFAULT: '${palette.colors.secondary}',
+        dark: '${palette.colors.secondaryDark}',
+        foreground: '${palette.colors.text}', // Ensure contrast
       },
-      accent: {
-        DEFAULT: 'rgb(${hexToRgb(palette.colors.accent)})',
-        dark: 'rgb(${hexToRgb(palette.colors.accentDark)})',
+      'app-accent': {
+        DEFAULT: '${palette.colors.accent}',
+        dark: '${palette.colors.accentDark}',
+        foreground: '${palette.colors.background}', // Ensure contrast
       },
-      background: 'rgb(${hexToRgb(palette.colors.background)})',
-      surface: 'rgb(${hexToRgb(palette.colors.surface)})',
-      text: {
-        DEFAULT: 'rgb(${hexToRgb(palette.colors.text)})',
-        secondary: 'rgb(${hexToRgb(palette.colors.textSecondary)})',
+      'app-background': '${palette.colors.background}',
+      'app-surface': '${palette.colors.surface}',
+      'app-text': {
+        DEFAULT: '${palette.colors.text}',
+        secondary: '${palette.colors.textSecondary}',
       },
-      error: 'rgb(${hexToRgb(palette.colors.error)})',
-      warning: 'rgb(${hexToRgb(palette.colors.warning)})',
-      success: 'rgb(${hexToRgb(palette.colors.success)})',
-      info: 'rgb(${hexToRgb(palette.colors.info)})',
+      'app-error': '${palette.colors.error}',
+      'app-warning': '${palette.colors.warning}',
+      'app-success': '${palette.colors.success}',
+      'app-info': '${palette.colors.info}',
     }`;
 }

@@ -79,13 +79,21 @@
     <!-- Loading indicator for better UX -->
     <div id="root">
       <style>
+        :root {
+          /* Dynamic colors that adapt to selected palette */
+          --loader-bg: #1c1c2e;
+          --loader-primary: #3b82f6;
+          --loader-surface: #ffffff;
+          --loader-text: #111827;
+          --loader-border: #111827;
+        }
         .preloader {
           position: fixed;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          background: #0f172a;
+          background: var(--loader-bg);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -93,14 +101,14 @@
         }
         .preloader-container {
           position: relative;
-          background: white;
-          border: 4px solid black;
-          box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+          background: var(--loader-surface);
+          border: 4px solid var(--loader-border);
+          box-shadow: 8px 8px 0px 0px var(--loader-border);
           padding: 0;
           min-width: 320px;
         }
         .preloader-header {
-          background: black;
+          background: var(--loader-border);
           padding: 8px 12px;
           display: flex;
           align-items: center;
@@ -110,7 +118,7 @@
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #facc15;
+          color: var(--loader-primary);
           font-family: 'Courier New', monospace;
           font-size: 12px;
           text-transform: uppercase;
@@ -127,11 +135,11 @@
         .control-dot {
           width: 10px;
           height: 10px;
-          background: #facc15;
+          background: var(--loader-primary);
         }
         .preloader-body {
           padding: 24px;
-          background: white;
+          background: var(--loader-surface);
         }
         .loading-animation {
           display: flex;
@@ -151,8 +159,8 @@
           position: absolute;
           width: 40px;
           height: 40px;
-          border: 2px solid black;
-          background: #facc15;
+          border: 2px solid var(--loader-border);
+          background: var(--loader-primary);
         }
         .cube-face.front { transform: translateZ(20px); }
         .cube-face.back { transform: rotateY(180deg) translateZ(20px); }
@@ -169,7 +177,7 @@
         .loading-text {
           font-family: 'Courier New', monospace;
           font-size: 14px;
-          color: black;
+          color: var(--loader-text);
           text-align: center;
           text-transform: uppercase;
         }
@@ -192,8 +200,8 @@
         .progress-bar {
           margin-top: 16px;
           height: 20px;
-          background: white;
-          border: 2px solid black;
+          background: var(--loader-surface);
+          border: 2px solid var(--loader-border);
           position: relative;
           overflow: hidden;
         }
@@ -201,10 +209,10 @@
           height: 100%;
           background: repeating-linear-gradient(
             45deg,
-            #facc15,
-            #facc15 10px,
-            black 10px,
-            black 20px
+            var(--loader-primary),
+            var(--loader-primary) 10px,
+            var(--loader-border) 10px,
+            var(--loader-border) 20px
           );
           animation: progressMove 1s linear infinite, progressFill 2s ease-out forwards;
         }
@@ -219,20 +227,20 @@
         .system-info {
           margin-top: 12px;
           padding-top: 12px;
-          border-top: 2px solid black;
+          border-top: 2px solid var(--loader-border);
           display: flex;
           justify-content: space-between;
           font-family: 'Courier New', monospace;
           font-size: 10px;
           text-transform: uppercase;
-          color: black;
+          color: var(--loader-text);
           opacity: 0.6;
         }
         .status-indicator {
           display: inline-block;
           width: 6px;
           height: 6px;
-          background: #facc15;
+          background: var(--loader-primary);
           margin-right: 4px;
           animation: blink 1s infinite;
         }
@@ -245,7 +253,7 @@
         <div class="preloader-container">
           <div class="preloader-header">
             <div class="preloader-title">
-              <svg class="terminal-icon" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2">
+              <svg class="terminal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="8" y1="12" x2="12" y2="12"></line>
                 <line x1="14" y1="12" x2="16" y2="12"></line>

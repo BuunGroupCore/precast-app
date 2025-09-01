@@ -4,17 +4,17 @@ export const Route = createFileRoute('/precast')({
   component: () => (
     <div className="max-w-4xl mx-auto p-8">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
           Welcome to Precast
         </h1>
-        <p className="text-xl text-gray-600">
+        <p className="text-xl text-muted-foreground">
           Your project was created with Precast CLI
         </p>
       </div>
       
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <div className="bg-card rounded-lg shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-semibold mb-4">What's included:</h2>
-        <ul className="space-y-2 text-gray-700">
+        <ul className="space-y-2 text-foreground">
           <li>✅ TanStack Start (React framework)</li>
           {{#if (ne backend "none")}}
           <li>✅ {{backend}} backend</li>
@@ -38,7 +38,7 @@ export const Route = createFileRoute('/precast')({
           href="https://precast.dev" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
         >
           Visit Precast Documentation
         </a>

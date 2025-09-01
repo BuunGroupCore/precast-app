@@ -2,15 +2,15 @@
   {{#if typescript}}export let name: string = 'Svelte';{{else}}export let name = 'Svelte';{{/if}}
 </script>
 
-<div class="{{#if (eq styling 'tailwind')}}bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto{{else}}hello-world{{/if}}">
-  <h2 class="{{#if (eq styling 'tailwind')}}text-xl font-semibold text-gray-800 mb-4{{else}}hello-title{{/if}}">
+<div class="{{#if (eq styling 'tailwind')}}bg-card p-6 rounded-lg shadow-md max-w-sm mx-auto{{else}}hello-world{{/if}}">
+  <h2 class="{{#if (eq styling 'tailwind')}}text-xl font-semibold text-foreground mb-4{{else}}hello-title{{/if}}">
     Hello World!
   </h2>
-  <p class="{{#if (eq styling 'tailwind')}}text-gray-600{{else}}hello-description{{/if}}">
+  <p class="{{#if (eq styling 'tailwind')}}text-muted-foreground{{else}}hello-description{{/if}}">
     Welcome to your {name} application! This is a simple component example.
   </p>
-  <div class="{{#if (eq styling 'tailwind')}}mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400{{else}}hello-info{{/if}}">
-    <p class="{{#if (eq styling 'tailwind')}}text-sm text-blue-700{{else}}hello-info-text{{/if}}">
+  <div class="{{#if (eq styling 'tailwind')}}mt-4 p-3 bg-primary/10 rounded border-l-4 border-primary{{else}}hello-info{{/if}}">
+    <p class="{{#if (eq styling 'tailwind')}}text-sm text-primary{{else}}hello-info-text{{/if}}">
       🚀 You're ready to start building amazing things!
     </p>
   </div>
@@ -30,13 +30,13 @@
   .hello-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
+    color: hsl(var(--foreground));
     margin-bottom: 1rem;
     text-align: center;
   }
 
   .hello-description {
-    color: #6b7280;
+    color: hsl(var(--muted-foreground));
     text-align: center;
     line-height: 1.5;
   }
@@ -44,14 +44,14 @@
   .hello-info {
     margin-top: 1rem;
     padding: 0.75rem;
-    background-color: #eff6ff;
+    background-color: hsl(var(--primary) / 0.1);
     border-radius: 0.25rem;
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid hsl(var(--primary));
   }
 
   .hello-info-text {
     font-size: 0.875rem;
-    color: #1d4ed8;
+    color: hsl(var(--primary));
     margin: 0;
   }
 </style>

@@ -23,13 +23,10 @@ export function useScrollPosition(): ScrollPosition {
       });
     };
 
-    // Set initial position
     updatePosition();
 
-    // Add event listener
     window.addEventListener('scroll', updatePosition);
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener('scroll', updatePosition);
   }, []);
 
@@ -54,13 +51,10 @@ export function useScrollPosition() {
       });
     };
 
-    // Set initial position
     updatePosition();
 
-    // Add event listener
     window.addEventListener('scroll', updatePosition);
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener('scroll', updatePosition);
   }, []);
 

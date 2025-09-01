@@ -57,28 +57,26 @@ export function LoginForm({
 
   return (
     <div className={`w-full max-w-md mx-auto ${className}`}>
-      <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
-        {/* Header */}
+      <div className="bg-card p-8 rounded-2xl shadow-xl border border-border">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome back
           </h1>
-          <p>
+          <p className="text-muted-foreground">
             Sign in to your account to continue
           </p>
         </div>
 
-        {/* Social Login */}
         {{#if (eq authProvider "auth.js")}}
         {showSocialLogin && (
           <div>
             <SocialLogin />
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-gray-900 text-gray-500">
+                <span className="px-4 bg-card text-muted-foreground">
                   or continue with email
                 </span>
               </div>
@@ -87,23 +85,20 @@ export function LoginForm({
         )}
         {{/if}}
 
-        {/* Error Message */}
         {error && (
           <div>
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <p className="text-sm text-destructive">{error}</p>
           </div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Field */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
               Email address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
                 id="email"
@@ -112,8 +107,8 @@ export function LoginForm({
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                className="w-full pl-10 pr-3 py-3 border border-input rounded-lg 
+                         bg-background text-foreground
                          placeholder-gray-500 dark:placeholder-gray-400
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          disabled:opacity-50 disabled:cursor-not-allowed
@@ -123,14 +118,13 @@ export function LoginForm({
             </div>
           </div>
 
-          {/* Password Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
               Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
                 id="password"
@@ -139,8 +133,8 @@ export function LoginForm({
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                className="w-full pl-10 pr-12 py-3 border border-input rounded-lg 
+                         bg-background text-foreground
                          placeholder-gray-500 dark:placeholder-gray-400
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          disabled:opacity-50 disabled:cursor-not-allowed
@@ -152,7 +146,7 @@ export function LoginForm({
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={loading}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center
-                         text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                         text-muted-foreground hover:text-foreground
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-colors duration-200"
               >
@@ -165,12 +159,11 @@ export function LoginForm({
             </div>
           </div>
 
-          {/* Forgot Password Link */}
           <div>
             <button
               type="button"
               disabled={loading}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 
+              className="text-sm text-primary hover:text-primary/80 
                        disabled:opacity-50 disabled:cursor-not-allowed
                        transition-colors duration-200"
             >
@@ -178,7 +171,6 @@ export function LoginForm({
             </button>
           </div>
 
-          {/* Submit Button */}
           <div>
             <AuthButton
               type="submit"
@@ -197,16 +189,15 @@ export function LoginForm({
           </div>
         </form>
 
-        {/* Sign Up Link */}
         {onSignupClick && (
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Don't have an account?{' '}
               <button
                 type="button"
                 onClick={onSignupClick}
                 disabled={loading}
-                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 
+                className="font-medium text-primary hover:text-primary/80 
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-colors duration-200"
               >

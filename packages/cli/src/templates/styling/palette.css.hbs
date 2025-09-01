@@ -39,12 +39,27 @@
   }
 }
 
-/* Utility classes */
-.bg-primary { background-color: var(--color-primary); }
-.bg-secondary { background-color: var(--color-secondary); }
-.bg-accent { background-color: var(--color-accent); }
-.bg-background { background-color: var(--color-background); }
-.bg-surface { background-color: var(--color-surface); }
+/* Utility classes with proper contrast */
+.bg-primary { 
+  background-color: var(--color-primary);
+  color: var(--color-background); /* White/light text on primary */
+}
+.bg-secondary { 
+  background-color: var(--color-secondary);
+  color: var(--color-text); /* Dark text on secondary */
+}
+.bg-accent { 
+  background-color: var(--color-accent);
+  color: var(--color-background); /* White/light text on accent */
+}
+.bg-background { 
+  background-color: var(--color-background);
+  color: var(--color-text); /* Ensure text is visible on background */
+}
+.bg-surface { 
+  background-color: var(--color-surface);
+  color: var(--color-text); /* Ensure text is visible on surface */
+}
 
 .text-primary { color: var(--color-text); }
 .text-secondary { color: var(--color-text-secondary); }
@@ -52,6 +67,12 @@
 .text-warning { color: var(--color-warning); }
 .text-success { color: var(--color-success); }
 .text-info { color: var(--color-info); }
+
+/* Ensure body has proper text color */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
 
 .border-primary { border-color: var(--color-primary); }
 .border-secondary { border-color: var(--color-secondary); }

@@ -164,5 +164,4 @@ export function isAuthProviderCompatibleWithStack(
   return true;
 }
 
-// Export for backward compatibility
 export { setupAuthentication as default };

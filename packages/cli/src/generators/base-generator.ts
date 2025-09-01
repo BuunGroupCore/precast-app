@@ -630,8 +630,10 @@ async function generateMonorepoProject(
     const apiPackageJsonPath = path.join(apiDir, "package.json");
     const sharedPackageName = `@${config.name}/shared`;
 
-    // Use file: protocol for better npm fallback compatibility
-    // workspace: protocol causes issues when package manager fallback occurs
+    /**
+     * Use file: protocol for better npm fallback compatibility
+     * Note: workspace: protocol causes issues when package manager fallback occurs
+     */
     const sharedPackageRef = "file:../../packages/shared";
 
     if (

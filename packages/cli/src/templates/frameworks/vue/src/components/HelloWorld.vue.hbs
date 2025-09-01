@@ -49,13 +49,13 @@ defineProps<{
   background: white;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
 }
 
 .card-title {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: hsl(var(--foreground));
 }
 
 .links {
@@ -73,7 +73,7 @@ defineProps<{
 }
 
 .link {
-  color: #42b883;
+  color: hsl(var(--primary));
   text-decoration: none;
   
   &:hover {

@@ -27,8 +27,8 @@ export function TestButton({
   className = '' 
 }: TestButtonProps) {
   const baseClasses = variant === 'primary' 
-    ? "{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-yellow-400 border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn{{/if}}"
-    : "{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-white border-2 border-black text-black font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn status-btn{{/if}}";
+    ? "{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-primary border-2 border-foreground text-primary-foreground font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn{{/if}}"
+    : "{{#if (eq styling 'tailwind')}}w-full px-4 py-3 bg-card border-2 border-foreground text-foreground font-bold uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed{{else}}test-btn status-btn{{/if}}";
 
   return (
     <button

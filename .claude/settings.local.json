@@ -56,7 +56,8 @@
       "Bash(pnpm install:*)",
       "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init /tmp/test-npm-mono --framework react --backend hono --database none --styling tailwind --package-manager npm --yes --no-git)",
       "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-npm-mono --framework react --backend hono --database none --styling tailwind --package-manager npm --yes --no-git)",
-      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-bun-mono --framework react --backend hono --database none --styling tailwind --package-manager bun --yes --no-git --install)"
+      "Bash(/home/sacha/repositories/precast-app/packages/cli/dist/cli.js init test-bun-mono --framework react --backend hono --database none --styling tailwind --package-manager bun --yes --no-git --install)",
+      "Bash(rg:*)"
     ],
     "additionalDirectories": [
       "/tmp"

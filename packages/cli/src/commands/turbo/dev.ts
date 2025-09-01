@@ -3,7 +3,6 @@
  * Handles persistent dev tasks with individual task interaction and output viewing
  */
 
-// import { spawn } from "child_process"; // Handled by InteractiveTurboDashboard
 import { existsSync, readFileSync, readdirSync } from "fs";
 import { join } from "path";
 
@@ -16,7 +15,6 @@ import {
 } from "@/utils/ui/interactive-turbo-dashboard.js";
 import { PrecastBanner } from "@/utils/ui/precast-banner.js";
 
-// Use the InteractiveTask interface from the dashboard
 type DevTaskState = InteractiveTask;
 
 /**

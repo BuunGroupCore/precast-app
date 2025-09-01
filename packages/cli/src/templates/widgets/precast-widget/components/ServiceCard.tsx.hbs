@@ -86,18 +86,18 @@ export function ServiceCard({
   const testFunction = getTestFunction();
 
   return (
-    <div className="{{#if (eq styling 'tailwind')}}border-2 border-black p-4 bg-white{{else}}service-card{{/if}}">
+    <div className="{{#if (eq styling 'tailwind')}}border-2 border-foreground p-4 bg-card{{else}}service-card{{/if}}">
       <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-3{{else}}service-header{{/if}}">
         <div className="{{#if (eq styling 'tailwind')}}flex items-center space-x-2{{else}}service-info{{/if}}">
-          <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-yellow-400 border-2 border-black flex items-center justify-center{{else}}service-icon{{/if}}">
+          <div className="{{#if (eq styling 'tailwind')}}w-8 h-8 bg-primary border-2 border-foreground flex items-center justify-center{{else}}service-icon{{/if}}">
             {getServiceIcon(service.icon, 20)}
           </div>
           <div>
-            <h3 className="{{#if (eq styling 'tailwind')}}font-bold text-black uppercase text-sm{{else}}service-name{{/if}}">
+            <h3 className="{{#if (eq styling 'tailwind')}}font-bold text-foreground uppercase text-sm{{else}}service-name{{/if}}">
               {service.type?.toUpperCase() || service.name}
             </h3>
             {service.port && (
-              <p className="{{#if (eq styling 'tailwind')}}text-xs text-black/60 font-mono{{else}}service-port{{/if}}">
+              <p className="{{#if (eq styling 'tailwind')}}text-xs text-muted-foreground font-mono{{else}}service-port{{/if}}">
                 PORT: {service.port}
               </p>
             )}

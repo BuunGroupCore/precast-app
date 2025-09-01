@@ -8,49 +8,89 @@ export default {
         3: "3px",
       },
       colors: {
-        // Poppy comic book color palette
+        // Professional Comic Book Palette with Better Contrast
         comic: {
-          red: "#FF1744",
-          darkRed: "#D50000",
-          blue: "#2962FF",
-          darkBlue: "#0039CB",
-          yellow: "#FFD600",
-          darkYellow: "#F9A825",
-          green: "#00E676",
-          darkGreen: "#00C853",
-          purple: "#D500F9",
-          darkPurple: "#AA00FF",
-          orange: "#FF6D00",
-          darkOrange: "#DD2C00",
-          pink: "#FF4081",
-          black: "#212121",
-          white: "#FFFFFF",
-          ink: "#000000",
+          // Primary colors with improved contrast ratios
+          red: "#E53935", // Material Red 600 - softer than pure red
+          darkRed: "#B71C1C", // Material Red 900 - better for text
+          blue: "#1E88E5", // Material Blue 600 - more readable
+          darkBlue: "#0D47A1", // Material Blue 900 - deep navy
+          yellow: "#FBC02D", // Material Yellow 700 - less harsh
+          darkYellow: "#F57C00", // Material Orange 700 - warmer accent
+          green: "#43A047", // Material Green 600 - professional green
+          darkGreen: "#1B5E20", // Material Green 900 - forest green
+          purple: "#8E24AA", // Material Purple 600 - balanced purple
+          darkPurple: "#4A148C", // Material Purple 900 - deep purple
+          orange: "#FB8C00", // Material Orange 600 - warm orange
+          darkOrange: "#E65100", // Material Orange 900 - burnt orange
+          pink: "#EC407A", // Material Pink 400 - soft pink
+          black: "#1A1A1A", // Softer black for better eye comfort
+          white: "#FAFAFA", // Slightly off-white
+          ink: "#0A0A0A", // True black for borders
+
+          // Background shades for depth
+          bg: {
+            light: "#FFFEF7", // Warm cream background
+            main: "#FFF8E1", // Light amber tint
+            dark: "#FFF3D0", // Deeper amber
+          },
+
+          // Neutral grays for UI elements
+          gray: {
+            50: "#FAFAFA",
+            100: "#F5F5F5",
+            200: "#EEEEEE",
+            300: "#E0E0E0",
+            400: "#BDBDBD",
+            500: "#9E9E9E",
+            600: "#757575",
+            700: "#616161",
+            800: "#424242",
+            900: "#212121",
+          },
         },
+
+        // Action buttons with better accessibility
         pow: {
-          light: "#FFE082",
-          main: "#FFC107",
-          dark: "#FF8F00",
+          light: "#FFE57F", // Lighter, softer yellow
+          main: "#FFC947", // Golden yellow
+          dark: "#F9A825", // Amber accent
+          contrast: "#5D4037", // Dark brown for text contrast
         },
         bam: {
-          light: "#E1BEE7",
-          main: "#9C27B0",
-          dark: "#6A1B9A",
+          light: "#FF8A80", // Light coral
+          main: "#FF5252", // Bright red
+          dark: "#D32F2F", // Dark red
+          contrast: "#FFFFFF", // White for text
         },
         zap: {
-          light: "#FFF59D",
-          main: "#FFEB3B",
-          dark: "#F9A825",
+          light: "#B2FF59", // Light lime
+          main: "#76FF03", // Electric green
+          dark: "#64DD17", // Darker lime
+          contrast: "#1A237E", // Dark blue for text
         },
         boom: {
-          light: "#FFCCBC",
-          main: "#FF5722",
-          dark: "#D84315",
+          light: "#EA80FC", // Light purple
+          main: "#D500F9", // Bright magenta
+          dark: "#AA00FF", // Deep purple
+          contrast: "#FFFFFF", // White for text
         },
+
+        // UI-specific colors
         panel: {
-          bg: "#FFF8E1",
-          border: "#000000",
-          shadow: "#424242",
+          bg: "#FFFEF7", // Main panel background
+          bgDark: "#1E1E1E", // Dark mode panel
+          border: "#2C2C2C", // Softer border color
+          shadow: "#00000020", // Transparent shadow
+          accent: "#FFF3D0", // Accent background
+        },
+
+        // Status colors for better UX
+        status: {
+          success: "#4CAF50",
+          warning: "#FF9800",
+          error: "#F44336",
+          info: "#2196F3",
         },
       },
       fontFamily: {

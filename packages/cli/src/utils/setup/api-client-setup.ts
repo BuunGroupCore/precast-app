@@ -159,8 +159,10 @@ function getApiClientConfig(apiClient: string): ApiClientConfig | null {
     },
   };
 
-  // Note: TanStack Query packages will be set dynamically based on framework
-  // when setupApiClient is called
+  /**
+   * Note: TanStack Query packages will be set dynamically based on framework
+   * when setupApiClient is called
+   */
 
   return configs[apiClient] || null;
 }

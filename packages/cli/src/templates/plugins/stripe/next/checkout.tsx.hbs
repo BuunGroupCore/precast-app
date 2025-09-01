@@ -201,14 +201,14 @@ export default function CheckoutForm({
   const options: StripeElementsOptions = {
     clientSecret,
     appearance: {
-      theme: "stripe",
+      theme: "flat",
       variables: {
-        colorPrimary: "#0570de",
-        colorBackground: "#ffffff",
-        colorText: "#30313d",
-        colorDanger: "#df1b41",
+        colorPrimary: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim().replace(/(\d+)\s+(\d+%)\s+(\d+%)/, 'hsl($1, $2, $3)') || "#0570de",
+        colorBackground: getComputedStyle(document.documentElement).getPropertyValue('--background').trim().replace(/(\d+)\s+(\d+%)\s+(\d+%)/, 'hsl($1, $2, $3)') || "#ffffff",
+        colorText: getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim().replace(/(\d+)\s+(\d+%)\s+(\d+%)/, 'hsl($1, $2, $3)') || "#30313d",
+        colorDanger: getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim().replace(/(\d+)\s+(\d+%)\s+(\d+%)/, 'hsl($1, $2, $3)') || "#df1b41",
         fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        borderRadius: "6px",
+        borderRadius: "0.5rem",
         spacingUnit: "4px",
       },
       rules: {

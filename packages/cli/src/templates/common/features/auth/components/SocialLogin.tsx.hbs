@@ -57,7 +57,7 @@ export function SocialLogin({
           disabled={isLoading}
           className="w-full group"
         >
-          <FaGoogle className="h-5 w-5 mr-3 text-red-500 group-hover:text-red-600 transition-colors" />
+          <FaGoogle className="h-5 w-5 mr-3 text-destructive group-hover:text-destructive/80 transition-colors" />
           Continue with Google
         </AuthButton>
       </div>
@@ -70,7 +70,7 @@ export function SocialLogin({
           disabled={isLoading}
           className="w-full group"
         >
-          <FaGithub className="h-5 w-5 mr-3 text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+          <FaGithub className="h-5 w-5 mr-3 text-foreground group-hover:text-primary transition-colors" />
           Continue with GitHub
         </AuthButton>
       </div>

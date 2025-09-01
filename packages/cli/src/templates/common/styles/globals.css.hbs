@@ -6,13 +6,13 @@
 /* Brutalist Design System - Tailwind Version */
 @layer base {
   :root {
-    --color-primary: #facc15; /* yellow-400 */
-    --color-dark: #000000;
-    --color-light: #ffffff;
-    --shadow-sm: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-    --shadow-md: 6px 6px 0px 0px rgba(0, 0, 0, 1);
-    --shadow-lg: 8px 8px 0px 0px rgba(0, 0, 0, 1);
-    --shadow-xl: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+    --color-primary: hsl(var(--primary));
+    --color-dark: hsl(var(--foreground));
+    --color-light: hsl(var(--background));
+    --shadow-sm: 4px 4px 0px 0px hsl(var(--foreground));
+    --shadow-md: 6px 6px 0px 0px hsl(var(--foreground));
+    --shadow-lg: 8px 8px 0px 0px hsl(var(--foreground));
+    --shadow-xl: 12px 12px 0px 0px hsl(var(--foreground));
   }
 
   body {
@@ -28,7 +28,7 @@
   }
   
   .btn-brutalist:hover {
-    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+    box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
     transform: translate(2px, 2px);
   }
 
@@ -61,16 +61,16 @@
 /* Brutalist Design System - Pure CSS Version */
 :root {
   /* Colors */
-  --color-primary: #facc15;
-  --color-dark: #000000;
-  --color-light: #ffffff;
-  --color-gray: #6b7280;
+  --color-primary: hsl(var(--primary));
+  --color-dark: hsl(var(--foreground));
+  --color-light: hsl(var(--background));
+  --color-gray: hsl(var(--muted-foreground));
   
   /* Shadows */
-  --shadow-sm: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-md: 6px 6px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-lg: 8px 8px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-xl: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-sm: 4px 4px 0px 0px hsl(var(--foreground));
+  --shadow-md: 6px 6px 0px 0px hsl(var(--foreground));
+  --shadow-lg: 8px 8px 0px 0px hsl(var(--foreground));
+  --shadow-xl: 12px 12px 0px 0px hsl(var(--foreground));
   
   /* Fonts */
   font-family: 'Courier New', monospace, system-ui, -apple-system, sans-serif;
@@ -128,14 +128,14 @@ h6 { font-size: 1rem; }
 }
 
 .btn-brutalist:hover {
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
   transform: translate(2px, 2px);
 }
 
 .btn-brutalist-dark {
   background-color: var(--color-dark);
   color: var(--color-primary);
-  box-shadow: 4px 4px 0px 0px rgba(255, 255, 255, 1);
+  box-shadow: 4px 4px 0px 0px hsl(var(--background));
 }
 
 .btn-brutalist-white {
@@ -153,7 +153,7 @@ h6 { font-size: 1rem; }
 }
 
 .card-brutalist:hover {
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
   transform: translate(2px, 2px);
   transition: all 0.15s ease;
 }
@@ -224,9 +224,9 @@ h6 { font-size: 1rem; }
   animation: pulse 2s infinite;
 }
 
-.status-ok { background-color: #10b981; }
+.status-ok { background-color: hsl(var(--success)); }
 .status-warning { background-color: var(--color-primary); }
-.status-error { background-color: #ef4444; }
+.status-error { background-color: hsl(var(--destructive)); }
 
 /* Sections */
 .section-separator {
@@ -467,11 +467,11 @@ main {
 }
 
 .error-fail {
-  color: #dc2626;
+  color: hsl(var(--destructive));
 }
 
 .error-warn {
-  color: #d97706;
+  color: hsl(var(--warning));
 }
 
 .error-info {
@@ -503,12 +503,12 @@ main {
   background-color: var(--color-primary);
   padding: 0.75rem 1.5rem;
   border: 4px solid var(--color-dark);
-  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 6px 6px 0px 0px hsl(var(--foreground));
   transition: all 0.15s ease;
 }
 
 .hero-title:hover {
-  box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 3px 3px 0px 0px hsl(var(--foreground));
   transform: translate(3px, 3px);
 }
 
@@ -562,7 +562,7 @@ main {
 }
 
 .status-ok {
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
 }
 
 .status-text {
@@ -572,7 +572,7 @@ main {
 .status-summary {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid rgba(0, 0, 0, 0.2);
+  border-top: 2px solid hsl(var(--foreground) / 0.2);
 }
 
 .status-label {
@@ -606,14 +606,14 @@ main {
   height: 2px;
   flex: 1;
   max-width: 18rem;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: hsl(var(--foreground) / 0.2);
 }
 
 .separator-text {
   margin: 0 1rem;
   font-size: 0.75rem;
   font-family: 'Courier New', monospace;
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -803,7 +803,7 @@ main {
 .status-bar {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(250, 204, 21, 0.2);
+  border-top: 1px solid hsl(var(--primary) / 0.2);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -848,7 +848,7 @@ main {
 }
 
 .precast-floating-btn:hover {
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
   transform: translate(2px, 2px);
 }
 
@@ -896,12 +896,12 @@ main {
 }
 
 .side-tab:hover {
-  background-color: #f3f4f6;
+  background-color: hsl(var(--muted));
 }
 
 .side-tab[data-active="true"] {
   background-color: var(--color-primary);
-  box-shadow: -2px 0px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: -2px 0px 0px 0px hsl(var(--foreground));
 }
 
 .tab-icon {
@@ -969,7 +969,7 @@ main {
 
 .panel-subtitle {
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.7);
+  color: hsl(var(--foreground) / 0.7);
   font-family: 'Courier New', monospace;
 }
 
@@ -1000,7 +1000,7 @@ main {
 }
 
 .control-close:hover {
-  background-color: #374151;
+  background-color: hsl(var(--muted-foreground));
 }
 
 .control-icon {
@@ -1067,7 +1067,7 @@ main {
 
 .service-port {
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   font-family: 'Courier New', monospace;
 }
 
@@ -1103,7 +1103,7 @@ main {
 }
 
 .test-btn:hover {
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
   transform: translate(2px, 2px);
 }
 
@@ -1204,7 +1204,7 @@ main {
 
 .result-timestamp {
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   margin-top: 0.25rem;
   font-family: 'Courier New', monospace;
 }
@@ -1212,14 +1212,14 @@ main {
 .result-json {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: hsl(var(--foreground) / 0.05);
+  border: 1px solid hsl(var(--foreground) / 0.1);
 }
 
 .json-content {
   font-size: 0.75rem;
   font-family: 'Courier New', monospace;
-  color: rgba(0, 0, 0, 0.7);
+  color: hsl(var(--foreground) / 0.7);
   overflow-x: auto;
 }
 
@@ -1232,7 +1232,7 @@ main {
   margin-top: 1rem;
   padding: 1rem;
   border: 2px solid var(--color-dark);
-  background-color: #fafafa;
+  background-color: hsl(var(--muted) / 0.5);
 }
 
 .auth-mode-selector {
@@ -1245,7 +1245,7 @@ main {
   flex: 1;
   padding: 0.5rem 1rem;
   background-color: var(--color-dark);
-  color: #6b7280;
+  color: hsl(var(--muted-foreground));
   border: 2px solid var(--color-dark);
   font-size: 0.75rem;
   font-weight: bold;
@@ -1264,7 +1264,7 @@ main {
 }
 
 .auth-mode-btn:hover {
-  border-color: #6b7280;
+  border-color: hsl(var(--muted-foreground));
 }
 
 .auth-mode-btn[data-active="true"] {
@@ -1300,25 +1300,25 @@ main {
   font-family: "Courier New", monospace;
   font-size: 0.875rem;
   transition: all 0.15s ease;
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
 }
 
 .input-field:focus {
   outline: none;
   background-color: var(--color-primary);
-  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 4px 4px 0px 0px hsl(var(--foreground));
   transform: translate(-1px, -1px);
 }
 
 .input-field::placeholder {
-  color: rgba(0, 0, 0, 0.5);
+  color: hsl(var(--foreground) / 0.5);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.75rem;
 }
 
 .input-field:hover {
-  box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 3px 3px 0px 0px hsl(var(--foreground));
 }
 
 /* Enhanced test button styles for auth */
@@ -1330,7 +1330,7 @@ main {
 }
 
 .test-btn.status-btn:hover {
-  background-color: #f3f4f6;
+  background-color: hsl(var(--muted));
 }
 
 /* Getting Started Component Styles */
@@ -1375,11 +1375,11 @@ main {
   cursor: pointer;
   transition: all 0.15s ease;
   background-color: var(--color-dark);
-  color: #6b7280;
+  color: hsl(var(--muted-foreground));
 }
 
 .tab-btn:hover {
-  border-color: #6b7280;
+  border-color: hsl(var(--muted-foreground));
 }
 
 .tab-btn[data-active="true"] {
@@ -1418,12 +1418,12 @@ main {
 }
 
 .command-item:hover {
-  background-color: #fefce8;
+  background-color: hsl(var(--warning) / 0.1);
 }
 
 .command-icon {
   margin-top: 0.125rem;
-  color: #d97706;
+  color: hsl(var(--warning));
 }
 
 .command-content {
@@ -1437,7 +1437,7 @@ main {
 }
 
 .prompt {
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   font-size: 0.875rem;
 }
 
@@ -1450,7 +1450,7 @@ main {
 
 .command-desc {
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   margin-top: 0.25rem;
 }
 
@@ -1595,7 +1595,7 @@ main {
 }
 
 .stat-key {
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   text-transform: uppercase;
   font-size: 0.625rem;
 }
@@ -1603,7 +1603,7 @@ main {
 .stat-value {
   color: var(--color-dark);
   font-weight: bold;
-  background-color: rgba(250, 204, 21, 0.2);
+  background-color: hsl(var(--primary) / 0.2);
   padding: 0.125rem 0.25rem;
 }
 
@@ -1709,7 +1709,7 @@ button:disabled {
 .cta-card {
   border: 4px solid var(--color-dark);
   background-color: var(--color-primary);
-  box-shadow: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 12px 12px 0px 0px hsl(var(--foreground));
   position: relative;
 }
 
@@ -1755,7 +1755,7 @@ button:disabled {
 
 .cta-description {
   font-size: 1.25rem;
-  color: rgba(0, 0, 0, 0.8);
+  color: hsl(var(--foreground) / 0.8);
   margin-bottom: 2rem;
   font-family: 'Courier New', monospace;
 }
@@ -1800,12 +1800,12 @@ button:disabled {
   font-size: 0.875rem;
   letter-spacing: 0.1em;
   text-decoration: none;
-  box-shadow: 4px 4px 0px 0px rgba(255, 255, 255, 1);
+  box-shadow: 4px 4px 0px 0px hsl(var(--background));
   transition: all 0.15s ease;
 }
 
 .btn-primary:hover {
-  box-shadow: 2px 2px 0px 0px rgba(255, 255, 255, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--background));
   transform: translate(2px, 2px);
 }
 
@@ -1832,7 +1832,7 @@ button:disabled {
 }
 
 .btn-secondary:hover {
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
   transform: translate(2px, 2px);
 }
 
@@ -1863,7 +1863,7 @@ button:disabled {
 .stat-label {
   font-size: 0.75rem;
   font-family: 'Courier New', monospace;
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   text-transform: uppercase;
 }
 
@@ -2012,7 +2012,7 @@ button:disabled {
   margin: 1.5rem 0;
   border: 2px solid var(--color-dark);
   padding: 1rem;
-  background-color: #fefce8;
+  background-color: hsl(var(--warning) / 0.1);
 }
 
 .error-message-content {
@@ -2030,12 +2030,12 @@ button:disabled {
 }
 
 .error-description {
-  color: rgba(0, 0, 0, 0.8);
+  color: hsl(var(--foreground) / 0.8);
   line-height: 1.5;
 }
 
 .icon-warning {
-  color: #d97706;
+  color: hsl(var(--warning));
   margin-top: 0.125rem;
 }
 
@@ -2045,7 +2045,7 @@ button:disabled {
 }
 
 .stack-trace-summary {
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
   cursor: pointer;
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
@@ -2054,7 +2054,7 @@ button:disabled {
 .stack-trace-content {
   padding-left: 1rem;
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: hsl(var(--foreground) / 0.6);
 }
 
 .stack-trace-content div {
@@ -2109,7 +2109,7 @@ button:disabled {
 }
 
 .action-buttons .btn-brutalist:hover {
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  box-shadow: 2px 2px 0px 0px hsl(var(--foreground));
   transform: translate(2px, 2px);
 }
 
@@ -2155,7 +2155,7 @@ button:disabled {
 }
 
 .error-page .status-indicator.status-ok {
-  background-color: #10b981;
+  background-color: hsl(var(--success));
 }
 
 .error-page .status-indicator.status-warning {
@@ -2163,12 +2163,12 @@ button:disabled {
 }
 
 .error-page .status-indicator.status-error {
-  background-color: #ef4444;
+  background-color: hsl(var(--destructive));
 }
 
 /* Terminal control dots for 404 page */
 .control-red {
-  background-color: #ef4444;
+  background-color: hsl(var(--destructive));
 }
 
 .control-yellow {
@@ -2176,7 +2176,7 @@ button:disabled {
 }
 
 .control-green {
-  background-color: #10b981;
+  background-color: hsl(var(--success));
 }
 
 {{/if}}

@@ -23,7 +23,7 @@ export function FloatingButton({ isOpen, onToggle }: FloatingButtonProps) {
   return (
     <button
       onClick={onToggle}
-      className="{{#if (eq styling 'tailwind')}}fixed bottom-6 right-6 z-50 bg-yellow-400 border-2 border-black p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 group{{else}}precast-floating-btn{{/if}}"
+      className="{{#if (eq styling 'tailwind')}}fixed bottom-6 right-6 z-50 bg-primary border-2 border-foreground p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 group{{else}}precast-floating-btn{{/if}}"
       title="Open Precast Validator"
     >
       <div className="{{#if (eq styling 'tailwind')}}relative w-6 h-6{{else}}btn-icon{{/if}}">

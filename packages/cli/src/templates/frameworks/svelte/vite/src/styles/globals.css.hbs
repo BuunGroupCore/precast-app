@@ -10,8 +10,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -19,16 +19,16 @@
   -moz-osx-font-smoothing: grayscale;
   
   /* Brutalist Design System colors */
-  --color-primary: #facc15;
-  --color-dark: #000000;
-  --color-light: #ffffff;
-  --color-gray: #6b7280;
+  --color-primary: hsl(var(--primary));
+  --color-dark: hsl(var(--foreground));
+  --color-light: hsl(var(--background));
+  --color-gray: hsl(var(--muted-foreground));
   
   /* Shadows */
-  --shadow-sm: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-md: 6px 6px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-lg: 8px 8px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-xl: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-sm: 4px 4px 0px 0px hsl(var(--foreground));
+  --shadow-md: 6px 6px 0px 0px hsl(var(--foreground));
+  --shadow-lg: 8px 8px 0px 0px hsl(var(--foreground));
+  --shadow-xl: 12px 12px 0px 0px hsl(var(--foreground));
 }
 
 * {
@@ -39,12 +39,12 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: hsl(var(--primary));
   text-decoration: inherit;
 }
 
 a:hover {
-  color: #535bf2;
+  color: hsl(var(--primary) / 0.9);
 }
 
 body {
@@ -67,13 +67,13 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: hsl(var(--muted));
   cursor: pointer;
   transition: border-color 0.25s;
 }
 
 button:hover {
-  border-color: #646cff;
+  border-color: hsl(var(--primary));
 }
 
 button:focus,
@@ -83,16 +83,16 @@ button:focus-visible {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
   }
   
   a:hover {
-    color: #747bff;
+    color: hsl(var(--primary) / 0.8);
   }
   
   button {
-    background-color: #f9f9f9;
+    background-color: hsl(var(--card));
   }
 }
 
@@ -124,7 +124,7 @@ button:focus-visible {
 }
 
 .read-the-docs {
-  color: #888;
+  color: hsl(var(--muted-foreground));
 }
 
 /* Hero Component Styles */
@@ -480,7 +480,7 @@ button:focus-visible {
 }
 
 .side-tab:hover {
-  background-color: #f3f4f6;
+  background-color: hsl(var(--muted));
 }
 
 .side-tab[data-active="true"] {
@@ -579,7 +579,7 @@ button:focus-visible {
 }
 
 .control-close:hover {
-  background-color: #374151;
+  background-color: hsl(var(--muted-foreground));
 }
 
 .control-icon {

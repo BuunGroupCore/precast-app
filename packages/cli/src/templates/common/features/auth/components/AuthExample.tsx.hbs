@@ -41,10 +41,10 @@ export function AuthExample() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -52,49 +52,48 @@ export function AuthExample() {
 
   if (isAuthenticated && user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto">
-            {/* User Profile Card */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
+            <div className="bg-card rounded-2xl shadow-xl p-8 border border-border">
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <User className="h-10 w-10 text-white" />
+                <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                  <User className="h-10 w-10 text-primary-foreground" />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h1 className="text-2xl font-bold text-foreground mb-2">
                   Welcome back!
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-muted-foreground">
                   You're successfully signed in
                 </p>
               </div>
 
               <div className="space-y-4 mb-6">
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <User className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center space-x-3 p-3 bg-muted rounded-lg">
+                  <User className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm text-muted-foreground">Name</p>
+                    <p className="font-medium text-foreground">
                       {user.name || 'Not provided'}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <Shield className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center space-x-3 p-3 bg-muted rounded-lg">
+                  <Shield className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium text-foreground">
                       {user.email}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <Settings className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center space-x-3 p-3 bg-muted rounded-lg">
+                  <Settings className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">User ID</p>
-                    <p className="font-mono text-sm text-gray-600 dark:text-gray-300">
+                    <p className="text-sm text-muted-foreground">User ID</p>
+                    <p className="font-mono text-sm text-muted-foreground">
                       {user.id}
                     </p>
                   </div>
@@ -117,25 +116,24 @@ export function AuthExample() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
-          {/* Welcome Card */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 text-center">
-            <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Shield className="h-10 w-10 text-white" />
+          <div className="bg-card rounded-2xl shadow-xl p-8 border border-border text-center">
+            <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-6">
+              <Shield className="h-10 w-10 text-primary-foreground" />
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-3xl font-bold text-foreground mb-4">
               Welcome to {{projectName}}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
+            <p className="text-muted-foreground mb-8">
               Beautiful, modern authentication components built with React and Framer Motion
             </p>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-600 dark:text-red-400">{error instanceof Error ? error.message : String(error)}</p>
+              <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</p>
               </div>
             )}
 

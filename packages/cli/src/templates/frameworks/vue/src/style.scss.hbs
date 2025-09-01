@@ -1,9 +1,9 @@
 {{#if (eq styling "scss")}}// Variables
-$primary-color: #42b883;
-$secondary-color: #35495e;
-$text-color: #333;
-$background-color: #f5f5f5;
-$card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+$primary-color: hsl(var(--primary));
+$secondary-color: hsl(var(--secondary));
+$text-color: hsl(var(--foreground));
+$background-color: hsl(var(--background));
+$card-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
 
 // Reset
 * {

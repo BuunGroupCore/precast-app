@@ -73,10 +73,10 @@ export function AuthTestForm({
     return (
       <div className="{{#if (eq styling 'tailwind')}}space-y-3{{else}}auth-test-container{{/if}}">
         {/* User Info Display */}
-        <div className="{{#if (eq styling 'tailwind')}}p-3 border-2 border-black bg-green-100{{else}}user-info-display{{/if}}">
+        <div className="{{#if (eq styling 'tailwind')}}p-3 border-2 border-foreground bg-success/10{{else}}user-info-display{{/if}}">
           <div className="{{#if (eq styling 'tailwind')}}flex items-center justify-between mb-2{{else}}user-info-header{{/if}}">
             <span className="{{#if (eq styling 'tailwind')}}font-bold text-xs uppercase tracking-wider{{else}}status-label{{/if}}">LOGGED IN</span>
-            <span className="{{#if (eq styling 'tailwind')}}px-2 py-1 bg-green-500 text-white text-xs font-bold border border-black{{else}}status-badge{{/if}}">
+            <span className="{{#if (eq styling 'tailwind')}}px-2 py-1 bg-success text-success-foreground text-xs font-bold border border-foreground{{else}}status-badge{{/if}}">
               AUTHENTICATED
             </span>
           </div>

@@ -42,7 +42,7 @@ export function StripeWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+          className="bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
           title="Stripe Testing"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,24 +54,24 @@ export function StripeWidget() {
 
       {/* Floating Panel */}
       {isOpen && (
-        <div className={`bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl transition-all duration-300 ${
+        <div className={`bg-popover/95 backdrop-blur-2xl border border-border rounded-xl shadow-2xl transition-all duration-300 ${
           isMinimized ? 'w-48 h-12' : 'w-80 max-h-96'
         }`}>
           {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b border-white/10">
+          <div className="flex items-center justify-between p-3 border-b border-border">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded flex items-center justify-center">
-                <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-6 h-6 bg-gradient-to-br from-primary/20 to-accent/20 rounded flex items-center justify-center">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                     d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </div>
-              <span className="text-sm font-medium text-white">Stripe</span>
+              <span className="text-sm font-medium text-foreground">Stripe</span>
             </div>
             <div className="flex items-center space-x-1">
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="p-1 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-white"
+                className="p-1 hover:bg-accent rounded transition-colors text-muted-foreground hover:text-foreground"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {isMinimized ? (
@@ -83,7 +83,7 @@ export function StripeWidget() {
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-white"
+                className="p-1 hover:bg-accent rounded transition-colors text-muted-foreground hover:text-foreground"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -98,7 +98,7 @@ export function StripeWidget() {
               <button
                 onClick={testStripeConnection}
                 disabled={loading}
-                className="w-full px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-all"
+                className="w-full px-3 py-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground text-sm font-medium rounded-lg disabled:opacity-50 transition-all"
               >
                 {loading ? 'Testing...' : 'Test Connection'}
               </button>
@@ -106,18 +106,18 @@ export function StripeWidget() {
               {testResult && (
                 <div className={`mt-3 p-2 rounded-lg text-xs ${
                   testResult.success 
-                    ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                    ? 'bg-success/10 text-success border border-success/20' 
+                    : 'bg-destructive/10 text-destructive border border-destructive/20'
                 }`}>
                   {testResult.message}
                 </div>
               )}
               
               <div className="mt-3 space-y-2">
-                <button className="w-full px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-xs rounded transition-all">
+                <button className="w-full px-3 py-1.5 bg-accent/50 hover:bg-accent border border-border text-muted-foreground text-xs rounded transition-all">
                   Test Payment
                 </button>
-                <button className="w-full px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-xs rounded transition-all">
+                <button className="w-full px-3 py-1.5 bg-accent/50 hover:bg-accent border border-border text-muted-foreground text-xs rounded transition-all">
                   View Webhooks
                 </button>
               </div>

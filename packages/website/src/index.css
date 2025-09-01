@@ -162,150 +162,210 @@
   }
 }
 
-/* Theme Variables */
+/* Theme Variables - Improved Professional Palette */
 :root[data-theme="classic"] {
-  --comic-red: #ff1744;
-  --comic-dark-red: #d50000;
-  --comic-blue: #2962ff;
+  /* Primary Comic Colors */
+  --comic-red: #e53935;
+  --comic-dark-red: #b71c1c;
+  --comic-blue: #1e88e5;
   --comic-dark-blue: #0d47a1;
-  --comic-yellow: #ffd600;
-  --comic-dark-yellow: #f57f17;
-  --comic-green: #00e676;
-  --comic-dark-green: #00c853;
-  --comic-purple: #aa00ff;
-  --comic-dark-purple: #7200ca;
-  --comic-orange: #ff6d00;
+  --comic-yellow: #fbc02d;
+  --comic-dark-yellow: #f57c00;
+  --comic-green: #43a047;
+  --comic-dark-green: #1b5e20;
+  --comic-purple: #8e24aa;
+  --comic-dark-purple: #4a148c;
+  --comic-orange: #fb8c00;
   --comic-dark-orange: #e65100;
-  --comic-pink: #ff4081;
-  --comic-dark-pink: #f50057;
-  --comic-black: #000000;
-  --comic-white: #ffffff;
-  --comic-gray: #f5f5f5;
-  --panel-bg: #fff8e1;
-  --pow-main: #ffd600;
-  --pow-dark: #f9a825;
-  --bam-main: #ff1744;
-  --bam-dark: #d50000;
-  --zap-main: #00e676;
-  --zap-dark: #00c853;
-  --boom-main: #aa00ff;
-  --boom-dark: #7200ca;
-}
-
-:root[data-theme="dark"] {
-  --comic-red: #ff5252;
-  --comic-dark-red: #d32f2f;
-  --comic-blue: #448aff;
-  --comic-dark-blue: #1976d2;
-  --comic-yellow: #ffd740;
-  --comic-dark-yellow: #ffc107;
-  --comic-green: #69f0ae;
-  --comic-dark-green: #00e676;
-  --comic-purple: #e040fb;
-  --comic-dark-purple: #aa00ff;
-  --comic-orange: #ffab40;
-  --comic-dark-orange: #ff6d00;
-  --comic-pink: #ff80ab;
-  --comic-dark-pink: #ff4081;
-  --comic-black: #212121;
+  --comic-pink: #ec407a;
+  --comic-dark-pink: #ad1457;
+  --comic-black: #1a1a1a;
   --comic-white: #fafafa;
-  --comic-gray: #424242;
-  --panel-bg: #303030;
-  --pow-main: #ffd740;
-  --pow-dark: #ffc107;
+  --comic-gray: #f5f5f5;
+  --comic-ink: #0a0a0a;
+
+  /* Panel & Background Colors */
+  --panel-bg: #fffef7;
+  --panel-bg-accent: #fff3d0;
+  --panel-border: #2c2c2c;
+
+  /* Action Button Colors */
+  --pow-light: #ffe57f;
+  --pow-main: #ffc947;
+  --pow-dark: #f9a825;
+  --bam-light: #ff8a80;
   --bam-main: #ff5252;
   --bam-dark: #d32f2f;
-  --zap-main: #69f0ae;
-  --zap-dark: #00e676;
-  --boom-main: #e040fb;
+  --zap-light: #b2ff59;
+  --zap-main: #76ff03;
+  --zap-dark: #64dd17;
+  --boom-light: #ea80fc;
+  --boom-main: #d500f9;
   --boom-dark: #aa00ff;
 }
 
+:root[data-theme="dark"] {
+  /* Primary Comic Colors - Dark Mode */
+  --comic-red: #ef5350;
+  --comic-dark-red: #c62828;
+  --comic-blue: #42a5f5;
+  --comic-dark-blue: #1565c0;
+  --comic-yellow: #ffca28;
+  --comic-dark-yellow: #ff8f00;
+  --comic-green: #66bb6a;
+  --comic-dark-green: #2e7d32;
+  --comic-purple: #ab47bc;
+  --comic-dark-purple: #6a1b9a;
+  --comic-orange: #ffa726;
+  --comic-dark-orange: #ef6c00;
+  --comic-pink: #f06292;
+  --comic-dark-pink: #c2185b;
+  --comic-black: #121212;
+  --comic-white: #f5f5f5;
+  --comic-gray: #424242;
+  --comic-ink: #000000;
+
+  /* Panel & Background Colors - Dark Mode */
+  --panel-bg: #1e1e1e;
+  --panel-bg-accent: #2d2d2d;
+  --panel-border: #3c3c3c;
+
+  /* Action Button Colors - Dark Mode */
+  --pow-light: #fff176;
+  --pow-main: #ffca28;
+  --pow-dark: #f9a825;
+  --bam-light: #ff8a80;
+  --bam-main: #ff5252;
+  --bam-dark: #d32f2f;
+  --zap-light: #aed581;
+  --zap-main: #8bc34a;
+  --zap-dark: #689f38;
+  --boom-light: #ce93d8;
+  --boom-main: #ba68c8;
+  --boom-dark: #8e24aa;
+}
+
 :root[data-theme="retro"] {
-  --comic-red: #ff6b6b;
-  --comic-dark-red: #ee5a6f;
-  --comic-blue: #4ecdc4;
-  --comic-dark-blue: #45b7aa;
-  --comic-yellow: #ffe66d;
-  --comic-dark-yellow: #f7d060;
-  --comic-green: #95e1d3;
-  --comic-dark-green: #81d4c3;
-  --comic-purple: #c7ceea;
-  --comic-dark-purple: #b8b8d1;
-  --comic-orange: #feca57;
-  --comic-dark-orange: #f5b342;
-  --comic-pink: #ff9ff3;
-  --comic-dark-pink: #f48fb1;
-  --comic-black: #2d3436;
+  /* Primary Comic Colors - Retro Palette */
+  --comic-red: #f06292;
+  --comic-dark-red: #c2185b;
+  --comic-blue: #4fc3f7;
+  --comic-dark-blue: #0288d1;
+  --comic-yellow: #fff176;
+  --comic-dark-yellow: #fbc02d;
+  --comic-green: #81c784;
+  --comic-dark-green: #388e3c;
+  --comic-purple: #ba68c8;
+  --comic-dark-purple: #7b1fa2;
+  --comic-orange: #ffb74d;
+  --comic-dark-orange: #f57c00;
+  --comic-pink: #ffab91;
+  --comic-dark-pink: #ff5722;
+  --comic-black: #37474f;
   --comic-white: #ffffff;
-  --comic-gray: #faf3e0;
-  --panel-bg: #ffeaa7;
-  --pow-main: #ffe66d;
-  --pow-dark: #f7d060;
-  --bam-main: #ff6b6b;
-  --bam-dark: #ee5a6f;
-  --zap-main: #4ecdc4;
-  --zap-dark: #45b7aa;
-  --boom-main: #c7ceea;
-  --boom-dark: #b8b8d1;
+  --comic-gray: #eceff1;
+  --comic-ink: #263238;
+
+  /* Panel & Background Colors - Retro */
+  --panel-bg: #fff8e1;
+  --panel-bg-accent: #ffe0b2;
+  --panel-border: #455a64;
+
+  /* Action Button Colors - Retro */
+  --pow-light: #fff59d;
+  --pow-main: #ffeb3b;
+  --pow-dark: #f9a825;
+  --bam-light: #ffab91;
+  --bam-main: #ff7043;
+  --bam-dark: #e64a19;
+  --zap-light: #80deea;
+  --zap-main: #26c6da;
+  --zap-dark: #0097a7;
+  --boom-light: #ce93d8;
+  --boom-main: #ab47bc;
+  --boom-dark: #7b1fa2;
 }
 
 :root[data-theme="neon"] {
-  --comic-red: #ff006e;
-  --comic-dark-red: #c10049;
-  --comic-blue: #3a86ff;
-  --comic-dark-blue: #2968db;
-  --comic-yellow: #ffbe0b;
-  --comic-dark-yellow: #fb8500;
-  --comic-green: #06ffa5;
-  --comic-dark-green: #00cc82;
-  --comic-purple: #8338ec;
-  --comic-dark-purple: #6023b0;
-  --comic-orange: #fb5607;
-  --comic-dark-orange: #e04502;
-  --comic-pink: #ff006e;
-  --comic-dark-pink: #c10049;
+  /* Primary Comic Colors - Neon Cyberpunk */
+  --comic-red: #ff0266;
+  --comic-dark-red: #cc0052;
+  --comic-blue: #00d4ff;
+  --comic-dark-blue: #0099cc;
+  --comic-yellow: #ffde00;
+  --comic-dark-yellow: #ffb300;
+  --comic-green: #00ff88;
+  --comic-dark-green: #00cc6a;
+  --comic-purple: #b833ff;
+  --comic-dark-purple: #9000ff;
+  --comic-orange: #ff6600;
+  --comic-dark-orange: #cc5200;
+  --comic-pink: #ff00aa;
+  --comic-dark-pink: #cc0088;
   --comic-black: #0a0a0a;
-  --comic-white: #ffffff;
+  --comic-white: #f0f0f0;
   --comic-gray: #1a1a1a;
+  --comic-ink: #000000;
+
+  /* Panel & Background Colors - Neon */
   --panel-bg: #0f0f0f;
-  --pow-main: #ffbe0b;
-  --pow-dark: #fb8500;
-  --bam-main: #ff006e;
-  --bam-dark: #c10049;
-  --zap-main: #06ffa5;
-  --zap-dark: #00cc82;
-  --boom-main: #8338ec;
-  --boom-dark: #6023b0;
+  --panel-bg-accent: #1a1a1a;
+  --panel-border: #333333;
+
+  /* Action Button Colors - Neon */
+  --pow-light: #ffee00;
+  --pow-main: #ffde00;
+  --pow-dark: #ccb200;
+  --bam-light: #ff3366;
+  --bam-main: #ff0266;
+  --bam-dark: #cc0052;
+  --zap-light: #33ffaa;
+  --zap-main: #00ff88;
+  --zap-dark: #00cc6a;
+  --boom-light: #cc66ff;
+  --boom-main: #b833ff;
+  --boom-dark: #9000ff;
 }
 
 :root[data-theme="manga"] {
-  --comic-red: #ff0000;
-  --comic-dark-red: #cc0000;
-  --comic-blue: #000000;
-  --comic-dark-blue: #1a1a1a;
-  --comic-yellow: #ffffff;
-  --comic-dark-yellow: #e0e0e0;
-  --comic-green: #666666;
-  --comic-dark-green: #4d4d4d;
-  --comic-purple: #999999;
-  --comic-dark-purple: #808080;
-  --comic-orange: #333333;
-  --comic-dark-orange: #1a1a1a;
-  --comic-pink: #ff0000;
-  --comic-dark-pink: #cc0000;
+  /* Primary Comic Colors - Manga B&W Style */
+  --comic-red: #dc143c;
+  --comic-dark-red: #8b0000;
+  --comic-blue: #1a1a1a;
+  --comic-dark-blue: #000000;
+  --comic-yellow: #f5f5f5;
+  --comic-dark-yellow: #d3d3d3;
+  --comic-green: #696969;
+  --comic-dark-green: #404040;
+  --comic-purple: #808080;
+  --comic-dark-purple: #595959;
+  --comic-orange: #4d4d4d;
+  --comic-dark-orange: #333333;
+  --comic-pink: #ff1744;
+  --comic-dark-pink: #b71c1c;
   --comic-black: #000000;
   --comic-white: #ffffff;
-  --comic-gray: #f5f5f5;
+  --comic-gray: #e8e8e8;
+  --comic-ink: #000000;
+
+  /* Panel & Background Colors - Manga */
   --panel-bg: #ffffff;
-  --pow-main: #ffffff;
-  --pow-dark: #e0e0e0;
-  --bam-main: #000000;
-  --bam-dark: #1a1a1a;
-  --zap-main: #ff0000;
-  --zap-dark: #cc0000;
-  --boom-main: #666666;
-  --boom-dark: #4d4d4d;
+  --panel-bg-accent: #f5f5f5;
+  --panel-border: #000000;
+
+  /* Action Button Colors - Manga */
+  --pow-light: #f0f0f0;
+  --pow-main: #e0e0e0;
+  --pow-dark: #c0c0c0;
+  --bam-light: #404040;
+  --bam-main: #1a1a1a;
+  --bam-dark: #000000;
+  --zap-light: #ff5252;
+  --zap-main: #ff1744;
+  --zap-dark: #d50000;
+  --boom-light: #808080;
+  --boom-main: #595959;
+  --boom-dark: #333333;
 }
 
 @layer base {
@@ -322,15 +382,15 @@
         0deg,
         transparent,
         transparent 2px,
-        rgba(0, 0, 0, 0.03) 2px,
-        rgba(0, 0, 0, 0.03) 4px
+        rgba(0, 0, 0, 0.02) 2px,
+        rgba(0, 0, 0, 0.02) 4px
       ),
       repeating-linear-gradient(
         90deg,
         transparent,
         transparent 2px,
-        rgba(0, 0, 0, 0.03) 2px,
-        rgba(0, 0, 0, 0.03) 4px
+        rgba(0, 0, 0, 0.02) 2px,
+        rgba(0, 0, 0, 0.02) 4px
       );
     background-size: 100px 100px;
   }
@@ -344,12 +404,12 @@
 @layer components {
   /* Comic Panel */
   .comic-panel {
-    @apply relative border-4 rounded-lg;
+    @apply relative border-3 rounded-lg;
     background-color: var(--comic-white);
-    border-color: var(--comic-black);
+    border-color: var(--panel-border);
     box-shadow:
-      4px 4px 0 var(--comic-black),
-      8px 8px 0 rgba(0, 0, 0, 0.5);
+      3px 3px 0 var(--panel-border),
+      6px 6px 0 rgba(0, 0, 0, 0.15);
     transform: rotate(-0.5deg);
   }
 
@@ -404,36 +464,44 @@
     @apply btn-comic;
     background-color: var(--pow-main);
     color: var(--comic-black);
+    border-color: var(--pow-dark);
   }
   .btn-pow:hover {
-    background-color: var(--pow-dark);
+    background-color: var(--pow-light);
+    border-color: var(--comic-black);
   }
 
   .btn-bam {
     @apply btn-comic;
     background-color: var(--bam-main);
     color: var(--comic-white);
+    border-color: var(--bam-dark);
   }
   .btn-bam:hover {
     background-color: var(--bam-dark);
+    border-color: var(--comic-black);
   }
 
   .btn-zap {
     @apply btn-comic;
     background-color: var(--zap-main);
     color: var(--comic-black);
+    border-color: var(--zap-dark);
   }
   .btn-zap:hover {
-    background-color: var(--zap-dark);
+    background-color: var(--zap-light);
+    border-color: var(--comic-black);
   }
 
   .btn-boom {
     @apply btn-comic;
     background-color: var(--boom-main);
     color: var(--comic-white);
+    border-color: var(--boom-dark);
   }
   .btn-boom:hover {
     background-color: var(--boom-dark);
+    border-color: var(--comic-black);
   }
 
   /* Comic Input */

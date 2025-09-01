@@ -1,16 +1,16 @@
 /* Brutalist Design System - SCSS Version */
 :root {
   /* Colors */
-  --color-primary: #facc15;
-  --color-dark: #000000;
-  --color-light: #ffffff;
-  --color-gray: #6b7280;
+  --color-primary: hsl(var(--primary));
+  --color-dark: hsl(var(--foreground));
+  --color-light: hsl(var(--background));
+  --color-gray: hsl(var(--muted-foreground));
   
   /* Shadows */
-  --shadow-sm: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-md: 6px 6px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-lg: 8px 8px 0px 0px rgba(0, 0, 0, 1);
-  --shadow-xl: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-sm: 4px 4px 0px 0px hsl(var(--foreground));
+  --shadow-md: 6px 6px 0px 0px hsl(var(--foreground));
+  --shadow-lg: 8px 8px 0px 0px hsl(var(--foreground));
+  --shadow-xl: 12px 12px 0px 0px hsl(var(--foreground));
   
   /* Fonts */
   font-family: 'Courier New', monospace, system-ui, -apple-system, sans-serif;

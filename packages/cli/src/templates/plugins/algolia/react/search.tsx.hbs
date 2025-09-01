@@ -27,15 +27,15 @@ const indexName = import.meta.env.VITE_ALGOLIA_INDEX_NAME || '';
 // Hit component to display search results
 function Hit({ hit }: { hit: any }) {
   return (
-    <article className="hit bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+    <article className="hit bg-card rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
       <h3 className="text-lg font-semibold mb-2">
         <Highlight attribute="title" hit={hit} />
       </h3>
-      <p className="text-gray-600 mb-2">
+      <p className="text-muted-foreground mb-2">
         <Highlight attribute="description" hit={hit} />
       </p>
       {hit.category && (
-        <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+        <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded">
           {hit.category}
         </span>
       )}
@@ -50,7 +50,7 @@ function CustomSearchBox(props: any) {
       <SearchBox
         {...props}
         placeholder="Search for anything..."
-        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full p-3 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         autoFocus
       />
     </div>
@@ -61,7 +61,7 @@ function CustomSearchBox(props: any) {
 export function AlgoliaSearch() {
   if (!import.meta.env.VITE_ALGOLIA_APP_ID || !import.meta.env.VITE_ALGOLIA_SEARCH_API_KEY) {
     return (
-      <div className="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+      <div className="p-4 bg-warning/10 border border-warning text-warning-foreground rounded">
         Please configure your Algolia credentials in your environment variables.
       </div>
     );
@@ -74,7 +74,7 @@ export function AlgoliaSearch() {
         <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Filters sidebar */}
           <div className="search-panel__filters lg:col-span-1">
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-card p-6 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold mb-4">Filters</h3>
               <div className="mb-4">
                 <h4 className="font-medium mb-2">Category</h4>
@@ -84,7 +84,7 @@ export function AlgoliaSearch() {
                 />
               </div>
               <ClearRefinements 
-                className="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded text-sm"
+                className="bg-muted hover:bg-muted/80 px-4 py-2 rounded text-sm"
               />
             </div>
           </div>
@@ -94,7 +94,7 @@ export function AlgoliaSearch() {
             <CustomSearchBox />
             
             <div className="flex justify-between items-center mb-4">
-              <Stats className="text-gray-600" />
+              <Stats className="text-muted-foreground" />
             </div>
             
             <div className="space-y-4 mb-8">

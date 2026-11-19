@@ -144,8 +144,10 @@ export function Footer() {
                 whileHover={{ scale: 1.05 }}
               >
                 <img
-                  src="https://buungroup.com/logo/logo.svg"
+                  src="https://assets.buungroup.com/brand/logo/buungroup-mark-on-dark.svg"
                   alt="Buun Group"
+                  width={32}
+                  height={32}
                   className="h-8 transition-all duration-300 group-hover:scale-110"
                 />
                 <span className="font-display text-comic-yellow group-hover:text-comic-white transition-colors">
